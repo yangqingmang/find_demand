@@ -14,40 +14,19 @@ from datetime import datetime
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 from src.core.market_analyzer import MarketAnalyzer
+from src.utils import Logger, safe_print, ValidationError, validate_analysis_params
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+市场需求分析工具 - 主入口文件
+Market Demand Analysis Toolkit - Main Entry Point
+"""
 
-def setup_console_encoding():
-    """设置控制台编码以正确显示中文"""
-    if sys.platform.startswith('win'):
-        try:
-            # Windows系统设置
-            import locale
-            import codecs
-            
-            # 设置标准输出编码
-            if hasattr(sys.stdout, 'reconfigure'):
-                sys.stdout.reconfigure(encoding='utf-8')
-            if hasattr(sys.stderr, 'reconfigure'):
-                sys.stderr.reconfigure(encoding='utf-8')
-            
-            # 设置控制台代码页为UTF-8
-            os.system('chcp 65001 >nul 2>&1')
-            
-        except Exception:
-            # 如果设置失败，使用备用方案
-            pass
-
-def safe_print(text):
-    """安全的打印函数，处理编码问题"""
-    try:
-        print(text)
-    except UnicodeEncodeError:
-        # 如果出现编码错误，移除emoji和特殊字符
-        import re
-        clean_text = re.sub(r'[^\u4e00-\u9fff\u0020-\u007f]', '', text)
-        print(clean_text)
 
 def print_quiet_summary(result):
     """静默模式下的简要结果显示"""
+    from src.utils import INTENT_TYPES
+    
     safe_print("\n分析结果摘要:")
     safe_print(f"   • 关键词总数: {result.get('关键词总数', 0)}")
     safe_print(f"   • 高分关键词: {result.get('高分关键词数', 0)}")
@@ -57,16 +36,16 @@ def print_quiet_summary(result):
     top_keywords = result.get('Top5关键词', [])[:3]
     if top_keywords:
         safe_print("\nTop 3 关键词:")
-        intent_names = {'I': '信息型', 'N': '导航型', 'C': '商业型', 'E': '交易型', 'B': '行为型'}
         for i, kw in enumerate(top_keywords):
-            intent_name = intent_names.get(kw['intent'], kw['intent'])
+            intent_name = INTENT_TYPES.get(kw['intent'], kw['intent'])
             safe_print(f"   {i+1}. {kw['query']} (分数: {kw['score']}, {intent_name})")
 
 def main():
     """主函数 - 提供统一的执行入口"""
     
-    # 设置控制台编码
-    setup_console_encoding()
+    # 创建日志记录器并设置控制台编码
+    logger = Logger()
+    logger.setup_console_encoding()
     
     safe_print("市场需求分析工具 v1.0")
     safe_print("=" * 50)
@@ -101,14 +80,18 @@ def main():
     args = parser.parse_args()
     
     # 参数验证
-    if not args.keywords:
-        safe_print("错误: 请至少提供一个关键词")
-        sys.exit(1)
-    
-    # 验证权重总和
-    total_weight = args.volume_weight + args.growth_weight + args.kd_weight
-    if not (0.99 <= total_weight <= 1.01):
-        safe_print(f"错误: 权重总和应为1.0，当前为{total_weight:.2f}")
+    try:
+        validated_params = validate_analysis_params(
+            keywords=args.keywords,
+            geo=args.geo,
+            timeframe=args.timeframe,
+            volume_weight=args.volume_weight,
+            growth_weight=args.growth_weight,
+            kd_weight=args.kd_weight,
+            min_score=args.min_score
+        )
+    except ValidationError as e:
+        safe_print(f"参数验证失败: {e}")
         sys.exit(1)
     
     # 显示分析参数

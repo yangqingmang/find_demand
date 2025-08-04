@@ -1,11 +1,21 @@
-# trends_collector.py
-# Google Trends 数据采集模块
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Google Trends 数据采集模块
+用于采集Google Trends相关查询数据
+"""
+
 import pandas as pd
 import time
 from pytrends.request import TrendReq
 import argparse
 import os
 from datetime import datetime
+
+from src.utils import (
+    FileUtils, Logger, ExceptionHandler, APIError,
+    DEFAULT_CONFIG, VALIDATION_CONSTANTS
+)
 
 class TrendsCollector:
     """Google Trends 数据采集类"""
@@ -27,6 +37,7 @@ class TrendsCollector:
         self.retries = retries
         self.backoff_factor = backoff_factor
         self.pytrends = None
+        self.logger = Logger()
         self._connect()
         
         # 设置pandas选项，消除警告
@@ -48,7 +59,7 @@ class TrendsCollector:
         返回:
             pandas.DataFrame: Rising Queries数据
         """
-        print(f"正在获取 '{keyword}' 的Rising Queries数据 (地区: {geo or '全球'})...")
+        self.logger.info(f"正在获取 '{keyword}' 的Rising Queries数据 (地区: {geo or '全球'})...")
         
         for attempt in range(self.retries):
             try:
@@ -63,30 +74,30 @@ class TrendsCollector:
                     top = related_queries[keyword]['top']
                     
                     if rising is not None and not rising.empty:
-                        print(f"成功获取 {len(rising)} 个Rising Queries")
+                        self.logger.info(f"成功获取 {len(rising)} 个Rising Queries")
                         return rising
                     elif top is not None and not top.empty:
-                        print(f"未找到Rising Queries，返回 {len(top)} 个Top Queries")
+                        self.logger.info(f"未找到Rising Queries，返回 {len(top)} 个Top Queries")
                         # 为Top查询添加默认增长率0
                         top['growth'] = 0
                         return top
                     else:
-                        print(f"未找到相关查询数据")
+                        self.logger.warning(f"未找到相关查询数据")
                         return pd.DataFrame(columns=['query', 'value', 'growth'])
                 else:
-                    print(f"未找到关键词 '{keyword}' 的相关查询数据")
+                    self.logger.warning(f"未找到关键词 '{keyword}' 的相关查询数据")
                     return pd.DataFrame(columns=['query', 'value', 'growth'])
                     
             except Exception as e:
                 wait_time = self.backoff_factor * (2 ** attempt)
                 if attempt < self.retries - 1:
-                    print(f"获取数据时出错: {e}")
-                    print(f"等待 {wait_time:.1f} 秒后重试 ({attempt+1}/{self.retries})...")
+                    self.logger.warning(f"获取数据时出错: {e}")
+                    self.logger.info(f"等待 {wait_time:.1f} 秒后重试 ({attempt+1}/{self.retries})...")
                     time.sleep(wait_time)
                     # 重新连接
                     self._connect()
                 else:
-                    print(f"多次尝试后仍然失败: {e}")
+                    self.logger.error(f"多次尝试后仍然失败: {e}")
                     return pd.DataFrame(columns=['query', 'value', 'growth'])
     
     def fetch_multiple_keywords(self, keywords, geo='', timeframe='today 3-m'):
@@ -111,7 +122,7 @@ class TrendsCollector:
             
             # 避免API限制，每次请求之间等待
             if keyword != keywords[-1]:  # 如果不是最后一个关键词
-                print("等待3秒以避免API限制...")
+                self.logger.info("等待3秒以避免API限制...")
                 time.sleep(3)
         
         return results
@@ -124,30 +135,24 @@ class TrendsCollector:
             results (dict): 关键词到DataFrame的映射
             output_dir (str): 输出目录
         """
-        # 确保输出目录存在
-        os.makedirs(output_dir, exist_ok=True)
-        
-        # 获取当前日期作为文件名一部分
-        date_str = datetime.now().strftime('%Y-%m-%d')
-        
         # 合并所有结果
         all_df = pd.concat(results.values(), ignore_index=True) if results else pd.DataFrame()
         
         if not all_df.empty:
             # 保存合并的结果
-            all_file = os.path.join(output_dir, f'trends_all_{date_str}.csv')
-            all_df.to_csv(all_file, index=False, encoding='utf-8-sig')
-            print(f"已保存所有结果到: {all_file}")
+            all_filename = FileUtils.generate_filename('trends_all', extension='csv')
+            all_file = FileUtils.save_dataframe(all_df, output_dir, all_filename)
+            self.logger.info(f"已保存所有结果到: {all_file}")
             
             # 为每个关键词保存单独的文件
             for keyword, df in results.items():
-                # 将关键词中的特殊字符替换为下划线
-                safe_keyword = keyword.replace(' ', '_').replace('/', '_')
-                file_path = os.path.join(output_dir, f'trends_{safe_keyword}_{date_str}.csv')
-                df.to_csv(file_path, index=False, encoding='utf-8-sig')
-                print(f"已保存 '{keyword}' 的结果到: {file_path}")
+                # 清理关键词作为文件名
+                safe_keyword = FileUtils.clean_filename(keyword)
+                individual_filename = FileUtils.generate_filename(f'trends_{safe_keyword}', extension='csv')
+                file_path = FileUtils.save_dataframe(df, output_dir, individual_filename)
+                self.logger.info(f"已保存 '{keyword}' 的结果到: {file_path}")
         else:
-            print("没有数据可保存")
+            self.logger.warning("没有数据可保存")
 
 
 def main():

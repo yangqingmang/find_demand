@@ -15,6 +15,11 @@ import requests
 import time
 import re
 
+from src.utils import (
+    FileUtils, Logger, ExceptionHandler, DataError,
+    DEFAULT_CONFIG, SCORE_GRADES
+)
+
 class KeywordScorer:
     """关键词评分类，用于对关键词进行综合评分"""
     
@@ -30,11 +35,13 @@ class KeywordScorer:
         self.volume_weight = volume_weight
         self.growth_weight = growth_weight
         self.kd_weight = kd_weight
+        self.logger = Logger()
         
         # 验证权重总和为1
-        total_weight = volume_weight + growth_weight + kd_weight
-        if not np.isclose(total_weight, 1.0):
-            print(f"警告: 权重总和 ({total_weight}) 不等于1，已自动归一化")
+        from src.utils import validate_weights
+        if not validate_weights(volume_weight, growth_weight, kd_weight):
+            total_weight = volume_weight + growth_weight + kd_weight
+            self.logger.warning(f"权重总和 ({total_weight}) 不等于1，已自动归一化")
             self.volume_weight /= total_weight
             self.growth_weight /= total_weight
             self.kd_weight /= total_weight
@@ -176,30 +183,10 @@ class KeywordScorer:
             丰富后的DataFrame
         """
         # 注意：这是一个模拟实现，实际使用需要替换为真实的API调用
-        print("模拟获取Google Ads数据...")
+        from src.utils.mock_data_generator import generate_mock_ads_data
         
-        result_df = df.copy()
-        
-        # 添加模拟的搜索量和竞争度数据
-        if keyword_col in result_df.columns:
-            # 生成一些随机数据作为示例
-            np.random.seed(42)  # 设置随机种子以获得可重复的结果
-            n_rows = len(result_df)
-            
-            # 模拟月搜索量 (100-10000)
-            result_df['monthly_searches'] = np.random.randint(100, 10000, size=n_rows)
-            
-            # 模拟竞争度 (0-1)
-            result_df['competition'] = np.random.random(size=n_rows)
-            
-            # 模拟CPC (0.1-5.0)
-            result_df['cpc'] = np.random.uniform(0.1, 5.0, size=n_rows).round(2)
-            
-            print(f"已添加模拟的Ads数据到 {n_rows} 个关键词")
-        else:
-            print(f"警告: 未找到关键词列 '{keyword_col}'")
-        
-        return result_df
+        self.logger.info("使用模拟数据丰富关键词信息...")
+        return generate_mock_ads_data(df, keyword_col)
     
     def save_results(self, df, output_dir='data', prefix='scored'):
         """
@@ -210,23 +197,18 @@ class KeywordScorer:
             output_dir (str): 输出目录
             prefix (str): 文件名前缀
         """
-        # 确保输出目录存在
-        os.makedirs(output_dir, exist_ok=True)
+        # 保存主要结果
+        filename = FileUtils.generate_filename(prefix, extension='csv')
+        file_path = FileUtils.save_dataframe(df, output_dir, filename)
+        self.logger.info(f"已保存评分结果到: {file_path}")
         
-        # 获取当前日期作为文件名一部分
-        date_str = datetime.now().strftime('%Y-%m-%d')
-        
-        # 保存CSV
-        file_path = os.path.join(output_dir, f'{prefix}_{date_str}.csv')
-        df.to_csv(file_path, index=False, encoding='utf-8-sig')
-        print(f"已保存评分结果到: {file_path}")
-        
-        # 保存高分关键词（分数>=70）
-        high_score_df = df[df['score'] >= 70].sort_values('score', ascending=False)
+        # 保存高分关键词
+        high_score_threshold = DEFAULT_CONFIG['high_score_threshold']
+        high_score_df = df[df['score'] >= high_score_threshold].sort_values('score', ascending=False)
         if not high_score_df.empty:
-            high_score_path = os.path.join(output_dir, f'{prefix}_high_score_{date_str}.csv')
-            high_score_df.to_csv(high_score_path, index=False, encoding='utf-8-sig')
-            print(f"已保存高分关键词 ({len(high_score_df)}个) 到: {high_score_path}")
+            high_score_filename = FileUtils.generate_filename(f'{prefix}_high_score', extension='csv')
+            high_score_path = FileUtils.save_dataframe(high_score_df, output_dir, high_score_filename)
+            self.logger.info(f"已保存高分关键词 ({len(high_score_df)}个) 到: {high_score_path}")
 
 
 def main():

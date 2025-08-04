@@ -17,69 +17,36 @@ from datetime import datetime
 from collections import Counter
 
 from src.analyzers.serp_analyzer import SerpAnalyzer
+from src.utils import (
+    INTENT_TYPES, INTENT_KEYWORDS, RECOMMENDED_ACTIONS,
+    FileUtils, Logger, ExceptionHandler, DataError
+)
 
 class IntentAnalyzer:
     """搜索意图分析类，用于判断关键词的搜索意图"""
     
-    # 意图类型定义
-    INTENT_TYPES = {
-        'I': 'Informational', # 信息型
-        'N': 'Navigational',  # 导航型
-        'C': 'Commercial',    # 商业型
-        'E': 'Transactional', # 交易型
-        'B': 'Behavioral'     # 行为型
-    }
-    
     def __init__(self, use_serp=False):
         """初始化搜索意图分析器"""
         self.use_serp = use_serp
+        self.logger = Logger()
         
         # 如果启用SERP分析，初始化SERP分析器
         if self.use_serp:
             try:
                 self.serp_analyzer = SerpAnalyzer()
-                print("已启用SERP分析功能")
+                self.logger.info("已启用SERP分析功能")
             except Exception as e:
-                print(f"SERP分析器初始化失败: {e}")
-                print("将使用基于关键词的分析方法")
+                self.logger.error(f"SERP分析器初始化失败: {e}")
+                self.logger.info("将使用基于关键词的分析方法")
                 self.use_serp = False
                 self.serp_analyzer = None
         else:
             self.serp_analyzer = None
         
-        # 意图关键词词典
-        self.intent_keywords = {
-            'I': [
-                'what', 'how', 'why', 'when', 'where', 'who', 'which', 
-                'guide', 'tutorial', 'learn', 'example', 'explain', 'meaning',
-                '什么', '如何', '为什么', '怎么', '教程', '学习', '示例', '解释', '意思'
-            ],
-            'N': [
-                'login', 'signin', 'download', 'official', 'website', 'app', 'install',
-                'account', 'dashboard', 'home', 'page', 'site', 'portal',
-                '登录', '下载', '官网', '官方', '应用', '安装', '账号', '主页'
-            ],
-            'C': [
-                'best', 'top', 'review', 'compare', 'vs', 'versus', 'alternative',
-                'comparison', 'difference', 'better', 'pricing', 'features', 'pros', 'cons',
-                '最佳', '评测', '对比', '比较', '替代', '区别', '价格', '功能', '优点', '缺点'
-            ],
-            'E': [
-                'buy', 'purchase', 'order', 'coupon', 'discount', 'deal', 'price',
-                'cheap', 'free', 'trial', 'subscription', 'template', 'download',
-                '购买', '订购', '优惠', '折扣', '价格', '便宜', '免费', '试用', '订阅', '模板'
-            ],
-            'B': [
-                'error', 'fix', 'issue', 'problem', 'bug', 'not working', 'help',
-                'support', 'troubleshoot', 'update', 'upgrade', 'integration', 'api',
-                '错误', '修复', '问题', '故障', '不工作', '帮助', '支持', '故障排除', '更新', '升级', '集成'
-            ]
-        }
-        
         # 正则表达式模式
         self.patterns = {
             intent: re.compile(r'\b(' + '|'.join(words) + r')\b', re.IGNORECASE) 
-            for intent, words in self.intent_keywords.items()
+            for intent, words in INTENT_KEYWORDS.items()
         }
     
     def detect_intent_from_keyword(self, keyword):
@@ -211,15 +178,8 @@ class IntentAnalyzer:
         返回:
             str: 推荐行动
         """
-        actions = {
-            'I': '创建教程、指南或信息图表',
-            'N': '优化登录/下载页面，提高加载速度',
-            'C': '创建对比页面或评测内容',
-            'E': '优化购买流程，添加促销信息',
-            'B': '提供故障排除指南或支持文档'
-        }
-        
-        return actions.get(intent, '创建综合内容')
+        from src.utils import get_recommended_action
+        return get_recommended_action(intent)
     
     def generate_intent_summary(self, df):
         """
@@ -269,30 +229,19 @@ class IntentAnalyzer:
             output_dir (str): 输出目录
             prefix (str): 文件名前缀
         """
-        # 确保输出目录存在
-        os.makedirs(output_dir, exist_ok=True)
-        
-        # 获取当前日期作为文件名一部分
-        date_str = datetime.now().strftime('%Y-%m-%d')
-        
-        # 保存CSV
-        file_path = os.path.join(output_dir, f'{prefix}_{date_str}.csv')
-        df.to_csv(file_path, index=False, encoding='utf-8-sig')
-        print(f"已保存意图分析结果到: {file_path}")
-        
-        # 保存摘要为JSON
-        summary_path = os.path.join(output_dir, f'{prefix}_summary_{date_str}.json')
-        with open(summary_path, 'w', encoding='utf-8') as f:
-            json.dump(summary, f, ensure_ascii=False, indent=2)
-        print(f"已保存意图分析摘要到: {summary_path}")
+        # 保存主要结果和摘要
+        saved_files = FileUtils.save_analysis_results(df, summary, output_dir, prefix)
+        self.logger.info(f"已保存意图分析结果到: {saved_files['main_results']}")
+        self.logger.info(f"已保存意图分析摘要到: {saved_files['summary']}")
         
         # 按意图分组保存
         for intent, keywords in summary['intent_keywords'].items():
             if keywords:
                 intent_df = df[df['intent'] == intent]
-                intent_path = os.path.join(output_dir, f'{prefix}_{intent}_{date_str}.csv')
-                intent_df.to_csv(intent_path, index=False, encoding='utf-8-sig')
-                print(f"已保存 {intent} ({self.INTENT_TYPES[intent]}) 意图关键词到: {intent_path}")
+                intent_filename = FileUtils.generate_filename(f'{prefix}_{intent}', extension='csv')
+                intent_path = FileUtils.save_dataframe(intent_df, output_dir, intent_filename)
+                intent_name = INTENT_TYPES.get(intent, intent)
+                self.logger.info(f"已保存 {intent} ({intent_name}) 意图关键词到: {intent_path}")
 
 
 def main():
