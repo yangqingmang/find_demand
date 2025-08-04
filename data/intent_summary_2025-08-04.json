@@ -1,0 +1,62 @@
+{
+  "total_keywords": 25,
+  "intent_counts": {
+    "I": 19,
+    "C": 5,
+    "E": 1
+  },
+  "intent_percentages": {
+    "I": 76.0,
+    "C": 20.0,
+    "E": 4.0
+  },
+  "intent_keywords": {
+    "I": [
+      "what is the term for unauthorized use of ai tools by employees without their employer's permission?",
+      "ai tools for ecommerce",
+      "claude code",
+      "ai automation tools",
+      "ai video generation tools",
+      "n8n",
+      "ai tools for small business",
+      "ai tools for business",
+      "ai tools for marketing",
+      "ai business tools",
+      "perplexity",
+      "ai sales tools",
+      "perplexity ai",
+      "ai tools list",
+      "legal ai tools",
+      "ai marketing tools",
+      "list of ai tools",
+      "ai design tools",
+      "ai tools for research"
+    ],
+    "C": [
+      "best ai seo tools 2025",
+      "top ai tools",
+      "best ai tools for business",
+      "top 10 ai tools",
+      "best ai tools"
+    ],
+    "E": [
+      "free ai tools list"
+    ]
+  },
+  "high_confidence_keywords": [
+    "what is the term for unauthorized use of ai tools by employees without their employer's permission?",
+    "best ai seo tools 2025",
+    "top ai tools",
+    "best ai tools for business",
+    "free ai tools list",
+    "top 10 ai tools",
+    "best ai tools"
+  ],
+  "intent_descriptions": {
+    "I": "Informational",
+    "N": "Navigational",
+    "C": "Commercial",
+    "E": "Transactional",
+    "B": "Behavioral"
+  }
+}

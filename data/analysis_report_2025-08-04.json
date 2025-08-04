@@ -1,0 +1,49 @@
+{
+  "分析日期": "2025-08-04",
+  "分析关键词": [
+    "free ai tools list"
+  ],
+  "地区": "US",
+  "时间范围": "today 3-m",
+  "分析耗时(秒)": 5.23,
+  "关键词总数": 25,
+  "高分关键词数": 0,
+  "意图分布": {
+    "I": 76.0,
+    "C": 20.0,
+    "E": 4.0
+  },
+  "Top5关键词": [
+    {
+      "query": "what is the term for unauthorized use of ai tools by employees without their employer's permission?",
+      "score": 50,
+      "intent": "I"
+    },
+    {
+      "query": "best ai seo tools 2025",
+      "score": 22,
+      "intent": "C"
+    },
+    {
+      "query": "ai tools for ecommerce",
+      "score": 14,
+      "intent": "I"
+    },
+    {
+      "query": "claude code",
+      "score": 14,
+      "intent": "I"
+    },
+    {
+      "query": "ai automation tools",
+      "score": 13,
+      "intent": "I"
+    }
+  ],
+  "输出文件": {
+    "Google Trends数据": "data\\trends_all_2025-08-04.csv",
+    "评分结果": "data\\scored_2025-08-04.csv",
+    "意图分析结果": "data\\intent_2025-08-04.csv",
+    "意图分析摘要": "data\\intent_summary_2025-08-04.json"
+  }
+}
