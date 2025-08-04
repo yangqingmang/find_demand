@@ -25,6 +25,34 @@
 
 项目架构清晰，每个工具都有详细的文档说明，便于理解和扩展。
 
+## 快速开始
+
+### 一键分析（推荐）
+
+```bash
+# 1. 安装依赖
+pip install -r requirements.txt
+
+# 2. 运行分析
+python run_analysis.py "ai tools"
+
+# 3. 查看结果
+# 结果会显示在控制台，详细数据保存在 data/ 目录
+```
+
+### 更多示例
+
+```bash
+# 分析特定地区市场
+python run_analysis.py "ai marketing tool" --geo US
+
+# 分析多个关键词
+python run_analysis.py "ai tools" "marketing automation" --geo US
+
+# 静默模式（只看最终结果）
+python run_analysis.py "ai tools" --quiet
+```
+
 ## 环境配置
 
 ### 系统要求
@@ -44,11 +72,12 @@ pip install -r requirements.txt
 
 | 工具名称 | 文件名 | 功能描述 | 文档链接 |
 |---------|-------|---------|---------|
+| **🚀 统一执行入口** | `run_analysis.py` | **推荐使用**：简化的一键分析工具 | [文档](docs/市场分析主工具.md) |
 | PRAY 评分工具 | `pray_score.py` | 基于人口、收入、广告成本和增长趋势的市场评估 | [文档](docs/PRAY_评分工具.md) |
 | Google Trends 数据采集工具 | `trends_collector.py` | 获取关键词的上升查询数据 | [文档](docs/Google_Trends_数据采集工具.md) |
 | 关键词评分工具 | `keyword_scorer.py` | 对关键词进行综合评分和排序 | [文档](docs/关键词评分工具.md) |
 | 搜索意图分析工具 | `intent_analyzer.py` | 分析关键词的搜索意图（INCEB框架） | [文档](docs/搜索意图分析工具.md) |
-| 市场分析主工具 | `market_analyzer.py` | 整合以上工具的一站式解决方案 | [文档](docs/市场分析主工具.md) |
+| 市场分析主工具 | `market_analyzer.py` | 整合以上工具的完整功能版本 | [文档](docs/市场分析主工具.md) |
 
 ## 开发任务列表
 
