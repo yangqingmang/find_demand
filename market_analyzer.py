@@ -184,20 +184,30 @@ class MarketAnalyzer:
         
         return report
     
+    def safe_print(self, text):
+        """安全的打印函数，处理编码问题"""
+        try:
+            print(text)
+        except UnicodeEncodeError:
+            # 如果出现编码错误，移除emoji和特殊字符
+            import re
+            clean_text = re.sub(r'[^\u4e00-\u9fff\u0020-\u007f]', '', text)
+            print(clean_text)
+    
     def print_final_summary(self, report, summary):
         """打印最终结果摘要"""
-        print("\n" + "="*80)
-        print("🎯 市场需求分析完成!")
-        print("="*80)
+        self.safe_print("\n" + "="*80)
+        self.safe_print("市场需求分析完成!")
+        self.safe_print("="*80)
         
-        print(f"📊 分析概览:")
-        print(f"   • 分析关键词: {', '.join(report['分析关键词'])}")
-        print(f"   • 目标地区: {report['地区']}")
-        print(f"   • 分析耗时: {report['分析耗时(秒)']} 秒")
-        print(f"   • 发现关键词: {report['关键词总数']} 个")
-        print(f"   • 高分关键词: {report['高分关键词数']} 个")
+        self.safe_print("分析概览:")
+        self.safe_print(f"   • 分析关键词: {', '.join(report['分析关键词'])}")
+        self.safe_print(f"   • 目标地区: {report['地区']}")
+        self.safe_print(f"   • 分析耗时: {report['分析耗时(秒)']} 秒")
+        self.safe_print(f"   • 发现关键词: {report['关键词总数']} 个")
+        self.safe_print(f"   • 高分关键词: {report['高分关键词数']} 个")
         
-        print(f"\n🎯 搜索意图分布:")
+        self.safe_print("\n搜索意图分布:")
         intent_names = {
             'I': '信息型', 'N': '导航型', 'C': '商业型', 
             'E': '交易型', 'B': '行为型'
@@ -206,21 +216,21 @@ class MarketAnalyzer:
             intent_name = intent_names.get(intent, intent)
             bar_length = int(percentage / 5)  # 每5%一个字符
             bar = "█" * bar_length + "░" * (20 - bar_length)
-            print(f"   {intent} ({intent_name:4s}): {bar} {percentage:5.1f}%")
+            self.safe_print(f"   {intent} ({intent_name:4s}): {bar} {percentage:5.1f}%")
         
-        print(f"\n🏆 Top 5 高分关键词:")
+        self.safe_print("\nTop 5 高分关键词:")
         for i, kw in enumerate(report["Top5关键词"]):
             intent_name = intent_names.get(kw['intent'], kw['intent'])
-            print(f"   {i+1}. {kw['query']:<40} 分数: {kw['score']:3d} | 意图: {intent_name}")
+            self.safe_print(f"   {i+1}. {kw['query']:<40} 分数: {kw['score']:3d} | 意图: {intent_name}")
         
-        print(f"\n📁 输出文件:")
+        self.safe_print("\n输出文件:")
         for desc, path in report['输出文件'].items():
-            print(f"   • {desc}: {path}")
+            self.safe_print(f"   • {desc}: {path}")
         
-        print(f"\n💡 建议:")
+        self.safe_print("\n建议:")
         self.print_recommendations(report, summary)
         
-        print("="*80)
+        self.safe_print("="*80)
     
     def print_recommendations(self, report, summary):
         """打印分析建议"""
@@ -229,22 +239,22 @@ class MarketAnalyzer:
         
         # 基于意图分布的建议
         if intent_dist.get('I', 0) > 60:
-            print("   🔍 信息型关键词占主导，建议创建教育性内容和指南")
+            self.safe_print("   信息型关键词占主导，建议创建教育性内容和指南")
         if intent_dist.get('C', 0) > 30:
-            print("   💰 商业型关键词较多，建议优化产品页面和比较内容")
+            self.safe_print("   商业型关键词较多，建议优化产品页面和比较内容")
         if intent_dist.get('E', 0) > 20:
-            print("   🛒 交易型关键词较多，建议优化购买流程和着陆页")
+            self.safe_print("   交易型关键词较多，建议优化购买流程和着陆页")
         
         # 基于高分关键词的建议
         if report['高分关键词数'] > 0:
-            print(f"   ⭐ 发现 {report['高分关键词数']} 个高潜力关键词，建议优先投入资源")
+            self.safe_print(f"   发现 {report['高分关键词数']} 个高潜力关键词，建议优先投入资源")
         
         # 基于Top关键词的建议
         if top_keywords:
             top_intent = max(set(kw['intent'] for kw in top_keywords), 
                            key=lambda x: sum(1 for kw in top_keywords if kw['intent'] == x))
             intent_names = {'I': '信息型', 'N': '导航型', 'C': '商业型', 'E': '交易型', 'B': '行为型'}
-            print(f"   🎯 Top关键词主要为{intent_names.get(top_intent, top_intent)}，建议针对性优化内容策略")
+            self.safe_print(f"   Top关键词主要为{intent_names.get(top_intent, top_intent)}，建议针对性优化内容策略")
         
         return report
 

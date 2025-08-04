@@ -11,11 +11,46 @@ import os
 from datetime import datetime
 from market_analyzer import MarketAnalyzer
 
+# 设置控制台编码，解决中文显示问题
+def setup_console_encoding():
+    """设置控制台编码以正确显示中文"""
+    if sys.platform.startswith('win'):
+        try:
+            # Windows系统设置
+            import locale
+            import codecs
+            
+            # 设置标准输出编码
+            if hasattr(sys.stdout, 'reconfigure'):
+                sys.stdout.reconfigure(encoding='utf-8')
+            if hasattr(sys.stderr, 'reconfigure'):
+                sys.stderr.reconfigure(encoding='utf-8')
+            
+            # 设置控制台代码页为UTF-8
+            os.system('chcp 65001 >nul 2>&1')
+            
+        except Exception:
+            # 如果设置失败，使用备用方案
+            pass
+
+def safe_print(text):
+    """安全的打印函数，处理编码问题"""
+    try:
+        print(text)
+    except UnicodeEncodeError:
+        # 如果出现编码错误，移除emoji和特殊字符
+        import re
+        clean_text = re.sub(r'[^\u4e00-\u9fff\u0020-\u007f]', '', text)
+        print(clean_text)
+
 def main():
     """主函数 - 提供简化的执行入口"""
     
-    print("🚀 市场需求分析工具")
-    print("=" * 50)
+    # 设置控制台编码
+    setup_console_encoding()
+    
+    safe_print("市场需求分析工具")
+    safe_print("=" * 50)
     
     # 解析命令行参数
     parser = argparse.ArgumentParser(
@@ -43,18 +78,18 @@ def main():
     
     # 参数验证
     if not args.keywords:
-        print("❌ 错误: 请至少提供一个关键词")
+        safe_print("错误: 请至少提供一个关键词")
         sys.exit(1)
     
     # 显示分析参数
     if not args.quiet:
-        print(f"📋 分析参数:")
-        print(f"   关键词: {', '.join(args.keywords)}")
-        print(f"   地区: {args.geo or '全球'}")
-        print(f"   时间范围: {args.timeframe}")
-        print(f"   最低评分: {args.min_score}")
-        print(f"   输出目录: {args.output}")
-        print()
+        safe_print("分析参数:")
+        safe_print(f"   关键词: {', '.join(args.keywords)}")
+        safe_print(f"   地区: {args.geo or '全球'}")
+        safe_print(f"   时间范围: {args.timeframe}")
+        safe_print(f"   最低评分: {args.min_score}")
+        safe_print(f"   输出目录: {args.output}")
+        safe_print("")
     
     try:
         # 创建分析器
@@ -88,7 +123,7 @@ def main():
         
         # 检查结果
         if 'error' in result:
-            print(f"❌ 分析失败: {result['error']}")
+            safe_print(f"分析失败: {result['error']}")
             sys.exit(1)
         
         # 如果是静默模式，只显示关键信息
@@ -96,14 +131,15 @@ def main():
             print_quiet_summary(result)
         
         # 显示成功信息
-        print(f"\n✅ 分析完成! 详细结果已保存到 {args.output} 目录")
-        print(f"📊 分析报告: {result['输出文件']['分析报告'] if '分析报告' in result.get('输出文件', {}) else os.path.join(args.output, f'analysis_report_{datetime.now().strftime(\"%Y-%m-%d\")}.json')}")
+        safe_print(f"\n分析完成! 详细结果已保存到 {args.output} 目录")
+        report_file = result.get('输出文件', {}).get('分析报告', os.path.join(args.output, f'analysis_report_{datetime.now().strftime("%Y-%m-%d")}.json'))
+        safe_print(f"分析报告: {report_file}")
         
     except KeyboardInterrupt:
-        print("\n⚠️  分析被用户中断")
+        safe_print("\n分析被用户中断")
         sys.exit(1)
     except Exception as e:
-        print(f"❌ 分析过程中出现错误: {str(e)}")
+        safe_print(f"分析过程中出现错误: {str(e)}")
         if args.verbose:
             import traceback
             traceback.print_exc()
@@ -111,19 +147,19 @@ def main():
 
 def print_quiet_summary(result):
     """静默模式下的简要结果显示"""
-    print("\n📊 分析结果摘要:")
-    print(f"   • 关键词总数: {result.get('关键词总数', 0)}")
-    print(f"   • 高分关键词: {result.get('高分关键词数', 0)}")
-    print(f"   • 分析耗时: {result.get('分析耗时(秒)', 0)} 秒")
+    safe_print("\n分析结果摘要:")
+    safe_print(f"   • 关键词总数: {result.get('关键词总数', 0)}")
+    safe_print(f"   • 高分关键词: {result.get('高分关键词数', 0)}")
+    safe_print(f"   • 分析耗时: {result.get('分析耗时(秒)', 0)} 秒")
     
     # 显示Top 3关键词
     top_keywords = result.get('Top5关键词', [])[:3]
     if top_keywords:
-        print(f"\n🏆 Top 3 关键词:")
+        safe_print("\nTop 3 关键词:")
         intent_names = {'I': '信息型', 'N': '导航型', 'C': '商业型', 'E': '交易型', 'B': '行为型'}
         for i, kw in enumerate(top_keywords):
             intent_name = intent_names.get(kw['intent'], kw['intent'])
-            print(f"   {i+1}. {kw['query']} (分数: {kw['score']}, {intent_name})")
+            safe_print(f"   {i+1}. {kw['query']} (分数: {kw['score']}, {intent_name})")
 
 if __name__ == "__main__":
     main()
