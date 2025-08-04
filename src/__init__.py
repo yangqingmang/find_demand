@@ -11,12 +11,12 @@ from .core.market_analyzer import MarketAnalyzer
 from .collectors.trends_collector import TrendsCollector
 from .analyzers.keyword_scorer import KeywordScorer
 from .analyzers.intent_analyzer import IntentAnalyzer
-from .utils.config import DEFAULT_CONFIG
+from .analyzers.serp_analyzer import SerpAnalyzer
 
 __all__ = [
     'MarketAnalyzer',
     'TrendsCollector', 
     'KeywordScorer',
     'IntentAnalyzer',
-    'DEFAULT_CONFIG'
+    'SerpAnalyzer'
 ]

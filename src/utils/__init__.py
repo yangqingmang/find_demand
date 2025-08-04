@@ -1,14 +1,11 @@
 """
 工具模块 - Utilities
-包含配置、辅助函数等通用工具
+包含辅助函数等通用工具
+
+注意: 配置管理已迁移到 src/config/settings.py
 """
 
-from .config import DEFAULT_CONFIG, GEO_CODES, TIMEFRAME_OPTIONS, INTENT_TYPES, SCORE_GRADES
+# 工具模块现在主要用于存放辅助函数
+# 配置管理请使用 src/config/settings.py
 
-__all__ = [
-    'DEFAULT_CONFIG',
-    'GEO_CODES', 
-    'TIMEFRAME_OPTIONS',
-    'INTENT_TYPES',
-    'SCORE_GRADES'
-]
+__all__ = []

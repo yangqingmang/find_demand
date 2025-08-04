@@ -16,6 +16,8 @@ import time
 from datetime import datetime
 from collections import Counter
 
+from src.analyzers.serp_analyzer import SerpAnalyzer
+
 class IntentAnalyzer:
     """搜索意图分析类，用于判断关键词的搜索意图"""
     
@@ -28,8 +30,23 @@ class IntentAnalyzer:
         'B': 'Behavioral'     # 行为型
     }
     
-    def __init__(self):
+    def __init__(self, use_serp=False):
         """初始化搜索意图分析器"""
+        self.use_serp = use_serp
+        
+        # 如果启用SERP分析，初始化SERP分析器
+        if self.use_serp:
+            try:
+                self.serp_analyzer = SerpAnalyzer()
+                print("已启用SERP分析功能")
+            except Exception as e:
+                print(f"SERP分析器初始化失败: {e}")
+                print("将使用基于关键词的分析方法")
+                self.use_serp = False
+                self.serp_analyzer = None
+        else:
+            self.serp_analyzer = None
+        
         # 意图关键词词典
         self.intent_keywords = {
             'I': [
@@ -99,37 +116,33 @@ class IntentAnalyzer:
         
         return (primary_intent, confidence, secondary_intent)
     
-    def detect_intent_from_serp(self, serp_data):
+    def detect_intent_from_serp(self, keyword):
         """
-        从SERP数据判断搜索意图（模拟实现）
+        从SERP数据判断搜索意图（真实实现）
         
         参数:
-            serp_data (dict): SERP数据
+            keyword (str): 关键词
             
         返回:
             tuple: (主要意图, 置信度, 次要意图)
         """
-        # 注意：这是一个模拟实现，实际使用需要替换为真实的SERP分析
+        if not self.use_serp or not self.serp_analyzer:
+            # 如果未启用SERP分析，返回默认值
+            return ('I', 0.5, None)
         
-        # 模拟SERP特征
-        features = {
-            'ads_count': serp_data.get('ads_count', 0),
-            'has_paa': serp_data.get('has_paa', False),
-            'has_featured_snippet': serp_data.get('has_featured_snippet', False),
-            'has_shopping': serp_data.get('has_shopping', False),
-            'has_video': serp_data.get('has_video', False),
-            'title_keywords': serp_data.get('title_keywords', [])
-        }
-        
-        # 基于SERP特征的意图判断规则
-        if features['ads_count'] >= 3 or features['has_shopping']:
-            return ('E', 0.8, 'C')
-        elif features['has_featured_snippet'] or features['has_paa']:
-            return ('I', 0.7, None)
-        elif any(kw in features['title_keywords'] for kw in ['best', 'top', 'review', 'vs']):
-            return ('C', 0.75, 'I')
-        else:
-            return ('I', 0.6, None)  # 默认为信息型
+        try:
+            # 使用SERP分析器分析关键词
+            result = self.serp_analyzer.analyze_keyword_serp(keyword)
+            
+            if 'error' in result:
+                print(f"SERP分析失败: {result['error']}")
+                return ('I', 0.5, None)
+            
+            return (result['intent'], result['confidence'], result['secondary_intent'])
+            
+        except Exception as e:
+            print(f"SERP分析出错: {e}")
+            return ('I', 0.5, None)
     
     def analyze_keywords(self, df, keyword_col='query'):
         """
@@ -164,8 +177,20 @@ class IntentAnalyzer:
         for idx, row in result_df.iterrows():
             keyword = str(row[keyword_col])
             
-            # 从关键词文本判断意图
-            intent, confidence, secondary = self.detect_intent_from_keyword(keyword)
+            # 选择分析方法
+            if self.use_serp:
+                # 使用SERP分析
+                print(f"正在分析关键词 ({idx+1}/{len(result_df)}): {keyword}")
+                intent, confidence, secondary = self.detect_intent_from_serp(keyword)
+                
+                # 如果SERP分析失败，回退到关键词分析
+                if confidence <= 0.5:
+                    keyword_intent, keyword_confidence, keyword_secondary = self.detect_intent_from_keyword(keyword)
+                    if keyword_confidence > confidence:
+                        intent, confidence, secondary = keyword_intent, keyword_confidence, keyword_secondary
+            else:
+                # 仅使用关键词文本分析
+                intent, confidence, secondary = self.detect_intent_from_keyword(keyword)
             
             # 更新DataFrame
             result_df.at[idx, 'intent'] = intent
@@ -276,6 +301,7 @@ def main():
     parser.add_argument('--input', required=True, help='输入CSV文件路径')
     parser.add_argument('--output', default='data', help='输出目录，默认为data')
     parser.add_argument('--keyword-col', default='query', help='关键词列名，默认为query')
+    parser.add_argument('--use-serp', action='store_true', help='启用SERP分析（需要Google API配置）')
     
     args = parser.parse_args()
     
@@ -293,7 +319,11 @@ def main():
         return
     
     # 创建意图分析器
-    analyzer = IntentAnalyzer()
+    analyzer = IntentAnalyzer(use_serp=args.use_serp)
+    
+    if args.use_serp:
+        print("注意: 启用SERP分析将消耗Google API配额，请确保已正确配置API密钥")
+        print("分析过程可能需要较长时间，请耐心等待...")
     
     # 分析关键词意图
     result_df = analyzer.analyze_keywords(df, args.keyword_col)
@@ -309,6 +339,9 @@ def main():
     for intent, count in summary['intent_counts'].items():
         percentage = summary['intent_percentages'][intent]
         print(f"  {intent} ({analyzer.INTENT_TYPES[intent]}): {count} 个关键词 ({percentage}%)")
+    
+    if args.use_serp:
+        print(f"\n已完成SERP增强的意图分析，结果保存到: {args.output}")
 
 
 if __name__ == "__main__":

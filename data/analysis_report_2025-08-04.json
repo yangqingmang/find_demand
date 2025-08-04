@@ -1,16 +1,36 @@
 {
   "分析日期": "2025-08-04",
   "分析关键词": [
-    "best ai tool for coding"
+    "veo 3",
+    "veo 3 ai",
+    "higgsfield ai",
+    "ai mode",
+    "magic light ai",
+    "google ai pro",
+    "cross market ai",
+    "dreamina ai",
+    "hedra ai",
+    "google studio ai",
+    "scale ai",
+    "agentic ai",
+    "cloud ai",
+    "ai studio",
+    "lovable ai",
+    "google ai",
+    "google gemini ai",
+    "google gemini",
+    "heygen ai",
+    "notebooklm",
+    "sora ai",
+    "polybuzz ai"
   ],
   "地区": "全球",
   "时间范围": "today 3-m",
-  "分析耗时(秒)": 2.91,
-  "关键词总数": 19,
+  "分析耗时(秒)": 5.49,
+  "关键词总数": 22,
   "高分关键词数": 0,
   "意图分布": {
-    "I": 94.7,
-    "C": 5.3
+    "I": 100.0
   },
   "Top5关键词": [
     {
@@ -19,30 +39,30 @@
       "intent": "I"
     },
     {
-      "query": "ai coding tool deletes database",
-      "score": 15,
+      "query": "veo 3 ai",
+      "score": 50,
+      "intent": "I"
+    },
+    {
+      "query": "higgsfield ai",
+      "score": 16,
       "intent": "I"
     },
     {
       "query": "ai mode",
-      "score": 10,
+      "score": 12,
       "intent": "I"
     },
     {
-      "query": "n8n",
-      "score": 10,
-      "intent": "I"
-    },
-    {
-      "query": "google ai studio",
-      "score": 10,
+      "query": "magic light ai",
+      "score": 12,
       "intent": "I"
     }
   ],
   "输出文件": {
-    "Google Trends数据": "data\\trends_all_2025-08-04.csv",
-    "评分结果": "data\\scored_2025-08-04.csv",
-    "意图分析结果": "data\\intent_2025-08-04.csv",
-    "意图分析摘要": "data\\intent_summary_2025-08-04.json"
+    "Google Trends数据": "data/trends_all_2025-08-04.csv",
+    "评分结果": "data/scored_2025-08-04.csv",
+    "意图分析结果": "data/intent_2025-08-04.csv",
+    "意图分析摘要": "data/intent_summary_2025-08-04.json"
   }
 }
