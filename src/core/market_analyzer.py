@@ -1,5 +1,10 @@
-# market_analyzer.py
-# 市场需求分析工具集主脚本
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+市场需求分析工具集主脚本
+Market Analyzer - 核心分析器
+"""
+
 import argparse
 import os
 import sys
@@ -10,13 +15,15 @@ import pandas as pd
 
 # 导入各个模块
 try:
-    from trends_collector import TrendsCollector
-    from keyword_scorer import KeywordScorer
-    from intent_analyzer import IntentAnalyzer
-except ImportError as e:
-    print(f"错误: 无法导入必要模块 - {e}")
-    print("请确保所有模块文件在同一目录下")
-    sys.exit(1)
+    from ..collectors.trends_collector import TrendsCollector
+    from ..analyzers.keyword_scorer import KeywordScorer
+    from ..analyzers.intent_analyzer import IntentAnalyzer
+except ImportError:
+    # 兼容直接运行的情况
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from collectors.trends_collector import TrendsCollector
+    from analyzers.keyword_scorer import KeywordScorer
+    from analyzers.intent_analyzer import IntentAnalyzer
 
 class MarketAnalyzer:
     """市场需求分析工具集主类"""

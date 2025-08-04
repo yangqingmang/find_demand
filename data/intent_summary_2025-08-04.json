@@ -1,56 +1,40 @@
 {
-  "total_keywords": 25,
+  "total_keywords": 19,
   "intent_counts": {
-    "I": 19,
-    "C": 5,
-    "E": 1
+    "I": 18,
+    "C": 1
   },
   "intent_percentages": {
-    "I": 76.0,
-    "C": 20.0,
-    "E": 4.0
+    "I": 94.7,
+    "C": 5.3
   },
   "intent_keywords": {
     "I": [
-      "what is the term for unauthorized use of ai tools by employees without their employer's permission?",
-      "ai tools for ecommerce",
-      "claude code",
-      "ai automation tools",
-      "ai video generation tools",
+      "veo 3",
+      "ai coding tool deletes database",
+      "ai mode",
       "n8n",
-      "ai tools for small business",
-      "ai tools for business",
-      "ai tools for marketing",
-      "ai business tools",
+      "google ai studio",
+      "undress",
+      "ai tool hunt",
+      "deepfake ai tool",
+      "openai",
       "perplexity",
-      "ai sales tools",
       "perplexity ai",
-      "ai tools list",
-      "legal ai tools",
-      "ai marketing tools",
-      "list of ai tools",
-      "ai design tools",
-      "ai tools for research"
+      "cursor ai",
+      "perplexity ai tool",
+      "cursor",
+      "gemini ai",
+      "meta ai",
+      "open ai",
+      "sora ai tool"
     ],
     "C": [
-      "best ai seo tools 2025",
-      "top ai tools",
-      "best ai tools for business",
-      "top 10 ai tools",
-      "best ai tools"
-    ],
-    "E": [
-      "free ai tools list"
+      "best ai tool for coding"
     ]
   },
   "high_confidence_keywords": [
-    "what is the term for unauthorized use of ai tools by employees without their employer's permission?",
-    "best ai seo tools 2025",
-    "top ai tools",
-    "best ai tools for business",
-    "free ai tools list",
-    "top 10 ai tools",
-    "best ai tools"
+    "best ai tool for coding"
   ],
   "intent_descriptions": {
     "I": "Informational",

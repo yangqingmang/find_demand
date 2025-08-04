@@ -1,42 +1,41 @@
 {
   "分析日期": "2025-08-04",
   "分析关键词": [
-    "free ai tools list"
+    "best ai tool for coding"
   ],
-  "地区": "US",
+  "地区": "全球",
   "时间范围": "today 3-m",
-  "分析耗时(秒)": 5.23,
-  "关键词总数": 25,
+  "分析耗时(秒)": 2.91,
+  "关键词总数": 19,
   "高分关键词数": 0,
   "意图分布": {
-    "I": 76.0,
-    "C": 20.0,
-    "E": 4.0
+    "I": 94.7,
+    "C": 5.3
   },
   "Top5关键词": [
     {
-      "query": "what is the term for unauthorized use of ai tools by employees without their employer's permission?",
+      "query": "veo 3",
       "score": 50,
       "intent": "I"
     },
     {
-      "query": "best ai seo tools 2025",
-      "score": 22,
-      "intent": "C"
-    },
-    {
-      "query": "ai tools for ecommerce",
-      "score": 14,
+      "query": "ai coding tool deletes database",
+      "score": 15,
       "intent": "I"
     },
     {
-      "query": "claude code",
-      "score": 14,
+      "query": "ai mode",
+      "score": 10,
       "intent": "I"
     },
     {
-      "query": "ai automation tools",
-      "score": 13,
+      "query": "n8n",
+      "score": 10,
+      "intent": "I"
+    },
+    {
+      "query": "google ai studio",
+      "score": 10,
       "intent": "I"
     }
   ],

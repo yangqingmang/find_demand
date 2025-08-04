@@ -1,5 +1,10 @@
-# intent_analyzer.py
-# 搜索意图分析工具
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+搜索意图分析工具 - Intent Analyzer
+用于判断关键词的搜索意图类型
+"""
+
 import pandas as pd
 import numpy as np
 import os

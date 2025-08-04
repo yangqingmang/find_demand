@@ -1,5 +1,10 @@
-# keyword_scorer.py
-# 关键词评分模块
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+关键词评分模块 - Keyword Scorer
+基于多维度指标对关键词进行综合评分
+"""
+
 import pandas as pd
 import numpy as np
 import os
