@@ -43,6 +43,11 @@ class IntentAnalyzer:
         else:
             self.serp_analyzer = None
         
+        # 导入常量
+        self.INTENT_TYPES = INTENT_TYPES
+        self.INTENT_KEYWORDS = INTENT_KEYWORDS
+        self.RECOMMENDED_ACTIONS = RECOMMENDED_ACTIONS
+        
         # 正则表达式模式
         self.patterns = {
             intent: re.compile(r'\b(' + '|'.join(words) + r')\b', re.IGNORECASE) 

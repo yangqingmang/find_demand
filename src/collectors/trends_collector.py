@@ -16,6 +16,8 @@ from src.utils import (
     FileUtils, Logger, ExceptionHandler, APIError,
     DEFAULT_CONFIG, VALIDATION_CONSTANTS
 )
+from src.config.settings import config
+from src.utils.mock_data_generator import MockDataGenerator
 
 class TrendsCollector:
     """Google Trends 数据采集类"""
@@ -60,6 +62,16 @@ class TrendsCollector:
             pandas.DataFrame: Rising Queries数据
         """
         self.logger.info(f"正在获取 '{keyword}' 的Rising Queries数据 (地区: {geo or '全球'})...")
+        
+        # 如果启用模拟模式，返回模拟数据
+        if config.MOCK_MODE:
+            self.logger.info("🔧 模拟模式：生成模拟趋势数据")
+            mock_generator = MockDataGenerator()
+            mock_results = mock_generator.generate_trends_data([keyword], geo, timeframe)
+            if keyword in mock_results:
+                return mock_results[keyword]
+            else:
+                return pd.DataFrame(columns=['query', 'value', 'growth'])
         
         for attempt in range(self.retries):
             try:
@@ -112,6 +124,12 @@ class TrendsCollector:
         返回:
             dict: 关键词到DataFrame的映射
         """
+        # 如果启用模拟模式，直接生成所有关键词的模拟数据
+        if config.MOCK_MODE:
+            self.logger.info("🔧 模拟模式：批量生成模拟趋势数据")
+            mock_generator = MockDataGenerator()
+            return mock_generator.generate_trends_data(keywords, geo, timeframe)
+        
         results = {}
         
         for keyword in keywords:
@@ -126,6 +144,49 @@ class TrendsCollector:
                 time.sleep(3)
         
         return results
+    
+    def collect_rising_queries(self, keywords, geo='', timeframe='today 3-m'):
+        """
+        为主分析器提供的统一接口
+        
+        参数:
+            keywords (list): 种子关键词列表
+            geo (str): 地区代码
+            timeframe (str): 时间范围
+            
+        返回:
+            pandas.DataFrame: 合并后的所有关键词数据
+        """
+        results = self.fetch_multiple_keywords(keywords, geo, timeframe)
+        
+        if results:
+            # 合并所有结果
+            all_df = pd.concat(results.values(), ignore_index=True)
+            
+            # 重命名列以匹配预期格式
+            if 'value' in all_df.columns:
+                all_df = all_df.rename(columns={'value': 'volume'})
+            
+            # 处理增长率数据
+            if 'growth' in all_df.columns:
+                # 将增长率从字符串转换为数值
+                def parse_growth(growth_val):
+                    if pd.isna(growth_val) or growth_val == 0:
+                        return 0
+                    if isinstance(growth_val, str):
+                        # 移除%符号并转换为数值
+                        return float(growth_val.replace('%', '').replace('+', ''))
+                    return float(growth_val)
+                
+                all_df['growth_rate'] = all_df['growth'].apply(parse_growth)
+            else:
+                all_df['growth_rate'] = 0
+            
+            self.logger.info(f"成功收集到 {len(all_df)} 个关键词的趋势数据")
+            return all_df
+        else:
+            self.logger.warning("未收集到任何趋势数据")
+            return pd.DataFrame(columns=['query', 'volume', 'growth_rate', 'seed_keyword'])
     
     def save_results(self, results, output_dir='data'):
         """

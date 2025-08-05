@@ -30,6 +30,11 @@ class Config:
             print("未找到 .env 配置文件，将使用系统环境变量")
     
     @property
+    def MOCK_MODE(self):
+        """是否启用模拟模式"""
+        return os.getenv('MOCK_MODE', 'false').lower() == 'true'
+    
+    @property
     def GOOGLE_API_KEY(self):
         """Google API密钥 - 支持多种获取方式"""
         return (
@@ -112,6 +117,11 @@ class Config:
 
     def validate(self, require_ads_api=False):
         """验证配置是否完整"""
+        # 如果是模拟模式，跳过验证
+        if self.MOCK_MODE:
+            print("🔧 模拟模式已启用，跳过API密钥验证")
+            return True
+            
         missing = []
         
         # 基础配置验证
@@ -139,8 +149,9 @@ class Config:
             error_msg += "1. 复制 config/.env.template 为 config/.env 并填入API密钥\n"
             error_msg += "2. 设置系统环境变量\n"
             error_msg += "3. 创建 ~/.find_demand/.env 文件\n"
+            error_msg += "4. 或者启用模拟模式进行测试: MOCK_MODE=true\n"
             if require_ads_api:
-                error_msg += "4. 运行 python setup_config.py 配置 Google Ads API"
+                error_msg += "5. 运行 python setup_config.py 配置 Google Ads API"
             raise ValueError(error_msg)
         
         return True
@@ -155,11 +166,33 @@ class Config:
     def show_config_status(self):
         """显示配置状态"""
         print("=== 配置状态 ===")
-        print(f"Google API Key: {'✓ 已配置' if self.GOOGLE_API_KEY else '✗ 未配置'}")
-        print(f"Google CSE ID: {'✓ 已配置' if self.GOOGLE_CSE_ID else '✗ 未配置'}")
+        if self.MOCK_MODE:
+            print("🔧 模拟模式: 启用")
+            print("Google API Key: ✓ 模拟配置")
+            print("Google CSE ID: ✓ 模拟配置")
+        else:
+            print("🔧 模拟模式: 禁用")
+            print(f"Google API Key: {'✓ 已配置' if self.GOOGLE_API_KEY else '✗ 未配置'}")
+            print(f"Google CSE ID: {'✓ 已配置' if self.GOOGLE_CSE_ID else '✗ 未配置'}")
+        
         print(f"SERP缓存: {'启用' if self.SERP_CACHE_ENABLED else '禁用'}")
         print(f"缓存时长: {self.SERP_CACHE_DURATION}秒")
         print(f"请求延迟: {self.SERP_REQUEST_DELAY}秒")
+        
+        # Google Ads API 状态
+        print("\nGoogle Ads API 配置:")
+        if self.MOCK_MODE:
+            print("  Developer Token: ✓ 模拟配置")
+            print("  Client ID: ✓ 模拟配置")
+            print("  Client Secret: ✓ 模拟配置")
+            print("  Refresh Token: ✓ 模拟配置")
+            print("  Customer ID: ✓ 模拟配置")
+        else:
+            print(f"  Developer Token: {'✓ 已配置' if self.GOOGLE_ADS_DEVELOPER_TOKEN else '✗ 未配置'}")
+            print(f"  Client ID: {'✓ 已配置' if self.GOOGLE_ADS_CLIENT_ID else '✗ 未配置'}")
+            print(f"  Client Secret: {'✓ 已配置' if self.GOOGLE_ADS_CLIENT_SECRET else '✗ 未配置'}")
+            print(f"  Refresh Token: {'✓ 已配置' if self.GOOGLE_ADS_REFRESH_TOKEN else '✗ 未配置'}")
+            print(f"  Customer ID: {'✓ 已配置' if self.GOOGLE_ADS_CUSTOMER_ID else '✗ 未配置'}")
 
 # 创建全局配置实例
 config = Config()

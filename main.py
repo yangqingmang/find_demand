@@ -118,18 +118,18 @@ def main():
             
             log_buffer = io.StringIO()
             with redirect_stdout(log_buffer):
-    # 运行分析
-    result = analyzer.run_analysis(
-        keywords=keywords,
-        geo=args.geo,
-        timeframe=args.timeframe,
-        volume_weight=args.volume_weight,
-        growth_weight=args.growth_weight,
-        kd_weight=args.kd_weight,
-        min_score=args.min_score,
-        enrich=not args.no_enrich,
-        use_ads_data=args.use_ads_data
-    )
+                # 运行分析
+                result = analyzer.run_analysis(
+                    keywords=args.keywords,
+                    geo=args.geo,
+                    timeframe=args.timeframe,
+                    volume_weight=args.volume_weight,
+                    growth_weight=args.growth_weight,
+                    kd_weight=args.kd_weight,
+                    min_score=args.min_score,
+                    enrich=not args.no_enrich,
+                    use_ads_data=args.use_ads_data
+                )
         else:
             # 正常模式运行
             result = analyzer.run_analysis(
@@ -140,7 +140,8 @@ def main():
                 growth_weight=args.growth_weight,
                 kd_weight=args.kd_weight,
                 min_score=args.min_score,
-                enrich=not args.no_enrich
+                enrich=not args.no_enrich,
+                use_ads_data=args.use_ads_data
             )
         
         # 检查结果

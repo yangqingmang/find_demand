@@ -1,0 +1,153 @@
+# AI工具种子关键词库
+# 为海外AI工具站准备的核心关键词
+
+## 通用AI工具
+ai tools
+artificial intelligence tools
+ai software
+ai applications
+ai platforms
+machine learning tools
+deep learning tools
+neural network tools
+
+## 对话AI工具
+chatgpt
+claude
+bard
+gemini
+chatbot
+ai assistant
+conversational ai
+ai chat
+dialogue ai
+
+## 图像生成AI
+midjourney
+dall-e
+stable diffusion
+ai image generator
+ai art generator
+text to image
+ai artwork
+ai design tools
+
+## 视频AI工具
+runway ml
+synthesia
+luma ai
+ai video generator
+ai video editor
+text to video
+ai animation
+deepfake tools
+
+## 音频AI工具
+elevenlabs
+murf ai
+speechify
+ai voice generator
+text to speech
+ai music generator
+voice cloning
+audio ai
+
+## 写作AI工具
+jasper ai
+copy ai
+writesonic
+grammarly
+ai writing assistant
+content generator
+ai copywriting
+blog generator
+
+## 代码AI工具
+github copilot
+codeium
+tabnine
+ai coding assistant
+code generator
+programming ai
+ai debugger
+code completion
+
+## 商业AI工具
+notion ai
+zapier
+ai automation
+business intelligence
+ai analytics
+crm ai
+sales ai
+marketing ai
+
+## 研究AI工具
+perplexity
+consensus
+elicit
+ai research assistant
+academic ai
+literature review ai
+data analysis ai
+scientific ai
+
+## 设计AI工具
+canva ai
+figma ai
+adobe ai
+ui design ai
+logo generator
+graphic design ai
+web design ai
+prototype ai
+
+## 翻译AI工具
+deepl
+google translate
+ai translator
+language ai
+multilingual ai
+translation tools
+localization ai
+interpretation ai
+
+## 教育AI工具
+khan academy ai
+duolingo ai
+coursera ai
+ai tutor
+learning assistant
+educational ai
+study ai
+homework ai
+
+## 健康AI工具
+symptom checker ai
+medical ai
+health assistant
+fitness ai
+nutrition ai
+mental health ai
+therapy ai
+wellness ai
+
+## 金融AI工具
+robo advisor
+trading ai
+investment ai
+financial planning ai
+budgeting ai
+expense tracker ai
+credit score ai
+insurance ai
+
+## 生产力AI工具
+notion
+obsidian ai
+calendar ai
+task management ai
+note taking ai
+productivity assistant
+workflow ai
+time management ai

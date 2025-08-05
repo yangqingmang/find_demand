@@ -66,6 +66,11 @@ def test_ads_collector():
     """测试Google Ads数据采集器"""
     print("\n=== 测试 Google Ads 数据采集器 ===")
     try:
+        # 添加当前目录到Python路径
+        import sys
+        import os
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+        
         from src.collectors.ads_collector import AdsCollector
         
         # 创建采集器实例
@@ -114,6 +119,11 @@ def test_integration_with_main_analyzer():
     """测试与主分析器的集成"""
     print("\n=== 测试与主分析器集成 ===")
     try:
+        # 添加当前目录到Python路径
+        import sys
+        import os
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+        
         from src.core.market_analyzer import MarketAnalyzer
         
         # 创建分析器
