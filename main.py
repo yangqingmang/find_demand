@@ -76,6 +76,7 @@ def main():
     parser.add_argument('--quiet', '-q', action='store_true', help='静默模式，只显示最终结果')
     parser.add_argument('--verbose', '-v', action='store_true', help='详细模式，显示所有中间过程')
     parser.add_argument('--no-enrich', action='store_true', help='不丰富关键词数据')
+    parser.add_argument('--use-ads-data', action='store_true', help='使用Google Ads API获取真实搜索量和CPC数据')
     
     args = parser.parse_args()
     
@@ -117,17 +118,18 @@ def main():
             
             log_buffer = io.StringIO()
             with redirect_stdout(log_buffer):
-                # 运行分析
-                result = analyzer.run_analysis(
-                    keywords=args.keywords,
-                    geo=args.geo,
-                    timeframe=args.timeframe,
-                    volume_weight=args.volume_weight,
-                    growth_weight=args.growth_weight,
-                    kd_weight=args.kd_weight,
-                    min_score=args.min_score,
-                    enrich=not args.no_enrich
-                )
+    # 运行分析
+    result = analyzer.run_analysis(
+        keywords=keywords,
+        geo=args.geo,
+        timeframe=args.timeframe,
+        volume_weight=args.volume_weight,
+        growth_weight=args.growth_weight,
+        kd_weight=args.kd_weight,
+        min_score=args.min_score,
+        enrich=not args.no_enrich,
+        use_ads_data=args.use_ads_data
+    )
         else:
             # 正常模式运行
             result = analyzer.run_analysis(

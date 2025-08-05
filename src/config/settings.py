@@ -80,21 +80,67 @@ class Config:
                 pass
         return None
     
-    def validate(self):
+    @property
+    def GOOGLE_ADS_DEVELOPER_TOKEN(self):
+        """Google Ads Developer Token"""
+        return os.getenv('GOOGLE_ADS_DEVELOPER_TOKEN')
+
+    @property
+    def GOOGLE_ADS_CLIENT_ID(self):
+        """Google Ads Client ID"""
+        return os.getenv('GOOGLE_ADS_CLIENT_ID')
+
+    @property
+    def GOOGLE_ADS_CLIENT_SECRET(self):
+        """Google Ads Client Secret"""
+        return os.getenv('GOOGLE_ADS_CLIENT_SECRET')
+
+    @property
+    def GOOGLE_ADS_REFRESH_TOKEN(self):
+        """Google Ads Refresh Token"""
+        return os.getenv('GOOGLE_ADS_REFRESH_TOKEN')
+
+    @property
+    def GOOGLE_ADS_CUSTOMER_ID(self):
+        """Google Ads Customer ID"""
+        return os.getenv('GOOGLE_ADS_CUSTOMER_ID')
+
+    @property
+    def GOOGLE_ADS_API_VERSION(self):
+        """Google Ads API Version"""
+        return os.getenv('GOOGLE_ADS_API_VERSION', 'v15')
+
+    def validate(self, require_ads_api=False):
         """验证配置是否完整"""
         missing = []
         
+        # 基础配置验证
         if not self.GOOGLE_API_KEY:
             missing.append('GOOGLE_API_KEY')
         if not self.GOOGLE_CSE_ID:
             missing.append('GOOGLE_CSE_ID')
+        
+        # Google Ads API 配置验证（可选）
+        if require_ads_api:
+            if not self.GOOGLE_ADS_DEVELOPER_TOKEN:
+                missing.append('GOOGLE_ADS_DEVELOPER_TOKEN')
+            if not self.GOOGLE_ADS_CLIENT_ID:
+                missing.append('GOOGLE_ADS_CLIENT_ID')
+            if not self.GOOGLE_ADS_CLIENT_SECRET:
+                missing.append('GOOGLE_ADS_CLIENT_SECRET')
+            if not self.GOOGLE_ADS_REFRESH_TOKEN:
+                missing.append('GOOGLE_ADS_REFRESH_TOKEN')
+            if not self.GOOGLE_ADS_CUSTOMER_ID:
+                missing.append('GOOGLE_ADS_CUSTOMER_ID')
             
         if missing:
             error_msg = f"缺少必要的配置项: {', '.join(missing)}\n"
             error_msg += "请参考以下配置方法之一：\n"
             error_msg += "1. 复制 config/.env.template 为 config/.env 并填入API密钥\n"
             error_msg += "2. 设置系统环境变量\n"
-            error_msg += "3. 创建 ~/.find_demand/.env 文件"
+            error_msg += "3. 创建 ~/.find_demand/.env 文件\n"
+            if require_ads_api:
+                error_msg += "4. 运行 python setup_config.py 配置 Google Ads API"
             raise ValueError(error_msg)
         
         return True
