@@ -9,8 +9,6 @@ import pandas as pd
 import time
 from pytrends.request import TrendReq
 import argparse
-import os
-from datetime import datetime
 
 from src.utils import (
     FileUtils, Logger, ExceptionHandler, APIError,

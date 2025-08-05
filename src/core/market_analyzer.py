@@ -15,9 +15,7 @@ from ..collectors.trends_collector import TrendsCollector
 from ..analyzers.keyword_scorer import KeywordScorer
 from ..analyzers.intent_analyzer import IntentAnalyzer
 from ..analyzers.serp_analyzer import SerpAnalyzer
-from ..utils.logger import Logger
-from ..utils.file_utils import FileUtils
-from ..utils.constants import INTENT_TYPES
+from ..utils import Logger, FileUtils, INTENT_TYPES
 
 # 条件导入 Google Ads 采集器
 try:
@@ -294,15 +292,15 @@ def main():
         )
         
         if 'error' in result:
-            print(f"分析失败: {result['error']}")
+            analyzer.logger.error(f"分析失败: {result['error']}")
         else:
-            print("分析成功完成!")
-            print(f"关键词总数: {result['关键词总数']}")
-            print(f"高分关键词: {result['高分关键词数']}")
-            print(f"分析耗时: {result['分析耗时(秒)']} 秒")
+            analyzer.logger.info("分析成功完成!")
+            analyzer.logger.info(f"关键词总数: {result['关键词总数']}")
+            analyzer.logger.info(f"高分关键词: {result['高分关键词数']}")
+            analyzer.logger.info(f"分析耗时: {result['分析耗时(秒)']} 秒")
             
     except Exception as e:
-        print(f"测试失败: {e}")
+        analyzer.logger.error(f"测试失败: {e}")
 
 if __name__ == "__main__":
     main()

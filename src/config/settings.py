@@ -25,9 +25,14 @@ class Config:
             if os.path.exists(env_path):
                 load_dotenv(env_path)
                 print(f"已加载配置文件: {env_path}")
+                from src.utils import Logger
+                logger = Logger()
+                logger.info(f"已加载配置文件: {env_path}")
                 break
         else:
-            print("未找到 .env 配置文件，将使用系统环境变量")
+            from src.utils import Logger
+            logger = Logger()
+            logger.warning("未找到 .env 配置文件，将使用系统环境变量")
     
     @property
     def MOCK_MODE(self):
@@ -164,35 +169,39 @@ class Config:
         }
     
     def show_config_status(self):
+    def show_status(self):
         """显示配置状态"""
-        print("=== 配置状态 ===")
+        from src.utils import Logger
+        logger = Logger()
+        
+        logger.info("=== 配置状态 ===")
         if self.MOCK_MODE:
-            print("🔧 模拟模式: 启用")
-            print("Google API Key: ✓ 模拟配置")
-            print("Google CSE ID: ✓ 模拟配置")
+            logger.info("🔧 模拟模式: 启用")
+            logger.info("Google API Key: ✓ 模拟配置")
+            logger.info("Google CSE ID: ✓ 模拟配置")
         else:
-            print("🔧 模拟模式: 禁用")
-            print(f"Google API Key: {'✓ 已配置' if self.GOOGLE_API_KEY else '✗ 未配置'}")
-            print(f"Google CSE ID: {'✓ 已配置' if self.GOOGLE_CSE_ID else '✗ 未配置'}")
-        
-        print(f"SERP缓存: {'启用' if self.SERP_CACHE_ENABLED else '禁用'}")
-        print(f"缓存时长: {self.SERP_CACHE_DURATION}秒")
-        print(f"请求延迟: {self.SERP_REQUEST_DELAY}秒")
-        
+            logger.info("🔧 模拟模式: 禁用")
+            logger.info(f"Google API Key: {'✓ 已配置' if self.GOOGLE_API_KEY else '✗ 未配置'}")
+            logger.info(f"Google CSE ID: {'✓ 已配置' if self.GOOGLE_CSE_ID else '✗ 未配置'}")
+
+        logger.info(f"SERP缓存: {'启用' if self.SERP_CACHE_ENABLED else '禁用'}")
+        logger.info(f"缓存时长: {self.SERP_CACHE_DURATION}秒")
+        logger.info(f"请求延迟: {self.SERP_REQUEST_DELAY}秒")
+
         # Google Ads API 状态
-        print("\nGoogle Ads API 配置:")
+        logger.info("Google Ads API 配置:")
         if self.MOCK_MODE:
-            print("  Developer Token: ✓ 模拟配置")
-            print("  Client ID: ✓ 模拟配置")
-            print("  Client Secret: ✓ 模拟配置")
-            print("  Refresh Token: ✓ 模拟配置")
-            print("  Customer ID: ✓ 模拟配置")
+            logger.info("  Developer Token: ✓ 模拟配置")
+            logger.info("  Client ID: ✓ 模拟配置")
+            logger.info("  Client Secret: ✓ 模拟配置")
+            logger.info("  Refresh Token: ✓ 模拟配置")
+            logger.info("  Customer ID: ✓ 模拟配置")
         else:
-            print(f"  Developer Token: {'✓ 已配置' if self.GOOGLE_ADS_DEVELOPER_TOKEN else '✗ 未配置'}")
-            print(f"  Client ID: {'✓ 已配置' if self.GOOGLE_ADS_CLIENT_ID else '✗ 未配置'}")
-            print(f"  Client Secret: {'✓ 已配置' if self.GOOGLE_ADS_CLIENT_SECRET else '✗ 未配置'}")
-            print(f"  Refresh Token: {'✓ 已配置' if self.GOOGLE_ADS_REFRESH_TOKEN else '✗ 未配置'}")
-            print(f"  Customer ID: {'✓ 已配置' if self.GOOGLE_ADS_CUSTOMER_ID else '✗ 未配置'}")
+            logger.info(f"  Developer Token: {'✓ 已配置' if self.GOOGLE_ADS_DEVELOPER_TOKEN else '✗ 未配置'}")
+            logger.info(f"  Client ID: {'✓ 已配置' if self.GOOGLE_ADS_CLIENT_ID else '✗ 未配置'}")
+            logger.info(f"  Client Secret: {'✓ 已配置' if self.GOOGLE_ADS_CLIENT_SECRET else '✗ 未配置'}")
+            logger.info(f"  Refresh Token: {'✓ 已配置' if self.GOOGLE_ADS_REFRESH_TOKEN else '✗ 未配置'}")
+            logger.info(f"  Customer ID: {'✓ 已配置' if self.GOOGLE_ADS_CUSTOMER_ID else '✗ 未配置'}")
 
 # 创建全局配置实例
 config = Config()

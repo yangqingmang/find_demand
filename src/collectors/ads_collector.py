@@ -16,7 +16,13 @@ try:
 except ImportError:
     GOOGLE_ADS_AVAILABLE = False
     print("警告: google-ads 包未安装，Google Ads 功能将不可用")
-    print("安装命令: pip install google-ads==22.1.0")
+    import sys
+    import os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+    from utils import Logger
+    logger = Logger()
+    logger.warning("google-ads 包未安装，Google Ads 功能将不可用")
+    logger.info("安装命令: pip install google-ads==22.1.0")
 
 from ..config.settings import config
 from ..utils.logger import Logger

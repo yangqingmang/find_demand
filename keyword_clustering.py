@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 关键词聚类工具
@@ -7,14 +8,22 @@
 
 import pandas as pd
 import json
+import random
 from collections import defaultdict
 import re
 from datetime import datetime
 import os
+import sys
+
+# 添加src目录到Python路径
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+
+from src.utils import Logger
 
 class KeywordClusterer:
     def __init__(self):
         self.clusters = defaultdict(list)
+        self.logger = Logger()
         self.ai_tool_categories = {
             'chatbot': ['chatgpt', 'claude', 'bard', 'chatbot', 'conversation', 'chat'],
             'image_generation': ['midjourney', 'dalle', 'stable diffusion', 'image', 'art', 'photo', 'picture'],
@@ -58,11 +67,11 @@ class KeywordClusterer:
             elif 'keywords' in data:
                 return data
             else:
-                print("数据格式不正确")
+                self.logger.error("数据格式不正确")
                 return None
                 
         except Exception as e:
-            print(f"加载数据失败: {e}")
+            self.logger.error(f"加载数据失败: {e}")
             return None
     
     def generate_additional_keywords(self, comprehensive_data):
@@ -105,7 +114,6 @@ class KeywordClusterer:
                         base_score = 30
                     
                     # 添加一些随机性
-                    import random
                     score = base_score + random.randint(-5, 5)
                     volume = random.randint(200, 1200)
                     
@@ -118,80 +126,6 @@ class KeywordClusterer:
                     })
         
         return additional_keywords[:200]  # 限制数量
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-关键词聚类工具
-将分析得到的关键词按主题和相似性进行聚类分组
-"""
-
-import pandas as pd
-import json
-from collections import defaultdict
-import re
-from datetime import datetime
-import os
-
-class KeywordClusterer:
-    def __init__(self):
-        self.clusters = defaultdict(list)
-        self.ai_tool_categories = {
-            'chatbot': ['chatgpt', 'claude', 'bard', 'chatbot', 'conversation', 'chat'],
-            'image_generation': ['midjourney', 'dalle', 'stable diffusion', 'image', 'art', 'photo', 'picture'],
-            'video_tools': ['runway', 'pika', 'video', 'film', 'movie', 'animation'],
-            'audio_ai': ['elevenlabs', 'murf', 'voice', 'audio', 'speech', 'music'],
-            'writing_tools': ['jasper', 'copy.ai', 'writesonic', 'writing', 'content', 'text', 'article'],
-            'coding_tools': ['github copilot', 'codeium', 'tabnine', 'code', 'programming', 'developer'],
-            'business_automation': ['zapier', 'automation', 'workflow', 'business', 'crm', 'sales'],
-            'research_tools': ['perplexity', 'research', 'analysis', 'data', 'insight'],
-            'design_tools': ['canva', 'figma', 'design', 'ui', 'ux', 'graphic'],
-            'productivity': ['notion', 'productivity', 'task', 'management', 'organize'],
-            'translation': ['deepl', 'translate', 'language', 'multilingual'],
-            'education': ['education', 'learning', 'teach', 'student', 'course'],
-            'marketing': ['marketing', 'seo', 'social media', 'advertising', 'campaign']
-        }
-        
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-关键词聚类工具
-将分析得到的关键词按主题和相似性进行聚类分组
-"""
-
-import pandas as pd
-import json
-from collections import defaultdict
-import re
-from datetime import datetime
-import os
-
-class KeywordClusterer:
-    def __init__(self):
-        self.clusters = defaultdict(list)
-        self.ai_tool_categories = {
-            'chatbot': ['chatgpt', 'claude', 'bard', 'chatbot', 'conversation', 'chat'],
-            'image_generation': ['midjourney', 'dalle', 'stable diffusion', 'image', 'art', 'photo', 'picture'],
-            'video_tools': ['runway', 'pika', 'video', 'film', 'movie', 'animation'],
-            'audio_ai': ['elevenlabs', 'murf', 'voice', 'audio', 'speech', 'music'],
-            'writing_tools': ['jasper', 'copy.ai', 'writesonic', 'writing', 'content', 'text', 'article'],
-            'coding_tools': ['github copilot', 'codeium', 'tabnine', 'code', 'programming', 'developer'],
-            'business_automation': ['zapier', 'automation', 'workflow', 'business', 'crm', 'sales'],
-            'research_tools': ['perplexity', 'research', 'analysis', 'data', 'insight'],
-            'design_tools': ['canva', 'figma', 'design', 'ui', 'ux', 'graphic'],
-            'productivity': ['notion', 'productivity', 'task', 'management', 'organize'],
-            'translation': ['deepl', 'translate', 'language', 'multilingual'],
-            'education': ['education', 'learning', 'teach', 'student', 'course'],
-            'marketing': ['marketing', 'seo', 'social media', 'advertising', 'campaign']
-        }
-        
-    def load_analysis_data(self, file_path):
-        """加载分析数据"""
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except Exception as e:
-            print(f"加载数据失败: {e}")
-            return None
     
     def categorize_keyword(self, keyword):
         """根据关键词内容分类"""
@@ -327,19 +261,20 @@ class KeywordClusterer:
         return content_calendar
     
     def run_clustering_analysis(self):
+    def run_clustering_analysis(self):
         """执行完整的聚类分析"""
-        print("开始关键词聚类分析...")
+        self.logger.info("开始关键词聚类分析...")
         
         # 加载分析数据
         data_file = 'data/ai_tools_analysis/comprehensive_report_2025-08-05.json'
         analysis_data = self.load_analysis_data(data_file)
         
         if not analysis_data:
-            print("无法加载分析数据")
+            self.logger.error("无法加载分析数据")
             return
         
         keywords_data = analysis_data.get('keywords', [])
-        print(f"加载了 {len(keywords_data)} 个关键词")
+        self.logger.info(f"加载了 {len(keywords_data)} 个关键词")
         
         # 执行聚类分析
         categorized_keywords = self.analyze_keyword_intent_patterns(keywords_data)
@@ -399,18 +334,19 @@ class KeywordClusterer:
                           index=False, encoding='utf-8')
         
         print(f"\n聚类分析完成！")
-        print(f"发现 {len(categorized_keywords)} 个主要类别")
-        print(f"生成 {len(content_calendar)} 个内容页面建议")
-        print(f"结果已保存到: {output_file}")
+        self.logger.info(f"聚类分析完成！")
+        self.logger.info(f"发现 {len(categorized_keywords)} 个主要类别")
+        self.logger.info(f"生成 {len(content_calendar)} 个内容页面建议")
+        self.logger.info(f"结果已保存到: {output_file}")
         
         # 显示摘要
-        print("\n=== 类别分布 ===")
+        self.logger.info("=== 类别分布 ===")
         for category, count in clustering_result['summary']['top_categories']:
-            print(f"{category}: {count} 个关键词")
+            self.logger.info(f"{category}: {count} 个关键词")
         
-        print("\n=== 优先内容页面 (前10个) ===")
+        self.logger.info("=== 优先内容页面 (前10个) ===")
         for i, content in enumerate(content_calendar[:10], 1):
-            print(f"{i}. {content['page_title']} (评分: {content['priority_score']:.1f})")
+            self.logger.info(f"{i}. {content['page_title']} (评分: {content['priority_score']:.1f})")
         
         return clustering_result
 

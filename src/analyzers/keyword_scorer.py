@@ -9,18 +9,15 @@ import pandas as pd
 import numpy as np
 import os
 import argparse
-from datetime import datetime
-import json
-import requests
-import time
 import re
 
+from src.analyzers.base_analyzer import BaseAnalyzer
 from src.utils import (
     FileUtils, Logger, ExceptionHandler, DataError,
     DEFAULT_CONFIG, SCORE_GRADES
 )
 
-class KeywordScorer:
+class KeywordScorer(BaseAnalyzer):
     """关键词评分类，用于对关键词进行综合评分"""
     
     def __init__(self, volume_weight=0.4, growth_weight=0.4, kd_weight=0.2):
@@ -32,10 +29,10 @@ class KeywordScorer:
             growth_weight (float): 增长率权重
             kd_weight (float): 关键词难度权重
         """
+        super().__init__()
         self.volume_weight = volume_weight
         self.growth_weight = growth_weight
         self.kd_weight = kd_weight
-        self.logger = Logger()
         
         # 验证权重总和为1
         from src.utils import validate_weights
@@ -45,6 +42,22 @@ class KeywordScorer:
             self.volume_weight /= total_weight
             self.growth_weight /= total_weight
             self.kd_weight /= total_weight
+    
+    def analyze(self, data, volume_col='value', growth_col='growth', kd_col=None, **kwargs):
+        """
+        实现基础分析器的抽象方法
+        
+        参数:
+            data: 关键词数据DataFrame
+            volume_col: 搜索量列名
+            growth_col: 增长率列名
+            kd_col: 关键词难度列名
+            **kwargs: 其他参数
+            
+        返回:
+            评分后的DataFrame
+        """
+        return self.score_keywords(data, volume_col, growth_col, kd_col)
     
     def normalize(self, series, min_val=None, max_val=None):
         """
@@ -87,9 +100,10 @@ class KeywordScorer:
         返回:
             添加了评分列的DataFrame
         """
-        if df.empty:
-            print("警告: 输入数据为空")
+        if not self.validate_input(df):
             return df
+        
+        self.log_analysis_start("关键词评分", f"，共 {len(df)} 个关键词")
             
         # 创建副本避免修改原始数据
         result_df = df.copy()
@@ -98,7 +112,7 @@ class KeywordScorer:
         if volume_col in result_df.columns:
             result_df['volume_score'] = self.normalize(result_df[volume_col])
         else:
-            print(f"警告: 未找到搜索量列 '{volume_col}'")
+            self.logger.warning(f"未找到搜索量列 '{volume_col}'")
             result_df['volume_score'] = 0
             
         # 归一化增长率
@@ -111,14 +125,14 @@ class KeywordScorer:
                 )
             result_df['growth_score'] = self.normalize(result_df[growth_col])
         else:
-            print(f"警告: 未找到增长率列 '{growth_col}'")
+            self.logger.warning(f"未找到增长率列 '{growth_col}'")
             result_df['growth_score'] = 0
             
         # 归一化关键词难度（KD越低越好，所以用100减去归一化值）
         if kd_col and kd_col in result_df.columns:
             result_df['kd_score'] = 100 - self.normalize(result_df[kd_col])
         else:
-            print(f"警告: 未找到关键词难度列 '{kd_col}'，使用默认值")
+            self.logger.warning(f"未找到关键词难度列 '{kd_col}'，使用默认值")
             result_df['kd_score'] = 50  # 默认中等难度
             
         # 计算综合评分
@@ -224,17 +238,20 @@ def main():
     
     args = parser.parse_args()
     
+    # 创建日志记录器
+    logger = Logger()
+    
     # 检查输入文件是否存在
     if not os.path.exists(args.input):
-        print(f"错误: 输入文件 '{args.input}' 不存在")
+        logger.error(f"输入文件 '{args.input}' 不存在")
         return
     
     # 读取输入文件
     try:
         df = pd.read_csv(args.input)
-        print(f"已读取 {len(df)} 条关键词数据")
+        logger.info(f"已读取 {len(df)} 条关键词数据")
     except Exception as e:
-        print(f"读取文件时出错: {e}")
+        logger.error(f"读取文件时出错: {e}")
         return
     
     # 创建评分器
@@ -254,7 +271,7 @@ def main():
     # 过滤（可选）
     if args.min_score:
         scored_df = scorer.filter_keywords(scored_df, min_score=args.min_score)
-        print(f"过滤后剩余 {len(scored_df)} 条关键词")
+        logger.info(f"过滤后剩余 {len(scored_df)} 条关键词")
     
     # 保存结果
     scorer.save_results(scored_df, args.output)

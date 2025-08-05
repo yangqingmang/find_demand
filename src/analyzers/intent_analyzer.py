@@ -6,29 +6,24 @@
 """
 
 import pandas as pd
-import numpy as np
-import os
 import argparse
 import re
-import json
-import requests
-import time
-from datetime import datetime
 from collections import Counter
 
+from src.analyzers.base_analyzer import BaseAnalyzer
 from src.analyzers.serp_analyzer import SerpAnalyzer
 from src.utils import (
     INTENT_TYPES, INTENT_KEYWORDS, RECOMMENDED_ACTIONS,
     FileUtils, Logger, ExceptionHandler, DataError
 )
 
-class IntentAnalyzer:
+class IntentAnalyzer(BaseAnalyzer):
     """搜索意图分析类，用于判断关键词的搜索意图"""
     
     def __init__(self, use_serp=False):
         """初始化搜索意图分析器"""
+        super().__init__()
         self.use_serp = use_serp
-        self.logger = Logger()
         
         # 如果启用SERP分析，初始化SERP分析器
         if self.use_serp:
@@ -107,14 +102,28 @@ class IntentAnalyzer:
             result = self.serp_analyzer.analyze_keyword_serp(keyword)
             
             if 'error' in result:
-                print(f"SERP分析失败: {result['error']}")
+                self.logger.warning(f"SERP分析失败: {result['error']}")
                 return ('I', 0.5, None)
             
             return (result['intent'], result['confidence'], result['secondary_intent'])
             
         except Exception as e:
-            print(f"SERP分析出错: {e}")
+            self.logger.error(f"SERP分析出错: {e}")
             return ('I', 0.5, None)
+    
+    def analyze(self, data, keyword_col='query', **kwargs):
+        """
+        实现基础分析器的抽象方法
+        
+        参数:
+            data: 关键词数据DataFrame
+            keyword_col: 关键词列名
+            **kwargs: 其他参数
+            
+        返回:
+            添加了意图分析结果的DataFrame
+        """
+        return self.analyze_keywords(data, keyword_col)
     
     def analyze_keywords(self, df, keyword_col='query'):
         """
@@ -127,13 +136,10 @@ class IntentAnalyzer:
         返回:
             添加了意图分析结果的DataFrame
         """
-        if df.empty:
-            print("警告: 输入数据为空")
+        if not self.validate_input(df, [keyword_col]):
             return df
-            
-        if keyword_col not in df.columns:
-            print(f"错误: 未找到关键词列 '{keyword_col}'")
-            return df
+        
+        self.log_analysis_start("搜索意图", f"，共 {len(df)} 个关键词")
             
         # 创建副本避免修改原始数据
         result_df = df.copy()
@@ -152,7 +158,7 @@ class IntentAnalyzer:
             # 选择分析方法
             if self.use_serp:
                 # 使用SERP分析
-                print(f"正在分析关键词 ({idx+1}/{len(result_df)}): {keyword}")
+                self.logger.info(f"正在分析关键词 ({idx+1}/{len(result_df)}): {keyword}")
                 intent, confidence, secondary = self.detect_intent_from_serp(keyword)
                 
                 # 如果SERP分析失败，回退到关键词分析
@@ -224,9 +230,9 @@ class IntentAnalyzer:
             'intent_descriptions': self.INTENT_TYPES
         }
     
-    def save_results(self, df, summary, output_dir='data', prefix='intent'):
+    def save_analysis_results(self, df, summary, output_dir='data', prefix='intent'):
         """
-        保存意图分析结果
+        保存意图分析结果（使用基础分析器的统一方法）
         
         参数:
             df (DataFrame): 带有意图分析结果的DataFrame
@@ -234,10 +240,8 @@ class IntentAnalyzer:
             output_dir (str): 输出目录
             prefix (str): 文件名前缀
         """
-        # 保存主要结果和摘要
-        saved_files = FileUtils.save_analysis_results(df, summary, output_dir, prefix)
-        self.logger.info(f"已保存意图分析结果到: {saved_files['main_results']}")
-        self.logger.info(f"已保存意图分析摘要到: {saved_files['summary']}")
+        # 使用基础分析器的统一保存方法
+        saved_files = super().save_results(df, output_dir, prefix, summary)
         
         # 按意图分组保存
         for intent, keywords in summary['intent_keywords'].items():
@@ -247,6 +251,8 @@ class IntentAnalyzer:
                 intent_path = FileUtils.save_dataframe(intent_df, output_dir, intent_filename)
                 intent_name = INTENT_TYPES.get(intent, intent)
                 self.logger.info(f"已保存 {intent} ({intent_name}) 意图关键词到: {intent_path}")
+        
+        return saved_files
 
 
 def main():
@@ -261,23 +267,28 @@ def main():
     
     # 检查输入文件是否存在
     if not os.path.exists(args.input):
-        print(f"错误: 输入文件 '{args.input}' 不存在")
+        logger = Logger()
+        logger.error(f"输入文件 '{args.input}' 不存在")
         return
     
     # 读取输入文件
     try:
         df = pd.read_csv(args.input)
-        print(f"已读取 {len(df)} 条关键词数据")
+        logger = Logger()
+        logger.info(f"已读取 {len(df)} 条关键词数据")
     except Exception as e:
-        print(f"读取文件时出错: {e}")
+        logger = Logger()
+        logger.error(f"读取文件时出错: {e}")
         return
     
     # 创建意图分析器
     analyzer = IntentAnalyzer(use_serp=args.use_serp)
     
+    logger = Logger()
+    
     if args.use_serp:
-        print("注意: 启用SERP分析将消耗Google API配额，请确保已正确配置API密钥")
-        print("分析过程可能需要较长时间，请耐心等待...")
+        logger.info("注意: 启用SERP分析将消耗Google API配额，请确保已正确配置API密钥")
+        logger.info("分析过程可能需要较长时间，请耐心等待...")
     
     # 分析关键词意图
     result_df = analyzer.analyze_keywords(df, args.keyword_col)
@@ -286,16 +297,16 @@ def main():
     summary = analyzer.generate_intent_summary(result_df)
     
     # 保存结果
-    analyzer.save_results(result_df, summary, args.output)
+    analyzer.save_analysis_results(result_df, summary, args.output)
     
-    # 打印简要统计
-    print("\n意图分布:")
+    # 显示简要统计
+    logger.info("意图分布:")
     for intent, count in summary['intent_counts'].items():
         percentage = summary['intent_percentages'][intent]
-        print(f"  {intent} ({analyzer.INTENT_TYPES[intent]}): {count} 个关键词 ({percentage}%)")
+        logger.info(f"  {intent} ({analyzer.INTENT_TYPES[intent]}): {count} 个关键词 ({percentage}%)")
     
     if args.use_serp:
-        print(f"\n已完成SERP增强的意图分析，结果保存到: {args.output}")
+        logger.info(f"已完成SERP增强的意图分析，结果保存到: {args.output}")
 
 
 if __name__ == "__main__":
