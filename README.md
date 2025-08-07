@@ -1,85 +1,126 @@
-# 市场需求分析工具集
+# 搜索意图分析工具
 
-专业的市场需求分析工具，专门用于挖掘和分析关键词需求，特别针对海外AI工具站进行了优化。
+基于规则的搜索意图分析工具，无需机器学习模型，通过词面分析和SERP结构分析来判断搜索关键词的意图。
 
-## 🚀 快速开始
+## 功能概述
 
-```bash
-# 安装依赖
-pip install -r requirements.txt
+搜索意图分析工具用于分析关键词的搜索意图，基于6大主意图和24个子意图的分类体系：
 
-# 基础使用
-python main.py "ai tools"
+- **I - 信息获取**：用户尚未决定行动，寻求信息
+- **N - 导航直达**：指向特定站点或文件
+- **C - 商业评估**：寻找最佳或比较多个方案
+- **E - 交易购买**：已有明确交易意向
+- **B - 行为后续**：已拥有产品，解决使用问题
+- **L - 本地/到店**：O2O/地图式需求
 
-# 多关键词分析
-python main.py "ai tools" "chatgpt" "claude ai" --geo US --min-score 50
-```
+## 使用方法
 
-## 📋 核心功能
-
-- **Google Trends数据采集** - 自动收集趋势数据和相关查询
-- **智能关键词评分** - 基于搜索量、增长率、竞争度的多维度评分
-- **搜索意图分析** - 识别5种搜索意图类型并提供内容策略建议
-- **SERP分析** - 搜索引擎结果页面特征分析（可选）
-- **Google Ads集成** - 精确搜索量和竞争数据（可选）
-
-## 📊 搜索意图类型
-
-| 类型 | 描述 | 内容策略 |
-|------|------|----------|
-| 信息型 (I) | 寻求信息和知识 | 创建教程、指南、解释性内容 |
-| 导航型 (N) | 寻找特定网站或页面 | 优化品牌页面和导航体验 |
-| 商业型 (C) | 研究产品或服务 | 创建对比、评测、功能介绍 |
-| 交易型 (E) | 准备购买或下载 | 优化购买流程和促销页面 |
-| 行为型 (B) | 解决问题或执行任务 | 提供操作指南和故障排除 |
-
-## 📁 输出文件
-
-- `analysis_report_YYYY-MM-DD.json` - 综合分析报告
-- `market_analysis_detailed_YYYY-MM-DD.csv` - 详细分析数据
-- `keywords_[意图类型]_YYYY-MM-DD.csv` - 按意图分组的关键词
-
-## 🔧 高级功能
+### 基本用法
 
 ```bash
-# 批量分析
-python batch_analysis.py --input keywords.txt
-
-# 关键词聚类
-python keyword_clustering.py --input scored_keywords.csv
-
-# AI网站构建
-python ai_website_builder.py --keywords "ai tools"
+python intent_analyzer.py --input data/keywords.csv
 ```
 
-## 📖 完整文档
+### 参数说明
 
-**详细使用说明请查看：[项目概述文档](docs/项目概述.md)**
+- `--input`：输入CSV文件路径（必需）
+- `--output`：输出目录，默认为data
+- `--query-col`：关键词列名，默认为"query"
+- `--keywords-dict`：关键词字典YAML文件路径（可选）
+- `--serp-rules`：SERP规则YAML文件路径（可选）
 
-该文档包含：
-- 完整的功能介绍和使用方法
-- 详细的配置参数说明
-- 项目架构和扩展开发指南
-- 常见问题解决方案
-- 海外AI工具站特化功能说明
+### 输出说明
 
-## 📋 其他文档
+工具会生成以下文件：
 
-- [项目优化总结](docs/项目优化总结.md) - 最新优化内容和改进
-- [完整操作手册](docs/完整操作手册.md) - 详细操作步骤
-- [API密钥安全管理指南](docs/API密钥安全管理指南.md) - API配置说明（包含RSA+AES加密配置）
+1. `intent_YYYY-MM-DD.csv`：包含所有关键词的意图分析结果
+2. `intent_summary_YYYY-MM-DD.json`：意图分析摘要（JSON格式）
+3. `intent_I_YYYY-MM-DD.csv`：信息型关键词
+4. `intent_N_YYYY-MM-DD.csv`：导航型关键词
+5. `intent_C_YYYY-MM-DD.csv`：商业型关键词
+6. `intent_E_YYYY-MM-DD.csv`：交易型关键词
+7. `intent_B_YYYY-MM-DD.csv`：行为型关键词
+8. `intent_L_YYYY-MM-DD.csv`：本地/到店型关键词
+9. `pending_review_YYYY-MM-DD.txt`：未命中任何规则的关键词
 
-## 🛠️ 技术栈
+## 自定义规则
 
-- Python 3.7+
-- pandas, numpy - 数据处理
-- pytrends - Google Trends API
-- requests - HTTP请求处理
+### 关键词字典
 
-## 📄 许可证
+可以创建自定义的关键词字典YAML文件：
 
-MIT License - 详见 [LICENSE](LICENSE) 文件
+```yaml
+# keywords_dict.yaml
+I1: [what is, definition, mean, 意味, 是什么, 定义]
+I2: [architecture, algorithm, 原理, 源码, protocol]
+# 更多规则...
+```
 
----
+### SERP规则
 
-**让数据驱动您的市场决策！** 🎯
+可以创建自定义的SERP规则YAML文件：
+
+```yaml
+# serp_rules.yaml
+shopping_ads:
+  E: 0.8
+  E3: 0.5
+price_snippet:
+  E: 0.6
+  E1: 0.4
+# 更多规则...
+```
+
+## 输出示例
+
+### CSV输出
+
+```
+query,intent_primary,intent_secondary,sub_intent,probability,probability_secondary,signals_hit
+what is ai,I,,I1,0.85,0,词面:what is, 词面:是什么
+best ai tools 2025,C,I,C1,0.64,0.36,词面:best, SERP:top_stories
+buy ai writing tool,E,,E3,0.92,0,词面:buy, SERP:shopping_ads
+```
+
+### JSON摘要
+
+```json
+{
+  "total_keywords": 25,
+  "intent_counts": {
+    "I": 19,
+    "N": 1,
+    "C": 4,
+    "E": 1,
+    "B": 0
+  },
+  "intent_percentages": {
+    "I": 76.0,
+    "N": 4.0,
+    "C": 16.0,
+    "E": 4.0,
+    "B": 0.0
+  },
+  "intent_keywords": {
+    "I": ["what is ai", "how to use ai tools", ...],
+    "N": ["claude ai login"],
+    "C": ["best ai tools 2025", "ai tools vs human", ...],
+    "E": ["buy ai writing tool"],
+    "B": []
+  },
+  "recommendations": {
+    "I": "创建入门指南和教程内容",
+    "N": "优化网站导航和登录页面",
+    "C": "创建对比页和评测内容",
+    "E": "优化购买流程和促销活动",
+    "B": "提供故障排查和高级教程",
+    "L": "优化本地搜索和地图展示"
+  }
+}
+```
+
+## 维护与扩展
+
+1. 每周将未命中但搜索量超过阈值的关键词追加到 `pending_review.txt`，人工标注后更新YAML
+2. SERP规则只增不删，历史分值可微调
+3. 若需支持多语种，直接复制当前YAML，替换为目标语言关键词

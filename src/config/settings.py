@@ -168,7 +168,6 @@ class Config:
             'cx': self.GOOGLE_CSE_ID
         }
     
-    def show_config_status(self):
     def show_status(self):
         """显示配置状态"""
         from src.utils import Logger

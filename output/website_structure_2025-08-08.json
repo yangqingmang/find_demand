@@ -1,0 +1,620 @@
+{
+  "homepage": {
+    "title": "基于搜索意图的内容平台",
+    "url": "/",
+    "sections": [
+      {
+        "type": "hero",
+        "title": "基于搜索意图的内容平台",
+        "subtitle": "为用户提供精准的内容体验",
+        "cta": "开始探索"
+      },
+      {
+        "type": "intent_nav",
+        "title": "按意图浏览",
+        "items": [
+          {
+            "name": "商业评估",
+            "intent": "C"
+          },
+          {
+            "name": "信息获取",
+            "intent": "I"
+          },
+          {
+            "name": "行为后续",
+            "intent": "B"
+          },
+          {
+            "name": "本地/到店",
+            "intent": "L"
+          },
+          {
+            "name": "导航直达",
+            "intent": "N"
+          },
+          {
+            "name": "交易购买",
+            "intent": "E"
+          }
+        ]
+      },
+      {
+        "type": "intent_section",
+        "intent": "C",
+        "title": "商业评估内容",
+        "description": "探索商业评估相关的内容",
+        "items": []
+      },
+      {
+        "type": "intent_section",
+        "intent": "I",
+        "title": "信息获取内容",
+        "description": "探索信息获取相关的内容",
+        "items": []
+      },
+      {
+        "type": "intent_section",
+        "intent": "B",
+        "title": "行为后续内容",
+        "description": "探索行为后续相关的内容",
+        "items": []
+      },
+      {
+        "type": "intent_section",
+        "intent": "L",
+        "title": "本地/到店内容",
+        "description": "探索本地/到店相关的内容",
+        "items": []
+      },
+      {
+        "type": "intent_section",
+        "intent": "N",
+        "title": "导航直达内容",
+        "description": "探索导航直达相关的内容",
+        "items": []
+      },
+      {
+        "type": "intent_section",
+        "intent": "E",
+        "title": "交易购买内容",
+        "description": "探索交易购买相关的内容",
+        "items": []
+      }
+    ]
+  },
+  "intent_pages": {
+    "B": [
+      {
+        "title": "行为后续内容总览",
+        "url": "/intent/b",
+        "type": "intent_overview",
+        "intent": "B",
+        "intent_name": "行为后续",
+        "seo_priority": "high"
+      },
+      {
+        "title": "高级用法内容",
+        "url": "/intent/b2",
+        "type": "sub_intent",
+        "intent": "B",
+        "sub_intent": "B2",
+        "intent_name": "高级用法",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "故障/报错内容",
+        "url": "/intent/b1",
+        "type": "sub_intent",
+        "intent": "B",
+        "sub_intent": "B1",
+        "intent_name": "故障/报错",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "配置/设置内容",
+        "url": "/intent/b3",
+        "type": "sub_intent",
+        "intent": "B",
+        "sub_intent": "B3",
+        "intent_name": "配置/设置",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "ai error message fix",
+        "url": "/keyword/ai-error-message-fix",
+        "type": "keyword",
+        "intent": "B",
+        "keyword": "ai error message fix",
+        "seo_priority": "high"
+      },
+      {
+        "title": "advanced ai prompting",
+        "url": "/keyword/advanced-ai-prompting",
+        "type": "keyword",
+        "intent": "B",
+        "keyword": "advanced ai prompting",
+        "seo_priority": "high"
+      },
+      {
+        "title": "ai settings guide",
+        "url": "/keyword/ai-settings-guide",
+        "type": "keyword",
+        "intent": "B",
+        "keyword": "ai settings guide",
+        "seo_priority": "high"
+      }
+    ],
+    "N": [
+      {
+        "title": "导航直达内容总览",
+        "url": "/intent/n",
+        "type": "intent_overview",
+        "intent": "N",
+        "intent_name": "导航直达",
+        "seo_priority": "high"
+      },
+      {
+        "title": "登录/控制台内容",
+        "url": "/intent/n2",
+        "type": "sub_intent",
+        "intent": "N",
+        "sub_intent": "N2",
+        "intent_name": "登录/控制台",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "下载/安装包内容",
+        "url": "/intent/n3",
+        "type": "sub_intent",
+        "intent": "N",
+        "sub_intent": "N3",
+        "intent_name": "下载/安装包",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "chatgpt login",
+        "url": "/keyword/chatgpt-login",
+        "type": "keyword",
+        "intent": "N",
+        "keyword": "chatgpt login",
+        "seo_priority": "high"
+      },
+      {
+        "title": "stable diffusion download",
+        "url": "/keyword/stable-diffusion-download",
+        "type": "keyword",
+        "intent": "N",
+        "keyword": "stable diffusion download",
+        "seo_priority": "high"
+      }
+    ],
+    "I": [
+      {
+        "title": "信息获取内容总览",
+        "url": "/intent/i",
+        "type": "intent_overview",
+        "intent": "I",
+        "intent_name": "信息获取",
+        "seo_priority": "high"
+      },
+      {
+        "title": "教程/步骤内容",
+        "url": "/intent/i3",
+        "type": "sub_intent",
+        "intent": "I",
+        "sub_intent": "I3",
+        "intent_name": "教程/步骤",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "定义/概念内容",
+        "url": "/intent/i1",
+        "type": "sub_intent",
+        "intent": "I",
+        "sub_intent": "I1",
+        "intent_name": "定义/概念",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "what is ai",
+        "url": "/keyword/what-is-ai",
+        "type": "keyword",
+        "intent": "I",
+        "keyword": "what is ai",
+        "seo_priority": "high"
+      },
+      {
+        "title": "how to use chatgpt",
+        "url": "/keyword/how-to-use-chatgpt",
+        "type": "keyword",
+        "intent": "I",
+        "keyword": "how to use chatgpt",
+        "seo_priority": "high"
+      },
+      {
+        "title": "ai tutorial for beginners",
+        "url": "/keyword/ai-tutorial-for-beginners",
+        "type": "keyword",
+        "intent": "I",
+        "keyword": "ai tutorial for beginners",
+        "seo_priority": "high"
+      }
+    ],
+    "E": [
+      {
+        "title": "交易购买内容总览",
+        "url": "/intent/e",
+        "type": "intent_overview",
+        "intent": "E",
+        "intent_name": "交易购买",
+        "seo_priority": "high"
+      },
+      {
+        "title": "价格/报价内容",
+        "url": "/intent/e1",
+        "type": "sub_intent",
+        "intent": "E",
+        "sub_intent": "E1",
+        "intent_name": "价格/报价",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "优惠/折扣内容",
+        "url": "/intent/e2",
+        "type": "sub_intent",
+        "intent": "E",
+        "sub_intent": "E2",
+        "intent_name": "优惠/折扣",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "openai api price",
+        "url": "/keyword/openai-api-price",
+        "type": "keyword",
+        "intent": "E",
+        "keyword": "openai api price",
+        "seo_priority": "high"
+      },
+      {
+        "title": "chatgpt discount code",
+        "url": "/keyword/chatgpt-discount-code",
+        "type": "keyword",
+        "intent": "E",
+        "keyword": "chatgpt discount code",
+        "seo_priority": "high"
+      }
+    ],
+    "C": [
+      {
+        "title": "商业评估内容总览",
+        "url": "/intent/c",
+        "type": "intent_overview",
+        "intent": "C",
+        "intent_name": "商业评估",
+        "seo_priority": "high"
+      },
+      {
+        "title": "对比/评测内容",
+        "url": "/intent/c2",
+        "type": "sub_intent",
+        "intent": "C",
+        "sub_intent": "C2",
+        "intent_name": "对比/评测",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "榜单/推荐内容",
+        "url": "/intent/c1",
+        "type": "sub_intent",
+        "intent": "C",
+        "sub_intent": "C1",
+        "intent_name": "榜单/推荐",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "best ai tools 2025",
+        "url": "/keyword/best-ai-tools-2025",
+        "type": "keyword",
+        "intent": "C",
+        "keyword": "best ai tools 2025",
+        "seo_priority": "high"
+      },
+      {
+        "title": "ai vs human intelligence",
+        "url": "/keyword/ai-vs-human-intelligence",
+        "type": "keyword",
+        "intent": "C",
+        "keyword": "ai vs human intelligence",
+        "seo_priority": "high"
+      },
+      {
+        "title": "top 10 ai models",
+        "url": "/keyword/top-10-ai-models",
+        "type": "keyword",
+        "intent": "C",
+        "keyword": "top 10 ai models",
+        "seo_priority": "high"
+      },
+      {
+        "title": "ai tools review",
+        "url": "/keyword/ai-tools-review",
+        "type": "keyword",
+        "intent": "C",
+        "keyword": "ai tools review",
+        "seo_priority": "high"
+      },
+      {
+        "title": "buy ai writing tool",
+        "url": "/keyword/buy-ai-writing-tool",
+        "type": "keyword",
+        "intent": "C",
+        "keyword": "buy ai writing tool",
+        "seo_priority": "high"
+      }
+    ],
+    "L": [
+      {
+        "title": "本地/到店内容总览",
+        "url": "/intent/l",
+        "type": "intent_overview",
+        "intent": "L",
+        "intent_name": "本地/到店",
+        "seo_priority": "high"
+      },
+      {
+        "title": "开放时间内容",
+        "url": "/intent/l3",
+        "type": "sub_intent",
+        "intent": "L",
+        "sub_intent": "L3",
+        "intent_name": "开放时间",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "预约/路线内容",
+        "url": "/intent/l2",
+        "type": "sub_intent",
+        "intent": "L",
+        "sub_intent": "L2",
+        "intent_name": "预约/路线",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "附近门店内容",
+        "url": "/intent/l1",
+        "type": "sub_intent",
+        "intent": "L",
+        "sub_intent": "L1",
+        "intent_name": "附近门店",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "ai near me",
+        "url": "/keyword/ai-near-me",
+        "type": "keyword",
+        "intent": "L",
+        "keyword": "ai near me",
+        "seo_priority": "high"
+      },
+      {
+        "title": "ai conference 2025 directions",
+        "url": "/keyword/ai-conference-2025-directions",
+        "type": "keyword",
+        "intent": "L",
+        "keyword": "ai conference 2025 directions",
+        "seo_priority": "high"
+      },
+      {
+        "title": "ai store opening hours",
+        "url": "/keyword/ai-store-opening-hours",
+        "type": "keyword",
+        "intent": "L",
+        "keyword": "ai store opening hours",
+        "seo_priority": "high"
+      }
+    ]
+  },
+  "content_pages": {
+    "b_content_1": {
+      "title": "ai error message fix",
+      "url": "/content/b_content_1",
+      "intent": "B",
+      "keyword": "ai error message fix",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "b_content_2": {
+      "title": "advanced ai prompting",
+      "url": "/content/b_content_2",
+      "intent": "B",
+      "keyword": "advanced ai prompting",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "b_content_3": {
+      "title": "ai settings guide",
+      "url": "/content/b_content_3",
+      "intent": "B",
+      "keyword": "ai settings guide",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "n_content_1": {
+      "title": "chatgpt login",
+      "url": "/content/n_content_1",
+      "intent": "N",
+      "keyword": "chatgpt login",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "n_content_2": {
+      "title": "stable diffusion download",
+      "url": "/content/n_content_2",
+      "intent": "N",
+      "keyword": "stable diffusion download",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "i_content_1": {
+      "title": "what is ai",
+      "url": "/content/i_content_1",
+      "intent": "I",
+      "keyword": "what is ai",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "i_content_2": {
+      "title": "how to use chatgpt",
+      "url": "/content/i_content_2",
+      "intent": "I",
+      "keyword": "how to use chatgpt",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "i_content_3": {
+      "title": "ai tutorial for beginners",
+      "url": "/content/i_content_3",
+      "intent": "I",
+      "keyword": "ai tutorial for beginners",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "e_content_1": {
+      "title": "openai api price",
+      "url": "/content/e_content_1",
+      "intent": "E",
+      "keyword": "openai api price",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "e_content_2": {
+      "title": "chatgpt discount code",
+      "url": "/content/e_content_2",
+      "intent": "E",
+      "keyword": "chatgpt discount code",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "c_content_1": {
+      "title": "best ai tools 2025",
+      "url": "/content/c_content_1",
+      "intent": "C",
+      "keyword": "best ai tools 2025",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "c_content_2": {
+      "title": "ai vs human intelligence",
+      "url": "/content/c_content_2",
+      "intent": "C",
+      "keyword": "ai vs human intelligence",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "c_content_3": {
+      "title": "top 10 ai models",
+      "url": "/content/c_content_3",
+      "intent": "C",
+      "keyword": "top 10 ai models",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "c_content_4": {
+      "title": "ai tools review",
+      "url": "/content/c_content_4",
+      "intent": "C",
+      "keyword": "ai tools review",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "c_content_5": {
+      "title": "buy ai writing tool",
+      "url": "/content/c_content_5",
+      "intent": "C",
+      "keyword": "buy ai writing tool",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "l_content_1": {
+      "title": "ai near me",
+      "url": "/content/l_content_1",
+      "intent": "L",
+      "keyword": "ai near me",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "l_content_2": {
+      "title": "ai conference 2025 directions",
+      "url": "/content/l_content_2",
+      "intent": "L",
+      "keyword": "ai conference 2025 directions",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "l_content_3": {
+      "title": "ai store opening hours",
+      "url": "/content/l_content_3",
+      "intent": "L",
+      "keyword": "ai store opening hours",
+      "content_type": "article",
+      "seo_priority": "medium"
+    }
+  },
+  "product_pages": {
+    "product_1": {
+      "title": "openai api price产品详情",
+      "url": "/products/product_1",
+      "intent": "E",
+      "keyword": "openai api price",
+      "product_type": "digital",
+      "seo_priority": "high"
+    },
+    "product_2": {
+      "title": "chatgpt discount code产品详情",
+      "url": "/products/product_2",
+      "intent": "E",
+      "keyword": "chatgpt discount code",
+      "product_type": "digital",
+      "seo_priority": "high"
+    }
+  },
+  "category_pages": {
+    "category_b": {
+      "title": "行为后续分类",
+      "url": "/categories/category_b",
+      "intent": "B",
+      "seo_priority": "medium"
+    },
+    "category_n": {
+      "title": "导航直达分类",
+      "url": "/categories/category_n",
+      "intent": "N",
+      "seo_priority": "medium"
+    },
+    "category_i": {
+      "title": "信息获取分类",
+      "url": "/categories/category_i",
+      "intent": "I",
+      "seo_priority": "medium"
+    },
+    "category_e": {
+      "title": "交易购买分类",
+      "url": "/categories/category_e",
+      "intent": "E",
+      "seo_priority": "medium"
+    },
+    "category_c": {
+      "title": "商业评估分类",
+      "url": "/categories/category_c",
+      "intent": "C",
+      "seo_priority": "medium"
+    },
+    "category_l": {
+      "title": "本地/到店分类",
+      "url": "/categories/category_l",
+      "intent": "L",
+      "seo_priority": "medium"
+    }
+  }
+}

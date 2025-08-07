@@ -1,0 +1,59 @@
+{
+  "total_keywords": 18,
+  "intent_counts": {
+    "I": 3,
+    "C": 5,
+    "N": 2,
+    "E": 2,
+    "B": 3,
+    "L": 3
+  },
+  "intent_percentages": {
+    "I": 16.7,
+    "C": 27.8,
+    "N": 11.1,
+    "E": 11.1,
+    "B": 16.7,
+    "L": 16.7
+  },
+  "intent_keywords": {
+    "I": [
+      "what is ai",
+      "how to use chatgpt",
+      "ai tutorial for beginners"
+    ],
+    "C": [
+      "best ai tools 2025",
+      "ai vs human intelligence",
+      "top 10 ai models",
+      "ai tools review",
+      "buy ai writing tool"
+    ],
+    "N": [
+      "chatgpt login",
+      "stable diffusion download"
+    ],
+    "E": [
+      "openai api price",
+      "chatgpt discount code"
+    ],
+    "B": [
+      "ai error message fix",
+      "advanced ai prompting",
+      "ai settings guide"
+    ],
+    "L": [
+      "ai near me",
+      "ai conference 2025 directions",
+      "ai store opening hours"
+    ]
+  },
+  "recommendations": {
+    "I": "创建入门指南和教程内容",
+    "N": "优化网站导航和登录页面",
+    "C": "创建对比页和评测内容",
+    "E": "优化购买流程和促销活动",
+    "B": "提供故障排查和高级教程",
+    "L": "优化本地搜索和地图展示"
+  }
+}

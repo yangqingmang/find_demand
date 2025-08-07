@@ -1,0 +1,33 @@
+# 关键词字典
+I1: [what is, definition, mean, 意味, 是什么, 定义]
+I2: [architecture, algorithm, 原理, 源码, protocol]
+I3: [how to, tutorial, step by step, 教程, 方法, 步骤]
+I4: [is ... good, true or false, 是否, 好吗, 真假]
+
+N1: [official site, 官网, home page, 官方网站]
+N2: [login, signin, 控制台, 后台, 登陆]
+N3: [download, installer, setup.exe, 离线包, dmg]
+
+C1: [best, top 10, 推荐, 排行, 榜单, tool, tools]
+C2: [vs, versus, compare, 对比]
+C3: [review, rating, 点评, 评价]
+
+E1: [price, cost, 多少钱, 价格, quote]
+E2: [coupon, discount, promo, 优惠, 折扣]
+E3: [buy, purchase, order, 下单, 预订]
+
+B1: [error, fix, troubleshoot, 报错, 解决]
+B2: [advanced, pro tips, 高级, 进阶]
+B3: [config, setting, 配置, 设置]
+
+L1: [near me, 附近, 周边, 哪里有]
+L2: [route, directions, 路线, 怎么去, 预约]
+L3: [opening hours, 营业时间, 几点关门]
+
+# 主意图关键词
+I: [information, info, guide, learn, 学习, 指南]
+N: [website, site, app, platform, 网站, 应用]
+C: [tool, tools, software, 工具, 软件]
+E: [buy, purchase, 购买]
+B: [help, support, 帮助, 支持]
+L: [location, store, 位置, 商店]

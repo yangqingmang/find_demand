@@ -1,0 +1,21 @@
+# SERP规则
+shopping_ads:
+  E: 0.8
+  E3: 0.5
+price_snippet:
+  E: 0.6
+  E1: 0.4
+official_site:
+  N: 0.8
+  N1: 0.6
+video_block:
+  I: 0.4
+  I3: 0.3
+top_stories:
+  I: 0.3
+map_pack:
+  L: 1.0
+  L1: 0.6
+stackoverflow:
+  B: 0.8
+  B1: 0.6
