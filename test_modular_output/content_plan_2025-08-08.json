@@ -1,0 +1,1410 @@
+[
+  {
+    "week": 1,
+    "title": "首页内容",
+    "page_url": "/",
+    "content_type": "homepage",
+    "intent": "multiple",
+    "priority": "very_high",
+    "word_count": 1000,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "英雄区",
+        "type": "hero",
+        "word_count": 200
+      },
+      {
+        "name": "意图导航",
+        "type": "intent_nav",
+        "word_count": 100
+      },
+      {
+        "name": "意图专区",
+        "type": "intent_sections",
+        "word_count": 700
+      }
+    ]
+  },
+  {
+    "week": 2,
+    "title": "导航直达内容总览",
+    "page_url": "/intent/n",
+    "content_type": "intent_overview",
+    "intent": "N",
+    "intent_name": "导航直达",
+    "priority": "high",
+    "word_count": 1500,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "意图介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "常见问题",
+        "type": "faq",
+        "word_count": 500
+      },
+      {
+        "name": "相关内容",
+        "type": "related_content",
+        "word_count": 700
+      }
+    ]
+  },
+  {
+    "week": 3,
+    "title": "下载/安装包内容",
+    "page_url": "/intent/n3",
+    "content_type": "sub_intent",
+    "intent": "N",
+    "intent_name": "导航直达",
+    "priority": "medium",
+    "word_count": 1200,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "子意图介绍",
+        "type": "introduction",
+        "word_count": 250
+      },
+      {
+        "name": "内容列表",
+        "type": "content_list",
+        "word_count": 650
+      },
+      {
+        "name": "相关资源",
+        "type": "resources",
+        "word_count": 300
+      }
+    ]
+  },
+  {
+    "week": 4,
+    "title": "官方主页内容",
+    "page_url": "/intent/n1",
+    "content_type": "sub_intent",
+    "intent": "N",
+    "intent_name": "导航直达",
+    "priority": "medium",
+    "word_count": 1200,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "子意图介绍",
+        "type": "introduction",
+        "word_count": 250
+      },
+      {
+        "name": "内容列表",
+        "type": "content_list",
+        "word_count": 650
+      },
+      {
+        "name": "相关资源",
+        "type": "resources",
+        "word_count": 300
+      }
+    ]
+  },
+  {
+    "week": 5,
+    "title": "Python官网",
+    "page_url": "/keyword/python官网",
+    "content_type": "keyword",
+    "intent": "N",
+    "intent_name": "导航直达",
+    "priority": "high",
+    "word_count": 1200,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "关键词介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "详细内容",
+        "type": "detailed_content",
+        "word_count": 900
+      }
+    ]
+  },
+  {
+    "week": 6,
+    "title": "Python下载",
+    "page_url": "/keyword/python下载",
+    "content_type": "keyword",
+    "intent": "N",
+    "intent_name": "导航直达",
+    "priority": "high",
+    "word_count": 1200,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "关键词介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "详细内容",
+        "type": "detailed_content",
+        "word_count": 900
+      }
+    ]
+  },
+  {
+    "week": 7,
+    "title": "交易购买内容总览",
+    "page_url": "/intent/e",
+    "content_type": "intent_overview",
+    "intent": "E",
+    "intent_name": "交易购买",
+    "priority": "high",
+    "word_count": 1500,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "意图介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "常见问题",
+        "type": "faq",
+        "word_count": 500
+      },
+      {
+        "name": "相关内容",
+        "type": "related_content",
+        "word_count": 700
+      }
+    ]
+  },
+  {
+    "week": 8,
+    "title": "下单/预订内容",
+    "page_url": "/intent/e3",
+    "content_type": "sub_intent",
+    "intent": "E",
+    "intent_name": "交易购买",
+    "priority": "medium",
+    "word_count": 1200,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "子意图介绍",
+        "type": "introduction",
+        "word_count": 250
+      },
+      {
+        "name": "内容列表",
+        "type": "content_list",
+        "word_count": 650
+      },
+      {
+        "name": "相关资源",
+        "type": "resources",
+        "word_count": 300
+      }
+    ]
+  },
+  {
+    "week": 9,
+    "title": "价格/报价内容",
+    "page_url": "/intent/e1",
+    "content_type": "sub_intent",
+    "intent": "E",
+    "intent_name": "交易购买",
+    "priority": "medium",
+    "word_count": 1200,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "子意图介绍",
+        "type": "introduction",
+        "word_count": 250
+      },
+      {
+        "name": "内容列表",
+        "type": "content_list",
+        "word_count": 650
+      },
+      {
+        "name": "相关资源",
+        "type": "resources",
+        "word_count": 300
+      }
+    ]
+  },
+  {
+    "week": 10,
+    "title": "Python培训班价格",
+    "page_url": "/keyword/python培训班价格",
+    "content_type": "keyword",
+    "intent": "E",
+    "intent_name": "交易购买",
+    "priority": "high",
+    "word_count": 1200,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "关键词介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "详细内容",
+        "type": "detailed_content",
+        "word_count": 900
+      }
+    ]
+  },
+  {
+    "week": 11,
+    "title": "购买Python课程",
+    "page_url": "/keyword/购买python课程",
+    "content_type": "keyword",
+    "intent": "E",
+    "intent_name": "交易购买",
+    "priority": "high",
+    "word_count": 1200,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "关键词介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "详细内容",
+        "type": "detailed_content",
+        "word_count": 900
+      }
+    ]
+  },
+  {
+    "week": 12,
+    "title": "信息获取内容总览",
+    "page_url": "/intent/i",
+    "content_type": "intent_overview",
+    "intent": "I",
+    "intent_name": "信息获取",
+    "priority": "high",
+    "word_count": 1500,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "意图介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "常见问题",
+        "type": "faq",
+        "word_count": 500
+      },
+      {
+        "name": "相关内容",
+        "type": "related_content",
+        "word_count": 700
+      }
+    ]
+  },
+  {
+    "week": 13,
+    "title": "定义/概念内容",
+    "page_url": "/intent/i1",
+    "content_type": "sub_intent",
+    "intent": "I",
+    "intent_name": "信息获取",
+    "priority": "medium",
+    "word_count": 1200,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "子意图介绍",
+        "type": "introduction",
+        "word_count": 250
+      },
+      {
+        "name": "内容列表",
+        "type": "content_list",
+        "word_count": 650
+      },
+      {
+        "name": "相关资源",
+        "type": "resources",
+        "word_count": 300
+      }
+    ]
+  },
+  {
+    "week": 14,
+    "title": "教程/步骤内容",
+    "page_url": "/intent/i3",
+    "content_type": "sub_intent",
+    "intent": "I",
+    "intent_name": "信息获取",
+    "priority": "medium",
+    "word_count": 1200,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "子意图介绍",
+        "type": "introduction",
+        "word_count": 250
+      },
+      {
+        "name": "内容列表",
+        "type": "content_list",
+        "word_count": 650
+      },
+      {
+        "name": "相关资源",
+        "type": "resources",
+        "word_count": 300
+      }
+    ]
+  },
+  {
+    "week": 15,
+    "title": "Python教程",
+    "page_url": "/keyword/python教程",
+    "content_type": "keyword",
+    "intent": "I",
+    "intent_name": "信息获取",
+    "priority": "high",
+    "word_count": 1200,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "关键词介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "详细内容",
+        "type": "detailed_content",
+        "word_count": 900
+      }
+    ]
+  },
+  {
+    "week": 16,
+    "title": "Python是什么",
+    "page_url": "/keyword/python是什么",
+    "content_type": "keyword",
+    "intent": "I",
+    "intent_name": "信息获取",
+    "priority": "high",
+    "word_count": 1200,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "关键词介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "详细内容",
+        "type": "detailed_content",
+        "word_count": 900
+      }
+    ]
+  },
+  {
+    "week": 17,
+    "title": "如何学习Python",
+    "page_url": "/keyword/如何学习python",
+    "content_type": "keyword",
+    "intent": "I",
+    "intent_name": "信息获取",
+    "priority": "high",
+    "word_count": 1200,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "关键词介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "详细内容",
+        "type": "detailed_content",
+        "word_count": 900
+      }
+    ]
+  },
+  {
+    "week": 18,
+    "title": "本地/到店内容总览",
+    "page_url": "/intent/l",
+    "content_type": "intent_overview",
+    "intent": "L",
+    "intent_name": "本地/到店",
+    "priority": "high",
+    "word_count": 1500,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "意图介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "常见问题",
+        "type": "faq",
+        "word_count": 500
+      },
+      {
+        "name": "相关内容",
+        "type": "related_content",
+        "word_count": 700
+      }
+    ]
+  },
+  {
+    "week": 19,
+    "title": "附近门店内容",
+    "page_url": "/intent/l1",
+    "content_type": "sub_intent",
+    "intent": "L",
+    "intent_name": "本地/到店",
+    "priority": "medium",
+    "word_count": 1200,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "子意图介绍",
+        "type": "introduction",
+        "word_count": 250
+      },
+      {
+        "name": "内容列表",
+        "type": "content_list",
+        "word_count": 650
+      },
+      {
+        "name": "相关资源",
+        "type": "resources",
+        "word_count": 300
+      }
+    ]
+  },
+  {
+    "week": 20,
+    "title": "附近Python培训",
+    "page_url": "/keyword/附近python培训",
+    "content_type": "keyword",
+    "intent": "L",
+    "intent_name": "本地/到店",
+    "priority": "high",
+    "word_count": 1200,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "关键词介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "详细内容",
+        "type": "detailed_content",
+        "word_count": 900
+      }
+    ]
+  },
+  {
+    "week": 21,
+    "title": "商业评估内容总览",
+    "page_url": "/intent/c",
+    "content_type": "intent_overview",
+    "intent": "C",
+    "intent_name": "商业评估",
+    "priority": "high",
+    "word_count": 1500,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "意图介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "常见问题",
+        "type": "faq",
+        "word_count": 500
+      },
+      {
+        "name": "相关内容",
+        "type": "related_content",
+        "word_count": 700
+      }
+    ]
+  },
+  {
+    "week": 22,
+    "title": "对比/评测内容",
+    "page_url": "/intent/c2",
+    "content_type": "sub_intent",
+    "intent": "C",
+    "intent_name": "商业评估",
+    "priority": "medium",
+    "word_count": 1200,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "子意图介绍",
+        "type": "introduction",
+        "word_count": 250
+      },
+      {
+        "name": "内容列表",
+        "type": "content_list",
+        "word_count": 650
+      },
+      {
+        "name": "相关资源",
+        "type": "resources",
+        "word_count": 300
+      }
+    ]
+  },
+  {
+    "week": 23,
+    "title": "榜单/推荐内容",
+    "page_url": "/intent/c1",
+    "content_type": "sub_intent",
+    "intent": "C",
+    "intent_name": "商业评估",
+    "priority": "medium",
+    "word_count": 1200,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "子意图介绍",
+        "type": "introduction",
+        "word_count": 250
+      },
+      {
+        "name": "内容列表",
+        "type": "content_list",
+        "word_count": 650
+      },
+      {
+        "name": "相关资源",
+        "type": "resources",
+        "word_count": 300
+      }
+    ]
+  },
+  {
+    "week": 24,
+    "title": "最好的Python IDE",
+    "page_url": "/keyword/最好的python-ide",
+    "content_type": "keyword",
+    "intent": "C",
+    "intent_name": "商业评估",
+    "priority": "high",
+    "word_count": 1200,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "关键词介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "详细内容",
+        "type": "detailed_content",
+        "word_count": 900
+      }
+    ]
+  },
+  {
+    "week": 25,
+    "title": "PyCharm vs VSCode",
+    "page_url": "/keyword/pycharm-vs-vscode",
+    "content_type": "keyword",
+    "intent": "C",
+    "intent_name": "商业评估",
+    "priority": "high",
+    "word_count": 1200,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "关键词介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "详细内容",
+        "type": "detailed_content",
+        "word_count": 900
+      }
+    ]
+  },
+  {
+    "week": 26,
+    "title": "行为后续内容总览",
+    "page_url": "/intent/b",
+    "content_type": "intent_overview",
+    "intent": "B",
+    "intent_name": "行为后续",
+    "priority": "high",
+    "word_count": 1500,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "意图介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "常见问题",
+        "type": "faq",
+        "word_count": 500
+      },
+      {
+        "name": "相关内容",
+        "type": "related_content",
+        "word_count": 700
+      }
+    ]
+  },
+  {
+    "week": 27,
+    "title": "高级用法内容",
+    "page_url": "/intent/b2",
+    "content_type": "sub_intent",
+    "intent": "B",
+    "intent_name": "行为后续",
+    "priority": "medium",
+    "word_count": 1200,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "子意图介绍",
+        "type": "introduction",
+        "word_count": 250
+      },
+      {
+        "name": "内容列表",
+        "type": "content_list",
+        "word_count": 650
+      },
+      {
+        "name": "相关资源",
+        "type": "resources",
+        "word_count": 300
+      }
+    ]
+  },
+  {
+    "week": 28,
+    "title": "故障/报错内容",
+    "page_url": "/intent/b1",
+    "content_type": "sub_intent",
+    "intent": "B",
+    "intent_name": "行为后续",
+    "priority": "medium",
+    "word_count": 1200,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "子意图介绍",
+        "type": "introduction",
+        "word_count": 250
+      },
+      {
+        "name": "内容列表",
+        "type": "content_list",
+        "word_count": 650
+      },
+      {
+        "name": "相关资源",
+        "type": "resources",
+        "word_count": 300
+      }
+    ]
+  },
+  {
+    "week": 29,
+    "title": "Python报错解决",
+    "page_url": "/keyword/python报错解决",
+    "content_type": "keyword",
+    "intent": "B",
+    "intent_name": "行为后续",
+    "priority": "high",
+    "word_count": 1200,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "关键词介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "详细内容",
+        "type": "detailed_content",
+        "word_count": 900
+      }
+    ]
+  },
+  {
+    "week": 30,
+    "title": "Python高级用法",
+    "page_url": "/keyword/python高级用法",
+    "content_type": "keyword",
+    "intent": "B",
+    "intent_name": "行为后续",
+    "priority": "high",
+    "word_count": 1200,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "关键词介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "详细内容",
+        "type": "detailed_content",
+        "word_count": 900
+      }
+    ]
+  },
+  {
+    "week": 31,
+    "title": "Python官网",
+    "page_url": "/content/n_content_1",
+    "content_type": "article",
+    "intent": "N",
+    "intent_name": "导航直达",
+    "keyword": "Python官网",
+    "priority": "medium",
+    "word_count": 2000,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "主要内容",
+        "type": "main_content",
+        "word_count": 1200
+      },
+      {
+        "name": "总结",
+        "type": "summary",
+        "word_count": 500
+      }
+    ]
+  },
+  {
+    "week": 32,
+    "title": "Python下载",
+    "page_url": "/content/n_content_2",
+    "content_type": "article",
+    "intent": "N",
+    "intent_name": "导航直达",
+    "keyword": "Python下载",
+    "priority": "medium",
+    "word_count": 2000,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "主要内容",
+        "type": "main_content",
+        "word_count": 1200
+      },
+      {
+        "name": "总结",
+        "type": "summary",
+        "word_count": 500
+      }
+    ]
+  },
+  {
+    "week": 33,
+    "title": "Python培训班价格",
+    "page_url": "/content/e_content_1",
+    "content_type": "article",
+    "intent": "E",
+    "intent_name": "交易购买",
+    "keyword": "Python培训班价格",
+    "priority": "medium",
+    "word_count": 2000,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "产品介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "产品特点",
+        "type": "features",
+        "word_count": 600
+      },
+      {
+        "name": "价格信息",
+        "type": "pricing",
+        "word_count": 400
+      },
+      {
+        "name": "购买指南",
+        "type": "buying_guide",
+        "word_count": 700
+      }
+    ]
+  },
+  {
+    "week": 34,
+    "title": "购买Python课程",
+    "page_url": "/content/e_content_2",
+    "content_type": "article",
+    "intent": "E",
+    "intent_name": "交易购买",
+    "keyword": "购买Python课程",
+    "priority": "medium",
+    "word_count": 2000,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "产品介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "产品特点",
+        "type": "features",
+        "word_count": 600
+      },
+      {
+        "name": "价格信息",
+        "type": "pricing",
+        "word_count": 400
+      },
+      {
+        "name": "购买指南",
+        "type": "buying_guide",
+        "word_count": 700
+      }
+    ]
+  },
+  {
+    "week": 35,
+    "title": "Python教程",
+    "page_url": "/content/i_content_1",
+    "content_type": "article",
+    "intent": "I",
+    "intent_name": "信息获取",
+    "keyword": "Python教程",
+    "priority": "medium",
+    "word_count": 2000,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "详细信息",
+        "type": "detailed_info",
+        "word_count": 1000
+      },
+      {
+        "name": "常见问题",
+        "type": "faq",
+        "word_count": 500
+      },
+      {
+        "name": "总结",
+        "type": "summary",
+        "word_count": 200
+      }
+    ]
+  },
+  {
+    "week": 36,
+    "title": "Python是什么",
+    "page_url": "/content/i_content_2",
+    "content_type": "article",
+    "intent": "I",
+    "intent_name": "信息获取",
+    "keyword": "Python是什么",
+    "priority": "medium",
+    "word_count": 2000,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "详细信息",
+        "type": "detailed_info",
+        "word_count": 1000
+      },
+      {
+        "name": "常见问题",
+        "type": "faq",
+        "word_count": 500
+      },
+      {
+        "name": "总结",
+        "type": "summary",
+        "word_count": 200
+      }
+    ]
+  },
+  {
+    "week": 37,
+    "title": "如何学习Python",
+    "page_url": "/content/i_content_3",
+    "content_type": "article",
+    "intent": "I",
+    "intent_name": "信息获取",
+    "keyword": "如何学习Python",
+    "priority": "medium",
+    "word_count": 2000,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "详细信息",
+        "type": "detailed_info",
+        "word_count": 1000
+      },
+      {
+        "name": "常见问题",
+        "type": "faq",
+        "word_count": 500
+      },
+      {
+        "name": "总结",
+        "type": "summary",
+        "word_count": 200
+      }
+    ]
+  },
+  {
+    "week": 38,
+    "title": "附近Python培训",
+    "page_url": "/content/l_content_1",
+    "content_type": "article",
+    "intent": "L",
+    "intent_name": "本地/到店",
+    "keyword": "附近Python培训",
+    "priority": "medium",
+    "word_count": 2000,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "主要内容",
+        "type": "main_content",
+        "word_count": 1200
+      },
+      {
+        "name": "总结",
+        "type": "summary",
+        "word_count": 500
+      }
+    ]
+  },
+  {
+    "week": 39,
+    "title": "最好的Python IDE",
+    "page_url": "/content/c_content_1",
+    "content_type": "article",
+    "intent": "C",
+    "intent_name": "商业评估",
+    "keyword": "最好的Python IDE",
+    "priority": "medium",
+    "word_count": 2000,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "产品介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "比较分析",
+        "type": "comparison",
+        "word_count": 800
+      },
+      {
+        "name": "优缺点",
+        "type": "pros_cons",
+        "word_count": 600
+      },
+      {
+        "name": "推荐建议",
+        "type": "recommendations",
+        "word_count": 300
+      }
+    ]
+  },
+  {
+    "week": 40,
+    "title": "PyCharm vs VSCode",
+    "page_url": "/content/c_content_2",
+    "content_type": "article",
+    "intent": "C",
+    "intent_name": "商业评估",
+    "keyword": "PyCharm vs VSCode",
+    "priority": "medium",
+    "word_count": 2000,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "产品介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "比较分析",
+        "type": "comparison",
+        "word_count": 800
+      },
+      {
+        "name": "优缺点",
+        "type": "pros_cons",
+        "word_count": 600
+      },
+      {
+        "name": "推荐建议",
+        "type": "recommendations",
+        "word_count": 300
+      }
+    ]
+  },
+  {
+    "week": 41,
+    "title": "Python报错解决",
+    "page_url": "/content/b_content_1",
+    "content_type": "article",
+    "intent": "B",
+    "intent_name": "行为后续",
+    "keyword": "Python报错解决",
+    "priority": "medium",
+    "word_count": 2000,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "主要内容",
+        "type": "main_content",
+        "word_count": 1200
+      },
+      {
+        "name": "总结",
+        "type": "summary",
+        "word_count": 500
+      }
+    ]
+  },
+  {
+    "week": 42,
+    "title": "Python高级用法",
+    "page_url": "/content/b_content_2",
+    "content_type": "article",
+    "intent": "B",
+    "intent_name": "行为后续",
+    "keyword": "Python高级用法",
+    "priority": "medium",
+    "word_count": 2000,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "主要内容",
+        "type": "main_content",
+        "word_count": 1200
+      },
+      {
+        "name": "总结",
+        "type": "summary",
+        "word_count": 500
+      }
+    ]
+  },
+  {
+    "week": 43,
+    "title": "Python培训班价格产品详情",
+    "page_url": "/products/product_1",
+    "content_type": "product",
+    "intent": "E",
+    "intent_name": "交易购买",
+    "keyword": "Python培训班价格",
+    "priority": "high",
+    "word_count": 1500,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "产品介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "产品特点",
+        "type": "features",
+        "word_count": 400
+      },
+      {
+        "name": "规格参数",
+        "type": "specifications",
+        "word_count": 300
+      },
+      {
+        "name": "价格信息",
+        "type": "pricing",
+        "word_count": 200
+      },
+      {
+        "name": "用户评价",
+        "type": "reviews",
+        "word_count": 300
+      }
+    ]
+  },
+  {
+    "week": 44,
+    "title": "购买Python课程产品详情",
+    "page_url": "/products/product_2",
+    "content_type": "product",
+    "intent": "E",
+    "intent_name": "交易购买",
+    "keyword": "购买Python课程",
+    "priority": "high",
+    "word_count": 1500,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "产品介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "产品特点",
+        "type": "features",
+        "word_count": 400
+      },
+      {
+        "name": "规格参数",
+        "type": "specifications",
+        "word_count": 300
+      },
+      {
+        "name": "价格信息",
+        "type": "pricing",
+        "word_count": 200
+      },
+      {
+        "name": "用户评价",
+        "type": "reviews",
+        "word_count": 300
+      }
+    ]
+  },
+  {
+    "week": 45,
+    "title": "导航直达分类",
+    "page_url": "/categories/category_n",
+    "content_type": "category",
+    "intent": "N",
+    "intent_name": "导航直达",
+    "priority": "medium",
+    "word_count": 1000,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "分类介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "内容列表",
+        "type": "content_list",
+        "word_count": 500
+      },
+      {
+        "name": "相关分类",
+        "type": "related_categories",
+        "word_count": 200
+      }
+    ]
+  },
+  {
+    "week": 46,
+    "title": "交易购买分类",
+    "page_url": "/categories/category_e",
+    "content_type": "category",
+    "intent": "E",
+    "intent_name": "交易购买",
+    "priority": "medium",
+    "word_count": 1000,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "分类介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "内容列表",
+        "type": "content_list",
+        "word_count": 500
+      },
+      {
+        "name": "相关分类",
+        "type": "related_categories",
+        "word_count": 200
+      }
+    ]
+  },
+  {
+    "week": 47,
+    "title": "信息获取分类",
+    "page_url": "/categories/category_i",
+    "content_type": "category",
+    "intent": "I",
+    "intent_name": "信息获取",
+    "priority": "medium",
+    "word_count": 1000,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "分类介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "内容列表",
+        "type": "content_list",
+        "word_count": 500
+      },
+      {
+        "name": "相关分类",
+        "type": "related_categories",
+        "word_count": 200
+      }
+    ]
+  },
+  {
+    "week": 48,
+    "title": "本地/到店分类",
+    "page_url": "/categories/category_l",
+    "content_type": "category",
+    "intent": "L",
+    "intent_name": "本地/到店",
+    "priority": "medium",
+    "word_count": 1000,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "分类介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "内容列表",
+        "type": "content_list",
+        "word_count": 500
+      },
+      {
+        "name": "相关分类",
+        "type": "related_categories",
+        "word_count": 200
+      }
+    ]
+  },
+  {
+    "week": 49,
+    "title": "商业评估分类",
+    "page_url": "/categories/category_c",
+    "content_type": "category",
+    "intent": "C",
+    "intent_name": "商业评估",
+    "priority": "medium",
+    "word_count": 1000,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "分类介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "内容列表",
+        "type": "content_list",
+        "word_count": 500
+      },
+      {
+        "name": "相关分类",
+        "type": "related_categories",
+        "word_count": 200
+      }
+    ]
+  },
+  {
+    "week": 50,
+    "title": "行为后续分类",
+    "page_url": "/categories/category_b",
+    "content_type": "category",
+    "intent": "B",
+    "intent_name": "行为后续",
+    "priority": "medium",
+    "word_count": 1000,
+    "status": "planned",
+    "sections": [
+      {
+        "name": "分类介绍",
+        "type": "introduction",
+        "word_count": 300
+      },
+      {
+        "name": "内容列表",
+        "type": "content_list",
+        "word_count": 500
+      },
+      {
+        "name": "相关分类",
+        "type": "related_categories",
+        "word_count": 200
+      }
+    ]
+  }
+]

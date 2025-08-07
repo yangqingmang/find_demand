@@ -1,0 +1,13 @@
+query,intent_primary,sub_intent,confidence
+Python教程,I,I3,0.95
+Python是什么,I,I1,0.90
+如何学习Python,I,I3,0.88
+Python官网,N,N1,0.92
+Python下载,N,N3,0.89
+最好的Python IDE,C,C1,0.85
+PyCharm vs VSCode,C,C2,0.87
+Python培训班价格,E,E1,0.83
+购买Python课程,E,E3,0.91
+Python报错解决,B,B1,0.86
+Python高级用法,B,B2,0.84
+附近Python培训,L,L1,0.82
