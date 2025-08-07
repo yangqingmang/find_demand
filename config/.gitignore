@@ -1,0 +1,20 @@
+# 私钥文件（绝对不能提交）
+private.key
+*.key
+*.pem
+
+# 解密后的配置文件
+.env.decrypted
+.env.local
+*.decrypted
+
+# 备份文件
+.env.backup
+*.backup
+
+# 临时文件
+.env.tmp
+*.tmp
+
+# 未知配置文件
+.env.unknown

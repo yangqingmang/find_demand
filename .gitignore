@@ -3,6 +3,17 @@ config/.env
 .env
 *.env
 
+# 加密系统相关文件
+config/private.key
+config/*.key
+config/*.pem
+config/.env.decrypted
+config/.env.local
+config/*.decrypted
+config/.env.backup
+config/*.backup
+config/.env.unknown
+
 # Python 相关
 __pycache__/
 *.py[cod]
