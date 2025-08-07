@@ -67,7 +67,7 @@ python ai_website_builder.py --keywords "ai tools"
 
 - [项目优化总结](docs/项目优化总结.md) - 最新优化内容和改进
 - [完整操作手册](docs/完整操作手册.md) - 详细操作步骤
-- [API密钥安全管理指南](docs/API密钥安全管理指南.md) - API配置说明
+- [API密钥安全管理指南](docs/API密钥安全管理指南.md) - API配置说明（包含RSA+AES加密配置）
 
 ## 🛠️ 技术栈
 

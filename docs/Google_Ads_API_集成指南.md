@@ -31,9 +31,28 @@ Google Ads API 可以提供真实的搜索量、CPC（每次点击成本）、�
 4. 下载 JSON 密钥文件，妥善保存
 
 #### 步骤4：申请 Google Ads API 访问权限
-1. 访问 [Google Ads API 申请页面](https://developers.google.com/google-ads/api/docs/first-call/overview)
-2. 填写申请表单，说明使用目的
-3. 等待审核（通常需要1-3个工作日）
+1. **登录Google Ads账户**：访问 [Google Ads](https://ads.google.com/)
+2. **进入API中心**：在Google Ads界面中，点击右上角的工具图标 → 设置 → API中心
+3. **申请Developer Token**：
+   - 点击"申请访问权限"或"Request access"
+   - 填写申请表单，包括：
+     - 应用程序名称（如：Market Research Tool）
+     - 使用目的（如：关键词研究和市场分析）
+     - 预期的API调用量
+     - 联系信息
+4. **提交申请**：完成表单后提交申请
+5. **等待审核**：通常需要1-3个工作日，Google会通过邮件通知审核结果
+
+**备用申请方法**：
+如果在Google Ads界面中找不到API中心，可以尝试以下方法：
+1. **直接访问申请表单**：[Google Ads API Access Request](https://support.google.com/google-ads/contact/api_access_request)
+2. **通过Google Ads帮助中心**：搜索"Google Ads API access"
+3. **联系Google Ads支持**：通过客服申请API访问权限
+
+**申请前准备**：
+- 确保Google Ads账户已完全设置（添加付款方式，即使不投放广告）
+- 准备详细的使用说明（如：用于关键词研究、市场分析、SEO工具等）
+- 确保有有效的联系方式接收审核结果
 
 ### 1.3 获取必要的配置信息
 
