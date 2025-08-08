@@ -44,22 +44,12 @@ class DemandMiningManager:
         self.market_analyzer = MarketAnalyzer()
         self.keyword_analyzer = KeywordAnalyzer()
         
-        # 51个核心词根（基于路漫漫分享）
-        self.core_roots = [
-            'generator', 'converter', 'editor', 'maker', 'creator', 'builder',
-            'checker', 'analyzer', 'detector', 'scanner', 'validator', 'tester',
-            'optimizer', 'enhancer', 'compressor', 'resizer', 'booster',
-            'translator', 'transcriber', 'summarizer', 'extractor', 'parser',
-            'planner', 'scheduler', 'tracker', 'monitor', 'calculator',
-            'simulator', 'predictor', 'estimator', 'comparator', 'matcher',
-            'finder', 'searcher', 'explorer', 'browser', 'viewer',
-            'downloader', 'uploader', 'exporter', 'importer', 'backup',
-            'cleaner', 'organizer', 'sorter', 'filter', 'merger',
-            'splitter', 'joiner', 'combiner', 'mixer', 'blender'
-        ]
+        # 初始化词根管理器（整合51个网络收集的词根）
+        self.root_manager = RootWordManager(config_path)
         
-        # AI相关前缀
-        self.ai_prefixes = ['ai', 'artificial intelligence', 'machine learning', 'deep learning', 'neural']
+        # 获取当前激活的词根（支持手动指定和默认配置）
+        self.core_roots = self.root_manager.get_active_roots()
+        self.ai_prefixes = self.root_manager.ai_prefixes
         
         # 高价值竞品网站（用于流量分析）
         self.competitor_sites = [

@@ -1,0 +1,58 @@
+{
+  "workflow_settings": {
+    "min_opportunity_score": 60,
+    "max_projects_per_batch": 5,
+    "auto_deploy": true,
+    "generate_reports": true
+  },
+  
+  "demand_mining": {
+    "min_search_volume": 100,
+    "max_competition": 0.8,
+    "min_confidence": 0.7,
+    "analysis_depth": "standard",
+    "data_sources": ["google_trends", "keyword_planner"]
+  },
+  
+  "intent_analysis": {
+    "confidence_threshold": 0.6,
+    "enable_serp_analysis": true,
+    "sub_intent_detection": true
+  },
+  
+  "website_generation": {
+    "use_tailwind": true,
+    "include_analytics": true,
+    "responsive_design": true,
+    "seo_optimization": true,
+    "generate_sitemap": true
+  },
+  
+  "deployment": {
+    "platform": "cloudflare",
+    "auto_ssl": true,
+    "custom_domain_support": true,
+    "cdn_enabled": true,
+    "environment": "production"
+  },
+  
+  "ai_enhancement": {
+    "ai_bonus_weight": 0.2,
+    "newness_bonus_weight": 0.1,
+    "commercial_value_weight": 0.15,
+    "root_match_weight": 0.05
+  },
+  
+  "output_settings": {
+    "save_intermediate_results": true,
+    "generate_thumbnails": true,
+    "create_backup": true,
+    "compress_assets": true
+  },
+  
+  "notification": {
+    "email_notifications": false,
+    "webhook_url": "",
+    "slack_integration": false
+  }
+}
