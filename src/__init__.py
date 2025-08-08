@@ -1,22 +1,29 @@
 """
-市场需求分析工具集
-Market Demand Analysis Toolkit
+需求挖掘分析工具集
+整合六大需求挖掘方法的智能分析系统
 """
 
-__version__ = "1.0.0"
-__author__ = "Market Analysis Team"
-__description__ = "一套完整的市场需求分析工具，包含Google Trends数据采集、关键词评分、搜索意图分析等功能"
+__version__ = "2.0.0"
+__author__ = "Demand Mining Team"
+__description__ = "整合六大需求挖掘方法的完整分析系统，专注于出海AI工具需求发现"
 
-from .core.market_analyzer import MarketAnalyzer
-from .collectors.trends_collector import TrendsCollector
-from .analyzers.keyword_scorer import KeywordScorer
-from .analyzers.intent_analyzer import IntentAnalyzer
-from .analyzers.serp_analyzer import SerpAnalyzer
+# 只导入确实存在的模块，避免导入错误
+try:
+    from .demand_mining.demand_mining_main import DemandMiningManager
+    __all__ = ['DemandMiningManager']
+except ImportError:
+    # 如果导入失败，提供空的__all__
+    __all__ = []
 
-__all__ = [
-    'MarketAnalyzer',
-    'TrendsCollector', 
-    'KeywordScorer',
-    'IntentAnalyzer',
-    'SerpAnalyzer'
-]
+# 保持向后兼容性，但使用try-except避免错误
+try:
+    from .core.market_analyzer import MarketAnalyzer
+    __all__.append('MarketAnalyzer')
+except ImportError:
+    pass
+
+try:
+    from .collectors.trends_collector import TrendsCollector
+    __all__.append('TrendsCollector')
+except ImportError:
+    pass

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-市场需求分析工具 - 主入口文件
-Market Demand Analysis Toolkit - Main Entry Point
+需求挖掘分析工具 - 主入口文件
+整合六大需求挖掘方法的统一执行入口
 """
 
 import argparse
@@ -13,8 +13,8 @@ from datetime import datetime
 # 添加src目录到Python路径
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-from src.core.market_analyzer import MarketAnalyzer
-from src.utils import Logger, safe_print, ValidationError, validate_analysis_params
+# 导入最新的需求挖掘管理器
+from src.demand_mining.demand_mining_main import DemandMiningManager
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -25,145 +25,157 @@ Market Demand Analysis Toolkit - Main Entry Point
 
 def print_quiet_summary(result):
     """静默模式下的简要结果显示"""
-    from src.utils import INTENT_TYPES
-    
-    safe_print("\n分析结果摘要:")
-    safe_print(f"   • 关键词总数: {result.get('关键词总数', 0)}")
-    safe_print(f"   • 高分关键词: {result.get('高分关键词数', 0)}")
-    safe_print(f"   • 分析耗时: {result.get('分析耗时(秒)', 0)} 秒")
+    print("\n🎯 需求挖掘分析结果摘要:")
+    print(f"   • 关键词总数: {result.get('total_keywords', 0)}")
+    print(f"   • 高机会关键词: {result.get('market_insights', {}).get('high_opportunity_count', 0)}")
+    print(f"   • 平均机会分数: {result.get('market_insights', {}).get('avg_opportunity_score', 0)}")
     
     # 显示Top 3关键词
-    top_keywords = result.get('Top5关键词', [])[:3]
+    top_keywords = result.get('market_insights', {}).get('top_opportunities', [])[:3]
     if top_keywords:
-        safe_print("\nTop 3 关键词:")
+        print("\n🏆 Top 3 机会关键词:")
         for i, kw in enumerate(top_keywords):
-            intent_name = INTENT_TYPES.get(kw['intent'], kw['intent'])
-            safe_print(f"   {i+1}. {kw['query']} (分数: {kw['score']}, {intent_name})")
+            intent_desc = kw.get('intent', {}).get('intent_description', '未知')
+            score = kw.get('opportunity_score', 0)
+            print(f"   {i+1}. {kw['keyword']} (机会分数: {score}, 意图: {intent_desc})")
 
 def main():
     """主函数 - 提供统一的执行入口"""
     
-    # 创建日志记录器并设置控制台编码
-    logger = Logger()
-    logger.setup_console_encoding()
-    
-    safe_print("市场需求分析工具 v1.0")
-    safe_print("=" * 50)
+    print("🔍 需求挖掘分析工具 v2.0")
+    print("整合六大需求挖掘方法的智能分析系统")
+    print("=" * 60)
     
     # 解析命令行参数
     parser = argparse.ArgumentParser(
-        description='市场需求分析工具 - 统一执行入口',
+        description='需求挖掘分析工具 - 整合六大挖掘方法',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-使用示例:
-  python main.py "ai tools"
-  python main.py "ai tools" --geo US
-  python main.py "ai tools" "marketing automation" --geo US --timeframe "today 6-m"
-  python main.py "chatgpt" --min-score 50 --quiet
+🎯 六大需求挖掘方法:
+  1. 基于词根关键词拓展 (52个核心词根)
+  2. 基于SEO大站流量分析 (8个竞品网站)
+  3. 搜索引擎下拉推荐
+  4. 循环挖掘法
+  5. 付费广告关键词分析
+  6. 收入排行榜分析
+
+📋 使用示例:
+  # 分析关键词文件
+  python main.py --input data/keywords.csv
+  
+  # 分析单个关键词
+  python main.py --keywords "ai generator" "ai converter"
+  
+  # 生成分析报告
+  python main.py --report
+  
+  # 静默模式分析
+  python main.py --input data/keywords.csv --quiet
         """
     )
     
-    parser.add_argument('keywords', nargs='+', help='要分析的关键词（可以是多个）')
-    parser.add_argument('--geo', default='', help='目标地区代码（如: US, GB, CN等），默认为全球')
-    parser.add_argument('--timeframe', default='today 3-m', 
-                       choices=['today 1-m', 'today 3-m', 'today 12-m', 'today 5-y'],
-                       help='分析时间范围，默认为过去3个月')
-    parser.add_argument('--output', default='data', help='输出目录，默认为data')
-    parser.add_argument('--min-score', type=int, default=10, help='最低评分过滤，默认为10')
-    parser.add_argument('--volume-weight', type=float, default=0.4, help='搜索量权重，默认0.4')
-    parser.add_argument('--growth-weight', type=float, default=0.4, help='增长率权重，默认0.4')
-    parser.add_argument('--kd-weight', type=float, default=0.2, help='关键词难度权重，默认0.2')
+    # 输入方式选择
+    input_group = parser.add_mutually_exclusive_group(required=True)
+    input_group.add_argument('--input', help='输入CSV文件路径')
+    input_group.add_argument('--keywords', nargs='+', help='直接输入关键词（可以是多个）')
+    input_group.add_argument('--report', action='store_true', help='生成今日分析报告')
+    
+    # 其他参数
+    parser.add_argument('--output', default='src/demand_mining/reports', help='输出目录')
+    parser.add_argument('--config', help='配置文件路径')
     parser.add_argument('--quiet', '-q', action='store_true', help='静默模式，只显示最终结果')
     parser.add_argument('--verbose', '-v', action='store_true', help='详细模式，显示所有中间过程')
-    parser.add_argument('--no-enrich', action='store_true', help='不丰富关键词数据')
-    parser.add_argument('--use-ads-data', action='store_true', help='使用Google Ads API获取真实搜索量和CPC数据')
     
     args = parser.parse_args()
     
-    # 参数验证
-    try:
-        validated_params = validate_analysis_params(
-            keywords=args.keywords,
-            geo=args.geo,
-            timeframe=args.timeframe,
-            volume_weight=args.volume_weight,
-            growth_weight=args.growth_weight,
-            kd_weight=args.kd_weight,
-            min_score=args.min_score
-        )
-    except ValidationError as e:
-        safe_print(f"参数验证失败: {e}")
-        sys.exit(1)
-    
     # 显示分析参数
     if not args.quiet:
-        safe_print("分析参数:")
-        safe_print(f"   关键词: {', '.join(args.keywords)}")
-        safe_print(f"   地区: {args.geo or '全球'}")
-        safe_print(f"   时间范围: {args.timeframe}")
-        safe_print(f"   最低评分: {args.min_score}")
-        safe_print(f"   权重配置: 搜索量{args.volume_weight}, 增长率{args.growth_weight}, 难度{args.kd_weight}")
-        safe_print(f"   输出目录: {args.output}")
-        safe_print("")
+        if args.input:
+            print(f"📁 输入文件: {args.input}")
+        elif args.keywords:
+            print(f"🔤 分析关键词: {', '.join(args.keywords)}")
+        elif args.report:
+            print("📊 生成今日分析报告")
+        print(f"📂 输出目录: {args.output}")
+        print("")
     
     try:
-        # 创建分析器
-        analyzer = MarketAnalyzer(args.output)
+        # 创建需求挖掘管理器
+        manager = DemandMiningManager(args.config)
         
-        # 如果是静默模式，重定向日志输出
-        if args.quiet:
-            # 临时重定向stdout到文件
-            import io
-            from contextlib import redirect_stdout
+        if args.input:
+            # 分析关键词文件
+            if not args.quiet:
+                print("🚀 开始分析关键词文件...")
             
-            log_buffer = io.StringIO()
-            with redirect_stdout(log_buffer):
-                # 运行分析
-                result = analyzer.run_analysis(
-                    keywords=args.keywords,
-                    geo=args.geo,
-                    timeframe=args.timeframe,
-                    volume_weight=args.volume_weight,
-                    growth_weight=args.growth_weight,
-                    kd_weight=args.kd_weight,
-                    min_score=args.min_score,
-                    enrich=not args.no_enrich,
-                    use_ads_data=args.use_ads_data
-                )
-        else:
-            # 正常模式运行
-            result = analyzer.run_analysis(
-                keywords=args.keywords,
-                geo=args.geo,
-                timeframe=args.timeframe,
-                volume_weight=args.volume_weight,
-                growth_weight=args.growth_weight,
-                kd_weight=args.kd_weight,
-                min_score=args.min_score,
-                enrich=not args.no_enrich,
-                use_ads_data=args.use_ads_data
-            )
+            result = manager.analyze_keywords(args.input, args.output)
+            
+            # 显示结果
+            if args.quiet:
+                print_quiet_summary(result)
+            else:
+                print(f"\n🎉 分析完成! 共分析 {result['total_keywords']} 个关键词")
+                print(f"📊 高机会关键词: {result['market_insights']['high_opportunity_count']} 个")
+                print(f"📈 平均机会分数: {result['market_insights']['avg_opportunity_score']}")
+                
+                # 显示Top 5关键词
+                top_keywords = result['market_insights']['top_opportunities'][:5]
+                if top_keywords:
+                    print("\n🏆 Top 5 机会关键词:")
+                    for i, kw in enumerate(top_keywords, 1):
+                        intent_desc = kw['intent']['intent_description']
+                        score = kw['opportunity_score']
+                        print(f"   {i}. {kw['keyword']} (分数: {score}, 意图: {intent_desc})")
         
-        # 检查结果
-        if 'error' in result:
-            safe_print(f"分析失败: {result['error']}")
-            sys.exit(1)
+        elif args.keywords:
+            # 分析单个关键词
+            if not args.quiet:
+                print("🚀 开始分析输入的关键词...")
+            
+            # 创建临时CSV文件
+            import pandas as pd
+            import tempfile
+            
+            temp_df = pd.DataFrame([{'query': kw} for kw in args.keywords])
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, encoding='utf-8') as f:
+                temp_df.to_csv(f.name, index=False)
+                temp_file = f.name
+            
+            try:
+                result = manager.analyze_keywords(temp_file, args.output)
+                
+                # 显示结果
+                if args.quiet:
+                    print_quiet_summary(result)
+                else:
+                    print(f"\n🎉 分析完成! 共分析 {len(args.keywords)} 个关键词")
+                    
+                    # 显示每个关键词的结果
+                    print("\n📋 关键词分析结果:")
+                    for kw_result in result['keywords']:
+                        keyword = kw_result['keyword']
+                        score = kw_result['opportunity_score']
+                        intent = kw_result['intent']['intent_description']
+                        print(f"   • {keyword}: 机会分数 {score}, 意图: {intent}")
+            finally:
+                # 清理临时文件
+                os.unlink(temp_file)
         
-        # 如果是静默模式，只显示关键信息
-        if args.quiet:
-            print_quiet_summary(result)
+        elif args.report:
+            # 生成分析报告
+            if not args.quiet:
+                print("📊 生成今日分析报告...")
+            
+            report_path = manager.generate_daily_report()
+            print(f"✅ 报告已生成: {report_path}")
         
-        # 显示成功信息
-        safe_print(f"\n分析完成! 详细结果已保存到 {args.output} 目录")
-        report_file = result.get('输出文件', {}).get('分析报告', 
-                                os.path.join(args.output, f'analysis_report_{datetime.now().strftime("%Y-%m-%d")}.json'))
-        safe_print(f"分析报告: {report_file}")
+        print(f"\n📁 详细结果已保存到 {args.output} 目录")
         
     except KeyboardInterrupt:
-        safe_print("\n分析被用户中断")
+        print("\n⚠️ 分析被用户中断")
         sys.exit(1)
     except Exception as e:
-        safe_print(f"分析过程中出现错误: {str(e)}")
+        print(f"❌ 分析过程中出现错误: {str(e)}")
         if args.verbose:
             import traceback
             traceback.print_exc()
