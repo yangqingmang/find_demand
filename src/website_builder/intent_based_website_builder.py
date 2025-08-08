@@ -61,11 +61,30 @@ def main():
                 return 1
         
         if args.action == 'content' or args.action == 'all':
+        if args.action == 'content' or args.action == 'all':
             content_plan = builder.create_content_plan()
             if content_plan:
                 print("内容计划创建完成")
             else:
                 print("内容计划创建失败")
+                return 1
+        
+        # 部署功能
+        if args.deploy or args.action == 'deploy':
+            # 准备自定义配置
+            custom_config = {}
+            if args.project_name:
+                custom_config['project_name'] = args.project_name
+            if args.custom_domain:
+                custom_config['custom_domain'] = args.custom_domain
+            
+            success, result = builder.deploy_website(
+                deployer_name=args.deployer,
+                custom_config=custom_config if custom_config else None
+            )
+            
+            if not success:
+                print(f"部署失败: {result}")
                 return 1
         
         print("所有操作完成成功！")

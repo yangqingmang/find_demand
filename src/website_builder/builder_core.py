@@ -45,6 +45,10 @@ class IntentBasedWebsiteBuilder:
         # 创建页面模板管理器
         self.template_manager = PageTemplateManager()
         
+        # 创建网站部署器
+        deployment_config_path = self.config.get('deployment_config_path')
+        self.website_deployer = WebsiteDeployer(deployment_config_path)
+        
         # 创建输出目录
         ensure_dir(output_dir)
         
@@ -189,3 +193,58 @@ class IntentBasedWebsiteBuilder:
         print(f"内容计划创建完成，共 {len(self.content_plan)} 个内容项，已保存到: {output_file}")
         
         return self.content_plan
+
+    def deploy_website(self, 
+                      deployer_name: str = None,
+                      custom_config: Dict[str, Any] = None) -> Tuple[bool, str]:
+        """
+        部署网站到云服务器
+        
+        Args:
+            deployer_name: 部署服务名称 ('cloudflare' 或 'vercel')
+            custom_config: 自定义配置
+            
+        Returns:
+            (是否成功, 部署URL或错误信息)
+        """
+        if not self.website_structure:
+            return False, "请先生成网站结构"
+        
+        if not self.content_plan:
+            return False, "请先创建内容计划"
+        
+        print(f"开始部署网站到 {deployer_name or '默认服务'}...")
+        
+        try:
+            success, result = self.website_deployer.deploy_website_structure(
+                website_structure=self.website_structure,
+                content_plan=self.content_plan,
+                output_dir=self.output_dir,
+                deployer_name=deployer_name,
+                custom_config=custom_config
+            )
+            
+            if success:
+                print(f"✅ 网站部署成功！")
+                print(f"🌐 访问地址: {result}")
+            else:
+                print(f"❌ 网站部署失败: {result}")
+            
+            return success, result
+            
+        except Exception as e:
+            error_msg = f"部署过程中发生错误: {e}"
+            print(f"❌ {error_msg}")
+            return False, error_msg
+
+    def get_available_deployers(self) -> List[str]:
+        """获取可用的部署服务"""
+        return self.website_deployer.get_available_deployers()
+
+    def validate_deployment_config(self, deployer_name: str) -> Tuple[bool, str]:
+        """验证部署配置"""
+        return self.website_deployer.validate_deployment_config(deployer_name)
+
+    def get_deployment_history(self) -> List[Dict[str, Any]]:
+        """获取部署历史"""
+        return self.website_deployer.get_deployment_history()
