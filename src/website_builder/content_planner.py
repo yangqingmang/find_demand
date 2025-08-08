@@ -7,6 +7,7 @@
 
 import os
 from typing import Dict, List, Tuple, Set, Optional, Any, Union
+from src.website_builder.intent_config import IntentConfigManager
 
 class ContentPlanGenerator:
     """内容计划生成器"""
@@ -166,100 +167,13 @@ class ContentPlanGenerator:
         """规划内容页面"""
         for page_id, page in self.website_structure['content_pages'].items():
             intent = page['intent']
-            intent_name = self.analyzer.INTENT_DESCRIPTIONS.get(intent, intent)
             keyword = page['keyword']
             
-            # 根据意图类型确定内容结构
-            sections = []
-            word_count = 2000
-            
-            if intent == 'I':  # 信息获取
-                sections = [
-                    {
-                        'name': '介绍',
-                        'type': 'introduction',
-                        'word_count': 300
-                    },
-                    {
-                        'name': '详细信息',
-                        'type': 'detailed_info',
-                        'word_count': 1000
-                    },
-                    {
-                        'name': '常见问题',
-                        'type': 'faq',
-                        'word_count': 500
-                    },
-                    {
-                        'name': '总结',
-                        'type': 'summary',
-                        'word_count': 200
-                    }
-                ]
-            elif intent == 'C':  # 商业评估
-                sections = [
-                    {
-                        'name': '产品介绍',
-                        'type': 'introduction',
-                        'word_count': 300
-                    },
-                    {
-                        'name': '比较分析',
-                        'type': 'comparison',
-                        'word_count': 800
-                    },
-                    {
-                        'name': '优缺点',
-                        'type': 'pros_cons',
-                        'word_count': 600
-                    },
-                    {
-                        'name': '推荐建议',
-                        'type': 'recommendations',
-                        'word_count': 300
-                    }
-                ]
-            elif intent == 'E':  # 交易购买
-                sections = [
-                    {
-                        'name': '产品介绍',
-                        'type': 'introduction',
-                        'word_count': 300
-                    },
-                    {
-                        'name': '产品特点',
-                        'type': 'features',
-                        'word_count': 600
-                    },
-                    {
-                        'name': '价格信息',
-                        'type': 'pricing',
-                        'word_count': 400
-                    },
-                    {
-                        'name': '购买指南',
-                        'type': 'buying_guide',
-                        'word_count': 700
-                    }
-                ]
-            else:  # 其他意图
-                sections = [
-                    {
-                        'name': '介绍',
-                        'type': 'introduction',
-                        'word_count': 300
-                    },
-                    {
-                        'name': '主要内容',
-                        'type': 'main_content',
-                        'word_count': 1200
-                    },
-                    {
-                        'name': '总结',
-                        'type': 'summary',
-                        'word_count': 500
-                    }
-                ]
+            # 使用配置化的意图信息
+            intent_name = self.intent_config.get_intent_name(intent)
+            sections = self.intent_config.get_content_sections(intent)
+            word_count = self.intent_config.get_word_count(intent)
+            priority = self.intent_config.get_seo_priority(intent)
             
             self.content_plan.append({
                 'week': self.week,

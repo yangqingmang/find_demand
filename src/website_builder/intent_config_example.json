@@ -1,0 +1,96 @@
+{
+  "intent_types": {
+    "I": {
+      "name": "信息获取",
+      "description": "用户寻求信息和知识",
+      "page_template": "article_i",
+      "content_sections": [
+        {"name": "介绍", "type": "introduction", "word_count": 300},
+        {"name": "详细信息", "type": "detailed_info", "word_count": 1000},
+        {"name": "常见问题", "type": "faq", "word_count": 500},
+        {"name": "总结", "type": "summary", "word_count": 200}
+      ],
+      "seo_priority": "medium",
+      "word_count": 2000
+    },
+    "C": {
+      "name": "商业评估",
+      "description": "用户进行商业决策评估",
+      "page_template": "article_c",
+      "content_sections": [
+        {"name": "产品介绍", "type": "introduction", "word_count": 300},
+        {"name": "比较分析", "type": "comparison", "word_count": 800},
+        {"name": "优缺点", "type": "pros_cons", "word_count": 600},
+        {"name": "推荐建议", "type": "recommendations", "word_count": 300}
+      ],
+      "seo_priority": "high",
+      "word_count": 2000
+    },
+    "E": {
+      "name": "交易购买",
+      "description": "用户准备进行交易购买",
+      "page_template": "article_e",
+      "content_sections": [
+        {"name": "产品介绍", "type": "introduction", "word_count": 300},
+        {"name": "产品特点", "type": "features", "word_count": 600},
+        {"name": "价格信息", "type": "pricing", "word_count": 400},
+        {"name": "购买指南", "type": "buying_guide", "word_count": 700}
+      ],
+      "seo_priority": "very_high",
+      "word_count": 2000
+    },
+    "N": {
+      "name": "导航直达",
+      "description": "用户寻找特定网站或页面",
+      "page_template": "article_n",
+      "content_sections": [
+        {"name": "网站介绍", "type": "introduction", "word_count": 200},
+        {"name": "功能特点", "type": "features", "word_count": 400},
+        {"name": "使用指南", "type": "guide", "word_count": 600}
+      ],
+      "seo_priority": "high",
+      "word_count": 1200
+    },
+    "B": {
+      "name": "行为后续",
+      "description": "用户需要解决问题或获得支持",
+      "page_template": "article_b",
+      "content_sections": [
+        {"name": "问题描述", "type": "problem_description", "word_count": 200},
+        {"name": "解决方案", "type": "solutions", "word_count": 800},
+        {"name": "预防措施", "type": "prevention", "word_count": 300}
+      ],
+      "seo_priority": "medium",
+      "word_count": 1300
+    },
+    "L": {
+      "name": "本地/到店",
+      "description": "用户寻找本地服务或实体店信息",
+      "page_template": "article_l",
+      "content_sections": [
+        {"name": "服务介绍", "type": "introduction", "word_count": 200},
+        {"name": "位置信息", "type": "location", "word_count": 300},
+        {"name": "联系方式", "type": "contact", "word_count": 200}
+      ],
+      "seo_priority": "high",
+      "word_count": 700
+    }
+  },
+  "default_intent": {
+    "name": "通用内容",
+    "description": "通用内容类型",
+    "page_template": "article_default",
+    "content_sections": [
+      {"name": "介绍", "type": "introduction", "word_count": 300},
+      {"name": "主要内容", "type": "main_content", "word_count": 1200},
+      {"name": "总结", "type": "summary", "word_count": 500}
+    ],
+    "seo_priority": "medium",
+    "word_count": 2000
+  },
+  "homepage_sections": [
+    {"type": "hero", "title": "英雄区"},
+    {"type": "intent_nav", "title": "意图导航"},
+    {"type": "intent_sections", "title": "意图专区"}
+  ]
+}
