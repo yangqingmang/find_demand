@@ -8,7 +8,39 @@ import pandas as pd
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional
 
-from src.utils import FileUtils, Logger
+try:
+    from src.utils import FileUtils, Logger
+except ImportError:
+    # 如果无法导入utils，使用简化版本
+    import os
+    import json
+    from datetime import datetime
+    
+    class Logger:
+        def info(self, msg): print(f"INFO: {msg}")
+        def warning(self, msg): print(f"WARNING: {msg}")
+        def error(self, msg): print(f"ERROR: {msg}")
+    
+    class FileUtils:
+        @staticmethod
+        def generate_filename(prefix, extension='csv'):
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            return f"{prefix}_{timestamp}.{extension}"
+        
+        @staticmethod
+        def save_dataframe(df, output_dir, filename):
+            os.makedirs(output_dir, exist_ok=True)
+            file_path = os.path.join(output_dir, filename)
+            df.to_csv(file_path, index=False, encoding='utf-8-sig')
+            return file_path
+        
+        @staticmethod
+        def save_json(data, output_dir, filename):
+            os.makedirs(output_dir, exist_ok=True)
+            file_path = os.path.join(output_dir, filename)
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+            return file_path
 
 
 class BaseAnalyzer(ABC):

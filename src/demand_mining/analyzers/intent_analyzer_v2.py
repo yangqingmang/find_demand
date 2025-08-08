@@ -17,8 +17,22 @@ from datetime import datetime
 from typing import Dict, List, Tuple, Set, Optional, Any, Union
 from collections import defaultdict
 
-from src.analyzers.base_analyzer import BaseAnalyzer
-from src.utils import Logger, FileUtils
+from .base_analyzer import BaseAnalyzer
+try:
+    from src.utils import Logger, FileUtils
+except ImportError:
+    # 如果无法导入utils，使用简化版本
+    class Logger:
+        def info(self, msg): print(f"INFO: {msg}")
+        def warning(self, msg): print(f"WARNING: {msg}")
+        def error(self, msg): print(f"ERROR: {msg}")
+    
+    class FileUtils:
+        @staticmethod
+        def generate_filename(prefix, extension='csv'):
+            from datetime import datetime
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            return f"{prefix}_{timestamp}.{extension}"
 
 
 class IntentAnalyzerV2(BaseAnalyzer):
@@ -457,6 +471,23 @@ class IntentAnalyzerV2(BaseAnalyzer):
         self.save_pending_review(output_dir)
         
         return saved_files
+
+    def detect_intent_from_keyword(self, keyword: str) -> Tuple[str, float, Optional[str]]:
+        """
+        简化的意图检测方法，用于主程序调用
+        
+        Args:
+            keyword: 关键词
+            
+        Returns:
+            (主意图, 置信度, 次意图)
+        """
+        result = self.detect_intent(keyword)
+        return (
+            result['intent_primary'],
+            result['probability'],
+            result['intent_secondary'] if result['intent_secondary'] else None
+        )
 
 
 def analyze_single_keyword(keyword, keywords_dict_path=None, serp_rules_path=None):

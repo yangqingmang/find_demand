@@ -11,11 +11,36 @@ import os
 import argparse
 import re
 
-from src.analyzers.base_analyzer import BaseAnalyzer
-from src.utils import (
-    FileUtils, Logger, ExceptionHandler, DataError,
-    DEFAULT_CONFIG, SCORE_GRADES
-)
+from .base_analyzer import BaseAnalyzer
+try:
+    from src.utils import (
+        FileUtils, Logger, ExceptionHandler, DataError,
+        DEFAULT_CONFIG, SCORE_GRADES
+    )
+except ImportError:
+    # 如果无法导入utils，使用简化版本
+    class Logger:
+        def info(self, msg): print(f"INFO: {msg}")
+        def warning(self, msg): print(f"WARNING: {msg}")
+        def error(self, msg): print(f"ERROR: {msg}")
+    
+    class FileUtils:
+        @staticmethod
+        def generate_filename(prefix, extension='csv'):
+            from datetime import datetime
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            return f"{prefix}_{timestamp}.{extension}"
+        
+        @staticmethod
+        def save_dataframe(df, output_dir, filename):
+            import os
+            os.makedirs(output_dir, exist_ok=True)
+            file_path = os.path.join(output_dir, filename)
+            df.to_csv(file_path, index=False, encoding='utf-8-sig')
+            return file_path
+    
+    DEFAULT_CONFIG = {'high_score_threshold': 70}
+    SCORE_GRADES = ['D', 'C', 'B', 'A']
 
 class KeywordScorer(BaseAnalyzer):
     """关键词评分类，用于对关键词进行综合评分"""
