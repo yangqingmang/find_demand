@@ -196,13 +196,18 @@ class DeploymentManager:
                 'timestamp': datetime.now().isoformat(),
                 'deployer': deployer_name,
                 'source_dir': source_dir,
+                'project_directory': self._extract_project_directory(source_dir),
                 'success': success,
                 'result': result,
-                'deployment_info': deployer.get_deployment_info()
+                'deployment_info': deployer.get_deployment_info(),
+                'config_used': custom_config or {}
             }
             self.deployment_history.append(deployment_record)
             
-            return success, result, deployer.get_deployment_info()
+            # 保存部署历史到文件
+            self._save_deployment_history_to_file(deployment_record)
+            
+            return success, result, deployment_record
             
         except Exception as e:
             error_msg = f"部署过程中发生错误: {e}"
@@ -368,6 +373,59 @@ class DeploymentManager:
             if record['deployer'] == deployer_name
         ]
 
+    def _extract_project_directory(self, source_dir: str) -> str:
+        """从源目录路径中提取项目目录名"""
+        # 如果是website_source目录，则获取其父目录名
+        if source_dir.endswith('website_source'):
+            return os.path.basename(os.path.dirname(source_dir))
+        else:
+            return os.path.basename(source_dir)
+
+    def _save_deployment_history_to_file(self, deployment_record: Dict[str, Any]) -> None:
+        """保存部署历史到文件"""
+        try:
+            # 确定历史文件路径
+            history_dir = os.path.dirname(os.path.dirname(deployment_record['source_dir']))
+            if not history_dir or not os.path.exists(history_dir):
+                history_dir = 'output'  # 默认目录
+            
+            history_file = os.path.join(history_dir, 'deployment_history.json')
+            
+            # 读取现有历史
+            history = []
+            if os.path.exists(history_file):
+                with open(history_file, 'r', encoding='utf-8') as f:
+                    history = json.load(f)
+            
+            # 添加新记录
+            history.append(deployment_record)
+            
+            # 保持最近100条记录
+            if len(history) > 100:
+                history = history[-100:]
+            
+            # 保存历史
+            os.makedirs(os.path.dirname(history_file), exist_ok=True)
+            with open(history_file, 'w', encoding='utf-8') as f:
+                json.dump(history, f, ensure_ascii=False, indent=2)
+            
+            print(f"📝 部署历史已更新: {history_file}")
+            
+        except Exception as e:
+            print(f"⚠️ 保存部署历史失败: {e}")
+
+    def load_deployment_history_from_file(self, base_dir: str = 'output') -> List[Dict[str, Any]]:
+        """从文件加载部署历史"""
+        try:
+            history_file = os.path.join(base_dir, 'deployment_history.json')
+            if os.path.exists(history_file):
+                with open(history_file, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+            return []
+        except Exception as e:
+            print(f"读取部署历史失败: {e}")
+            return []
+
     def get_deployment_stats(self) -> Dict[str, Any]:
         """
         获取部署统计信息
@@ -375,13 +433,21 @@ class DeploymentManager:
         Returns:
             统计信息字典
         """
-        total_deployments = len(self.deployment_history)
-        successful_deployments = len([r for r in self.deployment_history if r['success']])
+        # 合并内存中的历史和文件中的历史
+        all_history = self.deployment_history + self.load_deployment_history_from_file()
+        
+        total_deployments = len(all_history)
+        successful_deployments = len([r for r in all_history if r['success']])
         failed_deployments = total_deployments - successful_deployments
         
         deployer_stats = {}
-        for record in self.deployment_history:
+        project_stats = {}
+        
+        for record in all_history:
             deployer = record['deployer']
+            project = record.get('project_directory', 'unknown')
+            
+            # 部署服务统计
             if deployer not in deployer_stats:
                 deployer_stats[deployer] = {'total': 0, 'success': 0, 'failed': 0}
             
@@ -390,11 +456,26 @@ class DeploymentManager:
                 deployer_stats[deployer]['success'] += 1
             else:
                 deployer_stats[deployer]['failed'] += 1
+            
+            # 项目统计
+            if project not in project_stats:
+                project_stats[project] = {'total': 0, 'success': 0, 'failed': 0, 'last_deployment': ''}
+            
+            project_stats[project]['total'] += 1
+            if record['success']:
+                project_stats[project]['success'] += 1
+            else:
+                project_stats[project]['failed'] += 1
+            
+            # 更新最后部署时间
+            if record['timestamp'] > project_stats[project]['last_deployment']:
+                project_stats[project]['last_deployment'] = record['timestamp']
         
         return {
             'total_deployments': total_deployments,
             'successful_deployments': successful_deployments,
             'failed_deployments': failed_deployments,
             'success_rate': (successful_deployments / total_deployments * 100) if total_deployments > 0 else 0,
-            'deployer_stats': deployer_stats
+            'deployer_stats': deployer_stats,
+            'project_stats': project_stats
         }
