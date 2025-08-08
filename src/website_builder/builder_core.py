@@ -32,12 +32,17 @@ class IntentBasedWebsiteBuilder:
         """
         # 初始化属性
         self.intent_data_path = intent_data_path
-        self.output_dir = output_dir
+        self.base_output_dir = output_dir
         self.config = config or {}
         self.intent_data = None
         self.intent_summary = None
         self.website_structure = None
         self.content_plan = None
+        
+        # 生成带时间戳的输出目录
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        project_name = self.config.get('project_name', 'website')
+        self.output_dir = os.path.join(self.base_output_dir, f"{project_name}_{timestamp}")
         
         # 创建意图分析器
         self.analyzer = IntentAnalyzerV2()
@@ -47,12 +52,18 @@ class IntentBasedWebsiteBuilder:
         
         # 创建网站部署器
         deployment_config_path = self.config.get('deployment_config_path')
-        self.website_deployer = WebsiteDeployer(deployment_config_path)
+        try:
+            from src.website_builder.website_deployer import WebsiteDeployer
+            self.website_deployer = WebsiteDeployer(deployment_config_path)
+        except ImportError:
+            self.website_deployer = None
+            print("警告: 部署功能不可用，请检查部署模块")
         
         # 创建输出目录
-        ensure_dir(output_dir)
+        ensure_dir(self.output_dir)
         
         print(f"基于搜索意图的网站建设工具初始化完成")
+        print(f"输出目录: {self.output_dir}")
 
     def load_intent_data(self) -> bool:
         """
@@ -193,6 +204,97 @@ class IntentBasedWebsiteBuilder:
         print(f"内容计划创建完成，共 {len(self.content_plan)} 个内容项，已保存到: {output_file}")
         
         return self.content_plan
+
+    def generate_website_source(self) -> str:
+        """
+        生成网站源代码
+        
+        Returns:
+            网站源代码目录路径
+        """
+        if not self.website_structure:
+            print("错误: 请先生成网站结构")
+            return ""
+        
+        if not self.content_plan:
+            print("错误: 请先创建内容计划")
+            return ""
+        
+        print("正在生成网站源代码...")
+        
+        # 创建网站源代码目录
+        source_dir = os.path.join(self.output_dir, 'website_source')
+        ensure_dir(source_dir)
+        
+        try:
+            # 如果有部署器，使用部署器生成HTML文件
+            if self.website_deployer:
+                success = self.website_deployer._generate_html_files(
+                    self.website_structure, 
+                    self.content_plan, 
+                    source_dir
+                )
+                if not success:
+                    print("❌ 网站源代码生成失败")
+                    return ""
+            else:
+                # 简单的HTML生成逻辑
+                self._generate_simple_html_files(source_dir)
+            
+            print(f"✅ 网站源代码生成完成: {source_dir}")
+            return source_dir
+            
+        except Exception as e:
+            print(f"❌ 网站源代码生成失败: {e}")
+            return ""
+
+    def _generate_simple_html_files(self, source_dir: str) -> None:
+        """生成简单的HTML文件"""
+        # 生成首页
+        index_html = """<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基于搜索意图的内容平台</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .hero { text-align: center; padding: 50px 0; }
+        .intent-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px; }
+        .intent-card { border: 1px solid #ddd; padding: 20px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>基于搜索意图的内容平台</h1>
+            <p>为用户提供精准的内容体验</p>
+        </div>
+        <div class="intent-grid">
+"""
+        
+        # 添加意图卡片
+        for intent, pages in self.website_structure.get('intent_pages', {}).items():
+            if pages:
+                intent_name = self.analyzer.INTENT_DESCRIPTIONS.get(intent, intent)
+                index_html += f"""
+            <div class="intent-card">
+                <h3>{intent_name}</h3>
+                <p>探索{intent_name}相关内容</p>
+            </div>
+"""
+        
+        index_html += """
+        </div>
+    </div>
+</body>
+</html>
+"""
+        
+        # 保存首页
+        with open(os.path.join(source_dir, 'index.html'), 'w', encoding='utf-8') as f:
+            f.write(index_html)
 
     def deploy_website(self, 
                       deployer_name: str = None,

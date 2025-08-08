@@ -1,0 +1,13 @@
+query,intent_primary,sub_intent
+什么是Python,I,I1
+Python教程,I,I3
+Python vs Java,C,C2
+Python官网,N,N1
+Python下载,N,N3
+最好的Python IDE,C,C1
+Python IDE对比,C,C2
+购买Python书籍,E,E3
+Python书籍价格,E,E1
+Python安装问题,B,B1
+Python错误解决,B,B1
+附近Python培训,L,L1

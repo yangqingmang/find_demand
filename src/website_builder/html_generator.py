@@ -13,8 +13,9 @@ from datetime import datetime
 class HTMLGenerator:
     """HTML网站生成器类"""
     
-    def __init__(self, output_dir: str = "generated_website"):
+    def __init__(self, output_dir: str = "generated_website", use_tailwind: bool = False):
         self.output_dir = output_dir
+        self.use_tailwind = use_tailwind
         self.ensure_output_dir()
     
     def ensure_output_dir(self):
@@ -101,63 +102,120 @@ class HTMLGenerator:
         """生成首页HTML"""
         homepage = structure.get('homepage', {})
         
-        hero_section = """
-        <section class="hero">
-            <div class="container">
-                <div class="hero-content">
-                    <h1 class="hero-title">基于搜索意图的内容平台</h1>
-                    <p class="hero-subtitle">为用户提供精准的内容体验</p>
-                    <a href="#intent-nav" class="cta-button">开始探索</a>
+        if self.use_tailwind:
+            hero_section = """
+            <section class="bg-gradient-to-br from-primary to-secondary text-white py-20">
+                <div class="max-w-6xl mx-auto px-6 text-center">
+                    <h1 class="text-5xl font-bold mb-6">基于搜索意图的内容平台</h1>
+                    <p class="text-xl mb-8 opacity-90">为用户提供精准的内容体验</p>
+                    <a href="#intent-nav" class="inline-block bg-white text-primary px-8 py-4 rounded-full font-semibold hover:transform hover:-translate-y-1 transition-all duration-300 shadow-lg">开始探索</a>
                 </div>
-            </div>
-        </section>
-        """
-        
-        intent_nav_section = """
-        <section id="intent-nav" class="intent-navigation">
-            <div class="container">
-                <h2>按意图浏览内容</h2>
-                <div class="intent-grid">
-                    <div class="intent-card">
-                        <i class="fas fa-info-circle"></i>
-                        <h3>信息获取</h3>
-                        <p>获取定义、概念和教程内容</p>
-                        <a href="/intent/i" class="intent-link">探索 →</a>
-                    </div>
-                    <div class="intent-card">
-                        <i class="fas fa-chart-line"></i>
-                        <h3>商业评估</h3>
-                        <p>产品对比、评测和推荐</p>
-                        <a href="/intent/c" class="intent-link">探索 →</a>
-                    </div>
-                    <div class="intent-card">
-                        <i class="fas fa-shopping-cart"></i>
-                        <h3>交易购买</h3>
-                        <p>价格信息和优惠折扣</p>
-                        <a href="/intent/e" class="intent-link">探索 →</a>
-                    </div>
-                    <div class="intent-card">
-                        <i class="fas fa-compass"></i>
-                        <h3>导航直达</h3>
-                        <p>登录入口和下载链接</p>
-                        <a href="/intent/n" class="intent-link">探索 →</a>
-                    </div>
-                    <div class="intent-card">
-                        <i class="fas fa-cogs"></i>
-                        <h3>行为后续</h3>
-                        <p>故障解决和高级配置</p>
-                        <a href="/intent/b" class="intent-link">探索 →</a>
-                    </div>
-                    <div class="intent-card">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <h3>本地/到店</h3>
-                        <p>附近门店和路线信息</p>
-                        <a href="/intent/l" class="intent-link">探索 →</a>
+            </section>
+            """
+            
+            intent_nav_section = """
+            <section id="intent-nav" class="py-20 bg-white">
+                <div class="max-w-6xl mx-auto px-6">
+                    <h2 class="text-4xl font-bold text-center mb-12 text-gray-800">按意图浏览内容</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100">
+                            <i class="fas fa-info-circle text-4xl text-blue-500 mb-4"></i>
+                            <h3 class="text-xl font-semibold mb-3 text-gray-800">信息获取</h3>
+                            <p class="text-gray-600 mb-4">获取定义、概念和教程内容</p>
+                            <a href="/intent/i" class="text-blue-500 font-semibold hover:text-blue-600 transition-colors">探索 →</a>
+                        </div>
+                        <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100">
+                            <i class="fas fa-chart-line text-4xl text-green-500 mb-4"></i>
+                            <h3 class="text-xl font-semibold mb-3 text-gray-800">商业评估</h3>
+                            <p class="text-gray-600 mb-4">产品对比、评测和推荐</p>
+                            <a href="/intent/c" class="text-green-500 font-semibold hover:text-green-600 transition-colors">探索 →</a>
+                        </div>
+                        <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100">
+                            <i class="fas fa-shopping-cart text-4xl text-red-500 mb-4"></i>
+                            <h3 class="text-xl font-semibold mb-3 text-gray-800">交易购买</h3>
+                            <p class="text-gray-600 mb-4">价格信息和优惠折扣</p>
+                            <a href="/intent/e" class="text-red-500 font-semibold hover:text-red-600 transition-colors">探索 →</a>
+                        </div>
+                        <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100">
+                            <i class="fas fa-compass text-4xl text-purple-500 mb-4"></i>
+                            <h3 class="text-xl font-semibold mb-3 text-gray-800">导航直达</h3>
+                            <p class="text-gray-600 mb-4">登录入口和下载链接</p>
+                            <a href="/intent/n" class="text-purple-500 font-semibold hover:text-purple-600 transition-colors">探索 →</a>
+                        </div>
+                        <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100">
+                            <i class="fas fa-cogs text-4xl text-yellow-500 mb-4"></i>
+                            <h3 class="text-xl font-semibold mb-3 text-gray-800">行为后续</h3>
+                            <p class="text-gray-600 mb-4">故障解决和高级配置</p>
+                            <a href="/intent/b" class="text-yellow-500 font-semibold hover:text-yellow-600 transition-colors">探索 →</a>
+                        </div>
+                        <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100">
+                            <i class="fas fa-map-marker-alt text-4xl text-indigo-500 mb-4"></i>
+                            <h3 class="text-xl font-semibold mb-3 text-gray-800">本地/到店</h3>
+                            <p class="text-gray-600 mb-4">附近门店和路线信息</p>
+                            <a href="/intent/l" class="text-indigo-500 font-semibold hover:text-indigo-600 transition-colors">探索 →</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
-        """
+            </section>
+            """
+        else:
+            hero_section = """
+            <section class="hero">
+                <div class="container">
+                    <div class="hero-content">
+                        <h1 class="hero-title">基于搜索意图的内容平台</h1>
+                        <p class="hero-subtitle">为用户提供精准的内容体验</p>
+                        <a href="#intent-nav" class="cta-button">开始探索</a>
+                    </div>
+                </div>
+            </section>
+            """
+            
+            intent_nav_section = """
+            <section id="intent-nav" class="intent-navigation">
+                <div class="container">
+                    <h2>按意图浏览内容</h2>
+                    <div class="intent-grid">
+                        <div class="intent-card">
+                            <i class="fas fa-info-circle"></i>
+                            <h3>信息获取</h3>
+                            <p>获取定义、概念和教程内容</p>
+                            <a href="/intent/i" class="intent-link">探索 →</a>
+                        </div>
+                        <div class="intent-card">
+                            <i class="fas fa-chart-line"></i>
+                            <h3>商业评估</h3>
+                            <p>产品对比、评测和推荐</p>
+                            <a href="/intent/c" class="intent-link">探索 →</a>
+                        </div>
+                        <div class="intent-card">
+                            <i class="fas fa-shopping-cart"></i>
+                            <h3>交易购买</h3>
+                            <p>价格信息和优惠折扣</p>
+                            <a href="/intent/e" class="intent-link">探索 →</a>
+                        </div>
+                        <div class="intent-card">
+                            <i class="fas fa-compass"></i>
+                            <h3>导航直达</h3>
+                            <p>登录入口和下载链接</p>
+                            <a href="/intent/n" class="intent-link">探索 →</a>
+                        </div>
+                        <div class="intent-card">
+                            <i class="fas fa-cogs"></i>
+                            <h3>行为后续</h3>
+                            <p>故障解决和高级配置</p>
+                            <a href="/intent/b" class="intent-link">探索 →</a>
+                        </div>
+                        <div class="intent-card">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <h3>本地/到店</h3>
+                            <p>附近门店和路线信息</p>
+                            <a href="/intent/l" class="intent-link">探索 →</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            """
         
         content = hero_section + intent_nav_section
         

@@ -43,7 +43,7 @@ class WebsiteDeployer:
         Args:
             website_structure: 网站结构
             content_plan: 内容计划
-            output_dir: 输出目录
+            output_dir: 输出目录（带时间戳的项目目录）
             deployer_name: 部署服务名称
             custom_config: 自定义配置
             
@@ -51,23 +51,40 @@ class WebsiteDeployer:
             (是否成功, 部署URL或错误信息)
         """
         try:
-            # 1. 生成HTML文件
-            print("正在生成HTML文件...")
-            html_output_dir = os.path.join(output_dir, 'html')
+            # 1. 确定HTML输出目录（使用website_source子目录）
+            html_output_dir = os.path.join(output_dir, 'website_source')
             
-            if not self._generate_html_files(website_structure, content_plan, html_output_dir):
-                return False, "HTML文件生成失败"
+            # 如果website_source目录不存在，则生成HTML文件
+            if not os.path.exists(html_output_dir):
+                print("正在生成HTML文件...")
+                if not self._generate_html_files(website_structure, content_plan, html_output_dir):
+                    return False, "HTML文件生成失败"
+            else:
+                print(f"使用已存在的网站源代码: {html_output_dir}")
             
-            # 2. 部署到云服务器
+            # 2. 准备部署配置
+            deploy_config = custom_config.copy() if custom_config else {}
+            
+            # 从输出目录名称中提取项目信息
+            project_dir_name = os.path.basename(output_dir)
+            if '_' in project_dir_name:
+                project_base_name = '_'.join(project_dir_name.split('_')[:-1])  # 移除时间戳部分
+                if 'project_name' not in deploy_config:
+                    deploy_config['project_name'] = project_base_name
+            
+            # 3. 部署到云服务器
             print(f"正在部署到 {deployer_name or '默认服务'}...")
+            print(f"源代码目录: {html_output_dir}")
+            print(f"项目配置: {deploy_config}")
+            
             success, result, deployment_info = self.deployment_manager.deploy_website(
                 source_dir=html_output_dir,
                 deployer_name=deployer_name,
-                custom_config=custom_config
+                custom_config=deploy_config
             )
             
             if success:
-                # 保存部署信息
+                # 保存部署信息到项目目录
                 self._save_deployment_info(output_dir, deployment_info)
                 return True, result
             else:

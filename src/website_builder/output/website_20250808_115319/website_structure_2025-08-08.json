@@ -1,0 +1,488 @@
+{
+  "homepage": {
+    "title": "基于搜索意图的内容平台",
+    "url": "/",
+    "sections": [
+      {
+        "type": "hero",
+        "title": "基于搜索意图的内容平台",
+        "subtitle": "为用户提供精准的内容体验",
+        "cta": "开始探索"
+      },
+      {
+        "type": "intent_nav",
+        "title": "按意图浏览",
+        "items": [
+          {
+            "name": "商业评估",
+            "intent": "C"
+          },
+          {
+            "name": "信息获取",
+            "intent": "I"
+          },
+          {
+            "name": "导航直达",
+            "intent": "N"
+          },
+          {
+            "name": "交易购买",
+            "intent": "E"
+          },
+          {
+            "name": "行为后续",
+            "intent": "B"
+          },
+          {
+            "name": "本地/到店",
+            "intent": "L"
+          }
+        ]
+      },
+      {
+        "type": "intent_section",
+        "intent": "C",
+        "title": "商业评估内容",
+        "description": "探索商业评估相关的内容",
+        "items": []
+      },
+      {
+        "type": "intent_section",
+        "intent": "I",
+        "title": "信息获取内容",
+        "description": "探索信息获取相关的内容",
+        "items": []
+      },
+      {
+        "type": "intent_section",
+        "intent": "N",
+        "title": "导航直达内容",
+        "description": "探索导航直达相关的内容",
+        "items": []
+      },
+      {
+        "type": "intent_section",
+        "intent": "E",
+        "title": "交易购买内容",
+        "description": "探索交易购买相关的内容",
+        "items": []
+      },
+      {
+        "type": "intent_section",
+        "intent": "B",
+        "title": "行为后续内容",
+        "description": "探索行为后续相关的内容",
+        "items": []
+      },
+      {
+        "type": "intent_section",
+        "intent": "L",
+        "title": "本地/到店内容",
+        "description": "探索本地/到店相关的内容",
+        "items": []
+      }
+    ]
+  },
+  "intent_pages": {
+    "I": [
+      {
+        "title": "信息获取内容总览",
+        "url": "/intent/i",
+        "type": "intent_overview",
+        "intent": "I",
+        "intent_name": "信息获取",
+        "seo_priority": "high"
+      },
+      {
+        "title": "教程/步骤内容",
+        "url": "/intent/i3",
+        "type": "sub_intent",
+        "intent": "I",
+        "sub_intent": "I3",
+        "intent_name": "教程/步骤",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "定义/概念内容",
+        "url": "/intent/i1",
+        "type": "sub_intent",
+        "intent": "I",
+        "sub_intent": "I1",
+        "intent_name": "定义/概念",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "什么是Python",
+        "url": "/keyword/什么是python",
+        "type": "keyword",
+        "intent": "I",
+        "keyword": "什么是Python",
+        "seo_priority": "high"
+      },
+      {
+        "title": "Python教程",
+        "url": "/keyword/python教程",
+        "type": "keyword",
+        "intent": "I",
+        "keyword": "Python教程",
+        "seo_priority": "high"
+      }
+    ],
+    "N": [
+      {
+        "title": "导航直达内容总览",
+        "url": "/intent/n",
+        "type": "intent_overview",
+        "intent": "N",
+        "intent_name": "导航直达",
+        "seo_priority": "high"
+      },
+      {
+        "title": "下载/安装包内容",
+        "url": "/intent/n3",
+        "type": "sub_intent",
+        "intent": "N",
+        "sub_intent": "N3",
+        "intent_name": "下载/安装包",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "官方主页内容",
+        "url": "/intent/n1",
+        "type": "sub_intent",
+        "intent": "N",
+        "sub_intent": "N1",
+        "intent_name": "官方主页",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "Python官网",
+        "url": "/keyword/python官网",
+        "type": "keyword",
+        "intent": "N",
+        "keyword": "Python官网",
+        "seo_priority": "high"
+      },
+      {
+        "title": "Python下载",
+        "url": "/keyword/python下载",
+        "type": "keyword",
+        "intent": "N",
+        "keyword": "Python下载",
+        "seo_priority": "high"
+      }
+    ],
+    "E": [
+      {
+        "title": "交易购买内容总览",
+        "url": "/intent/e",
+        "type": "intent_overview",
+        "intent": "E",
+        "intent_name": "交易购买",
+        "seo_priority": "high"
+      },
+      {
+        "title": "下单/预订内容",
+        "url": "/intent/e3",
+        "type": "sub_intent",
+        "intent": "E",
+        "sub_intent": "E3",
+        "intent_name": "下单/预订",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "价格/报价内容",
+        "url": "/intent/e1",
+        "type": "sub_intent",
+        "intent": "E",
+        "sub_intent": "E1",
+        "intent_name": "价格/报价",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "购买Python书籍",
+        "url": "/keyword/购买python书籍",
+        "type": "keyword",
+        "intent": "E",
+        "keyword": "购买Python书籍",
+        "seo_priority": "high"
+      },
+      {
+        "title": "Python书籍价格",
+        "url": "/keyword/python书籍价格",
+        "type": "keyword",
+        "intent": "E",
+        "keyword": "Python书籍价格",
+        "seo_priority": "high"
+      }
+    ],
+    "B": [
+      {
+        "title": "行为后续内容总览",
+        "url": "/intent/b",
+        "type": "intent_overview",
+        "intent": "B",
+        "intent_name": "行为后续",
+        "seo_priority": "high"
+      },
+      {
+        "title": "故障/报错内容",
+        "url": "/intent/b1",
+        "type": "sub_intent",
+        "intent": "B",
+        "sub_intent": "B1",
+        "intent_name": "故障/报错",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "Python安装问题",
+        "url": "/keyword/python安装问题",
+        "type": "keyword",
+        "intent": "B",
+        "keyword": "Python安装问题",
+        "seo_priority": "high"
+      },
+      {
+        "title": "Python错误解决",
+        "url": "/keyword/python错误解决",
+        "type": "keyword",
+        "intent": "B",
+        "keyword": "Python错误解决",
+        "seo_priority": "high"
+      }
+    ],
+    "L": [
+      {
+        "title": "本地/到店内容总览",
+        "url": "/intent/l",
+        "type": "intent_overview",
+        "intent": "L",
+        "intent_name": "本地/到店",
+        "seo_priority": "high"
+      },
+      {
+        "title": "附近门店内容",
+        "url": "/intent/l1",
+        "type": "sub_intent",
+        "intent": "L",
+        "sub_intent": "L1",
+        "intent_name": "附近门店",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "附近Python培训",
+        "url": "/keyword/附近python培训",
+        "type": "keyword",
+        "intent": "L",
+        "keyword": "附近Python培训",
+        "seo_priority": "high"
+      }
+    ],
+    "C": [
+      {
+        "title": "商业评估内容总览",
+        "url": "/intent/c",
+        "type": "intent_overview",
+        "intent": "C",
+        "intent_name": "商业评估",
+        "seo_priority": "high"
+      },
+      {
+        "title": "榜单/推荐内容",
+        "url": "/intent/c1",
+        "type": "sub_intent",
+        "intent": "C",
+        "sub_intent": "C1",
+        "intent_name": "榜单/推荐",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "对比/评测内容",
+        "url": "/intent/c2",
+        "type": "sub_intent",
+        "intent": "C",
+        "sub_intent": "C2",
+        "intent_name": "对比/评测",
+        "seo_priority": "medium"
+      },
+      {
+        "title": "Python vs Java",
+        "url": "/keyword/python-vs-java",
+        "type": "keyword",
+        "intent": "C",
+        "keyword": "Python vs Java",
+        "seo_priority": "high"
+      },
+      {
+        "title": "最好的Python IDE",
+        "url": "/keyword/最好的python-ide",
+        "type": "keyword",
+        "intent": "C",
+        "keyword": "最好的Python IDE",
+        "seo_priority": "high"
+      },
+      {
+        "title": "Python IDE对比",
+        "url": "/keyword/python-ide对比",
+        "type": "keyword",
+        "intent": "C",
+        "keyword": "Python IDE对比",
+        "seo_priority": "high"
+      }
+    ]
+  },
+  "content_pages": {
+    "i_content_1": {
+      "title": "什么是Python",
+      "url": "/content/i_content_1",
+      "intent": "I",
+      "keyword": "什么是Python",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "i_content_2": {
+      "title": "Python教程",
+      "url": "/content/i_content_2",
+      "intent": "I",
+      "keyword": "Python教程",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "n_content_1": {
+      "title": "Python官网",
+      "url": "/content/n_content_1",
+      "intent": "N",
+      "keyword": "Python官网",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "n_content_2": {
+      "title": "Python下载",
+      "url": "/content/n_content_2",
+      "intent": "N",
+      "keyword": "Python下载",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "e_content_1": {
+      "title": "购买Python书籍",
+      "url": "/content/e_content_1",
+      "intent": "E",
+      "keyword": "购买Python书籍",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "e_content_2": {
+      "title": "Python书籍价格",
+      "url": "/content/e_content_2",
+      "intent": "E",
+      "keyword": "Python书籍价格",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "b_content_1": {
+      "title": "Python安装问题",
+      "url": "/content/b_content_1",
+      "intent": "B",
+      "keyword": "Python安装问题",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "b_content_2": {
+      "title": "Python错误解决",
+      "url": "/content/b_content_2",
+      "intent": "B",
+      "keyword": "Python错误解决",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "l_content_1": {
+      "title": "附近Python培训",
+      "url": "/content/l_content_1",
+      "intent": "L",
+      "keyword": "附近Python培训",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "c_content_1": {
+      "title": "Python vs Java",
+      "url": "/content/c_content_1",
+      "intent": "C",
+      "keyword": "Python vs Java",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "c_content_2": {
+      "title": "最好的Python IDE",
+      "url": "/content/c_content_2",
+      "intent": "C",
+      "keyword": "最好的Python IDE",
+      "content_type": "article",
+      "seo_priority": "medium"
+    },
+    "c_content_3": {
+      "title": "Python IDE对比",
+      "url": "/content/c_content_3",
+      "intent": "C",
+      "keyword": "Python IDE对比",
+      "content_type": "article",
+      "seo_priority": "medium"
+    }
+  },
+  "product_pages": {
+    "product_1": {
+      "title": "购买Python书籍产品详情",
+      "url": "/products/product_1",
+      "intent": "E",
+      "keyword": "购买Python书籍",
+      "product_type": "digital",
+      "seo_priority": "high"
+    },
+    "product_2": {
+      "title": "Python书籍价格产品详情",
+      "url": "/products/product_2",
+      "intent": "E",
+      "keyword": "Python书籍价格",
+      "product_type": "digital",
+      "seo_priority": "high"
+    }
+  },
+  "category_pages": {
+    "category_i": {
+      "title": "信息获取分类",
+      "url": "/categories/category_i",
+      "intent": "I",
+      "seo_priority": "medium"
+    },
+    "category_n": {
+      "title": "导航直达分类",
+      "url": "/categories/category_n",
+      "intent": "N",
+      "seo_priority": "medium"
+    },
+    "category_e": {
+      "title": "交易购买分类",
+      "url": "/categories/category_e",
+      "intent": "E",
+      "seo_priority": "medium"
+    },
+    "category_b": {
+      "title": "行为后续分类",
+      "url": "/categories/category_b",
+      "intent": "B",
+      "seo_priority": "medium"
+    },
+    "category_l": {
+      "title": "本地/到店分类",
+      "url": "/categories/category_l",
+      "intent": "L",
+      "seo_priority": "medium"
+    },
+    "category_c": {
+      "title": "商业评估分类",
+      "url": "/categories/category_c",
+      "intent": "C",
+      "seo_priority": "medium"
+    }
+  }
+}

@@ -27,6 +27,9 @@ class ContentPlanGenerator:
         self.analyzer = analyzer
         self.config = config or {}
         
+        # 初始化意图配置管理器
+        self.intent_config = IntentConfigManager()
+        
         # 初始化内容计划
         self.content_plan = []
         self.week = 1
