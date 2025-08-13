@@ -17,7 +17,7 @@ from typing import Dict, List, Any, Optional
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.demand_mining.demand_mining_main import DemandMiningManager
-from src.website_builder.intent_based_website_builder import IntentBasedWebsiteBuilder
+from src.website_builder.builder_core import IntentBasedWebsiteBuilder
 
 
 class IntegratedWorkflow:
@@ -158,28 +158,42 @@ class IntegratedWorkflow:
         return high_value[:max_projects]
     
     def _batch_generate_websites(self, keywords: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """批量生成网站"""
+        """批量生成网站（基于建站建议）"""
         website_results = []
         
         for i, keyword_data in enumerate(keywords, 1):
             keyword = keyword_data['keyword']
             intent_info = keyword_data.get('intent', {})
+            website_recommendations = intent_info.get('website_recommendations', {})
             
             print(f"🏗️ 生成网站 ({i}/{len(keywords)}): {keyword}")
+            
+            # 显示建站建议信息
+            website_type = website_recommendations.get('website_type', '未知')
+            ai_category = website_recommendations.get('ai_tool_category', '未知')
+            development_priority = website_recommendations.get('development_priority', {})
+            priority_level = development_priority.get('level', '未知') if isinstance(development_priority, dict) else '未知'
+            
+            print(f"   推荐网站类型: {website_type}")
+            print(f"   AI工具类别: {ai_category}")
+            print(f"   开发优先级: {priority_level}")
             
             try:
                 # 准备意图数据文件
                 intent_data = self._prepare_intent_data(keyword_data)
                 intent_file_path = self._save_intent_data(intent_data, keyword)
                 
-                # 生成项目名称
-                project_name = self._generate_project_name(keyword)
+                # 生成项目名称（基于建站建议）
+                project_name = self._generate_project_name_with_recommendations(keyword, website_recommendations)
+                
+                # 创建项目配置（基于建站建议）
+                project_config = self._create_project_config(website_recommendations, project_name)
                 
                 # 创建网站建设器
                 builder = IntentBasedWebsiteBuilder(
                     intent_data_path=intent_file_path,
                     output_dir=os.path.join(self.output_base_dir, 'websites'),
-                    config={'project_name': project_name}
+                    config=project_config
                 )
                 
                 # 执行建站流程
@@ -194,14 +208,24 @@ class IntegratedWorkflow:
                             'project_name': project_name,
                             'source_dir': source_dir,
                             'intent_info': intent_info,
+                            'website_recommendations': website_recommendations,
                             'opportunity_score': keyword_data.get('opportunity_score', 0),
+                            'development_priority': priority_level,
+                            'website_type': website_type,
+                            'ai_category': ai_category,
                             'status': 'success'
                         })
                         print(f"✅ 网站生成成功: {source_dir}")
+                        
+                        # 显示域名建议
+                        domain_suggestions = website_recommendations.get('domain_suggestions', [])
+                        if domain_suggestions:
+                            print(f"   推荐域名: {', '.join(domain_suggestions[:3])}")
                     else:
                         website_results.append({
                             'keyword': keyword,
                             'project_name': project_name,
+                            'website_type': website_type,
                             'status': 'failed',
                             'error': '源代码生成失败'
                         })
@@ -210,6 +234,7 @@ class IntegratedWorkflow:
                     website_results.append({
                         'keyword': keyword,
                         'project_name': project_name,
+                        'website_type': website_type,
                         'status': 'failed',
                         'error': '意图数据加载失败'
                     })
@@ -219,12 +244,64 @@ class IntegratedWorkflow:
                 website_results.append({
                     'keyword': keyword,
                     'project_name': project_name if 'project_name' in locals() else 'unknown',
+                    'website_type': website_type,
                     'status': 'failed',
                     'error': str(e)
                 })
                 print(f"❌ 网站生成异常: {keyword} - {e}")
         
         return website_results
+    
+    def _generate_project_name_with_recommendations(self, keyword: str, recommendations: Dict[str, Any]) -> str:
+        """基于建站建议生成项目名称"""
+        # 清理关键词
+        clean_keyword = keyword.lower().replace(' ', '_').replace('-', '_')
+        clean_keyword = ''.join(c for c in clean_keyword if c.isalnum() or c == '_')
+        
+        # 根据网站类型添加前缀
+        website_type = recommendations.get('website_type', '')
+        if 'AI工具站' in website_type:
+            prefix = 'ai_tool'
+        elif '评测站' in website_type:
+            prefix = 'review'
+        elif '教程站' in website_type:
+            prefix = 'tutorial'
+        elif '导航站' in website_type:
+            prefix = 'nav'
+        else:
+            prefix = 'website'
+        
+        return f"{prefix}_{clean_keyword}"
+    
+    def _create_project_config(self, recommendations: Dict[str, Any], project_name: str) -> Dict[str, Any]:
+        """基于建站建议创建项目配置"""
+        config = {
+            'project_name': project_name,
+            'website_type': recommendations.get('website_type', '通用网站'),
+            'ai_category': recommendations.get('ai_tool_category', '非AI工具'),
+            'domain_options': recommendations.get('domain_suggestions', []),
+            'monetization_strategies': recommendations.get('monetization_strategy', []),
+            'technical_requirements': recommendations.get('technical_requirements', []),
+            'content_strategies': recommendations.get('content_strategy', []),
+            'development_priority': recommendations.get('development_priority', {})
+        }
+        
+        # 根据AI工具类别调整配置
+        if 'AI' in config['ai_category']:
+            config['use_ai_features'] = True
+            config['api_integration'] = True
+        
+        # 根据网站类型调整模板
+        if 'SaaS' in config['website_type']:
+            config['template_type'] = 'saas'
+        elif '评测' in config['website_type']:
+            config['template_type'] = 'review'
+        elif '教程' in config['website_type']:
+            config['template_type'] = 'tutorial'
+        else:
+            config['template_type'] = 'default'
+        
+        return config
     
     def _prepare_intent_data(self, keyword_data: Dict[str, Any]) -> List[Dict[str, Any]]:
         """准备意图数据格式"""

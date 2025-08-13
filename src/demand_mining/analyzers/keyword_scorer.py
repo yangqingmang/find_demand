@@ -45,7 +45,7 @@ except ImportError:
 class KeywordScorer(BaseAnalyzer):
     """关键词评分类，用于对关键词进行综合评分"""
     
-    def __init__(self, volume_weight=0.4, growth_weight=0.4, kd_weight=0.2):
+    def __init__(self, volume_weight=0.3, growth_weight=0.3, kd_weight=0.2, kgr_weight=0.2):
         """
         初始化关键词评分器
         
@@ -53,20 +53,22 @@ class KeywordScorer(BaseAnalyzer):
             volume_weight (float): 搜索量权重
             growth_weight (float): 增长率权重
             kd_weight (float): 关键词难度权重
+            kgr_weight (float): KGR权重
         """
         super().__init__()
         self.volume_weight = volume_weight
         self.growth_weight = growth_weight
         self.kd_weight = kd_weight
+        self.kgr_weight = kgr_weight
         
         # 验证权重总和为1
-        from src.utils import validate_weights
-        if not validate_weights(volume_weight, growth_weight, kd_weight):
-            total_weight = volume_weight + growth_weight + kd_weight
+        total_weight = volume_weight + growth_weight + kd_weight + kgr_weight
+        if abs(total_weight - 1.0) > 0.001:
             self.logger.warning(f"权重总和 ({total_weight}) 不等于1，已自动归一化")
             self.volume_weight /= total_weight
             self.growth_weight /= total_weight
             self.kd_weight /= total_weight
+            self.kgr_weight /= total_weight
     
     def analyze(self, data, volume_col='value', growth_col='growth', kd_col=None, **kwargs):
         """
@@ -77,12 +79,23 @@ class KeywordScorer(BaseAnalyzer):
             volume_col: 搜索量列名
             growth_col: 增长率列名
             kd_col: 关键词难度列名
-            **kwargs: 其他参数
+            **kwargs: 其他参数，包括:
+                - keyword_col: 关键词列名
+                - serp_analyzer: SERP分析器实例
+                - calculate_kgr: 是否计算KGR
             
         返回:
             评分后的DataFrame
         """
-        return self.score_keywords(data, volume_col, growth_col, kd_col)
+        return self.score_keywords(
+            data, 
+            volume_col=volume_col, 
+            growth_col=growth_col, 
+            kd_col=kd_col,
+            keyword_col=kwargs.get('keyword_col', 'query'),
+            serp_analyzer=kwargs.get('serp_analyzer'),
+            calculate_kgr=kwargs.get('calculate_kgr', True)
+        )
     
     def normalize(self, series, min_val=None, max_val=None):
         """
@@ -112,7 +125,89 @@ class KeywordScorer(BaseAnalyzer):
         normalized = 100 * (series - min_val) / (max_val - min_val)
         return normalized
     
-    def score_keywords(self, df, volume_col='value', growth_col='growth', kd_col=None):
+    def calculate_kgr(self, keyword: str, monthly_searches: int, serp_analyzer=None) -> float:
+        """
+        计算关键词黄金比例 (Keyword Golden Ratio)
+        KGR = 标题中包含完整关键词的搜索结果数量 / 月搜索量
+        
+        参数:
+            keyword (str): 关键词
+            monthly_searches (int): 月搜索量
+            serp_analyzer: SERP分析器实例
+            
+        返回:
+            float: KGR值
+        """
+        if monthly_searches <= 0:
+            return float('inf')  # 避免除零错误
+        
+        # 如果没有提供SERP分析器，使用模拟数据
+        if serp_analyzer is None:
+            # 基于关键词特征估算标题匹配数量
+            word_count = len(keyword.split())
+            base_matches = max(50, 500 - word_count * 100)  # 长尾词匹配数量更少
+            
+            # 根据关键词类型调整
+            keyword_lower = keyword.lower()
+            if any(word in keyword_lower for word in ['best', 'top', 'review']):
+                title_matches = base_matches * 2  # 竞争激烈的词匹配更多
+            elif any(word in keyword_lower for word in ['how to', 'tutorial', 'guide']):
+                title_matches = base_matches * 1.5
+            else:
+                title_matches = base_matches
+        else:
+            # 使用真实SERP数据
+            try:
+                search_result = serp_analyzer.search_google(f'allintitle:"{keyword}"')
+                if search_result and 'searchInformation' in search_result:
+                    title_matches = int(search_result['searchInformation'].get('totalResults', 0))
+                else:
+                    title_matches = 0
+            except Exception as e:
+                self.logger.warning(f"SERP查询失败，使用估算值: {e}")
+                word_count = len(keyword.split())
+                title_matches = max(50, 500 - word_count * 100)
+        
+        kgr = title_matches / monthly_searches
+        return round(kgr, 4)
+    
+    def calculate_kgr_score(self, kgr_value: float) -> float:
+        """
+        将KGR值转换为评分 (0-100)
+        KGR越小越好，理想值是0.25以下
+        
+        参数:
+            kgr_value (float): KGR值
+            
+        返回:
+            float: KGR评分 (0-100)
+        """
+        if kgr_value == float('inf'):
+            return 0
+        
+        # KGR评分规则:
+        # KGR < 0.25: 优秀 (90-100分)
+        # KGR 0.25-0.5: 良好 (70-89分)
+        # KGR 0.5-1.0: 一般 (40-69分)
+        # KGR > 1.0: 困难 (0-39分)
+        
+        if kgr_value < 0.25:
+            # 线性映射到90-100分
+            score = 100 - (kgr_value / 0.25) * 10
+        elif kgr_value < 0.5:
+            # 线性映射到70-89分
+            score = 89 - ((kgr_value - 0.25) / 0.25) * 19
+        elif kgr_value < 1.0:
+            # 线性映射到40-69分
+            score = 69 - ((kgr_value - 0.5) / 0.5) * 29
+        else:
+            # 线性映射到0-39分
+            score = max(0, 39 - (kgr_value - 1.0) * 10)
+        
+        return round(score, 1)
+    
+    def score_keywords(self, df, volume_col='value', growth_col='growth', kd_col=None, 
+                          keyword_col='query', serp_analyzer=None, calculate_kgr=True):
         """
         对关键词进行评分
         
@@ -121,6 +216,9 @@ class KeywordScorer(BaseAnalyzer):
             volume_col (str): 搜索量列名
             growth_col (str): 增长率列名
             kd_col (str): 关键词难度列名，如果为None则不考虑KD
+            keyword_col (str): 关键词列名
+            serp_analyzer: SERP分析器实例，用于计算真实KGR
+            calculate_kgr (bool): 是否计算KGR
             
         返回:
             添加了评分列的DataFrame
@@ -159,13 +257,54 @@ class KeywordScorer(BaseAnalyzer):
         else:
             self.logger.warning(f"未找到关键词难度列 '{kd_col}'，使用默认值")
             result_df['kd_score'] = 50  # 默认中等难度
+        
+        # 计算KGR评分
+        if calculate_kgr and keyword_col in result_df.columns:
+            self.logger.info("正在计算KGR (Keyword Golden Ratio)...")
+            kgr_values = []
+            kgr_scores = []
+            
+            for idx, row in result_df.iterrows():
+                keyword = row[keyword_col]
+                monthly_searches = row.get(volume_col, 100)  # 默认搜索量
+                
+                # 如果有月搜索量数据，优先使用
+                if 'monthly_searches' in result_df.columns:
+                    monthly_searches = row.get('monthly_searches', monthly_searches)
+                elif 'avg_monthly_searches' in result_df.columns:
+                    monthly_searches = row.get('avg_monthly_searches', monthly_searches)
+                
+                # 计算KGR
+                kgr_value = self.calculate_kgr(keyword, monthly_searches, serp_analyzer)
+                kgr_score = self.calculate_kgr_score(kgr_value)
+                
+                kgr_values.append(kgr_value)
+                kgr_scores.append(kgr_score)
+            
+            result_df['kgr_value'] = kgr_values
+            result_df['kgr_score'] = kgr_scores
+            
+            self.logger.info(f"KGR计算完成，平均KGR值: {np.mean([k for k in kgr_values if k != float('inf')]):.3f}")
+        else:
+            self.logger.warning("跳过KGR计算")
+            result_df['kgr_score'] = 50  # 默认中等KGR评分
             
         # 计算综合评分
-        result_df['score'] = (
-            self.volume_weight * result_df['volume_score'] +
-            self.growth_weight * result_df['growth_score'] +
-            self.kd_weight * result_df['kd_score']
-        )
+        if calculate_kgr and 'kgr_score' in result_df.columns:
+            result_df['score'] = (
+                self.volume_weight * result_df['volume_score'] +
+                self.growth_weight * result_df['growth_score'] +
+                self.kd_weight * result_df['kd_score'] +
+                self.kgr_weight * result_df['kgr_score']
+            )
+        else:
+            # 如果没有KGR，重新分配权重
+            total_weight = self.volume_weight + self.growth_weight + self.kd_weight
+            result_df['score'] = (
+                (self.volume_weight / total_weight) * result_df['volume_score'] +
+                (self.growth_weight / total_weight) * result_df['growth_score'] +
+                (self.kd_weight / total_weight) * result_df['kd_score']
+            )
         
         # 四舍五入到整数
         result_df['score'] = result_df['score'].round().astype(int)
@@ -177,6 +316,23 @@ class KeywordScorer(BaseAnalyzer):
             labels=['D', 'C', 'B', 'A']
         )
         
+        # 添加KGR等级（如果计算了KGR）
+        if calculate_kgr and 'kgr_value' in result_df.columns:
+            def get_kgr_grade(kgr_val):
+                if kgr_val == float('inf'):
+                    return 'F'
+                elif kgr_val < 0.25:
+                    return 'A'
+                elif kgr_val < 0.5:
+                    return 'B'
+                elif kgr_val < 1.0:
+                    return 'C'
+                else:
+                    return 'D'
+            
+            result_df['kgr_grade'] = result_df['kgr_value'].apply(get_kgr_grade)
+        
+        self.log_analysis_complete("关键词评分", len(result_df))
         return result_df
     
     def filter_keywords(self, df, min_score=None, min_volume=None, min_growth=None, max_kd=None):

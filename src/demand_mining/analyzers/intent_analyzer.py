@@ -15,26 +15,30 @@ from collections import Counter
 from src.demand_mining.analyzers.base_analyzer import BaseAnalyzer
 from src.demand_mining.analyzers.serp_analyzer import SerpAnalyzer
 from src.demand_mining.analyzers.intent_analyzer_v2 import IntentAnalyzerV2
+from src.demand_mining.analyzers.website_recommendation import WebsiteRecommendationEngine
 from src.utils import (
     INTENT_TYPES, INTENT_KEYWORDS, RECOMMENDED_ACTIONS,
     FileUtils, Logger, ExceptionHandler, DataError
 )
+from src.utils.constants import INTENT_DESCRIPTIONS
 
 
 class IntentAnalyzer(BaseAnalyzer):
     """搜索意图分析类，用于判断关键词的搜索意图"""
     
-    def __init__(self, use_serp=False, use_v2=True):
+    def __init__(self, use_serp=False, use_v2=True, enable_website_recommendations=True):
         """
         初始化搜索意图分析器
         
         参数:
             use_serp: 是否使用SERP分析
             use_v2: 是否使用V2版本的意图分析器
+            enable_website_recommendations: 是否启用建站建议
         """
         super().__init__()
         self.use_serp = use_serp
         self.use_v2 = use_v2
+        self.enable_website_recommendations = enable_website_recommendations
         
         # 如果启用V2版本，初始化V2分析器
         if self.use_v2:
@@ -74,10 +78,24 @@ class IntentAnalyzer(BaseAnalyzer):
         else:
             self.serp_analyzer = None
         
+        # 如果启用建站建议，初始化建站建议引擎
+        if self.enable_website_recommendations:
+            try:
+                self.website_recommender = WebsiteRecommendationEngine()
+                self.logger.info("已启用建站建议功能")
+            except Exception as e:
+                self.logger.error(f"建站建议引擎初始化失败: {e}")
+                self.enable_website_recommendations = False
+                self.website_recommender = None
+        else:
+            self.website_recommender = None
+        
         # 导入常量
         self.INTENT_TYPES = INTENT_TYPES
         self.INTENT_KEYWORDS = INTENT_KEYWORDS
         self.RECOMMENDED_ACTIONS = RECOMMENDED_ACTIONS
+        # 添加意图描述常量（兼容性）
+        self.INTENT_DESCRIPTIONS = INTENT_DESCRIPTIONS
         
         # 正则表达式模式
         self.patterns = {
@@ -224,6 +242,20 @@ class IntentAnalyzer(BaseAnalyzer):
                         result_df.at[idx, 'intent_description'] = self.INTENT_TYPES.get(intent, '')
                         result_df.at[idx, 'recommended_action'] = self.get_recommended_action(intent)
                 
+                # 如果启用建站建议，生成建站建议
+                if self.enable_website_recommendations and self.website_recommender:
+                    try:
+                        self.logger.info("正在生成建站建议...")
+                        result_df = self.website_recommender.generate_website_recommendations(
+                            result_df, 
+                            keyword_col=keyword_col, 
+                            intent_col='intent'
+                        )
+                        self.logger.info("建站建议生成完成")
+                    except Exception as e:
+                        self.logger.error(f"建站建议生成失败: {e}")
+                
+                self.log_analysis_complete("搜索意图分析(V2)", len(result_df))
                 return result_df
                 
             except Exception as e:
@@ -267,6 +299,20 @@ class IntentAnalyzer(BaseAnalyzer):
             result_df.at[idx, 'intent_description'] = self.INTENT_TYPES.get(intent, '')
             result_df.at[idx, 'recommended_action'] = self.get_recommended_action(intent)
         
+        # 如果启用建站建议，生成建站建议
+        if self.enable_website_recommendations and self.website_recommender:
+            try:
+                self.logger.info("正在生成建站建议...")
+                result_df = self.website_recommender.generate_website_recommendations(
+                    result_df, 
+                    keyword_col=keyword_col, 
+                    intent_col='intent'
+                )
+                self.logger.info("建站建议生成完成")
+            except Exception as e:
+                self.logger.error(f"建站建议生成失败: {e}")
+        
+        self.log_analysis_complete("搜索意图分析", len(result_df))
         return result_df
     
     def get_recommended_action(self, intent):

@@ -12,7 +12,7 @@ import pandas as pd
 from datetime import datetime
 from typing import Dict, List, Tuple, Set, Optional, Any, Union
 
-from src.analyzers.intent_analyzer_v2 import IntentAnalyzerV2
+from src.demand_mining.analyzers.intent_analyzer import IntentAnalyzer
 from src.website_builder.structure_generator import WebsiteStructureGenerator
 from src.website_builder.content_planner import ContentPlanGenerator
 from src.website_builder.page_templates import PageTemplateManager
@@ -44,8 +44,11 @@ class IntentBasedWebsiteBuilder:
         project_name = self.config.get('project_name', 'website')
         self.output_dir = os.path.join(self.base_output_dir, f"{project_name}_{timestamp}")
         
-        # 创建意图分析器
-        self.analyzer = IntentAnalyzerV2()
+        # 创建意图分析器（启用建站建议功能）
+        self.analyzer = IntentAnalyzer(
+            use_v2=True,
+            enable_website_recommendations=True
+        )
         
         # 创建页面模板管理器
         self.template_manager = PageTemplateManager()
@@ -138,7 +141,7 @@ class IntentBasedWebsiteBuilder:
 
     def generate_website_structure(self) -> Dict[str, Any]:
         """
-        生成网站结构
+        生成网站结构（基于建站建议）
         
         Returns:
             网站结构字典
@@ -147,7 +150,10 @@ class IntentBasedWebsiteBuilder:
             print("错误: 未加载意图数据")
             return {}
         
-        print("正在生成基于搜索意图的网站结构...")
+        print("正在生成基于搜索意图和建站建议的网站结构...")
+        
+        # 分析建站建议数据
+        website_recommendations = self._analyze_website_recommendations()
         
         # 创建结构生成器
         structure_generator = WebsiteStructureGenerator(
@@ -158,8 +164,11 @@ class IntentBasedWebsiteBuilder:
             config=self.config
         )
         
-        # 生成网站结构
-        self.website_structure = structure_generator.generate()
+        # 生成网站结构（传入建站建议）
+        self.website_structure = structure_generator.generate(website_recommendations)
+        
+        # 添加建站建议到网站结构
+        self.website_structure['website_recommendations'] = website_recommendations
         
         # 保存网站结构
         timestamp = datetime.now().strftime('%Y-%m-%d')
@@ -168,8 +177,83 @@ class IntentBasedWebsiteBuilder:
         save_json_file(self.website_structure, output_file)
         
         print(f"网站结构生成完成，已保存到: {output_file}")
+        print(f"推荐网站类型: {website_recommendations.get('primary_website_type', '未知')}")
+        print(f"主要AI工具类别: {website_recommendations.get('primary_ai_category', '未知')}")
         
         return self.website_structure
+    
+    def _analyze_website_recommendations(self) -> Dict[str, Any]:
+        """
+        分析建站建议数据
+        
+        Returns:
+            建站建议摘要
+        """
+        recommendations = {
+            'primary_website_type': '通用网站',
+            'primary_ai_category': '非AI工具',
+            'domain_suggestions': [],
+            'monetization_strategies': [],
+            'technical_requirements': [],
+            'development_priorities': [],
+            'content_strategies': []
+        }
+        
+        if 'website_type' not in self.intent_data.columns:
+            return recommendations
+        
+        # 统计网站类型分布
+        website_types = self.intent_data['website_type'].value_counts()
+        if len(website_types) > 0:
+            recommendations['primary_website_type'] = website_types.index[0]
+        
+        # 统计AI工具类别分布
+        if 'ai_tool_category' in self.intent_data.columns:
+            ai_categories = self.intent_data['ai_tool_category'].value_counts()
+            if len(ai_categories) > 0:
+                recommendations['primary_ai_category'] = ai_categories.index[0]
+        
+        # 收集域名建议
+        all_domains = []
+        for domains in self.intent_data.get('domain_suggestions', []):
+            if isinstance(domains, list):
+                all_domains.extend(domains)
+        recommendations['domain_suggestions'] = list(set(all_domains))[:10]
+        
+        # 收集变现策略
+        all_monetization = []
+        for strategies in self.intent_data.get('monetization_strategy', []):
+            if isinstance(strategies, list):
+                all_monetization.extend(strategies)
+        recommendations['monetization_strategies'] = list(set(all_monetization))[:5]
+        
+        # 收集技术要求
+        all_tech_reqs = []
+        for reqs in self.intent_data.get('technical_requirements', []):
+            if isinstance(reqs, list):
+                all_tech_reqs.extend(reqs)
+        recommendations['technical_requirements'] = list(set(all_tech_reqs))[:8]
+        
+        # 分析开发优先级
+        high_priority_count = 0
+        for priority_info in self.intent_data.get('development_priority', []):
+            if isinstance(priority_info, dict) and priority_info.get('level') == '高':
+                high_priority_count += 1
+        
+        recommendations['development_priorities'] = {
+            'high_priority_count': high_priority_count,
+            'total_keywords': len(self.intent_data),
+            'priority_ratio': high_priority_count / len(self.intent_data) if len(self.intent_data) > 0 else 0
+        }
+        
+        # 收集内容策略
+        all_content_strategies = []
+        for strategies in self.intent_data.get('content_strategy', []):
+            if isinstance(strategies, list):
+                all_content_strategies.extend(strategies)
+        recommendations['content_strategies'] = list(set(all_content_strategies))[:8]
+        
+        return recommendations
 
     def create_content_plan(self) -> List[Dict[str, Any]]:
         """
