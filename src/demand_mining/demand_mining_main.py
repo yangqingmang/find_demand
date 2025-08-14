@@ -561,6 +561,81 @@ class DemandMiningManager:
         
         print(f"✅ 日报已生成: {report_path}")
         return report_path
+    
+    def analyze_root_words(self, output_dir: str = None) -> Dict[str, Any]:
+        """
+        分析51个词根的趋势数据
+        集成词根趋势分析器功能
+        """
+        print("🌱 开始分析51个词根的Google Trends趋势...")
+        
+        try:
+            # 导入词根趋势分析器
+            from src.demand_mining.root_word_trends_analyzer import RootWordTrendsAnalyzer
+            
+            # 创建分析器
+            analyzer = RootWordTrendsAnalyzer(output_dir or os.path.join(self.output_dir, 'root_word_trends'))
+            
+            # 执行分析
+            results = analyzer.analyze_all_root_words(timeframe="12-m", batch_size=5)
+            
+            # 转换为统一格式，兼容现有的显示逻辑
+            unified_result = {
+                'analysis_type': 'root_words_trends',
+                'analysis_time': results['analysis_date'],
+                'total_root_words': results['total_root_words'],
+                'successful_analyses': results['summary']['successful_analyses'],
+                'failed_analyses': results['summary']['failed_analyses'],
+                'top_trending_words': results['summary']['top_trending_words'],
+                'declining_words': results['summary']['declining_words'],
+                'stable_words': results['summary']['stable_words'],
+                'total_keywords': results['total_root_words'],  # 兼容现有显示逻辑
+                'market_insights': {
+                    'high_opportunity_count': len(results['summary']['top_trending_words']),
+                    'avg_opportunity_score': self._calculate_avg_interest(results['summary']['top_trending_words'])
+                }
+            }
+            
+            print(f"✅ 词根趋势分析完成!")
+            print(f"   成功分析: {unified_result['successful_analyses']} 个词根")
+            print(f"   失败分析: {unified_result['failed_analyses']} 个词根")
+            print(f"   上升趋势: {len(unified_result['top_trending_words'])} 个词根")
+            
+            return unified_result
+            
+        except ImportError as e:
+            print(f"❌ 导入词根趋势分析器失败: {e}")
+            print("请确保 root_word_trends_analyzer.py 文件存在")
+            return self._create_empty_root_result()
+        except Exception as e:
+            print(f"❌ 词根趋势分析失败: {e}")
+            return self._create_empty_root_result()
+    
+    def _calculate_avg_interest(self, trending_words: List[Dict]) -> float:
+        """计算平均兴趣度"""
+        if not trending_words:
+            return 0.0
+        
+        total_interest = sum(word.get('average_interest', 0) for word in trending_words)
+        return round(total_interest / len(trending_words), 2)
+    
+    def _create_empty_root_result(self) -> Dict[str, Any]:
+        """创建空的词根分析结果"""
+        return {
+            'analysis_type': 'root_words_trends',
+            'analysis_time': datetime.now().isoformat(),
+            'total_root_words': 0,
+            'successful_analyses': 0,
+            'failed_analyses': 0,
+            'top_trending_words': [],
+            'declining_words': [],
+            'stable_words': [],
+            'total_keywords': 0,
+            'market_insights': {
+                'high_opportunity_count': 0,
+                'avg_opportunity_score': 0.0
+            }
+        }
 
 
 def main():

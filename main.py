@@ -74,8 +74,8 @@ def main():
         """
     )
     
-    # 输入方式选择
-    input_group = parser.add_mutually_exclusive_group(required=True)
+    # 输入方式选择 - 修改为非必需，支持默认词根分析
+    input_group = parser.add_mutually_exclusive_group(required=False)
     input_group.add_argument('--input', help='输入CSV文件路径')
     input_group.add_argument('--keywords', nargs='+', help='直接输入关键词（可以是多个）')
     input_group.add_argument('--report', action='store_true', help='生成今日分析报告')
@@ -168,6 +168,28 @@ def main():
             
             report_path = manager.generate_daily_report()
             print(f"✅ 报告已生成: {report_path}")
+        
+        else:
+            # 默认：使用51个词根进行趋势分析
+            if not args.quiet:
+                print("🌱 开始使用51个词根进行趋势分析...")
+            
+            result = manager.analyze_root_words(args.output)
+            
+            # 显示结果
+            if args.quiet:
+                print_quiet_summary(result)
+            else:
+                print(f"\n🎉 词根趋势分析完成! 共分析 {result.get('total_root_words', 0)} 个词根")
+                print(f"📊 成功分析: {result.get('successful_analyses', 0)} 个")
+                print(f"📈 上升趋势词根: {len(result.get('top_trending_words', []))}")
+                
+                # 显示Top 5词根
+                top_words = result.get('top_trending_words', [])[:5]
+                if top_words:
+                    print("\n🏆 Top 5 热门词根:")
+                    for i, word_data in enumerate(top_words, 1):
+                        print(f"   {i}. {word_data['word']}: 平均兴趣度 {word_data['average_interest']:.1f}")
         
         print(f"\n📁 详细结果已保存到 {args.output} 目录")
         
