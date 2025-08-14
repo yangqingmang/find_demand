@@ -40,6 +40,11 @@ class ConfigData:
     SERP_API_KEY: str = ""
     AHREFS_API_KEY: str = ""
     
+    # 部署 API 配置
+    VERCEL_API_TOKEN: str = ""
+    CLOUDFLARE_API_TOKEN: str = ""
+    CLOUDFLARE_ACCOUNT_ID: str = ""
+    
     # 应用配置
     DEBUG: bool = False
     LOG_LEVEL: str = "INFO"

@@ -34,7 +34,10 @@ class ConfigMigrator:
             'GOOGLE_ADS_REFRESH_TOKEN',
             'GOOGLE_ADS_CUSTOMER_ID',
             'SERP_API_KEY',
-            'AHREFS_API_KEY'
+            'AHREFS_API_KEY',
+            'VERCEL_API_TOKEN',
+            'CLOUDFLARE_API_TOKEN',
+            'CLOUDFLARE_ACCOUNT_ID'
         }
         
         # 定义公开配置键（不需要加密）
