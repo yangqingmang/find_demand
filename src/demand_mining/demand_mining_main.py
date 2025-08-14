@@ -41,8 +41,11 @@ class DemandMiningManager:
         self.output_dir = "src/demand_mining/reports"
         self._ensure_output_dirs()
         
-        # 初始化分析器
-        self.intent_analyzer = IntentAnalyzerV2()
+        # 初始化分析器（启用建站建议功能）
+        self.intent_analyzer = IntentAnalyzer(
+            use_v2=True, 
+            enable_website_recommendations=True
+        )
         self.market_analyzer = MarketAnalyzer()
         self.keyword_analyzer = KeywordAnalyzer()
         
@@ -160,22 +163,44 @@ class DemandMiningManager:
         return results
     
     def _analyze_keyword_intent(self, keyword: str) -> Dict[str, Any]:
-        """分析关键词意图"""
+        """分析关键词意图（包含建站建议）"""
         try:
-            intent, confidence, secondary = self.intent_analyzer.detect_intent_from_keyword(keyword)
-            return {
-                'primary_intent': intent,
-                'confidence': confidence,
-                'secondary_intent': secondary,
-                'intent_description': self.intent_analyzer.INTENT_DESCRIPTIONS.get(intent, '')
-            }
+            # 创建包含关键词的DataFrame进行分析
+            import pandas as pd
+            df = pd.DataFrame({'query': [keyword]})
+            
+            # 使用意图分析器进行完整分析（包含建站建议）
+            result_df = self.intent_analyzer.analyze_keywords(df, keyword_col='query')
+            
+            if len(result_df) > 0:
+                row = result_df.iloc[0]
+                return {
+                    'primary_intent': row.get('intent', 'Unknown'),
+                    'confidence': row.get('intent_confidence', 0.0),
+                    'secondary_intent': row.get('secondary_intent'),
+                    'intent_description': row.get('intent_description', ''),
+                    'website_recommendations': {
+                        'website_type': row.get('website_type'),
+                        'ai_tool_category': row.get('ai_tool_category'),
+                        'domain_suggestions': row.get('domain_suggestions', []),
+                        'monetization_strategy': row.get('monetization_strategy', []),
+                        'technical_requirements': row.get('technical_requirements', []),
+                        'competition_analysis': row.get('competition_analysis', {}),
+                        'development_priority': row.get('development_priority', {}),
+                        'content_strategy': row.get('content_strategy', [])
+                    }
+                }
+            else:
+                raise Exception("分析结果为空")
+                
         except Exception as e:
             print(f"⚠️ 意图分析失败 ({keyword}): {e}")
             return {
                 'primary_intent': 'Unknown',
                 'confidence': 0.0,
                 'secondary_intent': None,
-                'intent_description': '分析失败'
+                'intent_description': '分析失败',
+                'website_recommendations': {}
             }
     
     def _analyze_keyword_market(self, keyword: str) -> Dict[str, Any]:

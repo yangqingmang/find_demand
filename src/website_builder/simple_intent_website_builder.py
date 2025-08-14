@@ -15,7 +15,7 @@ from datetime import datetime
 from typing import Dict, List, Tuple, Set, Optional, Any, Union
 
 # 修改导入路径
-from src.analyzers.intent_analyzer_v2 import IntentAnalyzerV2
+from src.demand_mining.analyzers.intent_analyzer_v2 import IntentAnalyzerV2
 
 class SimpleIntentWebsiteBuilder:
     """基于搜索意图的网站自动建设工具（简化版）"""
