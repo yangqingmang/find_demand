@@ -14,8 +14,13 @@ from src.utils import (
     FileUtils, Logger, ExceptionHandler, APIError,
     DEFAULT_CONFIG, VALIDATION_CONSTANTS
 )
-from config.config_manager import get_config
-config = get_config()
+try:
+    from config.config_manager import get_config
+    config = get_config()
+except ImportError:
+    # 如果配置管理器不可用，使用简化版配置
+    from src.utils.simple_config import get_config
+    config = get_config()
 from src.utils.mock_data_generator import MockDataGenerator
 
 class TrendsCollector:
@@ -186,6 +191,67 @@ class TrendsCollector:
         else:
             self.logger.warning("未收集到任何趋势数据")
             return pd.DataFrame(columns=['query', 'volume', 'growth_rate', 'seed_keyword'])
+    
+    def get_keyword_trends(self, keyword, geo='', timeframe='today 3-m'):
+        """
+        获取单个关键词的趋势数据（为RootWordTrendsAnalyzer提供的接口）
+        
+        参数:
+            keyword (str): 关键词
+            geo (str): 地区代码
+            timeframe (str): 时间范围
+            
+        返回:
+            dict: 包含趋势数据的字典
+        """
+        self.logger.info(f"正在获取关键词 '{keyword}' 的趋势数据...")
+        
+        # 如果启用模拟模式，返回模拟数据
+        if config.MOCK_MODE:
+            self.logger.info("🔧 模拟模式：生成模拟趋势数据")
+            mock_generator = MockDataGenerator()
+            mock_results = mock_generator.generate_trends_data([keyword], geo, timeframe)
+            if keyword in mock_results:
+                df = mock_results[keyword]
+                return {
+                    'keyword': keyword,
+                    'related_queries': df.to_dict('records') if not df.empty else [],
+                    'total_queries': len(df),
+                    'avg_volume': df['value'].mean() if 'value' in df.columns and not df.empty else 0,
+                    'status': 'success'
+                }
+            else:
+                return {
+                    'keyword': keyword,
+                    'related_queries': [],
+                    'total_queries': 0,
+                    'avg_volume': 0,
+                    'status': 'no_data'
+                }
+        
+        # 获取Rising Queries数据
+        df = self.fetch_rising_queries(keyword, geo, timeframe)
+        
+        if not df.empty:
+            # 计算统计信息
+            total_queries = len(df)
+            avg_volume = df['value'].mean() if 'value' in df.columns else 0
+            
+            return {
+                'keyword': keyword,
+                'related_queries': df.to_dict('records'),
+                'total_queries': total_queries,
+                'avg_volume': avg_volume,
+                'status': 'success'
+            }
+        else:
+            return {
+                'keyword': keyword,
+                'related_queries': [],
+                'total_queries': 0,
+                'avg_volume': 0,
+                'status': 'no_data'
+            }
     
     def save_results(self, results, output_dir='data'):
         """

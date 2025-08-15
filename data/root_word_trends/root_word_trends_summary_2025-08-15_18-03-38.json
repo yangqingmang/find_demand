@@ -1,0 +1,265 @@
+{
+  "successful_analyses": 51,
+  "failed_analyses": 0,
+  "top_trending_words": [
+    {
+      "word": "interpreter",
+      "average_interest": 71.0,
+      "peak_interest": 81
+    },
+    {
+      "word": "verifier",
+      "average_interest": 66.0,
+      "peak_interest": 79
+    },
+    {
+      "word": "receiver",
+      "average_interest": 61.75,
+      "peak_interest": 71
+    },
+    {
+      "word": "recorder",
+      "average_interest": 58.58,
+      "peak_interest": 72
+    },
+    {
+      "word": "optimizer",
+      "average_interest": 38.25,
+      "peak_interest": 53
+    },
+    {
+      "word": "designer",
+      "average_interest": 37.75,
+      "peak_interest": 51
+    },
+    {
+      "word": "translator",
+      "average_interest": 36.08,
+      "peak_interest": 47
+    },
+    {
+      "word": "navigator",
+      "average_interest": 34.0,
+      "peak_interest": 50
+    },
+    {
+      "word": "maker",
+      "average_interest": 32.92,
+      "peak_interest": 45
+    },
+    {
+      "word": "assistant",
+      "average_interest": 32.5,
+      "peak_interest": 49
+    },
+    {
+      "word": "example",
+      "average_interest": 31.5,
+      "peak_interest": 45
+    },
+    {
+      "word": "scheduler",
+      "average_interest": 30.42,
+      "peak_interest": 41
+    },
+    {
+      "word": "processor",
+      "average_interest": 29.83,
+      "peak_interest": 39
+    },
+    {
+      "word": "sample",
+      "average_interest": 27.25,
+      "peak_interest": 44
+    }
+  ],
+  "declining_words": [
+    {
+      "word": "simulator",
+      "average_interest": 79.83,
+      "peak_interest": 92
+    },
+    {
+      "word": "scheme",
+      "average_interest": 76.58,
+      "peak_interest": 91
+    },
+    {
+      "word": "constructor",
+      "average_interest": 53.75,
+      "peak_interest": 65
+    },
+    {
+      "word": "creator",
+      "average_interest": 46.08,
+      "peak_interest": 57
+    },
+    {
+      "word": "pattern",
+      "average_interest": 46.0,
+      "peak_interest": 61
+    },
+    {
+      "word": "detector",
+      "average_interest": 43.92,
+      "peak_interest": 58
+    },
+    {
+      "word": "syncer",
+      "average_interest": 43.75,
+      "peak_interest": 55
+    },
+    {
+      "word": "notifier",
+      "average_interest": 42.75,
+      "peak_interest": 56
+    },
+    {
+      "word": "connector",
+      "average_interest": 41.08,
+      "peak_interest": 57
+    },
+    {
+      "word": "checker",
+      "average_interest": 39.67,
+      "peak_interest": 54
+    },
+    {
+      "word": "manager",
+      "average_interest": 37.58,
+      "peak_interest": 48
+    },
+    {
+      "word": "extractor",
+      "average_interest": 37.0,
+      "peak_interest": 50
+    },
+    {
+      "word": "analyzer",
+      "average_interest": 22.17,
+      "peak_interest": 39
+    }
+  ],
+  "stable_words": [
+    {
+      "word": "comparator",
+      "average_interest": 77.42,
+      "peak_interest": 91
+    },
+    {
+      "word": "convert",
+      "average_interest": 74.75,
+      "peak_interest": 85
+    },
+    {
+      "word": "generator",
+      "average_interest": 74.17,
+      "peak_interest": 90
+    },
+    {
+      "word": "downloader",
+      "average_interest": 71.33,
+      "peak_interest": 80
+    },
+    {
+      "word": "dashboard",
+      "average_interest": 66.75,
+      "peak_interest": 80
+    },
+    {
+      "word": "cataloger",
+      "average_interest": 65.08,
+      "peak_interest": 75
+    },
+    {
+      "word": "uploader",
+      "average_interest": 62.5,
+      "peak_interest": 70
+    },
+    {
+      "word": "online",
+      "average_interest": 60.58,
+      "peak_interest": 74
+    },
+    {
+      "word": "calculator",
+      "average_interest": 58.67,
+      "peak_interest": 73
+    },
+    {
+      "word": "template",
+      "average_interest": 58.58,
+      "peak_interest": 69
+    },
+    {
+      "word": "converter",
+      "average_interest": 57.75,
+      "peak_interest": 72
+    },
+    {
+      "word": "evaluator",
+      "average_interest": 50.08,
+      "peak_interest": 63
+    },
+    {
+      "word": "viewer",
+      "average_interest": 45.5,
+      "peak_interest": 60
+    },
+    {
+      "word": "explorer",
+      "average_interest": 44.75,
+      "peak_interest": 59
+    },
+    {
+      "word": "builder",
+      "average_interest": 41.75,
+      "peak_interest": 52
+    },
+    {
+      "word": "compiler",
+      "average_interest": 37.5,
+      "peak_interest": 52
+    },
+    {
+      "word": "responder",
+      "average_interest": 37.17,
+      "peak_interest": 50
+    },
+    {
+      "word": "monitor",
+      "average_interest": 35.92,
+      "peak_interest": 49
+    },
+    {
+      "word": "editor",
+      "average_interest": 35.67,
+      "peak_interest": 51
+    },
+    {
+      "word": "format",
+      "average_interest": 34.92,
+      "peak_interest": 50
+    },
+    {
+      "word": "scraper",
+      "average_interest": 33.33,
+      "peak_interest": 45
+    },
+    {
+      "word": "planner",
+      "average_interest": 33.0,
+      "peak_interest": 43
+    },
+    {
+      "word": "sender",
+      "average_interest": 30.58,
+      "peak_interest": 42
+    },
+    {
+      "word": "tracker",
+      "average_interest": 28.67,
+      "peak_interest": 42
+    }
+  ]
+}

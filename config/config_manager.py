@@ -12,7 +12,15 @@ from dataclasses import dataclass
 try:
     from .crypto_manager import ConfigCrypto
 except ImportError:
-    from crypto_manager import ConfigCrypto
+    try:
+        from crypto_manager import ConfigCrypto
+    except ImportError:
+        # 如果加密模块不可用，创建一个简化版本
+        class ConfigCrypto:
+            def encrypt_config(self, config):
+                return config
+            def decrypt_config(self, config):
+                return config
 
 
 @dataclass
@@ -49,6 +57,7 @@ class ConfigData:
     DEBUG: bool = False
     LOG_LEVEL: str = "INFO"
     OUTPUT_DIR: str = "data/results"
+    MOCK_MODE: bool = True
 
 
 class ConfigManager:

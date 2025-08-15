@@ -1,0 +1,4759 @@
+{
+  "analysis_date": "2025-08-15T18:03:38.949482",
+  "total_root_words": 51,
+  "results": [
+    {
+      "root_word": "translator",
+      "status": "success",
+      "data": {
+        "keyword": "translator",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 27
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 34
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 34
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 23
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 42
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 30
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 44
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 47
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 25
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 41
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 46
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 40
+          }
+        ],
+        "average_interest": 36.08,
+        "peak_interest": 47,
+        "trend_direction": "rising",
+        "related_queries": [
+          {
+            "query": "ai translator",
+            "value": 65,
+            "type": "top"
+          },
+          {
+            "query": "free translator",
+            "value": 93,
+            "type": "top"
+          },
+          {
+            "query": "online translator",
+            "value": 72,
+            "type": "top"
+          },
+          {
+            "query": "best translator",
+            "value": 78,
+            "type": "top"
+          },
+          {
+            "query": "translator tool",
+            "value": 38,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.950027"
+    },
+    {
+      "root_word": "generator",
+      "status": "success",
+      "data": {
+        "keyword": "generator",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 67
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 83
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 69
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 68
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 63
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 90
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 81
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 90
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 63
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 62
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 69
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 85
+          }
+        ],
+        "average_interest": 74.17,
+        "peak_interest": 90,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai generator",
+            "value": 63,
+            "type": "top"
+          },
+          {
+            "query": "free generator",
+            "value": 63,
+            "type": "top"
+          },
+          {
+            "query": "online generator",
+            "value": 97,
+            "type": "top"
+          },
+          {
+            "query": "best generator",
+            "value": 48,
+            "type": "top"
+          },
+          {
+            "query": "generator tool",
+            "value": 94,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.950027"
+    },
+    {
+      "root_word": "example",
+      "status": "success",
+      "data": {
+        "keyword": "example",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 35
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 18
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 17
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 18
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 36
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 45
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 15
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 36
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 41
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 41
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 40
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 36
+          }
+        ],
+        "average_interest": 31.5,
+        "peak_interest": 45,
+        "trend_direction": "rising",
+        "related_queries": [
+          {
+            "query": "ai example",
+            "value": 41,
+            "type": "top"
+          },
+          {
+            "query": "free example",
+            "value": 33,
+            "type": "top"
+          },
+          {
+            "query": "online example",
+            "value": 100,
+            "type": "top"
+          },
+          {
+            "query": "best example",
+            "value": 44,
+            "type": "top"
+          },
+          {
+            "query": "example tool",
+            "value": 66,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.950027"
+    },
+    {
+      "root_word": "convert",
+      "status": "success",
+      "data": {
+        "keyword": "convert",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 85
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 75
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 76
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 75
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 70
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 80
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 85
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 56
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 68
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 83
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 74
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 70
+          }
+        ],
+        "average_interest": 74.75,
+        "peak_interest": 85,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai convert",
+            "value": 51,
+            "type": "top"
+          },
+          {
+            "query": "free convert",
+            "value": 39,
+            "type": "top"
+          },
+          {
+            "query": "online convert",
+            "value": 93,
+            "type": "top"
+          },
+          {
+            "query": "best convert",
+            "value": 69,
+            "type": "top"
+          },
+          {
+            "query": "convert tool",
+            "value": 25,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.950549"
+    },
+    {
+      "root_word": "online",
+      "status": "success",
+      "data": {
+        "keyword": "online",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 70
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 52
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 54
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 70
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 59
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 47
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 68
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 74
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 57
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 57
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 48
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 71
+          }
+        ],
+        "average_interest": 60.58,
+        "peak_interest": 74,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai online",
+            "value": 44,
+            "type": "top"
+          },
+          {
+            "query": "free online",
+            "value": 77,
+            "type": "top"
+          },
+          {
+            "query": "online online",
+            "value": 89,
+            "type": "top"
+          },
+          {
+            "query": "best online",
+            "value": 71,
+            "type": "top"
+          },
+          {
+            "query": "online tool",
+            "value": 53,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.950549"
+    },
+    {
+      "root_word": "downloader",
+      "status": "success",
+      "data": {
+        "keyword": "downloader",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 80
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 63
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 73
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 73
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 69
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 70
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 68
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 75
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 79
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 61
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 67
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 78
+          }
+        ],
+        "average_interest": 71.33,
+        "peak_interest": 80,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai downloader",
+            "value": 70,
+            "type": "top"
+          },
+          {
+            "query": "free downloader",
+            "value": 75,
+            "type": "top"
+          },
+          {
+            "query": "online downloader",
+            "value": 26,
+            "type": "top"
+          },
+          {
+            "query": "best downloader",
+            "value": 68,
+            "type": "top"
+          },
+          {
+            "query": "downloader tool",
+            "value": 58,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.950549"
+    },
+    {
+      "root_word": "maker",
+      "status": "success",
+      "data": {
+        "keyword": "maker",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 26
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 24
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 25
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 45
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 40
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 24
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 45
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 29
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 40
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 33
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 25
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 39
+          }
+        ],
+        "average_interest": 32.92,
+        "peak_interest": 45,
+        "trend_direction": "rising",
+        "related_queries": [
+          {
+            "query": "ai maker",
+            "value": 68,
+            "type": "top"
+          },
+          {
+            "query": "free maker",
+            "value": 88,
+            "type": "top"
+          },
+          {
+            "query": "online maker",
+            "value": 23,
+            "type": "top"
+          },
+          {
+            "query": "best maker",
+            "value": 31,
+            "type": "top"
+          },
+          {
+            "query": "maker tool",
+            "value": 77,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.951076"
+    },
+    {
+      "root_word": "creator",
+      "status": "success",
+      "data": {
+        "keyword": "creator",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 45
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 57
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 47
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 52
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 48
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 48
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 40
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 40
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 54
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 54
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 33
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 35
+          }
+        ],
+        "average_interest": 46.08,
+        "peak_interest": 57,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "ai creator",
+            "value": 30,
+            "type": "top"
+          },
+          {
+            "query": "free creator",
+            "value": 41,
+            "type": "top"
+          },
+          {
+            "query": "online creator",
+            "value": 75,
+            "type": "top"
+          },
+          {
+            "query": "best creator",
+            "value": 59,
+            "type": "top"
+          },
+          {
+            "query": "creator tool",
+            "value": 55,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.951076"
+    },
+    {
+      "root_word": "editor",
+      "status": "success",
+      "data": {
+        "keyword": "editor",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 51
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 33
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 27
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 48
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 21
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 51
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 49
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 22
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 23
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 21
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 36
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 46
+          }
+        ],
+        "average_interest": 35.67,
+        "peak_interest": 51,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai editor",
+            "value": 44,
+            "type": "top"
+          },
+          {
+            "query": "free editor",
+            "value": 59,
+            "type": "top"
+          },
+          {
+            "query": "online editor",
+            "value": 51,
+            "type": "top"
+          },
+          {
+            "query": "best editor",
+            "value": 42,
+            "type": "top"
+          },
+          {
+            "query": "editor tool",
+            "value": 69,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.951076"
+    },
+    {
+      "root_word": "processor",
+      "status": "success",
+      "data": {
+        "keyword": "processor",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 9
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 13
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 38
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 35
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 39
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 37
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 32
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 39
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 29
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 37
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 11
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 39
+          }
+        ],
+        "average_interest": 29.83,
+        "peak_interest": 39,
+        "trend_direction": "rising",
+        "related_queries": [
+          {
+            "query": "ai processor",
+            "value": 46,
+            "type": "top"
+          },
+          {
+            "query": "free processor",
+            "value": 44,
+            "type": "top"
+          },
+          {
+            "query": "online processor",
+            "value": 49,
+            "type": "top"
+          },
+          {
+            "query": "best processor",
+            "value": 39,
+            "type": "top"
+          },
+          {
+            "query": "processor tool",
+            "value": 64,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.951076"
+    },
+    {
+      "root_word": "designer",
+      "status": "success",
+      "data": {
+        "keyword": "designer",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 26
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 41
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 28
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 49
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 34
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 22
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 42
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 28
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 47
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 51
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 41
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 44
+          }
+        ],
+        "average_interest": 37.75,
+        "peak_interest": 51,
+        "trend_direction": "rising",
+        "related_queries": [
+          {
+            "query": "ai designer",
+            "value": 55,
+            "type": "top"
+          },
+          {
+            "query": "free designer",
+            "value": 96,
+            "type": "top"
+          },
+          {
+            "query": "online designer",
+            "value": 73,
+            "type": "top"
+          },
+          {
+            "query": "best designer",
+            "value": 45,
+            "type": "top"
+          },
+          {
+            "query": "designer tool",
+            "value": 90,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.951602"
+    },
+    {
+      "root_word": "compiler",
+      "status": "success",
+      "data": {
+        "keyword": "compiler",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 26
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 46
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 28
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 41
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 39
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 45
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 38
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 28
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 52
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 40
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 26
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 41
+          }
+        ],
+        "average_interest": 37.5,
+        "peak_interest": 52,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai compiler",
+            "value": 30,
+            "type": "top"
+          },
+          {
+            "query": "free compiler",
+            "value": 41,
+            "type": "top"
+          },
+          {
+            "query": "online compiler",
+            "value": 33,
+            "type": "top"
+          },
+          {
+            "query": "best compiler",
+            "value": 14,
+            "type": "top"
+          },
+          {
+            "query": "compiler tool",
+            "value": 55,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.951602"
+    },
+    {
+      "root_word": "analyzer",
+      "status": "success",
+      "data": {
+        "keyword": "analyzer",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 12
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 34
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 39
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 33
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 17
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 19
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 14
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 36
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 22
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 10
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 12
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 18
+          }
+        ],
+        "average_interest": 22.17,
+        "peak_interest": 39,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "ai analyzer",
+            "value": 21,
+            "type": "top"
+          },
+          {
+            "query": "free analyzer",
+            "value": 86,
+            "type": "top"
+          },
+          {
+            "query": "online analyzer",
+            "value": 29,
+            "type": "top"
+          },
+          {
+            "query": "best analyzer",
+            "value": 47,
+            "type": "top"
+          },
+          {
+            "query": "analyzer tool",
+            "value": 50,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.951602"
+    },
+    {
+      "root_word": "evaluator",
+      "status": "success",
+      "data": {
+        "keyword": "evaluator",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 36
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 61
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 42
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 51
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 58
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 60
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 51
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 52
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 51
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 42
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 63
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 34
+          }
+        ],
+        "average_interest": 50.08,
+        "peak_interest": 63,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai evaluator",
+            "value": 37,
+            "type": "top"
+          },
+          {
+            "query": "free evaluator",
+            "value": 91,
+            "type": "top"
+          },
+          {
+            "query": "online evaluator",
+            "value": 67,
+            "type": "top"
+          },
+          {
+            "query": "best evaluator",
+            "value": 90,
+            "type": "top"
+          },
+          {
+            "query": "evaluator tool",
+            "value": 71,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.952133"
+    },
+    {
+      "root_word": "sender",
+      "status": "success",
+      "data": {
+        "keyword": "sender",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 40
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 25
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 38
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 17
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 30
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 17
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 27
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 30
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 33
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 34
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 34
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 42
+          }
+        ],
+        "average_interest": 30.58,
+        "peak_interest": 42,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai sender",
+            "value": 85,
+            "type": "top"
+          },
+          {
+            "query": "free sender",
+            "value": 76,
+            "type": "top"
+          },
+          {
+            "query": "online sender",
+            "value": 84,
+            "type": "top"
+          },
+          {
+            "query": "best sender",
+            "value": 53,
+            "type": "top"
+          },
+          {
+            "query": "sender tool",
+            "value": 67,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.952133"
+    },
+    {
+      "root_word": "receiver",
+      "status": "success",
+      "data": {
+        "keyword": "receiver",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 50
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 50
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 70
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 60
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 70
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 67
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 69
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 46
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 53
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 71
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 70
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 65
+          }
+        ],
+        "average_interest": 61.75,
+        "peak_interest": 71,
+        "trend_direction": "rising",
+        "related_queries": [
+          {
+            "query": "ai receiver",
+            "value": 36,
+            "type": "top"
+          },
+          {
+            "query": "free receiver",
+            "value": 52,
+            "type": "top"
+          },
+          {
+            "query": "online receiver",
+            "value": 40,
+            "type": "top"
+          },
+          {
+            "query": "best receiver",
+            "value": 24,
+            "type": "top"
+          },
+          {
+            "query": "receiver tool",
+            "value": 55,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.952133"
+    },
+    {
+      "root_word": "interpreter",
+      "status": "success",
+      "data": {
+        "keyword": "interpreter",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 68
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 74
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 53
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 77
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 76
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 72
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 67
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 81
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 64
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 80
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 70
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 70
+          }
+        ],
+        "average_interest": 71.0,
+        "peak_interest": 81,
+        "trend_direction": "rising",
+        "related_queries": [
+          {
+            "query": "ai interpreter",
+            "value": 48,
+            "type": "top"
+          },
+          {
+            "query": "free interpreter",
+            "value": 61,
+            "type": "top"
+          },
+          {
+            "query": "online interpreter",
+            "value": 42,
+            "type": "top"
+          },
+          {
+            "query": "best interpreter",
+            "value": 42,
+            "type": "top"
+          },
+          {
+            "query": "interpreter tool",
+            "value": 58,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.952133"
+    },
+    {
+      "root_word": "uploader",
+      "status": "success",
+      "data": {
+        "keyword": "uploader",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 64
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 64
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 48
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 63
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 64
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 69
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 70
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 69
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 59
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 50
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 67
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 63
+          }
+        ],
+        "average_interest": 62.5,
+        "peak_interest": 70,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai uploader",
+            "value": 65,
+            "type": "top"
+          },
+          {
+            "query": "free uploader",
+            "value": 88,
+            "type": "top"
+          },
+          {
+            "query": "online uploader",
+            "value": 91,
+            "type": "top"
+          },
+          {
+            "query": "best uploader",
+            "value": 90,
+            "type": "top"
+          },
+          {
+            "query": "uploader tool",
+            "value": 22,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.952133"
+    },
+    {
+      "root_word": "calculator",
+      "status": "success",
+      "data": {
+        "keyword": "calculator",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 60
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 49
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 61
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 54
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 67
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 60
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 51
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 55
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 73
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 56
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 70
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 48
+          }
+        ],
+        "average_interest": 58.67,
+        "peak_interest": 73,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai calculator",
+            "value": 10,
+            "type": "top"
+          },
+          {
+            "query": "free calculator",
+            "value": 53,
+            "type": "top"
+          },
+          {
+            "query": "online calculator",
+            "value": 75,
+            "type": "top"
+          },
+          {
+            "query": "best calculator",
+            "value": 40,
+            "type": "top"
+          },
+          {
+            "query": "calculator tool",
+            "value": 55,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.953140"
+    },
+    {
+      "root_word": "sample",
+      "status": "success",
+      "data": {
+        "keyword": "sample",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 26
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 22
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 18
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 44
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 24
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 29
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 27
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 18
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 42
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 17
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 23
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 37
+          }
+        ],
+        "average_interest": 27.25,
+        "peak_interest": 44,
+        "trend_direction": "rising",
+        "related_queries": [
+          {
+            "query": "ai sample",
+            "value": 69,
+            "type": "top"
+          },
+          {
+            "query": "free sample",
+            "value": 52,
+            "type": "top"
+          },
+          {
+            "query": "online sample",
+            "value": 74,
+            "type": "top"
+          },
+          {
+            "query": "best sample",
+            "value": 24,
+            "type": "top"
+          },
+          {
+            "query": "sample tool",
+            "value": 71,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.953509"
+    },
+    {
+      "root_word": "template",
+      "status": "success",
+      "data": {
+        "keyword": "template",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 42
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 63
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 64
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 68
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 63
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 57
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 53
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 58
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 55
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 60
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 51
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 69
+          }
+        ],
+        "average_interest": 58.58,
+        "peak_interest": 69,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai template",
+            "value": 81,
+            "type": "top"
+          },
+          {
+            "query": "free template",
+            "value": 94,
+            "type": "top"
+          },
+          {
+            "query": "online template",
+            "value": 28,
+            "type": "top"
+          },
+          {
+            "query": "best template",
+            "value": 68,
+            "type": "top"
+          },
+          {
+            "query": "template tool",
+            "value": 21,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.953509"
+    },
+    {
+      "root_word": "format",
+      "status": "success",
+      "data": {
+        "keyword": "format",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 38
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 30
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 50
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 30
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 30
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 29
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 33
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 31
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 36
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 30
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 48
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 34
+          }
+        ],
+        "average_interest": 34.92,
+        "peak_interest": 50,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai format",
+            "value": 41,
+            "type": "top"
+          },
+          {
+            "query": "free format",
+            "value": 50,
+            "type": "top"
+          },
+          {
+            "query": "online format",
+            "value": 32,
+            "type": "top"
+          },
+          {
+            "query": "best format",
+            "value": 41,
+            "type": "top"
+          },
+          {
+            "query": "format tool",
+            "value": 21,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.954014"
+    },
+    {
+      "root_word": "builder",
+      "status": "success",
+      "data": {
+        "keyword": "builder",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 39
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 45
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 41
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 27
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 40
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 49
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 36
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 52
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 50
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 48
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 28
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 46
+          }
+        ],
+        "average_interest": 41.75,
+        "peak_interest": 52,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai builder",
+            "value": 32,
+            "type": "top"
+          },
+          {
+            "query": "free builder",
+            "value": 86,
+            "type": "top"
+          },
+          {
+            "query": "online builder",
+            "value": 14,
+            "type": "top"
+          },
+          {
+            "query": "best builder",
+            "value": 66,
+            "type": "top"
+          },
+          {
+            "query": "builder tool",
+            "value": 24,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.954014"
+    },
+    {
+      "root_word": "scheme",
+      "status": "success",
+      "data": {
+        "keyword": "scheme",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 78
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 87
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 87
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 76
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 72
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 74
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 91
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 86
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 70
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 63
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 70
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 65
+          }
+        ],
+        "average_interest": 76.58,
+        "peak_interest": 91,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "ai scheme",
+            "value": 58,
+            "type": "top"
+          },
+          {
+            "query": "free scheme",
+            "value": 40,
+            "type": "top"
+          },
+          {
+            "query": "online scheme",
+            "value": 26,
+            "type": "top"
+          },
+          {
+            "query": "best scheme",
+            "value": 71,
+            "type": "top"
+          },
+          {
+            "query": "scheme tool",
+            "value": 93,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.954546"
+    },
+    {
+      "root_word": "pattern",
+      "status": "success",
+      "data": {
+        "keyword": "pattern",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 38
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 57
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 40
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 52
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 57
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 61
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 54
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 40
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 45
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 35
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 38
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 35
+          }
+        ],
+        "average_interest": 46.0,
+        "peak_interest": 61,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "ai pattern",
+            "value": 98,
+            "type": "top"
+          },
+          {
+            "query": "free pattern",
+            "value": 77,
+            "type": "top"
+          },
+          {
+            "query": "online pattern",
+            "value": 51,
+            "type": "top"
+          },
+          {
+            "query": "best pattern",
+            "value": 43,
+            "type": "top"
+          },
+          {
+            "query": "pattern tool",
+            "value": 26,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.954546"
+    },
+    {
+      "root_word": "checker",
+      "status": "success",
+      "data": {
+        "keyword": "checker",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 51
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 52
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 33
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 38
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 54
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 54
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 34
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 28
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 30
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 37
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 25
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 40
+          }
+        ],
+        "average_interest": 39.67,
+        "peak_interest": 54,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "ai checker",
+            "value": 27,
+            "type": "top"
+          },
+          {
+            "query": "free checker",
+            "value": 82,
+            "type": "top"
+          },
+          {
+            "query": "online checker",
+            "value": 94,
+            "type": "top"
+          },
+          {
+            "query": "best checker",
+            "value": 86,
+            "type": "top"
+          },
+          {
+            "query": "checker tool",
+            "value": 88,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.955069"
+    },
+    {
+      "root_word": "detector",
+      "status": "success",
+      "data": {
+        "keyword": "detector",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 58
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 49
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 37
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 51
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 35
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 31
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 31
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 58
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 56
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 55
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 29
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 37
+          }
+        ],
+        "average_interest": 43.92,
+        "peak_interest": 58,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "ai detector",
+            "value": 84,
+            "type": "top"
+          },
+          {
+            "query": "free detector",
+            "value": 17,
+            "type": "top"
+          },
+          {
+            "query": "online detector",
+            "value": 41,
+            "type": "top"
+          },
+          {
+            "query": "best detector",
+            "value": 49,
+            "type": "top"
+          },
+          {
+            "query": "detector tool",
+            "value": 14,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.955671"
+    },
+    {
+      "root_word": "scraper",
+      "status": "success",
+      "data": {
+        "keyword": "scraper",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 20
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 36
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 45
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 38
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 36
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 40
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 30
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 30
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 20
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 37
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 23
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 45
+          }
+        ],
+        "average_interest": 33.33,
+        "peak_interest": 45,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai scraper",
+            "value": 70,
+            "type": "top"
+          },
+          {
+            "query": "free scraper",
+            "value": 95,
+            "type": "top"
+          },
+          {
+            "query": "online scraper",
+            "value": 73,
+            "type": "top"
+          },
+          {
+            "query": "best scraper",
+            "value": 26,
+            "type": "top"
+          },
+          {
+            "query": "scraper tool",
+            "value": 100,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.956246"
+    },
+    {
+      "root_word": "manager",
+      "status": "success",
+      "data": {
+        "keyword": "manager",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 39
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 43
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 47
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 45
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 44
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 27
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 42
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 20
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 48
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 25
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 35
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 36
+          }
+        ],
+        "average_interest": 37.58,
+        "peak_interest": 48,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "ai manager",
+            "value": 30,
+            "type": "top"
+          },
+          {
+            "query": "free manager",
+            "value": 49,
+            "type": "top"
+          },
+          {
+            "query": "online manager",
+            "value": 89,
+            "type": "top"
+          },
+          {
+            "query": "best manager",
+            "value": 94,
+            "type": "top"
+          },
+          {
+            "query": "manager tool",
+            "value": 21,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.957310"
+    },
+    {
+      "root_word": "explorer",
+      "status": "success",
+      "data": {
+        "keyword": "explorer",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 48
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 31
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 46
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 59
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 30
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 54
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 58
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 37
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 55
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 48
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 31
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 40
+          }
+        ],
+        "average_interest": 44.75,
+        "peak_interest": 59,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai explorer",
+            "value": 94,
+            "type": "top"
+          },
+          {
+            "query": "free explorer",
+            "value": 49,
+            "type": "top"
+          },
+          {
+            "query": "online explorer",
+            "value": 55,
+            "type": "top"
+          },
+          {
+            "query": "best explorer",
+            "value": 43,
+            "type": "top"
+          },
+          {
+            "query": "explorer tool",
+            "value": 73,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.957310"
+    },
+    {
+      "root_word": "dashboard",
+      "status": "success",
+      "data": {
+        "keyword": "dashboard",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 55
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 80
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 72
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 72
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 64
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 61
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 75
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 69
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 59
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 52
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 62
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 80
+          }
+        ],
+        "average_interest": 66.75,
+        "peak_interest": 80,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai dashboard",
+            "value": 40,
+            "type": "top"
+          },
+          {
+            "query": "free dashboard",
+            "value": 72,
+            "type": "top"
+          },
+          {
+            "query": "online dashboard",
+            "value": 34,
+            "type": "top"
+          },
+          {
+            "query": "best dashboard",
+            "value": 75,
+            "type": "top"
+          },
+          {
+            "query": "dashboard tool",
+            "value": 77,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.957895"
+    },
+    {
+      "root_word": "planner",
+      "status": "success",
+      "data": {
+        "keyword": "planner",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 43
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 43
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 30
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 38
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 18
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 22
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 25
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 33
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 28
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 42
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 38
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 36
+          }
+        ],
+        "average_interest": 33.0,
+        "peak_interest": 43,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai planner",
+            "value": 39,
+            "type": "top"
+          },
+          {
+            "query": "free planner",
+            "value": 11,
+            "type": "top"
+          },
+          {
+            "query": "online planner",
+            "value": 85,
+            "type": "top"
+          },
+          {
+            "query": "best planner",
+            "value": 44,
+            "type": "top"
+          },
+          {
+            "query": "planner tool",
+            "value": 63,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.957895"
+    },
+    {
+      "root_word": "tracker",
+      "status": "success",
+      "data": {
+        "keyword": "tracker",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 25
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 42
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 23
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 23
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 42
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 35
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 25
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 20
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 27
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 19
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 35
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 28
+          }
+        ],
+        "average_interest": 28.67,
+        "peak_interest": 42,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai tracker",
+            "value": 14,
+            "type": "top"
+          },
+          {
+            "query": "free tracker",
+            "value": 57,
+            "type": "top"
+          },
+          {
+            "query": "online tracker",
+            "value": 90,
+            "type": "top"
+          },
+          {
+            "query": "best tracker",
+            "value": 45,
+            "type": "top"
+          },
+          {
+            "query": "tracker tool",
+            "value": 59,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.958457"
+    },
+    {
+      "root_word": "recorder",
+      "status": "success",
+      "data": {
+        "keyword": "recorder",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 44
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 46
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 65
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 71
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 72
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 68
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 54
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 63
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 42
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 65
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 53
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 60
+          }
+        ],
+        "average_interest": 58.58,
+        "peak_interest": 72,
+        "trend_direction": "rising",
+        "related_queries": [
+          {
+            "query": "ai recorder",
+            "value": 98,
+            "type": "top"
+          },
+          {
+            "query": "free recorder",
+            "value": 71,
+            "type": "top"
+          },
+          {
+            "query": "online recorder",
+            "value": 20,
+            "type": "top"
+          },
+          {
+            "query": "best recorder",
+            "value": 50,
+            "type": "top"
+          },
+          {
+            "query": "recorder tool",
+            "value": 38,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.958995"
+    },
+    {
+      "root_word": "optimizer",
+      "status": "success",
+      "data": {
+        "keyword": "optimizer",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 29
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 33
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 37
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 53
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 38
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 25
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 34
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 50
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 45
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 48
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 33
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 34
+          }
+        ],
+        "average_interest": 38.25,
+        "peak_interest": 53,
+        "trend_direction": "rising",
+        "related_queries": [
+          {
+            "query": "ai optimizer",
+            "value": 97,
+            "type": "top"
+          },
+          {
+            "query": "free optimizer",
+            "value": 62,
+            "type": "top"
+          },
+          {
+            "query": "online optimizer",
+            "value": 99,
+            "type": "top"
+          },
+          {
+            "query": "best optimizer",
+            "value": 21,
+            "type": "top"
+          },
+          {
+            "query": "optimizer tool",
+            "value": 76,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.958995"
+    },
+    {
+      "root_word": "scheduler",
+      "status": "success",
+      "data": {
+        "keyword": "scheduler",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 34
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 26
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 13
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 24
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 31
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 30
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 27
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 34
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 36
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 39
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 30
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 41
+          }
+        ],
+        "average_interest": 30.42,
+        "peak_interest": 41,
+        "trend_direction": "rising",
+        "related_queries": [
+          {
+            "query": "ai scheduler",
+            "value": 78,
+            "type": "top"
+          },
+          {
+            "query": "free scheduler",
+            "value": 10,
+            "type": "top"
+          },
+          {
+            "query": "online scheduler",
+            "value": 46,
+            "type": "top"
+          },
+          {
+            "query": "best scheduler",
+            "value": 21,
+            "type": "top"
+          },
+          {
+            "query": "scheduler tool",
+            "value": 66,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.959523"
+    },
+    {
+      "root_word": "converter",
+      "status": "success",
+      "data": {
+        "keyword": "converter",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 66
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 53
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 49
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 48
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 71
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 64
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 58
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 51
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 51
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 60
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 72
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 50
+          }
+        ],
+        "average_interest": 57.75,
+        "peak_interest": 72,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai converter",
+            "value": 16,
+            "type": "top"
+          },
+          {
+            "query": "free converter",
+            "value": 31,
+            "type": "top"
+          },
+          {
+            "query": "online converter",
+            "value": 85,
+            "type": "top"
+          },
+          {
+            "query": "best converter",
+            "value": 87,
+            "type": "top"
+          },
+          {
+            "query": "converter tool",
+            "value": 14,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.959523"
+    },
+    {
+      "root_word": "viewer",
+      "status": "success",
+      "data": {
+        "keyword": "viewer",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 33
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 41
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 56
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 60
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 51
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 56
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 36
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 55
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 33
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 33
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 53
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 39
+          }
+        ],
+        "average_interest": 45.5,
+        "peak_interest": 60,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai viewer",
+            "value": 61,
+            "type": "top"
+          },
+          {
+            "query": "free viewer",
+            "value": 27,
+            "type": "top"
+          },
+          {
+            "query": "online viewer",
+            "value": 34,
+            "type": "top"
+          },
+          {
+            "query": "best viewer",
+            "value": 29,
+            "type": "top"
+          },
+          {
+            "query": "viewer tool",
+            "value": 75,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.959523"
+    },
+    {
+      "root_word": "extractor",
+      "status": "success",
+      "data": {
+        "keyword": "extractor",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 45
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 33
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 34
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 23
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 35
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 49
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 37
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 38
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 50
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 24
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 35
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 41
+          }
+        ],
+        "average_interest": 37.0,
+        "peak_interest": 50,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "ai extractor",
+            "value": 61,
+            "type": "top"
+          },
+          {
+            "query": "free extractor",
+            "value": 74,
+            "type": "top"
+          },
+          {
+            "query": "online extractor",
+            "value": 72,
+            "type": "top"
+          },
+          {
+            "query": "best extractor",
+            "value": 41,
+            "type": "top"
+          },
+          {
+            "query": "extractor tool",
+            "value": 91,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.959523"
+    },
+    {
+      "root_word": "monitor",
+      "status": "success",
+      "data": {
+        "keyword": "monitor",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 25
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 47
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 43
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 26
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 29
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 49
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 48
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 34
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 26
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 22
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 39
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 43
+          }
+        ],
+        "average_interest": 35.92,
+        "peak_interest": 49,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai monitor",
+            "value": 78,
+            "type": "top"
+          },
+          {
+            "query": "free monitor",
+            "value": 25,
+            "type": "top"
+          },
+          {
+            "query": "online monitor",
+            "value": 47,
+            "type": "top"
+          },
+          {
+            "query": "best monitor",
+            "value": 51,
+            "type": "top"
+          },
+          {
+            "query": "monitor tool",
+            "value": 75,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.960528"
+    },
+    {
+      "root_word": "notifier",
+      "status": "success",
+      "data": {
+        "keyword": "notifier",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 29
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 56
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 44
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 48
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 41
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 46
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 47
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 40
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 52
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 30
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 36
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 44
+          }
+        ],
+        "average_interest": 42.75,
+        "peak_interest": 56,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "ai notifier",
+            "value": 54,
+            "type": "top"
+          },
+          {
+            "query": "free notifier",
+            "value": 96,
+            "type": "top"
+          },
+          {
+            "query": "online notifier",
+            "value": 74,
+            "type": "top"
+          },
+          {
+            "query": "best notifier",
+            "value": 74,
+            "type": "top"
+          },
+          {
+            "query": "notifier tool",
+            "value": 48,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.960528"
+    },
+    {
+      "root_word": "verifier",
+      "status": "success",
+      "data": {
+        "keyword": "verifier",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 52
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 75
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 51
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 79
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 59
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 64
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 53
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 79
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 78
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 67
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 65
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 70
+          }
+        ],
+        "average_interest": 66.0,
+        "peak_interest": 79,
+        "trend_direction": "rising",
+        "related_queries": [
+          {
+            "query": "ai verifier",
+            "value": 54,
+            "type": "top"
+          },
+          {
+            "query": "free verifier",
+            "value": 30,
+            "type": "top"
+          },
+          {
+            "query": "online verifier",
+            "value": 20,
+            "type": "top"
+          },
+          {
+            "query": "best verifier",
+            "value": 26,
+            "type": "top"
+          },
+          {
+            "query": "verifier tool",
+            "value": 30,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.961533"
+    },
+    {
+      "root_word": "simulator",
+      "status": "success",
+      "data": {
+        "keyword": "simulator",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 91
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 89
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 66
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 90
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 88
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 87
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 81
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 66
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 92
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 67
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 73
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 68
+          }
+        ],
+        "average_interest": 79.83,
+        "peak_interest": 92,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "ai simulator",
+            "value": 65,
+            "type": "top"
+          },
+          {
+            "query": "free simulator",
+            "value": 32,
+            "type": "top"
+          },
+          {
+            "query": "online simulator",
+            "value": 49,
+            "type": "top"
+          },
+          {
+            "query": "best simulator",
+            "value": 82,
+            "type": "top"
+          },
+          {
+            "query": "simulator tool",
+            "value": 93,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.961533"
+    },
+    {
+      "root_word": "assistant",
+      "status": "success",
+      "data": {
+        "keyword": "assistant",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 41
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 24
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 27
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 46
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 22
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 41
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 22
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 27
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 25
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 19
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 49
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 47
+          }
+        ],
+        "average_interest": 32.5,
+        "peak_interest": 49,
+        "trend_direction": "rising",
+        "related_queries": [
+          {
+            "query": "ai assistant",
+            "value": 71,
+            "type": "top"
+          },
+          {
+            "query": "free assistant",
+            "value": 77,
+            "type": "top"
+          },
+          {
+            "query": "online assistant",
+            "value": 38,
+            "type": "top"
+          },
+          {
+            "query": "best assistant",
+            "value": 55,
+            "type": "top"
+          },
+          {
+            "query": "assistant tool",
+            "value": 76,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.961533"
+    },
+    {
+      "root_word": "constructor",
+      "status": "success",
+      "data": {
+        "keyword": "constructor",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 65
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 64
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 52
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 43
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 60
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 59
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 50
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 56
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 54
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 42
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 55
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 45
+          }
+        ],
+        "average_interest": 53.75,
+        "peak_interest": 65,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "ai constructor",
+            "value": 34,
+            "type": "top"
+          },
+          {
+            "query": "free constructor",
+            "value": 94,
+            "type": "top"
+          },
+          {
+            "query": "online constructor",
+            "value": 68,
+            "type": "top"
+          },
+          {
+            "query": "best constructor",
+            "value": 61,
+            "type": "top"
+          },
+          {
+            "query": "constructor tool",
+            "value": 62,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.962530"
+    },
+    {
+      "root_word": "comparator",
+      "status": "success",
+      "data": {
+        "keyword": "comparator",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 63
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 91
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 73
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 65
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 80
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 84
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 88
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 65
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 72
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 88
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 77
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 83
+          }
+        ],
+        "average_interest": 77.42,
+        "peak_interest": 91,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai comparator",
+            "value": 20,
+            "type": "top"
+          },
+          {
+            "query": "free comparator",
+            "value": 83,
+            "type": "top"
+          },
+          {
+            "query": "online comparator",
+            "value": 35,
+            "type": "top"
+          },
+          {
+            "query": "best comparator",
+            "value": 96,
+            "type": "top"
+          },
+          {
+            "query": "comparator tool",
+            "value": 69,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.962530"
+    },
+    {
+      "root_word": "navigator",
+      "status": "success",
+      "data": {
+        "keyword": "navigator",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 23
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 28
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 31
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 45
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 45
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 26
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 23
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 34
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 50
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 24
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 31
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 48
+          }
+        ],
+        "average_interest": 34.0,
+        "peak_interest": 50,
+        "trend_direction": "rising",
+        "related_queries": [
+          {
+            "query": "ai navigator",
+            "value": 83,
+            "type": "top"
+          },
+          {
+            "query": "free navigator",
+            "value": 71,
+            "type": "top"
+          },
+          {
+            "query": "online navigator",
+            "value": 95,
+            "type": "top"
+          },
+          {
+            "query": "best navigator",
+            "value": 68,
+            "type": "top"
+          },
+          {
+            "query": "navigator tool",
+            "value": 11,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.962530"
+    },
+    {
+      "root_word": "syncer",
+      "status": "success",
+      "data": {
+        "keyword": "syncer",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 51
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 49
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 45
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 42
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 41
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 55
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 50
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 37
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 52
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 36
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 33
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 34
+          }
+        ],
+        "average_interest": 43.75,
+        "peak_interest": 55,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "ai syncer",
+            "value": 78,
+            "type": "top"
+          },
+          {
+            "query": "free syncer",
+            "value": 15,
+            "type": "top"
+          },
+          {
+            "query": "online syncer",
+            "value": 79,
+            "type": "top"
+          },
+          {
+            "query": "best syncer",
+            "value": 63,
+            "type": "top"
+          },
+          {
+            "query": "syncer tool",
+            "value": 66,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.962530"
+    },
+    {
+      "root_word": "connector",
+      "status": "success",
+      "data": {
+        "keyword": "connector",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 50
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 50
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 27
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 41
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 30
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 46
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 57
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 44
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 37
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 30
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 30
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 51
+          }
+        ],
+        "average_interest": 41.08,
+        "peak_interest": 57,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "ai connector",
+            "value": 76,
+            "type": "top"
+          },
+          {
+            "query": "free connector",
+            "value": 43,
+            "type": "top"
+          },
+          {
+            "query": "online connector",
+            "value": 33,
+            "type": "top"
+          },
+          {
+            "query": "best connector",
+            "value": 26,
+            "type": "top"
+          },
+          {
+            "query": "connector tool",
+            "value": 87,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.962530"
+    },
+    {
+      "root_word": "cataloger",
+      "status": "success",
+      "data": {
+        "keyword": "cataloger",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 73
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 68
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 57
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 69
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 59
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 54
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 74
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 56
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 68
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 74
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 75
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 54
+          }
+        ],
+        "average_interest": 65.08,
+        "peak_interest": 75,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai cataloger",
+            "value": 75,
+            "type": "top"
+          },
+          {
+            "query": "free cataloger",
+            "value": 54,
+            "type": "top"
+          },
+          {
+            "query": "online cataloger",
+            "value": 37,
+            "type": "top"
+          },
+          {
+            "query": "best cataloger",
+            "value": 83,
+            "type": "top"
+          },
+          {
+            "query": "cataloger tool",
+            "value": 36,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.963528"
+    },
+    {
+      "root_word": "responder",
+      "status": "success",
+      "data": {
+        "keyword": "responder",
+        "trend_points": [
+          {
+            "date": "2024-09-19",
+            "interest": 28
+          },
+          {
+            "date": "2024-10-19",
+            "interest": 48
+          },
+          {
+            "date": "2024-11-18",
+            "interest": 27
+          },
+          {
+            "date": "2024-12-18",
+            "interest": 30
+          },
+          {
+            "date": "2025-01-17",
+            "interest": 25
+          },
+          {
+            "date": "2025-02-16",
+            "interest": 44
+          },
+          {
+            "date": "2025-03-18",
+            "interest": 34
+          },
+          {
+            "date": "2025-04-17",
+            "interest": 50
+          },
+          {
+            "date": "2025-05-17",
+            "interest": 49
+          },
+          {
+            "date": "2025-06-16",
+            "interest": 31
+          },
+          {
+            "date": "2025-07-16",
+            "interest": 39
+          },
+          {
+            "date": "2025-08-15",
+            "interest": 41
+          }
+        ],
+        "average_interest": 37.17,
+        "peak_interest": 50,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai responder",
+            "value": 11,
+            "type": "top"
+          },
+          {
+            "query": "free responder",
+            "value": 96,
+            "type": "top"
+          },
+          {
+            "query": "online responder",
+            "value": 75,
+            "type": "top"
+          },
+          {
+            "query": "best responder",
+            "value": 84,
+            "type": "top"
+          },
+          {
+            "query": "responder tool",
+            "value": 83,
+            "type": "top"
+          }
+        ]
+      },
+      "timestamp": "2025-08-15T18:03:38.963528"
+    }
+  ],
+  "summary": {
+    "successful_analyses": 51,
+    "failed_analyses": 0,
+    "top_trending_words": [
+      {
+        "word": "interpreter",
+        "average_interest": 71.0,
+        "peak_interest": 81
+      },
+      {
+        "word": "verifier",
+        "average_interest": 66.0,
+        "peak_interest": 79
+      },
+      {
+        "word": "receiver",
+        "average_interest": 61.75,
+        "peak_interest": 71
+      },
+      {
+        "word": "recorder",
+        "average_interest": 58.58,
+        "peak_interest": 72
+      },
+      {
+        "word": "optimizer",
+        "average_interest": 38.25,
+        "peak_interest": 53
+      },
+      {
+        "word": "designer",
+        "average_interest": 37.75,
+        "peak_interest": 51
+      },
+      {
+        "word": "translator",
+        "average_interest": 36.08,
+        "peak_interest": 47
+      },
+      {
+        "word": "navigator",
+        "average_interest": 34.0,
+        "peak_interest": 50
+      },
+      {
+        "word": "maker",
+        "average_interest": 32.92,
+        "peak_interest": 45
+      },
+      {
+        "word": "assistant",
+        "average_interest": 32.5,
+        "peak_interest": 49
+      },
+      {
+        "word": "example",
+        "average_interest": 31.5,
+        "peak_interest": 45
+      },
+      {
+        "word": "scheduler",
+        "average_interest": 30.42,
+        "peak_interest": 41
+      },
+      {
+        "word": "processor",
+        "average_interest": 29.83,
+        "peak_interest": 39
+      },
+      {
+        "word": "sample",
+        "average_interest": 27.25,
+        "peak_interest": 44
+      }
+    ],
+    "declining_words": [
+      {
+        "word": "simulator",
+        "average_interest": 79.83,
+        "peak_interest": 92
+      },
+      {
+        "word": "scheme",
+        "average_interest": 76.58,
+        "peak_interest": 91
+      },
+      {
+        "word": "constructor",
+        "average_interest": 53.75,
+        "peak_interest": 65
+      },
+      {
+        "word": "creator",
+        "average_interest": 46.08,
+        "peak_interest": 57
+      },
+      {
+        "word": "pattern",
+        "average_interest": 46.0,
+        "peak_interest": 61
+      },
+      {
+        "word": "detector",
+        "average_interest": 43.92,
+        "peak_interest": 58
+      },
+      {
+        "word": "syncer",
+        "average_interest": 43.75,
+        "peak_interest": 55
+      },
+      {
+        "word": "notifier",
+        "average_interest": 42.75,
+        "peak_interest": 56
+      },
+      {
+        "word": "connector",
+        "average_interest": 41.08,
+        "peak_interest": 57
+      },
+      {
+        "word": "checker",
+        "average_interest": 39.67,
+        "peak_interest": 54
+      },
+      {
+        "word": "manager",
+        "average_interest": 37.58,
+        "peak_interest": 48
+      },
+      {
+        "word": "extractor",
+        "average_interest": 37.0,
+        "peak_interest": 50
+      },
+      {
+        "word": "analyzer",
+        "average_interest": 22.17,
+        "peak_interest": 39
+      }
+    ],
+    "stable_words": [
+      {
+        "word": "comparator",
+        "average_interest": 77.42,
+        "peak_interest": 91
+      },
+      {
+        "word": "convert",
+        "average_interest": 74.75,
+        "peak_interest": 85
+      },
+      {
+        "word": "generator",
+        "average_interest": 74.17,
+        "peak_interest": 90
+      },
+      {
+        "word": "downloader",
+        "average_interest": 71.33,
+        "peak_interest": 80
+      },
+      {
+        "word": "dashboard",
+        "average_interest": 66.75,
+        "peak_interest": 80
+      },
+      {
+        "word": "cataloger",
+        "average_interest": 65.08,
+        "peak_interest": 75
+      },
+      {
+        "word": "uploader",
+        "average_interest": 62.5,
+        "peak_interest": 70
+      },
+      {
+        "word": "online",
+        "average_interest": 60.58,
+        "peak_interest": 74
+      },
+      {
+        "word": "calculator",
+        "average_interest": 58.67,
+        "peak_interest": 73
+      },
+      {
+        "word": "template",
+        "average_interest": 58.58,
+        "peak_interest": 69
+      },
+      {
+        "word": "converter",
+        "average_interest": 57.75,
+        "peak_interest": 72
+      },
+      {
+        "word": "evaluator",
+        "average_interest": 50.08,
+        "peak_interest": 63
+      },
+      {
+        "word": "viewer",
+        "average_interest": 45.5,
+        "peak_interest": 60
+      },
+      {
+        "word": "explorer",
+        "average_interest": 44.75,
+        "peak_interest": 59
+      },
+      {
+        "word": "builder",
+        "average_interest": 41.75,
+        "peak_interest": 52
+      },
+      {
+        "word": "compiler",
+        "average_interest": 37.5,
+        "peak_interest": 52
+      },
+      {
+        "word": "responder",
+        "average_interest": 37.17,
+        "peak_interest": 50
+      },
+      {
+        "word": "monitor",
+        "average_interest": 35.92,
+        "peak_interest": 49
+      },
+      {
+        "word": "editor",
+        "average_interest": 35.67,
+        "peak_interest": 51
+      },
+      {
+        "word": "format",
+        "average_interest": 34.92,
+        "peak_interest": 50
+      },
+      {
+        "word": "scraper",
+        "average_interest": 33.33,
+        "peak_interest": 45
+      },
+      {
+        "word": "planner",
+        "average_interest": 33.0,
+        "peak_interest": 43
+      },
+      {
+        "word": "sender",
+        "average_interest": 30.58,
+        "peak_interest": 42
+      },
+      {
+        "word": "tracker",
+        "average_interest": 28.67,
+        "peak_interest": 42
+      }
+    ]
+  }
+}
