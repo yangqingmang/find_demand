@@ -1,0 +1,1373 @@
+{
+  "total_keywords": 12,
+  "analysis_time": "2025-08-15T20:59:22.086773",
+  "keywords": [
+    {
+      "keyword": "Python教程",
+      "intent": {
+        "primary_intent": "I",
+        "confidence": 1.0,
+        "secondary_intent": "",
+        "intent_description": "",
+        "website_recommendations": {
+          "website_type": "博客站",
+          "ai_tool_category": "非AI工具",
+          "domain_suggestions": [],
+          "monetization_strategy": [
+            "广告收入",
+            "付费内容",
+            "会员订阅"
+          ],
+          "technical_requirements": [
+            "响应式设计",
+            "SEO优化",
+            "内容管理系统"
+          ],
+          "competition_analysis": {
+            "level": "低",
+            "advice": "机会较好，可快速建立市场地位",
+            "strategy": [
+              "快速市场进入",
+              "SEO基础优化",
+              "内容规模化"
+            ]
+          },
+          "development_priority": {
+            "score": 70,
+            "level": "中",
+            "timeline": "3-4个月",
+            "reasoning": "信息型意图，流量获取相对容易; 评分中等，可作为第二批开发项目"
+          },
+          "content_strategy": [
+            "教程文章",
+            "操作指南",
+            "FAQ页面"
+          ]
+        }
+      },
+      "market": {
+        "search_volume": 1000,
+        "competition": 0.5,
+        "cpc": 2.0,
+        "trend": "stable",
+        "seasonality": "low",
+        "ai_bonus": 0,
+        "root_match_score": 0,
+        "newness_score": 0,
+        "commercial_value": 0,
+        "opportunity_indicators": [
+          "出海友好"
+        ]
+      },
+      "opportunity_score": 42.5
+    },
+    {
+      "keyword": "Python是什么",
+      "intent": {
+        "primary_intent": "I",
+        "confidence": 1.0,
+        "secondary_intent": "",
+        "intent_description": "",
+        "website_recommendations": {
+          "website_type": "博客站",
+          "ai_tool_category": "非AI工具",
+          "domain_suggestions": [],
+          "monetization_strategy": [
+            "广告收入",
+            "付费内容",
+            "会员订阅"
+          ],
+          "technical_requirements": [
+            "响应式设计",
+            "SEO优化",
+            "内容管理系统"
+          ],
+          "competition_analysis": {
+            "level": "低",
+            "advice": "机会较好，可快速建立市场地位",
+            "strategy": [
+              "快速市场进入",
+              "SEO基础优化",
+              "内容规模化"
+            ]
+          },
+          "development_priority": {
+            "score": 70,
+            "level": "中",
+            "timeline": "3-4个月",
+            "reasoning": "信息型意图，流量获取相对容易; 评分中等，可作为第二批开发项目"
+          },
+          "content_strategy": [
+            "教程文章",
+            "操作指南",
+            "FAQ页面"
+          ]
+        }
+      },
+      "market": {
+        "search_volume": 1000,
+        "competition": 0.5,
+        "cpc": 2.0,
+        "trend": "stable",
+        "seasonality": "low",
+        "ai_bonus": 0,
+        "root_match_score": 0,
+        "newness_score": 0,
+        "commercial_value": 0,
+        "opportunity_indicators": [
+          "出海友好"
+        ]
+      },
+      "opportunity_score": 42.5
+    },
+    {
+      "keyword": "如何学习Python",
+      "intent": {
+        "primary_intent": "I",
+        "confidence": 1.0,
+        "secondary_intent": "",
+        "intent_description": "",
+        "website_recommendations": {
+          "website_type": "博客站",
+          "ai_tool_category": "非AI工具",
+          "domain_suggestions": [],
+          "monetization_strategy": [
+            "广告收入",
+            "付费内容",
+            "会员订阅"
+          ],
+          "technical_requirements": [
+            "响应式设计",
+            "SEO优化",
+            "内容管理系统"
+          ],
+          "competition_analysis": {
+            "level": "低",
+            "advice": "机会较好，可快速建立市场地位",
+            "strategy": [
+              "快速市场进入",
+              "SEO基础优化",
+              "内容规模化"
+            ]
+          },
+          "development_priority": {
+            "score": 70,
+            "level": "中",
+            "timeline": "3-4个月",
+            "reasoning": "信息型意图，流量获取相对容易; 评分中等，可作为第二批开发项目"
+          },
+          "content_strategy": [
+            "教程文章",
+            "操作指南",
+            "FAQ页面"
+          ]
+        }
+      },
+      "market": {
+        "search_volume": 1000,
+        "competition": 0.5,
+        "cpc": 2.0,
+        "trend": "stable",
+        "seasonality": "low",
+        "ai_bonus": 0,
+        "root_match_score": 0,
+        "newness_score": 0,
+        "commercial_value": 0,
+        "opportunity_indicators": [
+          "出海友好"
+        ]
+      },
+      "opportunity_score": 42.5
+    },
+    {
+      "keyword": "Python官网",
+      "intent": {
+        "primary_intent": "N",
+        "confidence": 1.0,
+        "secondary_intent": "",
+        "intent_description": "",
+        "website_recommendations": {
+          "website_type": "官方网站",
+          "ai_tool_category": "非AI工具",
+          "domain_suggestions": [],
+          "monetization_strategy": [
+            "产品销售",
+            "服务收费",
+            "授权许可"
+          ],
+          "technical_requirements": [
+            "快速加载",
+            "移动适配",
+            "用户认证"
+          ],
+          "competition_analysis": {
+            "level": "低",
+            "advice": "机会较好，可快速建立市场地位",
+            "strategy": [
+              "快速市场进入",
+              "SEO基础优化",
+              "内容规模化"
+            ]
+          },
+          "development_priority": {
+            "score": 50,
+            "level": "低",
+            "timeline": "6个月以上",
+            "reasoning": "导航型意图，需要品牌建设; 评分较低，建议后期考虑"
+          },
+          "content_strategy": [
+            "产品介绍页",
+            "功能展示",
+            "下载页面"
+          ]
+        }
+      },
+      "market": {
+        "search_volume": 1000,
+        "competition": 0.5,
+        "cpc": 2.0,
+        "trend": "stable",
+        "seasonality": "low",
+        "ai_bonus": 0,
+        "root_match_score": 0,
+        "newness_score": 0,
+        "commercial_value": 0,
+        "opportunity_indicators": [
+          "出海友好"
+        ]
+      },
+      "opportunity_score": 42.5
+    },
+    {
+      "keyword": "Python下载",
+      "intent": {
+        "primary_intent": "",
+        "confidence": 0.0,
+        "secondary_intent": "",
+        "intent_description": "",
+        "website_recommendations": {
+          "website_type": "通用网站",
+          "ai_tool_category": "非AI工具",
+          "domain_suggestions": [],
+          "monetization_strategy": [
+            "广告收入"
+          ],
+          "technical_requirements": [
+            "基础网站功能"
+          ],
+          "competition_analysis": {
+            "level": "低",
+            "advice": "机会较好，可快速建立市场地位",
+            "strategy": [
+              "快速市场进入",
+              "SEO基础优化",
+              "内容规模化"
+            ]
+          },
+          "development_priority": {
+            "score": 60,
+            "level": "低",
+            "timeline": "6个月以上",
+            "reasoning": "通用意图; 评分较低，建议后期考虑"
+          },
+          "content_strategy": [
+            "通用内容"
+          ]
+        }
+      },
+      "market": {
+        "search_volume": 1000,
+        "competition": 0.5,
+        "cpc": 2.0,
+        "trend": "stable",
+        "seasonality": "low",
+        "ai_bonus": 0,
+        "root_match_score": 0,
+        "newness_score": 0,
+        "commercial_value": 0,
+        "opportunity_indicators": [
+          "出海友好"
+        ]
+      },
+      "opportunity_score": 27.5
+    },
+    {
+      "keyword": "最好的Python IDE",
+      "intent": {
+        "primary_intent": "",
+        "confidence": 0.0,
+        "secondary_intent": "",
+        "intent_description": "",
+        "website_recommendations": {
+          "website_type": "通用网站",
+          "ai_tool_category": "非AI工具",
+          "domain_suggestions": [
+            "ide.com",
+            "ide.ai",
+            "ide.io",
+            "aiide.com",
+            "smartide.com",
+            "autoide.com",
+            "idetool.com",
+            "idetools.com"
+          ],
+          "monetization_strategy": [
+            "广告收入"
+          ],
+          "technical_requirements": [
+            "基础网站功能"
+          ],
+          "competition_analysis": {
+            "level": "低",
+            "advice": "机会较好，可快速建立市场地位",
+            "strategy": [
+              "快速市场进入",
+              "SEO基础优化",
+              "内容规模化"
+            ]
+          },
+          "development_priority": {
+            "score": 60,
+            "level": "低",
+            "timeline": "6个月以上",
+            "reasoning": "通用意图; 评分较低，建议后期考虑"
+          },
+          "content_strategy": [
+            "通用内容"
+          ]
+        }
+      },
+      "market": {
+        "search_volume": 1000,
+        "competition": 0.5,
+        "cpc": 2.0,
+        "trend": "stable",
+        "seasonality": "low",
+        "ai_bonus": 0,
+        "root_match_score": 0,
+        "newness_score": 0,
+        "commercial_value": 0,
+        "opportunity_indicators": [
+          "出海友好"
+        ]
+      },
+      "opportunity_score": 27.5
+    },
+    {
+      "keyword": "PyCharm vs VSCode",
+      "intent": {
+        "primary_intent": "C",
+        "confidence": 1.0,
+        "secondary_intent": "",
+        "intent_description": "",
+        "website_recommendations": {
+          "website_type": "AI工具评测站",
+          "ai_tool_category": "AI编程工具",
+          "domain_suggestions": [
+            "pycharm.com",
+            "pycharm.ai",
+            "pycharm.io",
+            "aipycharm.com",
+            "smartpycharm.com",
+            "autopycharm.com",
+            "pycharmtool.com",
+            "pycharmtools.com"
+          ],
+          "monetization_strategy": [
+            "Freemium模式 (免费+付费功能)",
+            "API调用收费",
+            "按使用量计费"
+          ],
+          "technical_requirements": [
+            "对比功能",
+            "评分系统",
+            "用户评论",
+            "AI API集成",
+            "实时处理能力"
+          ],
+          "competition_analysis": {
+            "level": "中",
+            "advice": "可通过长尾关键词和细分市场切入",
+            "strategy": [
+              "长尾关键词优化",
+              "内容营销",
+              "社交媒体推广"
+            ]
+          },
+          "development_priority": {
+            "score": 95,
+            "level": "高",
+            "timeline": "1-2个月",
+            "reasoning": "商业型意图，适合联盟营销; AI工具市场热度高，用户需求旺盛; 综合评分高，建议优先开发"
+          },
+          "content_strategy": [
+            "产品对比",
+            "评测报告",
+            "用户评价",
+            "AI工具使用教程",
+            "提示词(Prompt)模板"
+          ]
+        }
+      },
+      "market": {
+        "search_volume": 1000,
+        "competition": 0.5,
+        "cpc": 2.0,
+        "trend": "stable",
+        "seasonality": "low",
+        "ai_bonus": 0,
+        "root_match_score": 0,
+        "newness_score": 0,
+        "commercial_value": 0,
+        "opportunity_indicators": [
+          "出海友好"
+        ]
+      },
+      "opportunity_score": 42.5
+    },
+    {
+      "keyword": "Python培训班价格",
+      "intent": {
+        "primary_intent": "E",
+        "confidence": 1.0,
+        "secondary_intent": "",
+        "intent_description": "",
+        "website_recommendations": {
+          "website_type": "电商站",
+          "ai_tool_category": "非AI工具",
+          "domain_suggestions": [],
+          "monetization_strategy": [
+            "产品销售",
+            "订阅收费",
+            "按次付费"
+          ],
+          "technical_requirements": [
+            "支付系统",
+            "用户账户",
+            "订单管理"
+          ],
+          "competition_analysis": {
+            "level": "低",
+            "advice": "机会较好，可快速建立市场地位",
+            "strategy": [
+              "快速市场进入",
+              "SEO基础优化",
+              "内容规模化"
+            ]
+          },
+          "development_priority": {
+            "score": 90,
+            "level": "高",
+            "timeline": "1-2个月",
+            "reasoning": "交易型意图，变现潜力高; 综合评分高，建议优先开发"
+          },
+          "content_strategy": [
+            "产品页面",
+            "定价页面",
+            "免费试用"
+          ]
+        }
+      },
+      "market": {
+        "search_volume": 1000,
+        "competition": 0.5,
+        "cpc": 2.0,
+        "trend": "stable",
+        "seasonality": "low",
+        "ai_bonus": 0,
+        "root_match_score": 0,
+        "newness_score": 0,
+        "commercial_value": 0,
+        "opportunity_indicators": [
+          "出海友好"
+        ]
+      },
+      "opportunity_score": 42.5
+    },
+    {
+      "keyword": "购买Python课程",
+      "intent": {
+        "primary_intent": "E",
+        "confidence": 1.0,
+        "secondary_intent": "",
+        "intent_description": "",
+        "website_recommendations": {
+          "website_type": "电商站",
+          "ai_tool_category": "非AI工具",
+          "domain_suggestions": [],
+          "monetization_strategy": [
+            "产品销售",
+            "订阅收费",
+            "按次付费"
+          ],
+          "technical_requirements": [
+            "支付系统",
+            "用户账户",
+            "订单管理"
+          ],
+          "competition_analysis": {
+            "level": "低",
+            "advice": "机会较好，可快速建立市场地位",
+            "strategy": [
+              "快速市场进入",
+              "SEO基础优化",
+              "内容规模化"
+            ]
+          },
+          "development_priority": {
+            "score": 90,
+            "level": "高",
+            "timeline": "1-2个月",
+            "reasoning": "交易型意图，变现潜力高; 综合评分高，建议优先开发"
+          },
+          "content_strategy": [
+            "产品页面",
+            "定价页面",
+            "免费试用"
+          ]
+        }
+      },
+      "market": {
+        "search_volume": 1000,
+        "competition": 0.5,
+        "cpc": 2.0,
+        "trend": "stable",
+        "seasonality": "low",
+        "ai_bonus": 0,
+        "root_match_score": 0,
+        "newness_score": 0,
+        "commercial_value": 0,
+        "opportunity_indicators": [
+          "出海友好"
+        ]
+      },
+      "opportunity_score": 42.5
+    },
+    {
+      "keyword": "Python报错解决",
+      "intent": {
+        "primary_intent": "B",
+        "confidence": 1.0,
+        "secondary_intent": "",
+        "intent_description": "",
+        "website_recommendations": {
+          "website_type": "支持站",
+          "ai_tool_category": "非AI工具",
+          "domain_suggestions": [],
+          "monetization_strategy": [
+            "技术支持",
+            "咨询服务",
+            "培训收费"
+          ],
+          "technical_requirements": [
+            "知识库",
+            "搜索功能",
+            "用户社区"
+          ],
+          "competition_analysis": {
+            "level": "低",
+            "advice": "机会较好，可快速建立市场地位",
+            "strategy": [
+              "快速市场进入",
+              "SEO基础优化",
+              "内容规模化"
+            ]
+          },
+          "development_priority": {
+            "score": 60,
+            "level": "低",
+            "timeline": "6个月以上",
+            "reasoning": "行为型意图，用户粘性较高; 评分较低，建议后期考虑"
+          },
+          "content_strategy": [
+            "帮助文档",
+            "故障排除",
+            "社区论坛"
+          ]
+        }
+      },
+      "market": {
+        "search_volume": 1000,
+        "competition": 0.5,
+        "cpc": 2.0,
+        "trend": "stable",
+        "seasonality": "low",
+        "ai_bonus": 0,
+        "root_match_score": 0,
+        "newness_score": 0,
+        "commercial_value": 0,
+        "opportunity_indicators": [
+          "出海友好"
+        ]
+      },
+      "opportunity_score": 42.5
+    },
+    {
+      "keyword": "Python高级用法",
+      "intent": {
+        "primary_intent": "B",
+        "confidence": 1.0,
+        "secondary_intent": "",
+        "intent_description": "",
+        "website_recommendations": {
+          "website_type": "支持站",
+          "ai_tool_category": "非AI工具",
+          "domain_suggestions": [],
+          "monetization_strategy": [
+            "技术支持",
+            "咨询服务",
+            "培训收费"
+          ],
+          "technical_requirements": [
+            "知识库",
+            "搜索功能",
+            "用户社区"
+          ],
+          "competition_analysis": {
+            "level": "低",
+            "advice": "机会较好，可快速建立市场地位",
+            "strategy": [
+              "快速市场进入",
+              "SEO基础优化",
+              "内容规模化"
+            ]
+          },
+          "development_priority": {
+            "score": 60,
+            "level": "低",
+            "timeline": "6个月以上",
+            "reasoning": "行为型意图，用户粘性较高; 评分较低，建议后期考虑"
+          },
+          "content_strategy": [
+            "帮助文档",
+            "故障排除",
+            "社区论坛"
+          ]
+        }
+      },
+      "market": {
+        "search_volume": 1000,
+        "competition": 0.5,
+        "cpc": 2.0,
+        "trend": "stable",
+        "seasonality": "low",
+        "ai_bonus": 0,
+        "root_match_score": 0,
+        "newness_score": 0,
+        "commercial_value": 0,
+        "opportunity_indicators": [
+          "出海友好"
+        ]
+      },
+      "opportunity_score": 42.5
+    },
+    {
+      "keyword": "附近Python培训",
+      "intent": {
+        "primary_intent": "L",
+        "confidence": 1.0,
+        "secondary_intent": "",
+        "intent_description": "",
+        "website_recommendations": {
+          "website_type": "本地服务站",
+          "ai_tool_category": "非AI工具",
+          "domain_suggestions": [],
+          "monetization_strategy": [
+            "服务收费",
+            "预约佣金",
+            "广告收入"
+          ],
+          "technical_requirements": [
+            "地图集成",
+            "位置服务",
+            "预约系统"
+          ],
+          "competition_analysis": {
+            "level": "低",
+            "advice": "机会较好，可快速建立市场地位",
+            "strategy": [
+              "快速市场进入",
+              "SEO基础优化",
+              "内容规模化"
+            ]
+          },
+          "development_priority": {
+            "score": 75,
+            "level": "中",
+            "timeline": "3-4个月",
+            "reasoning": "本地型意图，竞争相对较小; 评分中等，可作为第二批开发项目"
+          },
+          "content_strategy": [
+            "门店信息",
+            "服务介绍",
+            "预约系统"
+          ]
+        }
+      },
+      "market": {
+        "search_volume": 1000,
+        "competition": 0.5,
+        "cpc": 2.0,
+        "trend": "stable",
+        "seasonality": "low",
+        "ai_bonus": 0,
+        "root_match_score": 0,
+        "newness_score": 0,
+        "commercial_value": 0,
+        "opportunity_indicators": [
+          "出海友好"
+        ]
+      },
+      "opportunity_score": 42.5
+    }
+  ],
+  "intent_summary": {
+    "total_keywords": 12,
+    "intent_distribution": {
+      "I": 3,
+      "N": 1,
+      "": 2,
+      "C": 1,
+      "E": 2,
+      "B": 2,
+      "L": 1
+    },
+    "intent_percentages": {
+      "I": 25.0,
+      "N": 8.3,
+      "": 16.7,
+      "C": 8.3,
+      "E": 16.7,
+      "B": 16.7,
+      "L": 8.3
+    },
+    "dominant_intent": "I"
+  },
+  "market_insights": {
+    "high_opportunity_count": 0,
+    "medium_opportunity_count": 10,
+    "low_opportunity_count": 2,
+    "top_opportunities": [
+      {
+        "keyword": "Python教程",
+        "intent": {
+          "primary_intent": "I",
+          "confidence": 1.0,
+          "secondary_intent": "",
+          "intent_description": "",
+          "website_recommendations": {
+            "website_type": "博客站",
+            "ai_tool_category": "非AI工具",
+            "domain_suggestions": [],
+            "monetization_strategy": [
+              "广告收入",
+              "付费内容",
+              "会员订阅"
+            ],
+            "technical_requirements": [
+              "响应式设计",
+              "SEO优化",
+              "内容管理系统"
+            ],
+            "competition_analysis": {
+              "level": "低",
+              "advice": "机会较好，可快速建立市场地位",
+              "strategy": [
+                "快速市场进入",
+                "SEO基础优化",
+                "内容规模化"
+              ]
+            },
+            "development_priority": {
+              "score": 70,
+              "level": "中",
+              "timeline": "3-4个月",
+              "reasoning": "信息型意图，流量获取相对容易; 评分中等，可作为第二批开发项目"
+            },
+            "content_strategy": [
+              "教程文章",
+              "操作指南",
+              "FAQ页面"
+            ]
+          }
+        },
+        "market": {
+          "search_volume": 1000,
+          "competition": 0.5,
+          "cpc": 2.0,
+          "trend": "stable",
+          "seasonality": "low",
+          "ai_bonus": 0,
+          "root_match_score": 0,
+          "newness_score": 0,
+          "commercial_value": 0,
+          "opportunity_indicators": [
+            "出海友好"
+          ]
+        },
+        "opportunity_score": 42.5
+      },
+      {
+        "keyword": "Python是什么",
+        "intent": {
+          "primary_intent": "I",
+          "confidence": 1.0,
+          "secondary_intent": "",
+          "intent_description": "",
+          "website_recommendations": {
+            "website_type": "博客站",
+            "ai_tool_category": "非AI工具",
+            "domain_suggestions": [],
+            "monetization_strategy": [
+              "广告收入",
+              "付费内容",
+              "会员订阅"
+            ],
+            "technical_requirements": [
+              "响应式设计",
+              "SEO优化",
+              "内容管理系统"
+            ],
+            "competition_analysis": {
+              "level": "低",
+              "advice": "机会较好，可快速建立市场地位",
+              "strategy": [
+                "快速市场进入",
+                "SEO基础优化",
+                "内容规模化"
+              ]
+            },
+            "development_priority": {
+              "score": 70,
+              "level": "中",
+              "timeline": "3-4个月",
+              "reasoning": "信息型意图，流量获取相对容易; 评分中等，可作为第二批开发项目"
+            },
+            "content_strategy": [
+              "教程文章",
+              "操作指南",
+              "FAQ页面"
+            ]
+          }
+        },
+        "market": {
+          "search_volume": 1000,
+          "competition": 0.5,
+          "cpc": 2.0,
+          "trend": "stable",
+          "seasonality": "low",
+          "ai_bonus": 0,
+          "root_match_score": 0,
+          "newness_score": 0,
+          "commercial_value": 0,
+          "opportunity_indicators": [
+            "出海友好"
+          ]
+        },
+        "opportunity_score": 42.5
+      },
+      {
+        "keyword": "如何学习Python",
+        "intent": {
+          "primary_intent": "I",
+          "confidence": 1.0,
+          "secondary_intent": "",
+          "intent_description": "",
+          "website_recommendations": {
+            "website_type": "博客站",
+            "ai_tool_category": "非AI工具",
+            "domain_suggestions": [],
+            "monetization_strategy": [
+              "广告收入",
+              "付费内容",
+              "会员订阅"
+            ],
+            "technical_requirements": [
+              "响应式设计",
+              "SEO优化",
+              "内容管理系统"
+            ],
+            "competition_analysis": {
+              "level": "低",
+              "advice": "机会较好，可快速建立市场地位",
+              "strategy": [
+                "快速市场进入",
+                "SEO基础优化",
+                "内容规模化"
+              ]
+            },
+            "development_priority": {
+              "score": 70,
+              "level": "中",
+              "timeline": "3-4个月",
+              "reasoning": "信息型意图，流量获取相对容易; 评分中等，可作为第二批开发项目"
+            },
+            "content_strategy": [
+              "教程文章",
+              "操作指南",
+              "FAQ页面"
+            ]
+          }
+        },
+        "market": {
+          "search_volume": 1000,
+          "competition": 0.5,
+          "cpc": 2.0,
+          "trend": "stable",
+          "seasonality": "low",
+          "ai_bonus": 0,
+          "root_match_score": 0,
+          "newness_score": 0,
+          "commercial_value": 0,
+          "opportunity_indicators": [
+            "出海友好"
+          ]
+        },
+        "opportunity_score": 42.5
+      },
+      {
+        "keyword": "Python官网",
+        "intent": {
+          "primary_intent": "N",
+          "confidence": 1.0,
+          "secondary_intent": "",
+          "intent_description": "",
+          "website_recommendations": {
+            "website_type": "官方网站",
+            "ai_tool_category": "非AI工具",
+            "domain_suggestions": [],
+            "monetization_strategy": [
+              "产品销售",
+              "服务收费",
+              "授权许可"
+            ],
+            "technical_requirements": [
+              "快速加载",
+              "移动适配",
+              "用户认证"
+            ],
+            "competition_analysis": {
+              "level": "低",
+              "advice": "机会较好，可快速建立市场地位",
+              "strategy": [
+                "快速市场进入",
+                "SEO基础优化",
+                "内容规模化"
+              ]
+            },
+            "development_priority": {
+              "score": 50,
+              "level": "低",
+              "timeline": "6个月以上",
+              "reasoning": "导航型意图，需要品牌建设; 评分较低，建议后期考虑"
+            },
+            "content_strategy": [
+              "产品介绍页",
+              "功能展示",
+              "下载页面"
+            ]
+          }
+        },
+        "market": {
+          "search_volume": 1000,
+          "competition": 0.5,
+          "cpc": 2.0,
+          "trend": "stable",
+          "seasonality": "low",
+          "ai_bonus": 0,
+          "root_match_score": 0,
+          "newness_score": 0,
+          "commercial_value": 0,
+          "opportunity_indicators": [
+            "出海友好"
+          ]
+        },
+        "opportunity_score": 42.5
+      },
+      {
+        "keyword": "PyCharm vs VSCode",
+        "intent": {
+          "primary_intent": "C",
+          "confidence": 1.0,
+          "secondary_intent": "",
+          "intent_description": "",
+          "website_recommendations": {
+            "website_type": "AI工具评测站",
+            "ai_tool_category": "AI编程工具",
+            "domain_suggestions": [
+              "pycharm.com",
+              "pycharm.ai",
+              "pycharm.io",
+              "aipycharm.com",
+              "smartpycharm.com",
+              "autopycharm.com",
+              "pycharmtool.com",
+              "pycharmtools.com"
+            ],
+            "monetization_strategy": [
+              "Freemium模式 (免费+付费功能)",
+              "API调用收费",
+              "按使用量计费"
+            ],
+            "technical_requirements": [
+              "对比功能",
+              "评分系统",
+              "用户评论",
+              "AI API集成",
+              "实时处理能力"
+            ],
+            "competition_analysis": {
+              "level": "中",
+              "advice": "可通过长尾关键词和细分市场切入",
+              "strategy": [
+                "长尾关键词优化",
+                "内容营销",
+                "社交媒体推广"
+              ]
+            },
+            "development_priority": {
+              "score": 95,
+              "level": "高",
+              "timeline": "1-2个月",
+              "reasoning": "商业型意图，适合联盟营销; AI工具市场热度高，用户需求旺盛; 综合评分高，建议优先开发"
+            },
+            "content_strategy": [
+              "产品对比",
+              "评测报告",
+              "用户评价",
+              "AI工具使用教程",
+              "提示词(Prompt)模板"
+            ]
+          }
+        },
+        "market": {
+          "search_volume": 1000,
+          "competition": 0.5,
+          "cpc": 2.0,
+          "trend": "stable",
+          "seasonality": "low",
+          "ai_bonus": 0,
+          "root_match_score": 0,
+          "newness_score": 0,
+          "commercial_value": 0,
+          "opportunity_indicators": [
+            "出海友好"
+          ]
+        },
+        "opportunity_score": 42.5
+      },
+      {
+        "keyword": "Python培训班价格",
+        "intent": {
+          "primary_intent": "E",
+          "confidence": 1.0,
+          "secondary_intent": "",
+          "intent_description": "",
+          "website_recommendations": {
+            "website_type": "电商站",
+            "ai_tool_category": "非AI工具",
+            "domain_suggestions": [],
+            "monetization_strategy": [
+              "产品销售",
+              "订阅收费",
+              "按次付费"
+            ],
+            "technical_requirements": [
+              "支付系统",
+              "用户账户",
+              "订单管理"
+            ],
+            "competition_analysis": {
+              "level": "低",
+              "advice": "机会较好，可快速建立市场地位",
+              "strategy": [
+                "快速市场进入",
+                "SEO基础优化",
+                "内容规模化"
+              ]
+            },
+            "development_priority": {
+              "score": 90,
+              "level": "高",
+              "timeline": "1-2个月",
+              "reasoning": "交易型意图，变现潜力高; 综合评分高，建议优先开发"
+            },
+            "content_strategy": [
+              "产品页面",
+              "定价页面",
+              "免费试用"
+            ]
+          }
+        },
+        "market": {
+          "search_volume": 1000,
+          "competition": 0.5,
+          "cpc": 2.0,
+          "trend": "stable",
+          "seasonality": "low",
+          "ai_bonus": 0,
+          "root_match_score": 0,
+          "newness_score": 0,
+          "commercial_value": 0,
+          "opportunity_indicators": [
+            "出海友好"
+          ]
+        },
+        "opportunity_score": 42.5
+      },
+      {
+        "keyword": "购买Python课程",
+        "intent": {
+          "primary_intent": "E",
+          "confidence": 1.0,
+          "secondary_intent": "",
+          "intent_description": "",
+          "website_recommendations": {
+            "website_type": "电商站",
+            "ai_tool_category": "非AI工具",
+            "domain_suggestions": [],
+            "monetization_strategy": [
+              "产品销售",
+              "订阅收费",
+              "按次付费"
+            ],
+            "technical_requirements": [
+              "支付系统",
+              "用户账户",
+              "订单管理"
+            ],
+            "competition_analysis": {
+              "level": "低",
+              "advice": "机会较好，可快速建立市场地位",
+              "strategy": [
+                "快速市场进入",
+                "SEO基础优化",
+                "内容规模化"
+              ]
+            },
+            "development_priority": {
+              "score": 90,
+              "level": "高",
+              "timeline": "1-2个月",
+              "reasoning": "交易型意图，变现潜力高; 综合评分高，建议优先开发"
+            },
+            "content_strategy": [
+              "产品页面",
+              "定价页面",
+              "免费试用"
+            ]
+          }
+        },
+        "market": {
+          "search_volume": 1000,
+          "competition": 0.5,
+          "cpc": 2.0,
+          "trend": "stable",
+          "seasonality": "low",
+          "ai_bonus": 0,
+          "root_match_score": 0,
+          "newness_score": 0,
+          "commercial_value": 0,
+          "opportunity_indicators": [
+            "出海友好"
+          ]
+        },
+        "opportunity_score": 42.5
+      },
+      {
+        "keyword": "Python报错解决",
+        "intent": {
+          "primary_intent": "B",
+          "confidence": 1.0,
+          "secondary_intent": "",
+          "intent_description": "",
+          "website_recommendations": {
+            "website_type": "支持站",
+            "ai_tool_category": "非AI工具",
+            "domain_suggestions": [],
+            "monetization_strategy": [
+              "技术支持",
+              "咨询服务",
+              "培训收费"
+            ],
+            "technical_requirements": [
+              "知识库",
+              "搜索功能",
+              "用户社区"
+            ],
+            "competition_analysis": {
+              "level": "低",
+              "advice": "机会较好，可快速建立市场地位",
+              "strategy": [
+                "快速市场进入",
+                "SEO基础优化",
+                "内容规模化"
+              ]
+            },
+            "development_priority": {
+              "score": 60,
+              "level": "低",
+              "timeline": "6个月以上",
+              "reasoning": "行为型意图，用户粘性较高; 评分较低，建议后期考虑"
+            },
+            "content_strategy": [
+              "帮助文档",
+              "故障排除",
+              "社区论坛"
+            ]
+          }
+        },
+        "market": {
+          "search_volume": 1000,
+          "competition": 0.5,
+          "cpc": 2.0,
+          "trend": "stable",
+          "seasonality": "low",
+          "ai_bonus": 0,
+          "root_match_score": 0,
+          "newness_score": 0,
+          "commercial_value": 0,
+          "opportunity_indicators": [
+            "出海友好"
+          ]
+        },
+        "opportunity_score": 42.5
+      },
+      {
+        "keyword": "Python高级用法",
+        "intent": {
+          "primary_intent": "B",
+          "confidence": 1.0,
+          "secondary_intent": "",
+          "intent_description": "",
+          "website_recommendations": {
+            "website_type": "支持站",
+            "ai_tool_category": "非AI工具",
+            "domain_suggestions": [],
+            "monetization_strategy": [
+              "技术支持",
+              "咨询服务",
+              "培训收费"
+            ],
+            "technical_requirements": [
+              "知识库",
+              "搜索功能",
+              "用户社区"
+            ],
+            "competition_analysis": {
+              "level": "低",
+              "advice": "机会较好，可快速建立市场地位",
+              "strategy": [
+                "快速市场进入",
+                "SEO基础优化",
+                "内容规模化"
+              ]
+            },
+            "development_priority": {
+              "score": 60,
+              "level": "低",
+              "timeline": "6个月以上",
+              "reasoning": "行为型意图，用户粘性较高; 评分较低，建议后期考虑"
+            },
+            "content_strategy": [
+              "帮助文档",
+              "故障排除",
+              "社区论坛"
+            ]
+          }
+        },
+        "market": {
+          "search_volume": 1000,
+          "competition": 0.5,
+          "cpc": 2.0,
+          "trend": "stable",
+          "seasonality": "low",
+          "ai_bonus": 0,
+          "root_match_score": 0,
+          "newness_score": 0,
+          "commercial_value": 0,
+          "opportunity_indicators": [
+            "出海友好"
+          ]
+        },
+        "opportunity_score": 42.5
+      },
+      {
+        "keyword": "附近Python培训",
+        "intent": {
+          "primary_intent": "L",
+          "confidence": 1.0,
+          "secondary_intent": "",
+          "intent_description": "",
+          "website_recommendations": {
+            "website_type": "本地服务站",
+            "ai_tool_category": "非AI工具",
+            "domain_suggestions": [],
+            "monetization_strategy": [
+              "服务收费",
+              "预约佣金",
+              "广告收入"
+            ],
+            "technical_requirements": [
+              "地图集成",
+              "位置服务",
+              "预约系统"
+            ],
+            "competition_analysis": {
+              "level": "低",
+              "advice": "机会较好，可快速建立市场地位",
+              "strategy": [
+                "快速市场进入",
+                "SEO基础优化",
+                "内容规模化"
+              ]
+            },
+            "development_priority": {
+              "score": 75,
+              "level": "中",
+              "timeline": "3-4个月",
+              "reasoning": "本地型意图，竞争相对较小; 评分中等，可作为第二批开发项目"
+            },
+            "content_strategy": [
+              "门店信息",
+              "服务介绍",
+              "预约系统"
+            ]
+          }
+        },
+        "market": {
+          "search_volume": 1000,
+          "competition": 0.5,
+          "cpc": 2.0,
+          "trend": "stable",
+          "seasonality": "low",
+          "ai_bonus": 0,
+          "root_match_score": 0,
+          "newness_score": 0,
+          "commercial_value": 0,
+          "opportunity_indicators": [
+            "出海友好"
+          ]
+        },
+        "opportunity_score": 42.5
+      }
+    ],
+    "avg_opportunity_score": 40.0
+  },
+  "recommendations": [
+    "📊 方法一建议：基于核心词根继续拓展，重点关注Generator、Converter、Analyzer类关键词",
+    "🔍 方法二建议：分析Canva、Midjourney等大站流量，寻找内页排名的机会关键词",
+    "💡 方法三建议：利用Google下拉推荐发现长尾关键词，降低竞争难度",
+    "🔄 方法四建议：建立循环挖掘机制，从搜索结果→竞品分析→新关键词→再搜索",
+    "💰 方法五建议：关注付费广告投放的关键词，这些通常是高ROI的盈利需求",
+    "📈 方法六建议：定期查看Toolify.ai和IndieHackers排行榜，跟踪成功产品的关键词策略",
+    "🚀 流量获取：优先SEO+SEM组合，免费流量+付费流量双管齐下",
+    "🌐 导航站：提交到300+个AI导航站，重点关注theresanaiforthat.com和Toolify.ai",
+    "📱 社交媒体：利用Reddit、ProductHunt、Hacker News等平台进行软性推广",
+    "🤝 联盟营销：建立Affiliate机制，让中小流量渠道帮助推广",
+    "💵 收入验证：通过Similarweb分析checkout.stripe.com流量，验证需求的真实盈利能力",
+    "📊 竞品分析：关注竞品的广告投放情况，持续投放=持续盈利",
+    "⚡ 快速行动：发现高价值需求后24-48小时内完成MVP，抢占先发优势",
+    "🎯 主要意图为 I，建议针对此意图优化产品功能和页面内容"
+  ]
+}

@@ -15,8 +15,32 @@ from typing import Dict, List, Optional, Tuple
 from urllib.parse import urlparse
 import hashlib
 
-from config.config_manager import get_config
-config = get_config()
+import sys
+import os
+
+# 添加项目根目录到路径
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+try:
+    from config.config_manager import get_config
+    config = get_config()
+except ImportError:
+    # 如果配置管理器不可用，使用默认配置
+    class DefaultConfig:
+        GOOGLE_API_KEY = ""
+        GOOGLE_CSE_ID = ""
+        SERP_REQUEST_DELAY = 1
+        SERP_MAX_RETRIES = 3
+        SERP_CACHE_ENABLED = True
+        SERP_CACHE_DURATION = 3600
+        
+        def validate(self):
+            if not self.GOOGLE_API_KEY or not self.GOOGLE_CSE_ID:
+                print("警告: Google API配置未设置，SERP分析功能将受限")
+    
+    config = DefaultConfig()
 
 class SerpAnalyzer:
     """SERP分析类，用于分析搜索引擎结果页面"""
@@ -402,6 +426,18 @@ class SerpAnalyzer:
             'search_results_count': features['total_results'],
             'top_competitors': features['competitor_urls'][:5]
         }
+    
+    def analyze_keywords(self, keywords: List[str]) -> List[Dict]:
+        """
+        分析关键词列表（兼容性方法）
+        
+        参数:
+            keywords (List[str]): 关键词列表
+            
+        返回:
+            List[Dict]: 分析结果列表
+        """
+        return self.batch_analyze(keywords)
     
     def batch_analyze(self, keywords: List[str]) -> List[Dict]:
         """

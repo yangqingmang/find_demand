@@ -10,17 +10,28 @@ import pandas as pd
 import argparse
 import os
 import re
+import sys
 from collections import Counter
 
-from src.demand_mining.analyzers.base_analyzer import BaseAnalyzer
-from src.demand_mining.analyzers.serp_analyzer import SerpAnalyzer
-from src.demand_mining.analyzers.intent_analyzer_v2 import IntentAnalyzerV2
-from src.demand_mining.analyzers.website_recommendation import WebsiteRecommendationEngine
-from src.utils import (
-    INTENT_TYPES, INTENT_KEYWORDS, RECOMMENDED_ACTIONS,
-    FileUtils, Logger, ExceptionHandler, DataError
-)
-from src.utils.constants import INTENT_DESCRIPTIONS
+# 添加项目根目录到路径
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+try:
+    from src.demand_mining.analyzers.base_analyzer import BaseAnalyzer
+    from src.demand_mining.analyzers.serp_analyzer import SerpAnalyzer
+    from src.demand_mining.analyzers.intent_analyzer_v2 import IntentAnalyzerV2
+    from src.demand_mining.analyzers.website_recommendation import WebsiteRecommendationEngine
+    from src.utils import (
+        INTENT_TYPES, INTENT_KEYWORDS, RECOMMENDED_ACTIONS,
+        FileUtils, Logger, ExceptionHandler, DataError
+    )
+    from src.utils.constants import INTENT_DESCRIPTIONS
+except ImportError as e:
+    print(f"导入错误: {e}")
+    print("请确保在项目根目录下运行脚本")
+    sys.exit(1)
 
 
 class IntentAnalyzer(BaseAnalyzer):

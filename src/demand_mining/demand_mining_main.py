@@ -15,7 +15,8 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional
 
 # 添加项目根目录到路径
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, project_root)
 
 from src.demand_mining.analyzers.intent_analyzer_v2 import IntentAnalyzerV2
 from src.demand_mining.analyzers.intent_analyzer import IntentAnalyzer

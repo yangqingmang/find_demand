@@ -1,0 +1,176 @@
+{
+  "total_keywords": 1,
+  "analysis_time": "2025-08-15T00:35:46.783248",
+  "keywords": [
+    {
+      "keyword": "api tool",
+      "intent": {
+        "primary_intent": "C",
+        "confidence": 1.0,
+        "secondary_intent": "",
+        "intent_description": "商业型",
+        "website_recommendations": {
+          "website_type": "在线工具站",
+          "ai_tool_category": "非AI工具",
+          "domain_suggestions": [
+            "api.com",
+            "api.ai",
+            "api.io",
+            "aiapi.com",
+            "smartapi.com",
+            "autoapi.com",
+            "apitool.com",
+            "apitools.com"
+          ],
+          "monetization_strategy": [
+            "联盟营销",
+            "广告收入",
+            "付费评测"
+          ],
+          "technical_requirements": [
+            "对比功能",
+            "评分系统",
+            "用户评论"
+          ],
+          "competition_analysis": {
+            "level": "低",
+            "advice": "机会较好，可快速建立市场地位",
+            "strategy": [
+              "快速市场进入",
+              "SEO基础优化",
+              "内容规模化"
+            ]
+          },
+          "development_priority": {
+            "score": 85,
+            "level": "高",
+            "timeline": "1-2个月",
+            "reasoning": "商业型意图，适合联盟营销; 综合评分高，建议优先开发"
+          },
+          "content_strategy": [
+            "产品对比",
+            "评测报告",
+            "用户评价"
+          ]
+        }
+      },
+      "market": {
+        "search_volume": 1000,
+        "competition": 0.5,
+        "cpc": 2.0,
+        "trend": "stable",
+        "seasonality": "low",
+        "ai_bonus": 0,
+        "root_match_score": 0,
+        "newness_score": 0,
+        "commercial_value": 0,
+        "opportunity_indicators": [
+          "出海友好"
+        ]
+      },
+      "opportunity_score": 42.5
+    }
+  ],
+  "intent_summary": {
+    "total_keywords": 1,
+    "intent_distribution": {
+      "C": 1
+    },
+    "intent_percentages": {
+      "C": 100.0
+    },
+    "dominant_intent": "C"
+  },
+  "market_insights": {
+    "high_opportunity_count": 0,
+    "medium_opportunity_count": 1,
+    "low_opportunity_count": 0,
+    "top_opportunities": [
+      {
+        "keyword": "api tool",
+        "intent": {
+          "primary_intent": "C",
+          "confidence": 1.0,
+          "secondary_intent": "",
+          "intent_description": "商业型",
+          "website_recommendations": {
+            "website_type": "在线工具站",
+            "ai_tool_category": "非AI工具",
+            "domain_suggestions": [
+              "api.com",
+              "api.ai",
+              "api.io",
+              "aiapi.com",
+              "smartapi.com",
+              "autoapi.com",
+              "apitool.com",
+              "apitools.com"
+            ],
+            "monetization_strategy": [
+              "联盟营销",
+              "广告收入",
+              "付费评测"
+            ],
+            "technical_requirements": [
+              "对比功能",
+              "评分系统",
+              "用户评论"
+            ],
+            "competition_analysis": {
+              "level": "低",
+              "advice": "机会较好，可快速建立市场地位",
+              "strategy": [
+                "快速市场进入",
+                "SEO基础优化",
+                "内容规模化"
+              ]
+            },
+            "development_priority": {
+              "score": 85,
+              "level": "高",
+              "timeline": "1-2个月",
+              "reasoning": "商业型意图，适合联盟营销; 综合评分高，建议优先开发"
+            },
+            "content_strategy": [
+              "产品对比",
+              "评测报告",
+              "用户评价"
+            ]
+          }
+        },
+        "market": {
+          "search_volume": 1000,
+          "competition": 0.5,
+          "cpc": 2.0,
+          "trend": "stable",
+          "seasonality": "low",
+          "ai_bonus": 0,
+          "root_match_score": 0,
+          "newness_score": 0,
+          "commercial_value": 0,
+          "opportunity_indicators": [
+            "出海友好"
+          ]
+        },
+        "opportunity_score": 42.5
+      }
+    ],
+    "avg_opportunity_score": 42.5
+  },
+  "recommendations": [
+    "📊 方法一建议：基于核心词根继续拓展，重点关注Generator、Converter、Analyzer类关键词",
+    "🔍 方法二建议：分析Canva、Midjourney等大站流量，寻找内页排名的机会关键词",
+    "💡 方法三建议：利用Google下拉推荐发现长尾关键词，降低竞争难度",
+    "🔄 方法四建议：建立循环挖掘机制，从搜索结果→竞品分析→新关键词→再搜索",
+    "💰 方法五建议：关注付费广告投放的关键词，这些通常是高ROI的盈利需求",
+    "📈 方法六建议：定期查看Toolify.ai和IndieHackers排行榜，跟踪成功产品的关键词策略",
+    "🚀 流量获取：优先SEO+SEM组合，免费流量+付费流量双管齐下",
+    "🌐 导航站：提交到300+个AI导航站，重点关注theresanaiforthat.com和Toolify.ai",
+    "📱 社交媒体：利用Reddit、ProductHunt、Hacker News等平台进行软性推广",
+    "🤝 联盟营销：建立Affiliate机制，让中小流量渠道帮助推广",
+    "💵 收入验证：通过Similarweb分析checkout.stripe.com流量，验证需求的真实盈利能力",
+    "📊 竞品分析：关注竞品的广告投放情况，持续投放=持续盈利",
+    "⚡ 快速行动：发现高价值需求后24-48小时内完成MVP，抢占先发优势",
+    "🎯 主要意图为 C，建议针对此意图优化产品功能和页面内容"
+  ]
+}
