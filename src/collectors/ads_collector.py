@@ -24,7 +24,8 @@ except ImportError:
     logger.warning("google-ads 包未安装，Google Ads 功能将不可用")
     logger.info("安装命令: pip install google-ads==22.1.0")
 
-from ..config.settings import config
+from config.config_manager import get_config
+config = get_config()
 from ..utils.logger import Logger
 from ..utils.exceptions import handle_api_errors
 from ..utils.file_utils import FileUtils

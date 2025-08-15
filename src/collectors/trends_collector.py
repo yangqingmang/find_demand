@@ -14,7 +14,8 @@ from src.utils import (
     FileUtils, Logger, ExceptionHandler, APIError,
     DEFAULT_CONFIG, VALIDATION_CONSTANTS
 )
-from src.config.settings import config
+from config.config_manager import get_config
+config = get_config()
 from src.utils.mock_data_generator import MockDataGenerator
 
 class TrendsCollector:

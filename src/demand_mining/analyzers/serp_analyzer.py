@@ -15,7 +15,8 @@ from typing import Dict, List, Optional, Tuple
 from urllib.parse import urlparse
 import hashlib
 
-from src.config.settings import config
+from config.config_manager import get_config
+config = get_config()
 
 class SerpAnalyzer:
     """SERP分析类，用于分析搜索引擎结果页面"""
