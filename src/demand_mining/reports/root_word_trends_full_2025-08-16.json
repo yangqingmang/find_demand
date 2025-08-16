@@ -1,0 +1,265 @@
+{
+  "analysis_date": "2025-08-16T10:47:07.797795",
+  "timeframe": "12-m",
+  "total_root_words": 50,
+  "results": [
+    {
+      "root_word": "AI",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "artificial intelligence",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "machine learning",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "deep learning",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "neural network",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "chatbot",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "GPT",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "OpenAI",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "ChatGPT",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "language model",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "computer vision",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "natural language processing",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "NLP",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "automation",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "robot",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "algorithm",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "data science",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "big data",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "analytics",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "prediction",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "classification",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "clustering",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "regression",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "supervised learning",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "unsupervised learning",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "reinforcement learning",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "transfer learning",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "generative AI",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "LLM",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "transformer",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "BERT",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "attention mechanism",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "encoder",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "decoder",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "embedding",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "tokenization",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "fine-tuning",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "prompt engineering",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "few-shot learning",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "zero-shot learning",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "multimodal",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "text-to-image",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "image generation",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "voice synthesis",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "speech recognition",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "recommendation system",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "personalization",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "content generation",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "code generation",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    },
+    {
+      "root_word": "AI assistant",
+      "status": "error",
+      "error": "All arrays must be of the same length"
+    }
+  ],
+  "summary": {
+    "successful_analyses": 0,
+    "failed_analyses": 50,
+    "top_trending_words": [],
+    "declining_words": [],
+    "stable_words": [],
+    "average_interest_distribution": {}
+  }
+}

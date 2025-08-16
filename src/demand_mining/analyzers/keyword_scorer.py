@@ -45,7 +45,8 @@ except ImportError:
 class KeywordScorer(BaseAnalyzer):
     """关键词评分类，用于对关键词进行综合评分"""
     
-    def __init__(self, volume_weight=0.3, growth_weight=0.3, kd_weight=0.2, kgr_weight=0.2):
+    def __init__(self, volume_weight=0.2, growth_weight=0.2, kd_weight=0.15, kgr_weight=0.15, 
+                 timeliness_weight=0.15, competitor_weight=0.15):
         """
         初始化关键词评分器
         
@@ -54,21 +55,46 @@ class KeywordScorer(BaseAnalyzer):
             growth_weight (float): 增长率权重
             kd_weight (float): 关键词难度权重
             kgr_weight (float): KGR权重
+            timeliness_weight (float): 实时性权重
+            competitor_weight (float): 竞争对手分析权重
         """
         super().__init__()
         self.volume_weight = volume_weight
         self.growth_weight = growth_weight
         self.kd_weight = kd_weight
         self.kgr_weight = kgr_weight
+        self.timeliness_weight = timeliness_weight
+        self.competitor_weight = competitor_weight
         
         # 验证权重总和为1
-        total_weight = volume_weight + growth_weight + kd_weight + kgr_weight
+        total_weight = (volume_weight + growth_weight + kd_weight + kgr_weight + 
+                       timeliness_weight + competitor_weight)
         if abs(total_weight - 1.0) > 0.001:
             self.logger.warning(f"权重总和 ({total_weight}) 不等于1，已自动归一化")
             self.volume_weight /= total_weight
             self.growth_weight /= total_weight
             self.kd_weight /= total_weight
             self.kgr_weight /= total_weight
+            self.timeliness_weight /= total_weight
+            self.competitor_weight /= total_weight
+        
+        # 初始化实时性分析器
+        try:
+            from .timeliness_analyzer import TimelinessAnalyzer
+            self.timeliness_analyzer = TimelinessAnalyzer()
+            self.logger.info("已启用实时性分析功能")
+        except ImportError as e:
+            self.logger.warning(f"实时性分析器导入失败: {e}")
+            self.timeliness_analyzer = None
+        
+        # 初始化竞争对手分析器
+        try:
+            from .competitor_analyzer import CompetitorAnalyzer
+            self.competitor_analyzer = CompetitorAnalyzer()
+            self.logger.info("已启用竞争对手分析功能")
+        except ImportError as e:
+            self.logger.warning(f"竞争对手分析器导入失败: {e}")
+            self.competitor_analyzer = None
     
     def analyze(self, data, volume_col='value', growth_col='growth', kd_col=None, **kwargs):
         """
@@ -207,7 +233,8 @@ class KeywordScorer(BaseAnalyzer):
         return round(score, 1)
     
     def score_keywords(self, df, volume_col='value', growth_col='growth', kd_col=None, 
-                          keyword_col='query', serp_analyzer=None, calculate_kgr=True):
+                          keyword_col='query', serp_analyzer=None, calculate_kgr=True, 
+                          calculate_timeliness=True, calculate_competitor=True):
         """
         对关键词进行评分
         
@@ -219,6 +246,8 @@ class KeywordScorer(BaseAnalyzer):
             keyword_col (str): 关键词列名
             serp_analyzer: SERP分析器实例，用于计算真实KGR
             calculate_kgr (bool): 是否计算KGR
+            calculate_timeliness (bool): 是否计算实时性评分
+            calculate_competitor (bool): 是否计算竞争对手分析评分
             
         返回:
             添加了评分列的DataFrame
@@ -288,23 +317,83 @@ class KeywordScorer(BaseAnalyzer):
         else:
             self.logger.warning("跳过KGR计算")
             result_df['kgr_score'] = 50  # 默认中等KGR评分
-            
-        # 计算综合评分
-        if calculate_kgr and 'kgr_score' in result_df.columns:
-            result_df['score'] = (
-                self.volume_weight * result_df['volume_score'] +
-                self.growth_weight * result_df['growth_score'] +
-                self.kd_weight * result_df['kd_score'] +
-                self.kgr_weight * result_df['kgr_score']
-            )
+        
+        # 计算实时性评分
+        if calculate_timeliness and self.timeliness_analyzer and keyword_col in result_df.columns:
+            self.logger.info("正在计算实时性评分...")
+            try:
+                timeliness_df = self.timeliness_analyzer.analyze_timeliness(result_df, keyword_col)
+                result_df['timeliness_score'] = timeliness_df['timeliness_score']
+                result_df['timeliness_grade'] = timeliness_df['timeliness_grade']
+                result_df['trend_direction'] = timeliness_df['trend_direction']
+                self.logger.info("实时性评分计算完成")
+            except Exception as e:
+                self.logger.error(f"实时性评分计算失败: {e}")
+                result_df['timeliness_score'] = 50  # 默认中等实时性评分
         else:
-            # 如果没有KGR，重新分配权重
-            total_weight = self.volume_weight + self.growth_weight + self.kd_weight
-            result_df['score'] = (
-                (self.volume_weight / total_weight) * result_df['volume_score'] +
-                (self.growth_weight / total_weight) * result_df['growth_score'] +
-                (self.kd_weight / total_weight) * result_df['kd_score']
-            )
+            if not calculate_timeliness:
+                self.logger.info("跳过实时性评分计算")
+            else:
+                self.logger.warning("实时性分析器未初始化，跳过实时性评分")
+            result_df['timeliness_score'] = 50  # 默认中等实时性评分
+        
+        # 计算竞争对手分析评分
+        if calculate_competitor and self.competitor_analyzer and keyword_col in result_df.columns:
+            self.logger.info("正在计算竞争对手分析评分...")
+            try:
+                competitor_df = self.competitor_analyzer.analyze_competitors(result_df, keyword_col)
+                result_df['competition_score'] = competitor_df['competition_score']
+                result_df['competition_grade'] = competitor_df['competition_grade']
+                result_df['opportunity_score'] = competitor_df['opportunity_score']
+                result_df['main_competitors'] = competitor_df['main_competitors']
+                self.logger.info("竞争对手分析评分计算完成")
+            except Exception as e:
+                self.logger.error(f"竞争对手分析评分计算失败: {e}")
+                result_df['competition_score'] = 50  # 默认中等竞争评分
+                result_df['opportunity_score'] = 50  # 默认中等机会评分
+        else:
+            if not calculate_competitor:
+                self.logger.info("跳过竞争对手分析计算")
+            else:
+                self.logger.warning("竞争对手分析器未初始化，跳过竞争分析")
+            result_df['competition_score'] = 50  # 默认中等竞争评分
+            result_df['opportunity_score'] = 50  # 默认中等机会评分
+            
+        # 计算综合评分 - 动态权重分配
+        active_weights = []
+        score_components = []
+        
+        # 基础评分组件
+        active_weights.extend([self.volume_weight, self.growth_weight, self.kd_weight])
+        score_components.extend([
+            result_df['volume_score'],
+            result_df['growth_score'], 
+            result_df['kd_score']
+        ])
+        
+        # KGR评分组件
+        if calculate_kgr and 'kgr_score' in result_df.columns:
+            active_weights.append(self.kgr_weight)
+            score_components.append(result_df['kgr_score'])
+        
+        # 实时性评分组件
+        if calculate_timeliness and 'timeliness_score' in result_df.columns:
+            active_weights.append(self.timeliness_weight)
+            score_components.append(result_df['timeliness_score'])
+        
+        # 竞争对手分析评分组件（使用opportunity_score，分数越高越好）
+        if calculate_competitor and 'opportunity_score' in result_df.columns:
+            active_weights.append(self.competitor_weight)
+            score_components.append(result_df['opportunity_score'])
+        
+        # 归一化权重
+        total_active_weight = sum(active_weights)
+        normalized_weights = [w / total_active_weight for w in active_weights]
+        
+        # 计算加权综合评分
+        result_df['score'] = sum(
+            weight * component for weight, component in zip(normalized_weights, score_components)
+        )
         
         # 四舍五入到整数
         result_df['score'] = result_df['score'].round().astype(int)
@@ -411,11 +500,17 @@ def main():
     parser = argparse.ArgumentParser(description='关键词评分工具')
     parser.add_argument('--input', required=True, help='输入CSV文件路径')
     parser.add_argument('--output', default='data', help='输出目录，默认为data')
-    parser.add_argument('--volume-weight', type=float, default=0.4, help='搜索量权重，默认0.4')
-    parser.add_argument('--growth-weight', type=float, default=0.4, help='增长率权重，默认0.4')
-    parser.add_argument('--kd-weight', type=float, default=0.2, help='关键词难度权重，默认0.2')
+    parser.add_argument('--volume-weight', type=float, default=0.25, help='搜索量权重，默认0.25')
+    parser.add_argument('--growth-weight', type=float, default=0.25, help='增长率权重，默认0.25')
+    parser.add_argument('--kd-weight', type=float, default=0.15, help='关键词难度权重，默认0.15')
+    parser.add_argument('--kgr-weight', type=float, default=0.15, help='KGR权重，默认0.15')
+    parser.add_argument('--timeliness-weight', type=float, default=0.15, help='实时性权重，默认0.15')
+    parser.add_argument('--competitor-weight', type=float, default=0.15, help='竞争对手分析权重，默认0.15')
     parser.add_argument('--min-score', type=int, help='最低评分过滤')
     parser.add_argument('--enrich', action='store_true', help='使用模拟的Ads数据丰富关键词')
+    parser.add_argument('--disable-kgr', action='store_true', help='禁用KGR计算')
+    parser.add_argument('--disable-timeliness', action='store_true', help='禁用实时性分析')
+    parser.add_argument('--disable-competitor', action='store_true', help='禁用竞争对手分析')
     
     args = parser.parse_args()
     
@@ -439,7 +534,10 @@ def main():
     scorer = KeywordScorer(
         volume_weight=args.volume_weight,
         growth_weight=args.growth_weight,
-        kd_weight=args.kd_weight
+        kd_weight=args.kd_weight,
+        kgr_weight=args.kgr_weight,
+        timeliness_weight=args.timeliness_weight,
+        competitor_weight=args.competitor_weight
     )
     
     # 丰富数据（可选）
@@ -447,7 +545,12 @@ def main():
         df = scorer.enrich_with_ads_data(df)
     
     # 评分
-    scored_df = scorer.score_keywords(df)
+    scored_df = scorer.score_keywords(
+        df, 
+        calculate_kgr=not args.disable_kgr,
+        calculate_timeliness=not args.disable_timeliness,
+        calculate_competitor=not args.disable_competitor
+    )
     
     # 过滤（可选）
     if args.min_score:
@@ -456,6 +559,17 @@ def main():
     
     # 保存结果
     scorer.save_results(scored_df, args.output)
+    
+    # 显示实时性分析摘要
+    if not args.disable_timeliness and 'timeliness_score' in scored_df.columns:
+        avg_timeliness = scored_df['timeliness_score'].mean()
+        high_timeliness_count = len(scored_df[scored_df['timeliness_grade'].isin(['A', 'B'])])
+        rising_trends_count = len(scored_df[scored_df['trend_direction'] == 'rising'])
+        
+        logger.info(f"实时性分析摘要:")
+        logger.info(f"  平均实时性评分: {avg_timeliness:.1f}")
+        logger.info(f"  高时效性关键词: {high_timeliness_count} 个")
+        logger.info(f"  上升趋势关键词: {rising_trends_count} 个")
 
 
 if __name__ == "__main__":
