@@ -1,0 +1,223 @@
+# 关键词发现资源配置文件
+# 包含各种平台和工具的配置信息
+
+# 社交媒体平台
+social_platforms:
+  reddit:
+    base_url: "https://www.reddit.com"
+    api_endpoint: "/r/{subreddit}/{sort}.json"
+    rate_limit: 60  # 每分钟请求数
+    ai_subreddits:
+      - "artificial"
+      - "MachineLearning" 
+      - "deeplearning"
+      - "ChatGPT"
+      - "OpenAI"
+      - "artificial_intelligence"
+      - "singularity"
+      - "Futurology"
+      - "programming"
+      - "webdev"
+      - "entrepreneur"
+      - "SaaS"
+      - "startups"
+      - "technology"
+      - "gadgets"
+      - "InternetIsBeautiful"
+    
+  twitter:
+    base_url: "https://twitter.com"
+    search_endpoint: "/search"
+    trending_hashtags: true
+    
+  linkedin:
+    base_url: "https://www.linkedin.com"
+    pulse_articles: true
+
+# 技术社区
+tech_communities:
+  hackernews:
+    base_url: "https://news.ycombinator.com"
+    api_url: "https://hn.algolia.com/api/v1/search"
+    categories:
+      - "Show HN"
+      - "Ask HN"
+      - "story"
+    
+  producthunt:
+    base_url: "https://www.producthunt.com"
+    api_required: true
+    categories:
+      - "AI"
+      - "Developer Tools"
+      - "Productivity"
+      - "Design Tools"
+    
+  stackoverflow:
+    base_url: "https://stackoverflow.com"
+    api_url: "https://api.stackexchange.com/2.3"
+    tags:
+      - "artificial-intelligence"
+      - "machine-learning"
+      - "python"
+      - "javascript"
+      - "web-development"
+
+# 问答平台
+qa_platforms:
+  quora:
+    base_url: "https://www.quora.com"
+    topics:
+      - "Artificial Intelligence"
+      - "Machine Learning"
+      - "Startups"
+      - "Technology"
+    
+  zhihu:
+    base_url: "https://www.zhihu.com"
+    topics:
+      - "人工智能"
+      - "机器学习"
+      - "创业"
+      - "技术"
+
+# AI工具发现平台
+ai_tool_platforms:
+  toolify:
+    base_url: "https://www.toolify.ai"
+    categories:
+      - "AI Writing"
+      - "AI Image"
+      - "AI Video"
+      - "AI Code"
+      - "AI Chat"
+    
+  theresanaiforthat:
+    base_url: "https://theresanaiforthat.com"
+    search_endpoint: "/search"
+    
+  futuretools:
+    base_url: "https://www.futuretools.io"
+    categories: true
+    
+  aitools_fyi:
+    base_url: "https://aitools.fyi"
+    directory: true
+
+# 内容平台
+content_platforms:
+  youtube:
+    base_url: "https://www.youtube.com"
+    suggest_api: "http://suggestqueries.google.com/complete/search?client=youtube"
+    trending_topics: true
+    
+  medium:
+    base_url: "https://medium.com"
+    tags:
+      - "artificial-intelligence"
+      - "machine-learning"
+      - "startup"
+      - "technology"
+    
+  dev_to:
+    base_url: "https://dev.to"
+    tags:
+      - "ai"
+      - "machinelearning"
+      - "webdev"
+      - "javascript"
+
+# 搜索引擎建议
+search_suggestions:
+  google:
+    suggest_api: "http://suggestqueries.google.com/complete/search?client=firefox"
+    
+  bing:
+    suggest_api: "https://api.bing.com/osjson.aspx"
+    
+  duckduckgo:
+    suggest_api: "https://duckduckgo.com/ac/"
+
+# 电商平台
+ecommerce_platforms:
+  amazon:
+    base_url: "https://www.amazon.com"
+    search_suggestions: true
+    
+  etsy:
+    base_url: "https://www.etsy.com"
+    trending_searches: true
+
+# 关键词提取规则
+extraction_rules:
+  patterns:
+    - "\\b(?:how to|what is|best|top|vs|compare|review|tutorial|guide)\\b[^.!?]*"
+    - "\\b(?:AI|artificial intelligence|machine learning|deep learning|neural network)\\b[^.!?]*"
+    - "\\b(?:tool|software|app|platform|service|solution)\\b[^.!?]*"
+    - "\\b(?:free|open source|alternative|competitor)\\b[^.!?]*"
+    - "\\b(?:generator|converter|analyzer|detector|optimizer)\\b[^.!?]*"
+  
+  ai_terms:
+    - "ai tool"
+    - "ai generator" 
+    - "ai writer"
+    - "ai assistant"
+    - "ai chatbot"
+    - "machine learning"
+    - "deep learning"
+    - "neural network"
+    - "gpt"
+    - "artificial intelligence"
+    - "automation"
+    - "nlp"
+    - "computer vision"
+    - "text to image"
+    - "text to video"
+    - "voice synthesis"
+    - "image recognition"
+  
+  stop_words:
+    - "the"
+    - "and"
+    - "or"
+    - "but"
+    - "in"
+    - "on"
+    - "at"
+    - "to"
+    - "for"
+    - "of"
+    - "with"
+    - "by"
+
+# 数据质量过滤
+quality_filters:
+  min_keyword_length: 3
+  max_keyword_length: 100
+  min_score: 1
+  exclude_patterns:
+    - "^\\d+$"  # 纯数字
+    - "^[^a-zA-Z]*$"  # 无字母
+    - "\\b(?:spam|test|example)\\b"  # 垃圾词
+
+# 输出配置
+output_config:
+  formats:
+    - "csv"
+    - "json"
+    - "xlsx"
+  
+  columns:
+    - "keyword"
+    - "source"
+    - "platform"
+    - "title"
+    - "score"
+    - "comments"
+    - "url"
+    - "discovered_at"
+    - "category"
+    - "intent_prediction"
+  
+  sort_by: "score"
+  sort_order: "desc"

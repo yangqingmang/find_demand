@@ -1,0 +1,63 @@
+{
+  "total_keywords": 571,
+  "platform_distribution": {
+    "reddit": 436,
+    "hackernews": 90,
+    "youtube": 28,
+    "google": 17
+  },
+  "top_keywords_by_score": [
+    {
+      "keyword": "free alternativ to chatgpt 5 i just found",
+      "score": 1332,
+      "platform": "reddit"
+    },
+    {
+      "keyword": "ai evolution and more like cost cutting",
+      "score": 1319,
+      "platform": "reddit"
+    },
+    {
+      "keyword": "ai has a breakdown",
+      "score": 672,
+      "platform": "reddit"
+    },
+    {
+      "keyword": "ai assistant like that",
+      "score": 421,
+      "platform": "reddit"
+    },
+    {
+      "keyword": "ai as if it were human and be friends with it and thats their business",
+      "score": 421,
+      "platform": "reddit"
+    },
+    {
+      "keyword": "top ai conferences like neurips 2024 is already outstripping available venue space",
+      "score": 365,
+      "platform": "reddit"
+    },
+    {
+      "keyword": "ai conference model is unsustainable",
+      "score": 365,
+      "platform": "reddit"
+    },
+    {
+      "keyword": "ai conferences like neurips 2024 is already outstripping available venue space",
+      "score": 365,
+      "platform": "reddit"
+    },
+    {
+      "keyword": "ai conferences over 71 are negative and 35 mention mental-health concerns",
+      "score": 365,
+      "platform": "reddit"
+    },
+    {
+      "keyword": "how to game the ai prompt  the comments section never disappoints",
+      "score": 357,
+      "platform": "reddit"
+    }
+  ],
+  "keyword_length_stats": {
+    "avg_length": 43.35201401050788,
+    "min_length": 

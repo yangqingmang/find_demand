@@ -667,12 +667,13 @@ class DemandMiningManager:
 def main():
     """主函数"""
     parser = argparse.ArgumentParser(description='需求挖掘与关键词分析工具')
-    parser.add_argument('--action', choices=['analyze', 'report', 'help'], 
+    parser.add_argument('--action', choices=['analyze', 'report', 'discover', 'help'], 
                        default='help', help='执行的操作')
     parser.add_argument('--input', help='输入文件路径')
     parser.add_argument('--output', help='输出目录路径')
     parser.add_argument('--config', help='配置文件路径')
     parser.add_argument('--date', help='报告日期 (YYYY-MM-DD)')
+    parser.add_argument('--search-terms', nargs='+', help='多平台发现的搜索词汇')
     
     args = parser.parse_args()
     
@@ -683,12 +684,14 @@ def main():
 使用方法:
   python demand_mining_main.py --action analyze --input data/keywords.csv
   python demand_mining_main.py --action report --date 2025-08-08
+  python demand_mining_main.py --action discover --search-terms "AI tool" "AI generator"
   python demand_mining_main.py --help
 
 操作说明:
-  analyze  - 分析关键词文件
-  report   - 生成分析报告
-  help     - 显示帮助信息
+  analyze   - 分析关键词文件
+  report    - 生成分析报告
+  discover  - 多平台关键词发现
+  help      - 显示帮助信息
 
 示例:
   # 分析关键词
@@ -697,8 +700,25 @@ def main():
   # 生成今日报告
   python demand_mining_main.py --action report
   
+  # 多平台关键词发现
+  python demand_mining_main.py --action discover --search-terms "AI tool" "AI generator" "chatbot"
+  
   # 生成指定日期报告
   python demand_mining_main.py --action report --date 2025-08-08
+
+🌐 多平台关键词发现支持的平台:
+  • Reddit (r/artificial, r/MachineLearning, r/ChatGPT 等)
+  • Hacker News (技术讨论和Show HN项目)
+  • YouTube (搜索建议和热门视频)
+  • Google (搜索建议和自动完成)
+  • 更多平台持续添加中...
+
+💡 发现高价值关键词的最佳实践:
+  1. 使用多个相关搜索词汇
+  2. 关注社交媒体讨论热点
+  3. 分析技术社区的问题和需求
+  4. 跟踪搜索引擎的建议词汇
+  5. 结合传统关键词工具验证数据
         """)
         return
     
@@ -714,6 +734,65 @@ def main():
             results = manager.analyze_keywords(args.input, args.output)
             print(f"🎉 分析完成! 共分析 {results['total_keywords']} 个关键词")
             
+        elif args.action == 'report':
+            report_path = manager.generate_daily_report(args.date)
+            print(f"📋 报告已生成: {report_path}")
+            
+        elif args.action == 'discover':
+            # 多平台关键词发现
+            search_terms = args.search_terms or ['AI tool', 'AI generator', 'AI assistant']
+            
+            print(f"🔍 开始多平台关键词发现...")
+            print(f"📊 搜索词汇: {', '.join(search_terms)}")
+            
+            try:
+                # 导入多平台发现工具
+                from src.demand_mining.tools.multi_platform_keyword_discovery import MultiPlatformKeywordDiscovery
+                
+                # 创建发现工具
+                discoverer = MultiPlatformKeywordDiscovery()
+                
+                # 执行发现
+                df = discoverer.discover_all_platforms(search_terms)
+                
+                if not df.empty:
+                    # 分析趋势
+                    analysis = discoverer.analyze_keyword_trends(df)
+                    
+                    # 保存结果
+                    output_dir = args.output or 'src/demand_mining/reports/multi_platform_discovery'
+                    csv_path, json_path = discoverer.save_results(df, analysis, output_dir)
+                    
+                    # 显示结果摘要
+                    print(f"\n🎉 多平台关键词发现完成!")
+                    print(f"📊 发现 {analysis['total_keywords']} 个关键词")
+                    print(f"🌐 平台分布: {analysis['platform_distribution']}")
+                    
+                    print(f"\n🏆 热门关键词:")
+                    for i, kw in enumerate(analysis['top_keywords_by_score'][:5], 1):
+                        print(f"  {i}. {kw['keyword']} (评分: {kw['score']}, 来源: {kw['platform']})")
+                    
+                    print(f"\n📁 结果已保存:")
+                    print(f"  CSV: {csv_path}")
+                    print(f"  JSON: {json_path}")
+                    
+                    # 可选：直接分析发现的关键词
+                    user_input = input("\n🤔 是否要立即分析这些关键词的意图和市场机会? (y/n): ")
+                    if user_input.lower() in ['y', 'yes', '是']:
+                        print("🔄 开始分析发现的关键词...")
+                        results = manager.analyze_keywords(csv_path, args.output)
+                        print(f"✅ 关键词分析完成! 共分析 {results['total_keywords']} 个关键词")
+                else:
+                    print("⚠️ 未发现任何关键词，请检查网络连接或调整搜索参数")
+                    
+            except ImportError as e:
+                print(f"❌ 导入多平台发现工具失败: {e}")
+                print("请确保所有依赖已正确安装")
+            except Exception as e:
+                print(f"❌ 多平台关键词发现失败: {e}")
+                import traceback
+                traceback.print_exc()
+        
         elif args.action == 'report':
             report_path = manager.generate_daily_report(args.date)
             print(f"📋 报告已生成: {report_path}")

@@ -1,0 +1,88 @@
+{
+  "total_keywords": 560,
+  "platform_distribution": {
+    "reddit": 436,
+    "hackernews": 82,
+    "youtube": 28,
+    "google": 14
+  },
+  "top_keywords_by_score": [
+    {
+      "keyword": "free alternativ to chatgpt 5 i just found",
+      "score": 1354,
+      "platform": "reddit"
+    },
+    {
+      "keyword": "ai evolution and more like cost cutting",
+      "score": 1332,
+      "platform": "reddit"
+    },
+    {
+      "keyword": "ai has a breakdown",
+      "score": 679,
+      "platform": "reddit"
+    },
+    {
+      "keyword": "ai as if it were human and be friends with it and thats their business",
+      "score": 428,
+      "platform": "reddit"
+    },
+    {
+      "keyword": "ai assistant like that",
+      "score": 428,
+      "platform": "reddit"
+    },
+    {
+      "keyword": "ai conference model is unsustainable",
+      "score": 361,
+      "platform": "reddit"
+    },
+    {
+      "keyword": "ai conferences like neurips 2024 is already outstripping available venue space",
+      "score": 361,
+      "platform": "reddit"
+    },
+    {
+      "keyword": "ai conferences over 71 are negative and 35 mention mental-health concerns",
+      "score": 361,
+      "platform": "reddit"
+    },
+    {
+      "keyword": "top ai conferences like neurips 2024 is already outstripping available venue space",
+      "score": 361,
+      "platform": "reddit"
+    },
+    {
+      "keyword": "how to game the ai prompt  the comments section never disappoints",
+      "score": 360,
+      "platform": "reddit"
+    }
+  ],
+  "keyword_length_stats": {
+    "avg_length": 43.18214285714286,
+    "min_length": 3,
+    "max_length": 99
+  },
+  "common_terms": {
+    "and": 102,
+    "the": 76,
+    "for": 59,
+    "with": 43,
+    "video": 40,
+    "free": 37,
+    "that": 34,
+    "code": 32,
+    "tool": 29,
+    "assistant": 28,
+    "generator": 26,
+    "models": 20,
+    "how": 19,
+    "app": 19,
+    "from": 18,
+    "best": 18,
+    "model": 16,
+    "learning": 16,
+    "platform": 16,
+    "just": 15
+  }
+}
