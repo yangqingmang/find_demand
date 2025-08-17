@@ -234,32 +234,33 @@ class IntentAnalyzerV2(BaseAnalyzer):
                         else:  # 子意图
                             sub_intent_scores[intent] += score
         
-        # 如果没有任何得分，记录到待审核列表
+        # 如果没有任何得分，记录到待审核列表并提供默认意图
         if not intent_scores and not sub_intent_scores:
             self.pending_review.add(query)
+            # 提供默认的信息型意图
             return {
                 'query': query,
-                'intent_primary': '',
+                'intent_primary': 'I',
                 'intent_secondary': '',
-                'sub_intent': '',
-                'probability': 0,
+                'sub_intent': 'I1',
+                'probability': 0.5,
                 'probability_secondary': 0,
-                'signals_hit': []
+                'signals_hit': ['默认:信息获取意图']
             }
         
         # 计算总分
         total_score = sum(intent_scores.values())
         
-        # 如果总分为0，返回空结果
+        # 如果总分为0，提供默认意图
         if total_score == 0:
             return {
                 'query': query,
-                'intent_primary': '',
+                'intent_primary': 'I',
                 'intent_secondary': '',
-                'sub_intent': '',
-                'probability': 0,
+                'sub_intent': 'I1',
+                'probability': 0.5,
                 'probability_secondary': 0,
-                'signals_hit': signals_hit
+                'signals_hit': signals_hit + ['默认:信息获取意图']
             }
         
         # 归一化为概率

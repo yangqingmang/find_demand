@@ -345,12 +345,21 @@ class KeywordScorer(BaseAnalyzer):
                 result_df['competition_score'] = competitor_df['competition_score']
                 result_df['competition_grade'] = competitor_df['competition_grade']
                 result_df['opportunity_score'] = competitor_df['opportunity_score']
-                result_df['main_competitors'] = competitor_df['main_competitors']
+                
+                # 检查是否存在竞争对手相关字段
+                if 'top_competitor_domain' in competitor_df.columns:
+                    result_df['main_competitors'] = competitor_df['top_competitor_domain']
+                elif 'main_competitors' in competitor_df.columns:
+                    result_df['main_competitors'] = competitor_df['main_competitors']
+                else:
+                    result_df['main_competitors'] = 'N/A'
+                
                 self.logger.info("竞争对手分析评分计算完成")
             except Exception as e:
                 self.logger.error(f"竞争对手分析评分计算失败: {e}")
                 result_df['competition_score'] = 50  # 默认中等竞争评分
                 result_df['opportunity_score'] = 50  # 默认中等机会评分
+                result_df['main_competitors'] = 'N/A'
         else:
             if not calculate_competitor:
                 self.logger.info("跳过竞争对手分析计算")
@@ -358,6 +367,7 @@ class KeywordScorer(BaseAnalyzer):
                 self.logger.warning("竞争对手分析器未初始化，跳过竞争分析")
             result_df['competition_score'] = 50  # 默认中等竞争评分
             result_df['opportunity_score'] = 50  # 默认中等机会评分
+            result_df['main_competitors'] = 'N/A'
             
         # 计算综合评分 - 动态权重分配
         active_weights = []

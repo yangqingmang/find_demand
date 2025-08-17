@@ -250,7 +250,11 @@ class IntentAnalyzer(BaseAnalyzer):
                         
                         # 获取意图描述和推荐行动
                         intent = v2_result['intent_primary']
-                        result_df.at[idx, 'intent_description'] = self.INTENT_TYPES.get(intent, '')
+                        # 使用V2分析器的意图描述
+                        if hasattr(self.analyzer_v2, 'INTENT_DESCRIPTIONS'):
+                            result_df.at[idx, 'intent_description'] = self.analyzer_v2.INTENT_DESCRIPTIONS.get(intent, '')
+                        else:
+                            result_df.at[idx, 'intent_description'] = self.INTENT_TYPES.get(intent, '')
                         result_df.at[idx, 'recommended_action'] = self.get_recommended_action(intent)
                 
                 # 如果启用建站建议，生成建站建议

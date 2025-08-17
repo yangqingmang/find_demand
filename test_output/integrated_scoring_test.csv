@@ -1,16 +1,16 @@
-﻿query,value,growth,kd,volume_score,growth_score,kd_score,kgr_value,kgr_score,timeliness_score,timeliness_grade,trend_direction,competition_score,competition_grade,opportunity_score,score,grade,kgr_grade
-best ai tools 2025,12000,150,65,46.808510638297875,45.45454545454545,50,0.0167,99.3,77.1,B,rising,50,A,50,60,B,A
-chatgpt alternatives,8500,80,45,28.19148936170213,20.0,50,0.0353,98.6,74.0,B,rising,50,B,50,51,B,A
-free ai writing assistant,15000,200,70,62.765957446808514,63.63636363636363,50,0.0067,99.7,71.8,B,rising,50,A,50,66,B,A
-ai image generator,22000,300,85,100.0,100.0,50,0.0091,99.6,74.0,B,rising,50,A,50,81,A,A
-machine learning tutorial,5500,45,35,12.23404255319149,7.2727272727272725,50,0.0545,97.8,39.9,D,stable,50,B,50,40,C,A
-deep learning course,4200,30,25,5.319148936170213,1.8181818181818181,50,0.0476,98.1,45.3,C,stable,50,B,50,38,C,A
-ai for business,9800,120,55,35.1063829787234,34.54545454545455,50,0.0204,99.2,77.5,B,rising,50,A,50,55,B,A
-automated content creation,3200,25,20,0.0,0.0,50,0.0625,97.5,32.3,D,falling,50,B,50,34,C,A
-ai chatbot development,6700,90,40,18.617021276595743,23.636363636363637,50,0.0299,98.8,78.7,B,rising,50,A,50,50,C,A
-neural network basics,7800,110,50,24.46808510638298,30.90909090909091,50,0.0256,99.0,34.1,D,stable,50,B,50,46,C,A
-ai productivity tools,11000,180,60,41.48936170212766,56.36363636363637,50,0.0182,99.3,73.3,B,rising,50,A,50,60,B,A
-openai api pricing,4500,60,30,6.914893617021277,12.727272727272727,50,0.0444,98.2,72.4,B,rising,50,B,50,45,C,A
-stable diffusion guide,8900,140,75,30.319148936170212,41.81818181818182,50,0.0337,98.7,39.6,D,stable,50,B,50,50,C,A
-ai art generator,18000,250,80,78.72340425531915,81.81818181818181,50,0.0111,99.6,76.2,B,rising,50,B,50,73,A,A
-natural language processing,6200,75,45,15.957446808510639,18.181818181818183,50,0.0323,98.7,37.0,D,stable,50,C,50,42,C,A
+﻿query,value,growth,kd,volume_score,growth_score,kd_score,kgr_value,kgr_score,timeliness_score,timeliness_grade,trend_direction,competition_score,competition_grade,opportunity_score,main_competitors,score,grade,kgr_grade
+best ai tools 2025,12000,150,65,46.808510638297875,45.45454545454545,50,0.0167,99.3,72.8,B,rising,87.6,A,70.0,openai.com,62,B,A
+chatgpt alternatives,8500,80,45,28.19148936170213,20.0,50,0.0353,98.6,71.3,B,rising,81.6,A,15.0,openai.com,45,C,A
+free ai writing assistant,15000,200,70,62.765957446808514,63.63636363636363,50,0.0067,99.7,75.5,B,rising,85.2,A,45.0,openai.com,66,B,A
+ai image generator,22000,300,85,100.0,100.0,50,0.0091,99.6,74.0,B,rising,80.3,A,70.0,openai.com,84,A,A
+machine learning tutorial,5500,45,35,12.23404255319149,7.2727272727272725,50,0.0545,97.8,46.8,C,stable,71.1,B,35.0,youtube.com,38,C,A
+deep learning course,4200,30,25,5.319148936170213,1.8181818181818181,50,0.0476,98.1,41.9,C,stable,66.8,B,15.0,wikipedia.org,32,C,A
+ai for business,9800,120,55,35.1063829787234,34.54545454545455,50,0.0204,99.2,76.9,B,rising,77.0,B,45.0,openai.com,55,B,A
+automated content creation,3200,25,20,0.0,0.0,50,0.0625,97.5,38.1,D,stable,63.0,B,15.0,wikipedia.org,30,D,A
+ai chatbot development,6700,90,40,18.617021276595743,23.636363636363637,50,0.0299,98.8,74.1,B,rising,80.2,A,45.0,openai.com,49,C,A
+neural network basics,7800,110,50,24.46808510638298,30.90909090909091,50,0.0256,99.0,36.4,D,falling,56.0,C,15.0,wikipedia.org,41,C,A
+ai productivity tools,11000,180,60,41.48936170212766,56.36363636363637,50,0.0182,99.3,75.3,B,rising,75.8,B,70.0,openai.com,64,B,A
+openai api pricing,4500,60,30,6.914893617021277,12.727272727272727,50,0.0444,98.2,77.9,B,rising,79.3,B,45.0,openai.com,45,C,A
+stable diffusion guide,8900,140,75,30.319148936170212,41.81818181818182,50,0.0337,98.7,45.1,C,stable,60.1,B,15.0,youtube.com,46,C,A
+ai art generator,18000,250,80,78.72340425531915,81.81818181818181,50,0.0111,99.6,70.1,B,rising,81.9,A,70.0,openai.com,76,A,A
+natural language processing,6200,75,45,15.957446808510639,18.181818181818183,50,0.0323,98.7,36.6,D,stable,59.8,C,15.0,wikipedia.org,37,C,A
