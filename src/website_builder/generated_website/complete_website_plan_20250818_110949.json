@@ -1,0 +1,288 @@
+{
+  "project_info": {
+    "name": "AI工具导航网站",
+    "domain_suggestions": [
+      "aitoolshub.com",
+      "aitools-guide.com",
+      "bestaitools.net",
+      "aitoolsreview.com"
+    ],
+    "target_audience": "企业用户、开发者、内容创作者、AI爱好者",
+    "unique_value_proposition": "最全面、最专业的AI工具评测和推荐平台",
+    "estimated_launch_date": "2025-09-15"
+  },
+  "market_analysis": {
+    "total_keywords_analyzed": 100,
+    "high_value_keywords": 25,
+    "average_search_volume": 5000,
+    "market_opportunity": "高价值关键词集中在评测类内容，市场需求旺盛"
+  },
+  "website_structure": {
+    "homepage": {
+      "title": "AI工具大全 - 最全面的人工智能工具导航",
+      "description": "发现最新最好用的AI工具，包括ChatGPT、Midjourney等热门工具的详细评测和使用指南",
+      "target_keywords": [
+        "ai tools",
+        "artificial intelligence tools",
+        "ai工具",
+        "ai软件"
+      ],
+      "sections": [
+        "热门AI工具推荐",
+        "工具分类导航",
+        "最新工具动态",
+        "用户评价排行",
+        "免费工具精选"
+      ]
+    },
+    "categories": {
+      "conversational_ai": {
+        "title": "最佳对话AI工具推荐 - 2025年完整指南",
+        "url": "/conversational-ai",
+        "description": "深度评测对话AI工具，包括功能对比、价格分析和使用教程",
+        "target_keywords": [
+          "chatgpt",
+          "claude",
+          "bard",
+          "gemini",
+          "chatbot"
+        ],
+        "priority": "high",
+        "estimated_traffic": 15000
+      },
+      "image_generation": {
+        "title": "最佳图像生成工具推荐 - 2025年完整指南",
+        "url": "/image-generation",
+        "description": "深度评测图像生成工具，包括功能对比、价格分析和使用教程",
+        "target_keywords": [
+          "midjourney",
+          "dall-e",
+          "stable diffusion",
+          "ai image generator",
+          "ai art generator"
+        ],
+        "priority": "high",
+        "estimated_traffic": 12000
+      },
+      "video_tools": {
+        "title": "最佳视频AI工具推荐 - 2025年完整指南",
+        "url": "/video-tools",
+        "description": "深度评测视频AI工具，包括功能对比、价格分析和使用教程",
+        "target_keywords": [
+          "runway ml",
+          "synthesia",
+          "luma ai",
+          "ai video generator",
+          "ai video editor"
+        ],
+        "priority": "medium",
+        "estimated_traffic": 8000
+      },
+      "audio_ai": {
+        "title": "最佳音频AI工具推荐 - 2025年完整指南",
+        "url": "/audio-ai",
+        "description": "深度评测音频AI工具，包括功能对比、价格分析和使用教程",
+        "target_keywords": [
+          "elevenlabs",
+          "murf ai",
+          "speechify",
+          "ai voice generator",
+          "text to speech"
+        ],
+        "priority": "medium",
+        "estimated_traffic": 6000
+      },
+      "writing_tools": {
+        "title": "最佳写作AI工具推荐 - 2025年完整指南",
+        "url": "/writing-tools",
+        "description": "深度评测写作AI工具，包括功能对比、价格分析和使用教程",
+        "target_keywords": [
+          "jasper ai",
+          "copy ai",
+          "writesonic",
+          "grammarly",
+          "ai writing assistant"
+        ],
+        "priority": "high",
+        "estimated_traffic": 10000
+      },
+      "coding_tools": {
+        "title": "最佳编程AI工具推荐 - 2025年完整指南",
+        "url": "/coding-tools",
+        "description": "深度评测编程AI工具，包括功能对比、价格分析和使用教程",
+        "target_keywords": [
+          "github copilot",
+          "codeium",
+          "tabnine",
+          "ai coding assistant",
+          "code generator"
+        ],
+        "priority": "high",
+        "estimated_traffic": 9000
+      }
+    },
+    "tool_pages": {},
+    "content_pages": {}
+  },
+  "content_strategy": {
+    "content_calendar": [
+      {
+        "week": 1,
+        "publish_date": "2025-08-18",
+        "content_type": "tool_review",
+        "title": "ChatGPT深度评测：功能、价格、使用体验全面分析",
+        "target_keywords": [
+          "chatgpt review",
+          "chatgpt 评测"
+        ],
+        "estimated_words": 2500,
+        "priority": "high",
+        "monetization": "affiliate_links"
+      },
+      {
+        "week": 2,
+        "publish_date": "2025-08-25",
+        "content_type": "tool_review",
+        "title": "Claude深度评测：功能、价格、使用体验全面分析",
+        "target_keywords": [
+          "claude review",
+          "claude 评测"
+        ],
+        "estimated_words": 2500,
+        "priority": "high",
+        "monetization": "affiliate_links"
+      },
+      {
+        "week": 3,
+        "publish_date": "2025-09-01",
+        "content_type": "tool_review",
+        "title": "Midjourney深度评测：功能、价格、使用体验全面分析",
+        "target_keywords": [
+          "midjourney review",
+          "midjourney 评测"
+        ],
+        "estimated_words": 2500,
+        "priority": "high",
+        "monetization": "affiliate_links"
+      },
+      {
+        "week": 4,
+        "publish_date": "2025-09-08",
+        "content_type": "tool_review",
+        "title": "DALL-E深度评测：功能、价格、使用体验全面分析",
+        "target_keywords": [
+          "dall-e review",
+          "dall-e 评测"
+        ],
+        "estimated_words": 2500,
+        "priority": "high",
+        "monetization": "affiliate_links"
+      },
+      {
+        "week": 5,
+        "publish_date": "2025-09-15",
+        "content_type": "tool_review",
+        "title": "GitHub Copilot深度评测：功能、价格、使用体验全面分析",
+        "target_keywords": [
+          "github copilot review",
+          "github copilot 评测"
+        ],
+        "estimated_words": 2500,
+        "priority": "high",
+        "monetization": "affiliate_links"
+      },
+      {
+        "week": 6,
+        "publish_date": "2025-09-22",
+        "content_type": "tool_review",
+        "title": "Jasper AI深度评测：功能、价格、使用体验全面分析",
+        "target_keywords": [
+          "jasper ai review",
+          "jasper ai 评测"
+        ],
+        "estimated_words": 2500,
+        "priority": "high",
+        "monetization": "affiliate_links"
+      },
+      {
+        "week": 7,
+        "publish_date": "2025-09-29",
+        "content_type": "tool_review",
+        "title": "Runway ML深度评测：功能、价格、使用体验全面分析",
+        "target_keywords": [
+          "runway ml review",
+          "runway ml 评测"
+        ],
+        "estimated_words": 2500,
+        "priority": "high",
+        "monetization": "affiliate_links"
+      },
+      {
+        "week": 8,
+        "publish_date": "2025-10-06",
+        "content_type": "tool_review",
+        "title": "ElevenLabs深度评测：功能、价格、使用体验全面分析",
+        "target_keywords": [
+          "elevenlabs review",
+          "elevenlabs 评测"
+        ],
+        "estimated_words": 2500,
+        "priority": "high",
+        "monetization": "affiliate_links"
+      }
+    ]
+  },
+  "technical_implementation": {
+    "architecture": {
+      "frontend": {
+        "framework": "Next.js 14 (App Router)",
+        "styling": "Tailwind CSS + Shadcn/ui",
+        "state_management": "Zustand"
+      },
+      "backend": {
+        "framework": "Next.js API Routes",
+        "database": "PostgreSQL (Supabase)",
+        "auth": "NextAuth.js"
+      },
+      "hosting": {
+        "platform": "Vercel",
+        "cdn": "Vercel Edge Network",
+        "database": "Supabase"
+      }
+    }
+  },
+  "monetization_strategy": {
+    "revenue_streams": {
+      "affiliate_marketing": {
+        "description": "AI工具联盟营销",
+        "monthly_target": "$3000-5000"
+      },
+      "display_advertising": {
+        "description": "Google AdSense和其他广告网络",
+        "monthly_target": "$1500-3000"
+      }
+    }
+  },
+  "success_metrics": {
+    "month_1": {
+      "visitors": 2000,
+      "revenue": 300,
+      "articles": 8
+    },
+    "month_3": {
+      "visitors": 15000,
+      "revenue": 1500,
+      "articles": 20
+    },
+    "month_6": {
+      "visitors": 50000,
+      "revenue": 5000,
+      "articles": 35
+    },
+    "month_12": {
+      "visitors": 150000,
+      "revenue": 12000,
+      "articles": 60
+    }
+  }
+}

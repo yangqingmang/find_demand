@@ -1,0 +1,17 @@
+{
+  "default_deployer": "vercel",
+  "deployers": {
+    "vercel": {
+      "api_token": "your_vercel_api_token_here",
+      "project_name": "find-demand-website",
+      "custom_domain": "",
+      "team_id": "",
+      "org_id": ""
+    }
+  },
+  "deployment_settings": {
+    "auto_cleanup": true,
+    "max_retries": 3,
+    "timeout": 600
+  }
+}

@@ -131,7 +131,8 @@ class DeploymentManager:
     def deploy_website(self, 
                       source_dir: str, 
                       deployer_name: str = None,
-                      custom_config: Dict[str, Any] = None) -> Tuple[bool, str, Dict[str, Any]]:
+                      custom_config: Dict[str, Any] = None,
+                      project_info: Dict[str, Any] = None) -> Tuple[bool, str, Dict[str, Any]]:
         """
         部署网站
         
@@ -139,6 +140,7 @@ class DeploymentManager:
             source_dir: 网站源文件目录
             deployer_name: 部署服务名称，如果为None则使用默认服务
             custom_config: 自定义配置，会覆盖默认配置
+            project_info: 项目信息（用于多项目管理）
             
         Returns:
             (是否成功, 部署URL或错误信息, 部署信息)
@@ -154,6 +156,17 @@ class DeploymentManager:
         deployer_config = self.config.get('deployers', {}).get(deployer_name, {}).copy()
         if custom_config:
             deployer_config.update(custom_config)
+        
+        # 如果有项目信息，自动设置项目名称
+        if project_info:
+            theme = project_info.get('theme', 'website')
+            main_keyword = project_info.get('main_keyword', 'site')
+            # 生成项目名称
+            clean_keyword = ''.join(c for c in main_keyword.lower() if c.isalnum() or c in '-_')[:20]
+            project_name = f"{theme}-{clean_keyword}".replace('_', '-')
+            deployer_config['project_name'] = project_name
+            
+            print(f"🎯 自动设置项目名称: {project_name}")
         
         # 创建部署器
         deployer_class = self.SUPPORTED_DEPLOYERS[deployer_name]
@@ -197,6 +210,7 @@ class DeploymentManager:
                 'deployer': deployer_name,
                 'source_dir': source_dir,
                 'project_directory': self._extract_project_directory(source_dir),
+                'project_info': project_info or {},
                 'success': success,
                 'result': result,
                 'deployment_info': deployer.get_deployment_info(),
@@ -217,6 +231,7 @@ class DeploymentManager:
                 'timestamp': datetime.now().isoformat(),
                 'deployer': deployer_name,
                 'source_dir': source_dir,
+                'project_info': project_info or {},
                 'success': False,
                 'result': error_msg,
                 'deployment_info': {}
@@ -229,6 +244,58 @@ class DeploymentManager:
             # 清理临时目录
             if temp_dir and self.config.get('deployment_settings', {}).get('auto_cleanup', True):
                 deployer.cleanup_temp_dir(temp_dir)
+
+    def deploy_project_by_theme(self, theme: str, deployer_name: str = None) -> Tuple[bool, str, Dict[str, Any]]:
+        """
+        根据主题部署最新项目
+        
+        Args:
+            theme: 项目主题
+            deployer_name: 部署服务名称
+            
+        Returns:
+            (是否成功, 部署URL或错误信息, 部署信息)
+        """
+        # 导入项目管理器
+        try:
+            from ..website_builder.project_manager import ProjectManager
+            manager = ProjectManager()
+            
+            # 获取指定主题的项目
+            theme_projects = manager.get_project_by_theme(theme)
+            if not theme_projects:
+                return False, f"未找到主题为 {theme} 的项目", {}
+            
+            # 获取最新项目
+            latest_project = theme_projects[0]  # 已按时间排序
+            
+            # 查找网站源文件目录
+            project_dir = latest_project['directory']
+            website_source = os.path.join(project_dir, 'website_source')
+            
+            if not os.path.exists(website_source):
+                return False, f"项目 {latest_project['project_name']} 的网站源文件不存在", {}
+            
+            print(f"🚀 部署项目: {latest_project['project_name']}")
+            print(f"📁 源文件目录: {website_source}")
+            
+            # 执行部署
+            success, result, deployment_record = self.deploy_website(
+                source_dir=website_source,
+                deployer_name=deployer_name,
+                project_info=latest_project
+            )
+            
+            if success:
+                # 更新项目状态
+                manager.update_project_status(project_dir, 'deployed')
+            
+            return success, result, deployment_record
+            
+        except ImportError:
+            return False, "无法导入项目管理器", {}
+        except Exception as e:
+            return False, f"部署项目失败: {e}", {}
 
     def get_deployment_history(self) -> List[Dict[str, Any]]:
         """获取部署历史"""

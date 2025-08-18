@@ -31,16 +31,16 @@ class HTMLGenerator:
                 os.makedirs(subdir_path)
     
     def generate_base_template(self) -> str:
-        """生成基础HTML模板"""
+        """Generate base HTML template"""
         return """<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title}</title>
     <meta name="description" content="{description}">
     <meta name="keywords" content="{keywords}">
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -48,16 +48,16 @@ class HTMLGenerator:
         <nav class="navbar">
             <div class="container">
                 <div class="nav-brand">
-                    <a href="/">基于搜索意图的内容平台</a>
+                    <a href="/">Intent-Based Content Platform</a>
                 </div>
                 <ul class="nav-menu">
-                    <li><a href="/">首页</a></li>
-                    <li><a href="/intent/i">信息获取</a></li>
-                    <li><a href="/intent/c">商业评估</a></li>
-                    <li><a href="/intent/e">交易购买</a></li>
-                    <li><a href="/intent/n">导航直达</a></li>
-                    <li><a href="/intent/b">行为后续</a></li>
-                    <li><a href="/intent/l">本地/到店</a></li>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/intent/i">Information</a></li>
+                    <li><a href="/intent/c">Commercial</a></li>
+                    <li><a href="/intent/e">Transactional</a></li>
+                    <li><a href="/intent/n">Navigational</a></li>
+                    <li><a href="/intent/b">Behavioral</a></li>
+                    <li><a href="/intent/l">Local</a></li>
                 </ul>
             </div>
         </nav>
@@ -71,30 +71,30 @@ class HTMLGenerator:
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3>关于我们</h3>
-                    <p>基于搜索意图的内容平台，为用户提供精准的内容体验。</p>
+                    <h3>About Us</h3>
+                    <p>Intent-based content platform providing precise content experiences for users.</p>
                 </div>
                 <div class="footer-section">
-                    <h3>快速链接</h3>
+                    <h3>Quick Links</h3>
                     <ul>
-                        <li><a href="/intent/i">信息获取</a></li>
-                        <li><a href="/intent/c">商业评估</a></li>
-                        <li><a href="/intent/e">交易购买</a></li>
+                        <li><a href="/intent/i">Information</a></li>
+                        <li><a href="/intent/c">Commercial</a></li>
+                        <li><a href="/intent/e">Transactional</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
-                    <h3>联系我们</h3>
-                    <p>邮箱: contact@example.com</p>
-                    <p>电话: +86 123-4567-8900</p>
+                    <h3>Contact Us</h3>
+                    <p>Email: contact@example.com</p>
+                    <p>Phone: +1 123-456-7890</p>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 基于搜索意图的内容平台. 保留所有权利.</p>
+                <p>&copy; 2025 Intent-Based Content Platform. All rights reserved.</p>
             </div>
         </div>
     </footer>
     
-    <script src="/js/main.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>"""
     
@@ -163,9 +163,9 @@ class HTMLGenerator:
             <section class="hero">
                 <div class="container">
                     <div class="hero-content">
-                        <h1 class="hero-title">基于搜索意图的内容平台</h1>
-                        <p class="hero-subtitle">为用户提供精准的内容体验</p>
-                        <a href="#intent-nav" class="cta-button">开始探索</a>
+                        <h1 class="hero-title">Intent-Based Content Platform</h1>
+                        <p class="hero-subtitle">Providing precise content experiences for users</p>
+                        <a href="#intent-nav" class="cta-button">Start Exploring</a>
                     </div>
                 </div>
             </section>
@@ -174,43 +174,43 @@ class HTMLGenerator:
             intent_nav_section = """
             <section id="intent-nav" class="intent-navigation">
                 <div class="container">
-                    <h2>按意图浏览内容</h2>
+                    <h2>Browse Content by Intent</h2>
                     <div class="intent-grid">
                         <div class="intent-card">
                             <i class="fas fa-info-circle"></i>
-                            <h3>信息获取</h3>
-                            <p>获取定义、概念和教程内容</p>
-                            <a href="/intent/i" class="intent-link">探索 →</a>
+                            <h3>Information</h3>
+                            <p>Get definitions, concepts and tutorial content</p>
+                            <a href="/intent/i" class="intent-link">Explore →</a>
                         </div>
                         <div class="intent-card">
                             <i class="fas fa-chart-line"></i>
-                            <h3>商业评估</h3>
-                            <p>产品对比、评测和推荐</p>
-                            <a href="/intent/c" class="intent-link">探索 →</a>
+                            <h3>Commercial</h3>
+                            <p>Product comparisons, reviews and recommendations</p>
+                            <a href="/intent/c" class="intent-link">Explore →</a>
                         </div>
                         <div class="intent-card">
                             <i class="fas fa-shopping-cart"></i>
-                            <h3>交易购买</h3>
-                            <p>价格信息和优惠折扣</p>
-                            <a href="/intent/e" class="intent-link">探索 →</a>
+                            <h3>Transactional</h3>
+                            <p>Pricing information and discount offers</p>
+                            <a href="/intent/e" class="intent-link">Explore →</a>
                         </div>
                         <div class="intent-card">
                             <i class="fas fa-compass"></i>
-                            <h3>导航直达</h3>
-                            <p>登录入口和下载链接</p>
-                            <a href="/intent/n" class="intent-link">探索 →</a>
+                            <h3>Navigational</h3>
+                            <p>Login portals and download links</p>
+                            <a href="/intent/n" class="intent-link">Explore →</a>
                         </div>
                         <div class="intent-card">
                             <i class="fas fa-cogs"></i>
-                            <h3>行为后续</h3>
-                            <p>故障解决和高级配置</p>
-                            <a href="/intent/b" class="intent-link">探索 →</a>
+                            <h3>Behavioral</h3>
+                            <p>Troubleshooting and advanced configuration</p>
+                            <a href="/intent/b" class="intent-link">Explore →</a>
                         </div>
                         <div class="intent-card">
                             <i class="fas fa-map-marker-alt"></i>
-                            <h3>本地/到店</h3>
-                            <p>附近门店和路线信息</p>
-                            <a href="/intent/l" class="intent-link">探索 →</a>
+                            <h3>Local</h3>
+                            <p>Nearby stores and location information</p>
+                            <a href="/intent/l" class="intent-link">Explore →</a>
                         </div>
                     </div>
                 </div>
@@ -220,21 +220,21 @@ class HTMLGenerator:
         content = hero_section + intent_nav_section
         
         return self.generate_base_template().format(
-            title="基于搜索意图的内容平台 - 首页",
-            description="为用户提供基于搜索意图的精准内容体验，涵盖信息获取、商业评估、交易购买等多个维度。",
-            keywords="搜索意图,内容平台,AI工具,信息获取,商业评估",
+            title="Intent-Based Content Platform - Home",
+            description="Providing precise content experiences based on search intent, covering information retrieval, commercial evaluation, transactions and more.",
+            keywords="search intent,content platform,AI tools,information retrieval,commercial evaluation",
             content=content
         )
     
     def generate_intent_page(self, intent: str, intent_data: List[Dict[str, Any]]) -> str:
         """生成意图页面HTML"""
         intent_names = {
-            'I': '信息获取',
-            'C': '商业评估', 
-            'E': '交易购买',
-            'N': '导航直达',
-            'B': '行为后续',
-            'L': '本地/到店'
+            'I': 'Information',
+            'C': 'Commercial', 
+            'E': 'Transactional',
+            'N': 'Navigational',
+            'B': 'Behavioral',
+            'L': 'Local'
         }
         
         intent_name = intent_names.get(intent, intent)
@@ -263,7 +263,7 @@ class HTMLGenerator:
                 content += f"""
                     <div class="content-card">
                         <h3><a href="{url}">{title}</a></h3>
-                        <p>关键词: {keyword}</p>
+                        <p>Keyword: {keyword}</p>
                         <div class="card-meta">
                             <span class="intent-tag">{intent_name}</span>
                             <span class="priority-tag">{item.get('seo_priority', 'medium')}</span>
@@ -287,12 +287,12 @@ class HTMLGenerator:
     def generate_keyword_page(self, keyword: str, intent: str) -> str:
         """生成关键词页面HTML"""
         intent_names = {
-            'I': '信息获取',
-            'C': '商业评估', 
-            'E': '交易购买',
-            'N': '导航直达',
-            'B': '行为后续',
-            'L': '本地/到店'
+            'I': 'Information',
+            'C': 'Commercial', 
+            'E': 'Transactional',
+            'N': 'Navigational',
+            'B': 'Behavioral',
+            'L': 'Local'
         }
         
         intent_name = intent_names.get(intent, intent)
@@ -313,26 +313,26 @@ class HTMLGenerator:
             <div class="container">
                 <div class="content-wrapper">
                     <article class="main-content">
-                        <h2>关于 "{keyword}"</h2>
-                        <p>这里是关于 "{keyword}" 的详细内容。根据搜索意图分析，这个关键词属于{intent_name}类别。</p>
+                        <h2>About "{keyword}"</h2>
+                        <p>Here is detailed content about "{keyword}". Based on search intent analysis, this keyword belongs to the {intent_name} category.</p>
                         
                         <div class="content-sections">
                             <section class="content-section">
-                                <h3>概述</h3>
-                                <p>针对 "{keyword}" 的全面介绍和分析。</p>
+                                <h3>Overview</h3>
+                                <p>Comprehensive introduction and analysis of "{keyword}".</p>
                             </section>
                             
                             <section class="content-section">
-                                <h3>详细信息</h3>
-                                <p>更多关于 "{keyword}" 的详细信息和使用指南。</p>
+                                <h3>Detailed Information</h3>
+                                <p>More detailed information and usage guide about "{keyword}".</p>
                             </section>
                             
                             <section class="content-section">
-                                <h3>相关资源</h3>
+                                <h3>Related Resources</h3>
                                 <ul>
-                                    <li>相关工具和资源链接</li>
-                                    <li>进一步学习材料</li>
-                                    <li>社区讨论和支持</li>
+                                    <li>Related tools and resource links</li>
+                                    <li>Further learning materials</li>
+                                    <li>Community discussions and support</li>
                                 </ul>
                             </section>
                         </div>
@@ -353,9 +353,9 @@ class HTMLGenerator:
         """
         
         return self.generate_base_template().format(
-            title=f"{keyword} - {intent_name} - 基于搜索意图的内容平台",
-            description=f"关于{keyword}的详细信息和指南，属于{intent_name}搜索意图类别。",
-            keywords=f"{keyword},{intent_name},搜索意图",
+            title=f"{keyword} - {intent_name} - Intent-Based Content Platform",
+            description=f"Detailed information and guide about {keyword}, belonging to {intent_name} search intent category.",
+            keywords=f"{keyword},{intent_name},search intent",
             content=content
         )
     
@@ -814,15 +814,15 @@ document.addEventListener('DOMContentLoaded', function() {
         with open(structure_file, 'r', encoding='utf-8') as f:
             structure = json.load(f)
         
-        print("开始生成网站文件...")
+        print("Starting website generation...")
         
-        # 生成首页
+        # Generate homepage
         homepage_html = self.generate_homepage(structure)
         with open(os.path.join(self.output_dir, 'index.html'), 'w', encoding='utf-8') as f:
             f.write(homepage_html)
-        print("✅ 首页生成完成")
+        print("✅ Homepage generation completed")
         
-        # 生成意图页面
+        # Generate intent pages
         intent_pages = structure.get('intent_pages', {})
         for intent, pages in intent_pages.items():
             intent_html = self.generate_intent_page(intent, pages)
@@ -830,7 +830,7 @@ document.addEventListener('DOMContentLoaded', function() {
             with open(intent_file, 'w', encoding='utf-8') as f:
                 f.write(intent_html)
             
-            # 生成关键词页面
+            # Generate keyword pages
             for page in pages:
                 if page.get('type') == 'keyword':
                     keyword = page.get('keyword', '')
@@ -840,26 +840,26 @@ document.addEventListener('DOMContentLoaded', function() {
                     with open(keyword_file, 'w', encoding='utf-8') as f:
                         f.write(keyword_html)
         
-        print(f"✅ 意图页面和关键词页面生成完成")
+        print(f"✅ Intent pages and keyword pages generation completed")
         
-        # 生成CSS文件
+        # Generate CSS file - 直接在根目录创建 styles.css
         css_content = self.generate_css()
-        with open(os.path.join(self.output_dir, 'css', 'style.css'), 'w', encoding='utf-8') as f:
+        with open(os.path.join(self.output_dir, 'styles.css'), 'w', encoding='utf-8') as f:
             f.write(css_content)
-        print("✅ CSS样式文件生成完成")
+        print("✅ CSS stylesheet generation completed")
         
-        # 生成JavaScript文件
+        # Generate JavaScript file - 直接在根目录创建 script.js
         js_content = self.generate_js()
-        with open(os.path.join(self.output_dir, 'js', 'main.js'), 'w', encoding='utf-8') as f:
+        with open(os.path.join(self.output_dir, 'script.js'), 'w', encoding='utf-8') as f:
             f.write(js_content)
-        print("✅ JavaScript文件生成完成")
+        print("✅ JavaScript file generation completed")
         
-        # 生成网站地图
+        # Generate sitemap
         self.generate_sitemap(structure)
-        print("✅ 网站地图生成完成")
+        print("✅ Sitemap generation completed")
         
-        print(f"\n🎉 网站生成完成！文件保存在: {self.output_dir}")
-        print(f"📁 总共生成了 {self.count_generated_files()} 个文件")
+        print(f"\n🎉 Website generation completed! Files saved in: {self.output_dir}")
+        print(f"📁 Total generated files: {self.count_generated_files()}")
     
     def generate_sitemap(self, structure: Dict[str, Any]):
         """生成网站地图"""
