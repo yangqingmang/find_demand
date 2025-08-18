@@ -168,6 +168,74 @@ class MockDataGenerator:
         self.logger.info(f"已生成 {len(results)} 个关键词的模拟Trends数据")
         return results
     
+    def generate_trending_searches(self, geo: str = 'US') -> pd.DataFrame:
+        """
+        生成模拟的热门搜索数据
+        
+        参数:
+            geo (str): 地区代码，如'US','GB'等
+            
+        返回:
+            pd.DataFrame: 热门搜索数据
+        """
+        self.logger.info(f"生成模拟热门搜索数据 (地区: {geo})...")
+        
+        np.random.seed(self.seed)
+        
+        # 根据地区生成不同的热门搜索词
+        trending_topics = {
+            'US': [
+                'AI tools', 'ChatGPT', 'machine learning', 'cryptocurrency', 'NFT',
+                'climate change', 'electric cars', 'space exploration', 'quantum computing',
+                'virtual reality', 'blockchain', 'renewable energy', 'gene therapy',
+                'autonomous vehicles', 'smart home', 'cybersecurity', 'data science',
+                'cloud computing', 'IoT devices', 'sustainable technology'
+            ],
+            'GB': [
+                'artificial intelligence', 'Brexit impact', 'renewable energy UK',
+                'London tech scene', 'fintech', 'green technology', 'NHS digital',
+                'UK startups', 'sustainable living', 'electric vehicles UK',
+                'climate action', 'digital transformation', 'remote work UK',
+                'online education', 'health tech', 'smart cities', 'data privacy',
+                'cybersecurity UK', 'innovation hubs', 'tech careers'
+            ],
+            'CN': [
+                '人工智能', '机器学习', '区块链', '新能源汽车', '5G技术',
+                '云计算', '大数据', '物联网', '智能制造', '数字化转型',
+                '绿色科技', '可持续发展', '智慧城市', '在线教育', '远程办公',
+                '数据安全', '科技创新', '数字经济', '智能家居', '新基建'
+            ]
+        }
+        
+        # 如果地区不在预定义列表中，使用美国的数据
+        topics = trending_topics.get(geo, trending_topics['US'])
+        
+        # 随机选择15-25个热门搜索词
+        n_trending = np.random.randint(15, 26)
+        selected_topics = np.random.choice(topics, size=min(n_trending, len(topics)), replace=False)
+        
+        # 生成热度值（递减排序）
+        base_values = np.linspace(100, 20, len(selected_topics))
+        # 添加一些随机波动
+        noise = np.random.uniform(-5, 5, len(selected_topics))
+        values = np.clip(base_values + noise, 1, 100).astype(int)
+        
+        # 生成增长标识
+        growth_labels = ['Trending'] * len(selected_topics)
+        
+        # 创建DataFrame
+        df = pd.DataFrame({
+            'query': selected_topics,
+            'value': values,
+            'growth': growth_labels
+        })
+        
+        # 按热度值排序
+        df = df.sort_values('value', ascending=False).reset_index(drop=True)
+        
+        self.logger.info(f"已生成 {len(df)} 个热门搜索词 (地区: {geo})")
+        return df
+    
     def generate_intent_data(self, df: pd.DataFrame, keyword_col: str = 'query') -> pd.DataFrame:
         """
         生成模拟的搜索意图数据

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hurricane-erin-tracker.vercel.app/sitemap.xml
