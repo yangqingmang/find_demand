@@ -1,0 +1,481 @@
+{
+  "seo_workflow": {
+    "version": "1.0",
+    "description": "程序化 SEO 优化工作流程配置",
+    "last_updated": "2025-08-19",
+    
+    "workflow_steps": {
+      "step_1": {
+        "name": "数据采集与清洗",
+        "order": 1,
+        "description": "收集和处理关键词数据",
+        "config": {
+          "data_sources": [
+            {
+              "name": "google_trends",
+              "api_endpoint": "trends.google.com/trends/api",
+              "data_type": "search_volume_trends",
+              "update_frequency": "daily"
+            },
+            {
+              "name": "google_ads",
+              "api_endpoint": "googleads.googleapis.com",
+              "data_type": "keyword_planner_data",
+              "update_frequency": "weekly"
+            },
+            {
+              "name": "serp_analysis",
+              "api_endpoint": "custom_search_api",
+              "data_type": "competitor_analysis",
+              "update_frequency": "weekly"
+            }
+          ],
+          "data_processing": {
+            "keyword_deduplication": true,
+            "search_volume_validation": true,
+            "intent_classification": {
+              "enabled": true,
+              "categories": ["I", "C", "E", "N", "B", "L"]
+            },
+            "timeliness_analysis": true,
+            "competition_scoring": true
+          }
+        },
+        "output_files": [
+          "processed_keywords.json",
+          "intent_classification.json",
+          "competition_analysis.json"
+        ]
+      },
+      
+      "step_2": {
+        "name": "AI内容生成与结构化",
+        "order": 2,
+        "description": "基于关键词和意图生成结构化内容",
+        "config": {
+          "content_templates": {
+            "I": {
+              "template_name": "informational_article",
+              "sections": [
+                {
+                  "name": "introduction",
+                  "word_count_range": [150, 250],
+                  "seo_elements": ["primary_keyword", "related_keywords"]
+                },
+                {
+                  "name": "detailed_content",
+                  "word_count_range": [800, 1200],
+                  "seo_elements": ["h2_tags", "internal_links", "keyword_density"]
+                },
+                {
+                  "name": "faq_section",
+                  "word_count_range": [300, 500],
+                  "seo_elements": ["long_tail_keywords", "structured_data"]
+                },
+                {
+                  "name": "conclusion",
+                  "word_count_range": [100, 200],
+                  "seo_elements": ["call_to_action", "related_content_links"]
+                }
+              ]
+            },
+            "C": {
+              "template_name": "commercial_evaluation",
+              "sections": [
+                {
+                  "name": "product_overview",
+                  "word_count_range": [200, 300],
+                  "seo_elements": ["product_keywords", "brand_mentions"]
+                },
+                {
+                  "name": "comparison_analysis",
+                  "word_count_range": [600, 900],
+                  "seo_elements": ["comparison_keywords", "feature_tables"]
+                },
+                {
+                  "name": "pros_cons",
+                  "word_count_range": [400, 600],
+                  "seo_elements": ["review_keywords", "structured_lists"]
+                },
+                {
+                  "name": "recommendations",
+                  "word_count_range": [200, 400],
+                  "seo_elements": ["buying_intent_keywords", "affiliate_links"]
+                }
+              ]
+            },
+            "E": {
+              "template_name": "transactional_page",
+              "sections": [
+                {
+                  "name": "product_features",
+                  "word_count_range": [300, 500],
+                  "seo_elements": ["product_keywords", "feature_highlights"]
+                },
+                {
+                  "name": "pricing_info",
+                  "word_count_range": [200, 400],
+                  "seo_elements": ["price_keywords", "discount_terms"]
+                },
+                {
+                  "name": "buying_guide",
+                  "word_count_range": [400, 700],
+                  "seo_elements": ["purchase_keywords", "trust_signals"]
+                }
+              ]
+            }
+          },
+          "ai_generation_rules": {
+            "keyword_density": {
+              "primary_keyword": "2-3%",
+              "secondary_keywords": "1-2%",
+              "long_tail_keywords": "0.5-1%"
+            },
+            "content_quality": {
+              "readability_score": "60+",
+              "uniqueness_threshold": "85%",
+              "topic_relevance": "90%+"
+            },
+            "seo_optimization": {
+              "title_optimization": true,
+              "meta_description_generation": true,
+              "header_tag_structure": true,
+              "internal_linking_suggestions": true
+            }
+          }
+        }
+      },
+      
+      "step_3": {
+        "name": "服务端渲染与网页结构",
+        "order": 3,
+        "description": "生成SEO友好的HTML结构",
+        "config": {
+          "html_structure": {
+            "doctype": "html5",
+            "lang_attribute": "dynamic",
+            "meta_tags": {
+              "required": [
+                {
+                  "name": "charset",
+                  "content": "UTF-8"
+                },
+                {
+                  "name": "viewport",
+                  "content": "width=device-width, initial-scale=1.0"
+                },
+                {
+                  "name": "title",
+                  "content": "{primary_keyword} - {intent_name} - {site_name}",
+                  "max_length": 60
+                },
+                {
+                  "name": "description",
+                  "content": "{ai_generated_description}",
+                  "max_length": 160
+                },
+                {
+                  "name": "keywords",
+                  "content": "{primary_keyword}, {secondary_keywords}"
+                }
+              ],
+              "optional": [
+                {
+                  "name": "robots",
+                  "content": "index, follow"
+                },
+                {
+                  "name": "canonical",
+                  "content": "{canonical_url}"
+                },
+                {
+                  "property": "og:title",
+                  "content": "{page_title}"
+                },
+                {
+                  "property": "og:description",
+                  "content": "{page_description}"
+                },
+                {
+                  "property": "og:type",
+                  "content": "article"
+                }
+              ]
+            },
+            "structured_data": {
+              "schema_types": [
+                {
+                  "type": "Article",
+                  "required_fields": ["headline", "description", "author", "datePublished"],
+                  "optional_fields": ["image", "publisher", "mainEntityOfPage"]
+                },
+                {
+                  "type": "BreadcrumbList",
+                  "required_fields": ["itemListElement"],
+                  "auto_generate": true
+                },
+                {
+                  "type": "FAQPage",
+                  "condition": "has_faq_section",
+                  "required_fields": ["mainEntity"]
+                }
+              ]
+            },
+            "semantic_html": {
+              "header_structure": {
+                "h1": {
+                  "count": 1,
+                  "content": "{primary_keyword_title}",
+                  "position": "main_content_top"
+                },
+                "h2": {
+                  "count": "3-6",
+                  "content": "{section_keywords}",
+                  "distribution": "evenly_spaced"
+                },
+                "h3": {
+                  "count": "6-12",
+                  "content": "{subsection_keywords}",
+                  "nested_under": "h2"
+                }
+              },
+              "navigation": {
+                "breadcrumb": {
+                  "enabled": true,
+                  "format": "Home > {category} > {subcategory} > {current_page}"
+                },
+                "internal_links": {
+                  "min_count": 3,
+                  "max_count": 10,
+                  "anchor_text_variation": true,
+                  "relevance_threshold": 0.7
+                }
+              }
+            }
+          },
+          "performance_optimization": {
+            "rendering": "static_site_generation",
+            "css_optimization": {
+              "minification": true,
+              "critical_css_inline": true,
+              "unused_css_removal": true
+            },
+            "javascript_optimization": {
+              "minification": true,
+              "lazy_loading": true,
+              "defer_non_critical": true
+            },
+            "image_optimization": {
+              "format": "webp",
+              "lazy_loading": true,
+              "responsive_images": true,
+              "alt_text_required": true
+            }
+          }
+        }
+      },
+      
+      "step_4": {
+        "name": "长尾关键词页面自动构建",
+        "order": 4,
+        "description": "批量生成长尾关键词页面",
+        "config": {
+          "page_generation_strategy": {
+            "primary_keywords": {
+              "priority": "high",
+              "template": "full_article",
+              "word_count": "1500-2500",
+              "seo_priority": 0.9
+            },
+            "secondary_keywords": {
+              "priority": "medium", 
+              "template": "standard_article",
+              "word_count": "1000-1500",
+              "seo_priority": 0.7
+            },
+            "long_tail_keywords": {
+              "priority": "medium",
+              "template": "focused_article", 
+              "word_count": "800-1200",
+              "seo_priority": 0.6
+            },
+            "question_keywords": {
+              "priority": "low",
+              "template": "faq_page",
+              "word_count": "500-800", 
+              "seo_priority": 0.5
+            }
+          },
+          "url_structure": {
+            "pattern": "/{category}/{subcategory}/{keyword-slug}/",
+            "slug_generation": {
+              "lowercase": true,
+              "hyphen_separator": true,
+              "remove_stop_words": true,
+              "max_length": 60
+            }
+          },
+          "content_variation": {
+            "template_variations": 3,
+            "content_spinning": false,
+            "dynamic_elements": [
+              "related_keywords",
+              "current_date",
+              "trending_topics",
+              "user_location"
+            ]
+          },
+          "quality_control": {
+            "duplicate_content_check": true,
+            "keyword_cannibalization_prevention": true,
+            "content_relevance_score": 0.8,
+            "readability_threshold": 60
+          }
+        }
+      },
+      
+      "step_5": {
+        "name": "定时更新Sitemap",
+        "order": 5,
+        "description": "自动化站点地图管理",
+        "config": {
+          "sitemap_generation": {
+            "format": "xml",
+            "compression": "gzip",
+            "max_urls_per_sitemap": 50000,
+            "split_by_category": true
+          },
+          "url_priority_rules": {
+            "homepage": 1.0,
+            "category_pages": 0.9,
+            "primary_keyword_pages": 0.8,
+            "secondary_keyword_pages": 0.7,
+            "long_tail_pages": 0.6,
+            "faq_pages": 0.5
+          },
+          "update_frequency": {
+            "homepage": "daily",
+            "category_pages": "weekly", 
+            "article_pages": "monthly",
+            "static_pages": "yearly"
+          },
+          "automation_schedule": {
+            "full_regeneration": "daily_at_02:00",
+            "incremental_updates": "hourly",
+            "priority_recalculation": "weekly",
+            "submission_to_search_engines": "daily"
+          },
+          "search_engine_submission": {
+            "google_search_console": {
+              "enabled": true,
+              "api_key_required": true,
+              "auto_submit": true
+            },
+            "bing_webmaster": {
+              "enabled": true,
+              "api_key_required": true,
+              "auto_submit": true
+            }
+          }
+        }
+      }
+    },
+    
+    "quality_assurance": {
+      "content_quality_checks": [
+        {
+          "name": "keyword_density_check",
+          "threshold": "2-3%",
+          "action_on_fail": "regenerate_content"
+        },
+        {
+          "name": "duplicate_content_check", 
+          "threshold": "85%_uniqueness",
+          "action_on_fail": "modify_content"
+        },
+        {
+          "name": "readability_check",
+          "threshold": "60+_flesch_score",
+          "action_on_fail": "simplify_content"
+        },
+        {
+          "name": "seo_meta_check",
+          "requirements": ["title_length", "description_length", "h1_presence"],
+          "action_on_fail": "fix_meta_tags"
+        }
+      ],
+      "technical_seo_checks": [
+        {
+          "name": "page_speed_check",
+          "threshold": "3_seconds_load_time",
+          "action_on_fail": "optimize_resources"
+        },
+        {
+          "name": "mobile_friendly_check",
+          "threshold": "responsive_design",
+          "action_on_fail": "fix_mobile_layout"
+        },
+        {
+          "name": "structured_data_validation",
+          "threshold": "valid_schema_markup",
+          "action_on_fail": "fix_schema"
+        }
+      ]
+    },
+    
+    "monitoring_and_optimization": {
+      "performance_metrics": [
+        {
+          "name": "organic_traffic",
+          "tracking_method": "google_analytics",
+          "alert_threshold": "-10%_week_over_week"
+        },
+        {
+          "name": "keyword_rankings",
+          "tracking_method": "serp_api",
+          "alert_threshold": "top_10_position_loss"
+        },
+        {
+          "name": "page_load_speed",
+          "tracking_method": "lighthouse_api",
+          "alert_threshold": "3_seconds_exceeded"
+        },
+        {
+          "name": "crawl_errors",
+          "tracking_method": "search_console_api",
+          "alert_threshold": "any_4xx_5xx_errors"
+        }
+      ],
+      "optimization_triggers": [
+        {
+          "condition": "ranking_drop_5_positions",
+          "action": "content_refresh_and_optimization"
+        },
+        {
+          "condition": "traffic_drop_20_percent",
+          "action": "comprehensive_seo_audit"
+        },
+        {
+          "condition": "new_competitor_detected",
+          "action": "competitive_analysis_update"
+        }
+      ]
+    },
+    
+    "integration_points": {
+      "website_builder": {
+        "html_generator": "src/website_builder/html_generator.py",
+        "template_manager": "src/website_builder/page_templates.py",
+        "content_planner": "src/website_builder/content_planner.py"
+      },
+      "data_collectors": {
+        "trends_collector": "src/collectors/trends_collector.py",
+        "ads_collector": "src/collectors/ads_collector.py"
+      },
+      "deployment": {
+        "vercel_deployer": "src/deployment/vercel_deployer.py",
+        "cloudflare_deployer": "src/deployment/cloudflare_deployer.py"
+      }
+    }
+  }
+}

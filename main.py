@@ -13,12 +13,12 @@ from datetime import datetime
 # 添加src目录到Python路径
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-# 导入最新的需求挖掘管理器
-from src.demand_mining.demand_mining_main import DemandMiningManager
+# 导入统一的需求挖掘管理器
+from src.demand_mining.unified_main import UnifiedDemandMiningManager as DemandMiningManager
 
-# 导入增强功能
+# 导入增强功能模块
 try:
-    from enhanced_functions import (
+    from src.utils.enhanced_features import (
         monitor_competitors, predict_keyword_trends, generate_seo_audit,
         batch_build_websites, setup_scheduler, run_scheduler
     )
