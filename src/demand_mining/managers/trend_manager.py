@@ -71,9 +71,13 @@ class TrendManager(BaseManager):
         else:
             raise ValueError(f"不支持的分析类型: {analysis_type}")
     
-    def _analyze_root_trends(self, timeframe: str = "12-m", 
+    def _analyze_root_trends(self, timeframe: str = None,
                            batch_size: int = 5, output_dir: str = None) -> Dict[str, Any]:
         """分析词根趋势"""
+        if timeframe is None:
+            from src.utils.constants import GOOGLE_TRENDS_CONFIG
+            timeframe = GOOGLE_TRENDS_CONFIG['default_timeframe'].replace('today ', '')
+        
         print("🌱 开始分析51个词根的Google Trends趋势...")
         
         if self.trend_analyzer is None:
@@ -119,9 +123,13 @@ class TrendManager(BaseManager):
             print(f"❌ 词根趋势分析失败: {e}")
             return self._create_empty_trend_result()
     
-    def _analyze_keyword_trends(self, keywords: List[str], 
-                              timeframe: str = "12-m", **kwargs) -> Dict[str, Any]:
+    def _analyze_keyword_trends(self, keywords: List[str],
+                              timeframe: str = None, **kwargs) -> Dict[str, Any]:
         """分析关键词趋势"""
+        if timeframe is None:
+            from src.utils.constants import GOOGLE_TRENDS_CONFIG
+            timeframe = GOOGLE_TRENDS_CONFIG['default_timeframe'].replace('today ', '')
+        
         print(f"📊 开始分析 {len(keywords)} 个关键词的趋势...")
         
         if self.trend_analyzer is None:

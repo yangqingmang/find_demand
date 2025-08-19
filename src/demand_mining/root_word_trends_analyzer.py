@@ -39,17 +39,20 @@ class RootWordTrendsAnalyzer:
             "recommendation system", "personalization", "content generation", "code generation", "AI assistant"
         ]
     
-    def analyze_single_root_word(self, root_word: str, timeframe: str = "12-m") -> Dict[str, Any]:
+    def analyze_single_root_word(self, root_word: str, timeframe: str = None) -> Dict[str, Any]:
         """
         分析单个词根的趋势
         
-        Args:
-            root_word: 词根
-            timeframe: 时间范围 (默认12个月)
+        参数:
+            root_word: 要分析的词根
+            timeframe: 时间范围，默认使用统一配置中的值
             
-        Returns:
+        返回:
             包含趋势数据的字典
         """
+        if timeframe is None:
+            from src.utils.constants import GOOGLE_TRENDS_CONFIG
+            timeframe = GOOGLE_TRENDS_CONFIG['default_timeframe'].replace('today ', '')
         try:
             self.logger.info(f"正在分析词根: {root_word}")
             
@@ -63,8 +66,8 @@ class RootWordTrendsAnalyzer:
             # 处理趋势数据
             processed_data = self._process_trend_data(root_word, trend_data)
             
-                # 添加延迟避免API限制 - 增加到30秒避免429错误
-                time.sleep(30)
+        # 添加延迟避免API限制 - 优化后的间隔时间
+        time.sleep(20)
             
             return {
                 "root_word": root_word,
@@ -173,17 +176,20 @@ class RootWordTrendsAnalyzer:
         
         return processed
     
-    def analyze_all_root_words(self, timeframe: str = "12-m", batch_size: int = 5) -> Dict[str, Any]:
+    def analyze_all_root_words(self, timeframe: str = None, batch_size: int = 5) -> Dict[str, Any]:
         """
         分析所有词根的趋势
         
-        Args:
-            timeframe: 时间范围
-            batch_size: 批处理大小
+        参数:
+            timeframe: 时间范围，默认使用统一配置中的值
+            batch_size: 批处理大小，默认5个词根一批
             
-        Returns:
+        返回:
             完整的分析结果
         """
+        if timeframe is None:
+            from src.utils.constants import GOOGLE_TRENDS_CONFIG
+            timeframe = GOOGLE_TRENDS_CONFIG['default_timeframe'].replace('today ', '')
         self.logger.info(f"开始分析 {len(self.root_words)} 个词根的趋势")
         
         results = {
@@ -353,7 +359,7 @@ def main():
     analyzer = RootWordTrendsAnalyzer()
     
     print("开始分析51个词根的趋势...")
-    results = analyzer.analyze_all_root_words(timeframe="12-m")
+    results = analyzer.analyze_all_root_words(timeframe="now 7-d")
     
     print(f"\n分析完成!")
     print(f"成功分析: {results['summary']['successful_analyses']} 个词根")

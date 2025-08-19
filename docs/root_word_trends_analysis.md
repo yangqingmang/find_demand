@@ -108,13 +108,13 @@ from src.demand_mining.root_word_trends_analyzer import RootWordTrendsAnalyzer
 analyzer = RootWordTrendsAnalyzer()
 
 # 分析单个词根
-result = analyzer.analyze_single_root_word("AI", timeframe="12-m")
+result = analyzer.analyze_single_root_word("AI", timeframe="now 7-d")
 
 # 获取相关关键词
 keywords = analyzer.get_trending_keywords_for_root("Generator", limit=20)
 
 # 批量分析所有词根
-results = analyzer.analyze_all_root_words(timeframe="12-m", batch_size=5)
+results = analyzer.analyze_all_root_words(timeframe="now 7-d", batch_size=5)
 ```
 
 ## 运行示例

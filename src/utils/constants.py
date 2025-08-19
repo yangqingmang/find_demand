@@ -57,12 +57,36 @@ GEO_CODES: Dict[str, str] = {
 
 # 时间范围选项
 TIMEFRAME_OPTIONS: Dict[str, str] = {
-    '过去1个月': 'today 1-m',
-    '过去3个月': 'today 3-m',
-    '过去6个月': 'today 6-m',
-    '过去12个月': 'today 12-m',
-    '过去2年': 'today 2-y',
-    '过去5年': 'today 5-y',
+    '过去7天': 'now 7-d',
+    '过去1个月': 'now 1-m',
+    '过去3个月': 'now 3-m',
+    '过去6个月': 'now 6-m',
+    '过去12个月': 'now 12-m',
+    '过去2年': 'now 2-y',
+    '过去5年': 'now 5-y',
+}
+
+# Google Trends API 统一配置
+GOOGLE_TRENDS_CONFIG = {
+    'default_timeframe': 'now 7-d',
+    'timeframe_options': {
+        '过去7天': 'now 7-d',
+        '过去1个月': 'now 1-m',
+        '过去3个月': 'now 3-m', 
+        '过去6个月': 'now 6-m',
+        '过去12个月': 'now 12-m',
+        '过去2年': 'now 2-y',
+        '过去5年': 'now 5-y'
+    },
+    'default_geo': 'US',
+    'default_language': 'en-US',
+    'default_timezone': 360,
+    'rate_limits': {
+        'min_request_interval': 2.0,        # 最小请求间隔：2秒
+        'rate_limit_delay': 15.0,           # 速率限制延迟：15秒
+        'batch_delay': 20.0,                # 批次延迟：20秒
+        'max_retries': 5                    # 最大重试次数：5次
+    }
 }
 
 # 搜索意图类型

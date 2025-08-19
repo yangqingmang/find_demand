@@ -16,6 +16,7 @@ project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 sys.path.insert(0, project_root)
 
 from src.demand_mining.managers import KeywordManager, DiscoveryManager, TrendManager
+from src.utils.logger import setup_logger
 
 
 class UnifiedDemandMiningManager:
@@ -23,6 +24,7 @@ class UnifiedDemandMiningManager:
     
     def __init__(self, config_path: str = None):
         self.config_path = config_path
+        self.logger = setup_logger(__name__)
         
         # 初始化各个管理器
         self.keyword_manager = KeywordManager(config_path)
@@ -80,7 +82,8 @@ class UnifiedDemandMiningManager:
     def _run_root_trends_analysis(self, **kwargs) -> Dict[str, Any]:
         """运行词根趋势分析"""
         output_dir = kwargs.get('output_dir')
-        timeframe = kwargs.get('timeframe', '12-m')
+        from src.utils.constants import GOOGLE_TRENDS_CONFIG
+        timeframe = kwargs.get('timeframe', GOOGLE_TRENDS_CONFIG['default_timeframe'].replace('today ', ''))
         batch_size = kwargs.get('batch_size', 5)
         
         return self.trend_manager.analyze(
@@ -105,6 +108,68 @@ class UnifiedDemandMiningManager:
         except Exception as e:
             return {'error': f'竞品分析失败: {e}'}
     
+    def analyze_root_words(self, output_dir: str = None) -> Dict[str, Any]:
+        """分析词根趋势 - 兼容main.py的调用"""
+        try:
+            from src.demand_mining.root_word_trends_analyzer import RootWordTrendsAnalyzer
+            
+            # 使用指定的输出目录或默认目录
+            analyzer_output_dir = output_dir or "src/demand_mining/reports/root_word_trends"
+            analyzer = RootWordTrendsAnalyzer(analyzer_output_dir)
+            
+            # 执行分析
+            results = analyzer.analyze_all_root_words(timeframe="now 7-d", batch_size=5)
+            
+            # 转换为兼容格式
+            return {
+                'total_root_words': results.get('total_root_words', 0),
+                'successful_analyses': results['summary'].get('successful_analyses', 0),
+                'failed_analyses': results['summary'].get('failed_analyses', 0),
+                'top_trending_words': results['summary'].get('top_trending_words', []),
+                'declining_words': results['summary'].get('declining_words', []),
+                'stable_words': results['summary'].get('stable_words', []),
+                'output_path': analyzer_output_dir
+            }
+            
+        except Exception as e:
+            self.logger.error(f"词根趋势分析失败: {e}")
+            return {
+                'error': f'词根趋势分析失败: {e}',
+                'total_root_words': 0,
+                'successful_analyses': 0,
+                'top_trending_words': []
+            }
+    
+    def analyze_keywords(self, input_file: str, output_dir: str = None) -> Dict[str, Any]:
+        """分析关键词文件 - 兼容main.py的调用"""
+        return self.keyword_manager.analyze(input_file, 'file', output_dir)
+    
+    def generate_daily_report(self, date: str = None) -> str:
+        """生成日报 - 兼容main.py的调用"""
+        # 这里可以整合各个管理器的报告功能
+        report_date = date or datetime.now().strftime("%Y-%m-%d")
+        report_path = f"src/demand_mining/reports/daily_report_{report_date}.txt"
+        
+        try:
+            with open(report_path, 'w', encoding='utf-8') as f:
+                f.write(f"需求挖掘日报 - {report_date}\n")
+                f.write("=" * 50 + "\n\n")
+                
+                # 获取各管理器统计
+                stats = self.get_manager_stats()
+                for manager_name, manager_stats in stats.items():
+                    f.write(f"{manager_name}:\n")
+                    if isinstance(manager_stats, dict):
+                        for key, value in manager_stats.items():
+                            f.write(f"  {key}: {value}\n")
+                    else:
+                        f.write(f"  状态: {manager_stats}\n")
+                    f.write("\n")
+            
+            return report_path
+        except Exception as e:
+            return f"报告生成失败: {e}"
+
     def get_manager_stats(self) -> Dict[str, Any]:
         """获取所有管理器的统计信息"""
         return {
