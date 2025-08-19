@@ -49,12 +49,61 @@ class TrendsCollector:
         self.logger = Logger()
         self._connect()
         
+        # 速率限制控制
+        self.last_request_time = 0
+        self.min_request_interval = 2.0  # 最小请求间隔2秒
+        self.rate_limit_delay = 10.0     # 遇到429时的延迟时间
+        
         # 设置pandas选项，消除警告
         pd.set_option('future.no_silent_downcasting', True)
     
     def _connect(self):
         """创建pytrends连接"""
         self.pytrends = TrendReq(hl=self.hl, tz=self.tz, timeout=self.timeout)
+    
+    def get_trending_searches(self, geo='US'):
+        """
+        获取热门搜索数据
+        
+        参数:
+            geo (str): 地区代码，如'US','GB'等，默认'US'
+            
+        返回:
+            pandas.DataFrame: 热门搜索数据
+        """
+        try:
+            self.logger.info(f"正在获取 {geo} 地区的热门搜索数据...")
+            
+            # 如果启用模拟模式，返回模拟数据
+            if config.MOCK_MODE:
+                self.logger.info("🔧 模拟模式：生成模拟热门搜索数据")
+                mock_generator = MockDataGenerator()
+                return mock_generator.generate_trending_searches(geo)
+            
+            # 使用pytrends获取热门搜索
+            trending_searches = self.pytrends.trending_searches(pn=geo)
+            
+            if trending_searches is not None and not trending_searches.empty:
+                # 重命名列以匹配预期格式
+                trending_searches.columns = ['query']
+                trending_searches['value'] = range(100, 100 - len(trending_searches), -1)  # 模拟热度值
+                trending_searches['growth'] = 'Trending'  # 标记为热门
+                
+                self.logger.info(f"✓ 成功获取 {len(trending_searches)} 个热门搜索")
+                return trending_searches
+            else:
+                self.logger.warning("未获取到热门搜索数据")
+                return pd.DataFrame(columns=['query', 'value', 'growth'])
+                
+        except Exception as e:
+            self.logger.error(f"获取热门搜索数据时出错: {e}")
+            # 回退到模拟数据
+            try:
+                mock_generator = MockDataGenerator()
+                return mock_generator.generate_trending_searches(geo)
+            except Exception as mock_error:
+                self.logger.error(f"模拟数据生成也失败: {mock_error}")
+                return pd.DataFrame(columns=['query', 'value', 'growth'])
     
     def _make_direct_api_request(self, keyword, geo='US', timeframe='today 12-m'):
         """
@@ -240,18 +289,24 @@ class TrendsCollector:
             self.logger.debug(f"错误详情: {traceback.format_exc()}")
             return pd.DataFrame(columns=['query', 'value', 'growth'])
     
-    def fetch_rising_queries(self, keyword, geo='US', timeframe='today 12-m'):
+    def fetch_rising_queries(self, keyword=None, geo='US', timeframe='today 12-m'):
         """
         获取关键词的Rising Queries - 使用改进的API请求格式
+        如果没有提供关键词，返回热门搜索数据
         
         参数:
-            keyword (str): 种子关键词
+            keyword (str, optional): 种子关键词，如果为空则返回热门搜索
             geo (str): 地区代码，如'US','GB'等，默认'US'
             timeframe (str): 时间范围，默认'today 12-m'
             
         返回:
-            pandas.DataFrame: Rising Queries数据
+            pandas.DataFrame: Rising Queries数据或热门搜索数据
         """
+        # 如果没有提供关键词，返回热门搜索数据
+        if not keyword or not keyword.strip():
+            self.logger.info(f"未提供关键词，获取热门搜索数据 (地区: {geo})...")
+            return self.get_trending_searches(geo=geo)
+        
         self.logger.info(f"正在获取 '{keyword}' 的Rising Queries数据 (地区: {geo})...")
         
         # 如果启用模拟模式，返回模拟数据
@@ -420,12 +475,49 @@ class TrendsCollector:
         返回:
             dict: 包含趋势数据的字典
         """
-        # 确保keywords是字符串（单个关键词）
+        # 处理关键词参数
         if isinstance(keywords, list):
-            keyword = keywords[0] if keywords else ""
+            keyword = keywords[0] if keywords else None
         else:
             keyword = keywords
+        
+        # 如果没有提供关键词，返回热门搜索数据
+        if not keyword or not keyword.strip():
+            self.logger.info(f"未提供关键词，获取热门搜索数据 (地区: {geo})...")
             
+            try:
+                df = self.get_trending_searches(geo)
+                
+                if not df.empty:
+                    return {
+                        'keyword': 'trending_searches',
+                        'related_queries': df.to_dict('records'),
+                        'total_queries': len(df),
+                        'avg_volume': float(df['value'].mean()) if 'value' in df.columns else 0.0,
+                        'status': 'success',
+                        'data_type': 'trending_searches'
+                    }
+                else:
+                    return {
+                        'keyword': 'trending_searches',
+                        'related_queries': [],
+                        'total_queries': 0,
+                        'avg_volume': 0.0,
+                        'status': 'no_data',
+                        'data_type': 'trending_searches'
+                    }
+            except Exception as e:
+                self.logger.error(f"获取热门搜索数据时出错: {e}")
+                return {
+                    'keyword': 'trending_searches',
+                    'related_queries': [],
+                    'total_queries': 0,
+                    'avg_volume': 0.0,
+                    'status': 'error',
+                    'error': str(e),
+                    'data_type': 'trending_searches'
+                }
+        
         self.logger.info(f"正在获取关键词 '{keyword}' 的趋势数据...")
         
         # 如果启用模拟模式，返回模拟数据

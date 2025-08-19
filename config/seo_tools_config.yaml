@@ -1,0 +1,133 @@
+# SEO工具配置文件
+# 配置各种SEO工具的API密钥和设置
+
+seo_tools:
+  # 🆓 Google Search Console API (完全免费)
+  google_search_console:
+    credentials_file: "${GOOGLE_CREDENTIALS_JSON}"  # 服务账号JSON文件
+    base_url: "https://www.googleapis.com/webmasters/v3/"
+    rate_limit: 10  # 每秒请求数
+    enabled: true
+    free: true
+    
+  # 🆓 Google Trends API (免费1000次/天)
+  google_trends:
+    api_key: "${GOOGLE_API_KEY}"
+    base_url: "https://trends.googleapis.com/trends/"
+    rate_limit: 1  # 每秒1个请求
+    daily_limit: 1000
+    enabled: true
+    free: true
+    
+  # 🆓 Bing Webmaster Tools API (完全免费)
+  bing_webmaster:
+    api_key: "${BING_WEBMASTER_API_KEY}"
+    base_url: "https://ssl.bing.com/webmaster/api.svc/"
+    rate_limit: 5  # 每秒请求数
+    enabled: true
+    free: true
+    
+  # 🆓 SerpApi (免费100次/月)
+  serpapi:
+    api_key: "${SERPAPI_KEY}"
+    base_url: "https://serpapi.com/search"
+    rate_limit: 1  # 每秒1个请求
+    monthly_limit: 100
+    enabled: true
+    free: true
+    
+  # 🆓 DataForSEO (免费$1信用额度)
+  dataforseo:
+    login: "${DATAFORSEO_LOGIN}"
+    password: "${DATAFORSEO_PASSWORD}"
+    base_url: "https://api.dataforseo.com/"
+    rate_limit: 2  # 每秒2个请求
+    credit_limit: 1  # $1免费额度
+    enabled: true
+    free: true
+    
+  # 💰 Semrush配置 (付费)
+  semrush:
+    api_key: "${SEMRUSH_API_KEY}"
+    base_url: "https://api.semrush.com/"
+    rate_limit: 10
+    default_database: "us"
+    enabled: false  # 默认关闭
+    free: false
+    
+  # 💰 Ahrefs配置 (付费)
+  ahrefs:
+    api_key: "${AHREFS_API_KEY}"
+    base_url: "https://apiv2.ahrefs.com/"
+    rate_limit: 0.5
+    default_country: "us"
+    enabled: false  # 默认关闭
+    free: false
+    
+  # 💰 Similarweb配置 (付费)
+  similarweb:
+    api_key: "${SIMILARWEB_API_KEY}"
+    base_url: "https://api.similarweb.com/v1/"
+    rate_limit: 1
+    default_country: "us"
+    enabled: false  # 默认关闭
+    free: false
+    
+  # Moz配置 (可选)
+  moz:
+    access_id: "${MOZ_ACCESS_ID}"
+    secret_key: "${MOZ_SECRET_KEY}"
+    base_url: "https://lsapi.seomoz.com/v2/"
+    rate_limit: 0.1  # 每10秒1个请求
+    enabled: false
+    
+  # SEMrush Keyword Magic Tool (可选)
+  semrush_kmt:
+    api_key: "${SEMRUSH_API_KEY}"
+    endpoint: "keyword_magic"
+    enabled: false
+
+# 数据融合配置
+data_fusion:
+  # 关键词数据权重
+  keyword_weights:
+    semrush: 0.4    # Semrush数据权重40%
+    ahrefs: 0.35    # Ahrefs数据权重35%
+    similarweb: 0.25 # Similarweb数据权重25%
+  
+  # 数据质量阈值
+  quality_thresholds:
+    min_sources: 2      # 至少需要2个数据源
+    confidence_level: 0.8 # 置信度阈值
+  
+  # 数据合并策略
+  merge_strategy:
+    volume: "average"     # 搜索量取平均值
+    difficulty: "max"     # 难度取最大值
+    cpc: "average"        # CPC取平均值
+    competition: "max"    # 竞争度取最大值
+
+# 缓存配置
+cache:
+  enabled: true
+  ttl: 3600  # 缓存1小时
+  max_size: 1000  # 最大缓存条目数
+  
+# 输出配置
+output:
+  formats: ["json", "csv", "xlsx"]
+  include_raw_data: true
+  include_summary: true
+  
+# 错误处理
+error_handling:
+  max_retries: 3
+  retry_delay: 5  # 秒
+  fallback_to_mock: true
+  
+# 模拟数据配置
+mock_data:
+  enabled: true  # 开发阶段启用
+  quality: "high"
+  include_trends: true
+  realistic_values: true
