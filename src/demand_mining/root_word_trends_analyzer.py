@@ -66,8 +66,8 @@ class RootWordTrendsAnalyzer:
             # 处理趋势数据
             processed_data = self._process_trend_data(root_word, trend_data)
             
-        # 添加延迟避免API限制 - 优化后的间隔时间
-        time.sleep(20)
+            # 添加延迟避免API限制 - 优化后的间隔时间
+            time.sleep(20)
             
             return {
                 "root_word": root_word,

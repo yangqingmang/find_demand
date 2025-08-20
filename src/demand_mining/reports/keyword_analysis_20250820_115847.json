@@ -1,0 +1,169 @@
+{
+  "total_keywords": 1,
+  "analysis_time": "2025-08-20T11:58:47.592725",
+  "keywords": [
+    {
+      "keyword": "ai tools",
+      "intent": {
+        "primary_intent": "C",
+        "confidence": 1.0,
+        "secondary_intent": "",
+        "intent_description": "商业评估",
+        "website_recommendations": {
+          "website_type": "AI工具评测站",
+          "ai_tool_category": "AI对话工具",
+          "domain_suggestions": [
+            "tools.com",
+            "tools.ai",
+            "tools.io",
+            "aitools.com",
+            "smarttools.com",
+            "autotools.com",
+            "toolstool.com",
+            "toolstools.com"
+          ],
+          "monetization_strategy": [
+            "Freemium模式 (免费+付费功能)",
+            "API调用收费",
+            "按使用量计费"
+          ],
+          "technical_requirements": [
+            "对比功能",
+            "评分系统",
+            "用户评论",
+            "AI API集成",
+            "实时处理能力"
+          ],
+          "competition_analysis": {
+            "level": "低",
+            "advice": "机会较好，可快速建立市场地位",
+            "strategy": [
+              "快速市场进入",
+              "SEO基础优化",
+              "内容规模化"
+            ]
+          },
+          "development_priority": {
+            "score": 100,
+            "level": "高",
+            "timeline": "1-2个月",
+            "reasoning": "商业型意图，适合联盟营销; AI工具市场热度高，用户需求旺盛; 综合评分高，建议优先开发"
+          },
+          "content_strategy": [
+            "产品对比",
+            "评测报告",
+            "用户评价",
+            "AI工具使用教程",
+            "提示词(Prompt)模板"
+          ]
+        }
+      },
+      "market": {
+        "search_volume": 1000,
+        "competition": 0.5,
+        "cpc": 2.0,
+        "trend": "stable",
+        "seasonality": "low",
+        "ai_bonus": 20,
+        "commercial_value": 0,
+        "opportunity_indicators": [
+          "AI相关需求",
+          "出海友好"
+        ]
+      },
+      "opportunity_score": 56.5
+    }
+  ],
+  "intent_summary": {
+    "total_keywords": 1,
+    "intent_distribution": {
+      "C": 1
+    },
+    "intent_percentages": {
+      "C": 100.0
+    },
+    "dominant_intent": "C"
+  },
+  "market_insights": {
+    "high_opportunity_count": 0,
+    "medium_opportunity_count": 1,
+    "low_opportunity_count": 0,
+    "top_opportunities": [
+      {
+        "keyword": "ai tools",
+        "intent": {
+          "primary_intent": "C",
+          "confidence": 1.0,
+          "secondary_intent": "",
+          "intent_description": "商业评估",
+          "website_recommendations": {
+            "website_type": "AI工具评测站",
+            "ai_tool_category": "AI对话工具",
+            "domain_suggestions": [
+              "tools.com",
+              "tools.ai",
+              "tools.io",
+              "aitools.com",
+              "smarttools.com",
+              "autotools.com",
+              "toolstool.com",
+              "toolstools.com"
+            ],
+            "monetization_strategy": [
+              "Freemium模式 (免费+付费功能)",
+              "API调用收费",
+              "按使用量计费"
+            ],
+            "technical_requirements": [
+              "对比功能",
+              "评分系统",
+              "用户评论",
+              "AI API集成",
+              "实时处理能力"
+            ],
+            "competition_analysis": {
+              "level": "低",
+              "advice": "机会较好，可快速建立市场地位",
+              "strategy": [
+                "快速市场进入",
+                "SEO基础优化",
+                "内容规模化"
+              ]
+            },
+            "development_priority": {
+              "score": 100,
+              "level": "高",
+              "timeline": "1-2个月",
+              "reasoning": "商业型意图，适合联盟营销; AI工具市场热度高，用户需求旺盛; 综合评分高，建议优先开发"
+            },
+            "content_strategy": [
+              "产品对比",
+              "评测报告",
+              "用户评价",
+              "AI工具使用教程",
+              "提示词(Prompt)模板"
+            ]
+          }
+        },
+        "market": {
+          "search_volume": 1000,
+          "competition": 0.5,
+          "cpc": 2.0,
+          "trend": "stable",
+          "seasonality": "low",
+          "ai_bonus": 20,
+          "commercial_value": 0,
+          "opportunity_indicators": [
+            "AI相关需求",
+            "出海友好"
+          ]
+        },
+        "opportunity_score": 56.5
+      }
+    ],
+    "avg_opportunity_score": 56.5
+  },
+  "recommendations": [
+    "🤖 发现 1 个AI相关关键词，符合出海AI工具方向"
+  ]
+}

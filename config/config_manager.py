@@ -25,7 +25,7 @@ except ImportError:
 
 @dataclass
 class ConfigData:
-    """配置数据类"""
+    """配置数据类 - 只定义字段类型，不设置默认值"""
     # Google API 配置
     GOOGLE_API_KEY: str = ""
     GOOGLE_CSE_ID: str = ""
@@ -53,11 +53,11 @@ class ConfigData:
     CLOUDFLARE_API_TOKEN: str = ""
     CLOUDFLARE_ACCOUNT_ID: str = ""
     
-    # 应用配置
+    # 应用配置 - 这些值将从配置文件中读取
     DEBUG: bool = False
     LOG_LEVEL: str = "INFO"
     OUTPUT_DIR: str = "data/results"
-    MOCK_MODE: bool = True
+    MOCK_MODE: bool = False  # 这个值会被 .env.public 覆盖
 
 
 class ConfigManager:
@@ -147,8 +147,12 @@ class ConfigManager:
             
             return decrypted_config
             
+        except KeyboardInterrupt:
+            print("⚠️  用户取消加密配置加载，跳过加密配置")
+            return {}
         except Exception as e:
             print(f"⚠️  加载加密配置失败: {e}")
+            print("⚠️  跳过加密配置，使用公开配置和默认值")
             return {}
     
     def _load_env_file(self) -> Dict[str, Any]:
