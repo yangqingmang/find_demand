@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-需求挖掘分析工具 - 主入口文件
-整合六大需求挖掘方法的统一执行入口
+需求挖掘分析工具 - 统一主入口文件
+整合六大需求挖掘方法的完整执行入口
 """
 
 import argparse
 import sys
 import os
 from datetime import datetime
+from typing import Dict, List, Any, Optional
 
 # 添加src目录到Python路径
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-# 导入统一的需求挖掘管理器
-from src.demand_mining.unified_main import UnifiedDemandMiningManager as DemandMiningManager
+# 直接导入需求挖掘管理器组件
+from src.demand_mining.managers import KeywordManager, DiscoveryManager, TrendManager
+from src.utils.logger import setup_logger
 
 # 导入增强功能模块
 try:
@@ -27,12 +29,158 @@ except ImportError:
     ENHANCED_FEATURES_AVAILABLE = False
     print("⚠️ 增强功能模块未找到，部分功能将不可用")
 
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-市场需求分析工具 - 主入口文件
-Market Demand Analysis Toolkit - Main Entry Point
-"""
+
+class IntegratedDemandMiningManager:
+    """集成需求挖掘管理器 - 统一所有功能"""
+    
+    def __init__(self, config_path: str = None):
+        self.config_path = config_path
+        self.logger = setup_logger(__name__)
+        
+        # 初始化各个管理器
+        self.keyword_manager = KeywordManager(config_path)
+        self.discovery_manager = DiscoveryManager(config_path)
+        self.trend_manager = TrendManager(config_path)
+        
+        self.enhanced_features_available = ENHANCED_FEATURES_AVAILABLE
+        
+        print("🚀 集成需求挖掘管理器初始化完成")
+        print("📊 已加载关键词管理器、发现管理器、趋势管理器")
+    
+    def analyze_keywords(self, input_file: str, output_dir: str = None) -> Dict[str, Any]:
+        """分析关键词文件"""
+        return self.keyword_manager.analyze(input_file, 'file', output_dir)
+    
+    def analyze_root_words(self, output_dir: str = None) -> Dict[str, Any]:
+        """分析词根趋势"""
+        try:
+            from src.demand_mining.root_word_trends_analyzer import RootWordTrendsAnalyzer
+            
+            analyzer_output_dir = output_dir or "src/demand_mining/reports/root_word_trends"
+            analyzer = RootWordTrendsAnalyzer(analyzer_output_dir)
+            
+            # 执行分析
+            results = analyzer.analyze_all_root_words(timeframe="now 7-d", batch_size=5)
+            
+            # 转换为兼容格式
+            return {
+                'total_root_words': results.get('total_root_words', 0),
+                'successful_analyses': results['summary'].get('successful_analyses', 0),
+                'failed_analyses': results['summary'].get('failed_analyses', 0),
+                'top_trending_words': results['summary'].get('top_trending_words', []),
+                'declining_words': results['summary'].get('declining_words', []),
+                'stable_words': results['summary'].get('stable_words', []),
+                'output_path': analyzer_output_dir
+            }
+            
+        except Exception as e:
+            self.logger.error(f"词根趋势分析失败: {e}")
+            return {
+                'error': f'词根趋势分析失败: {e}',
+                'total_root_words': 0,
+                'successful_analyses': 0,
+                'top_trending_words': []
+            }
+    
+    def discover_keywords(self, search_terms: List[str], output_dir: str = None) -> Dict[str, Any]:
+        """多平台关键词发现"""
+        return self.discovery_manager.analyze(search_terms, output_dir)
+    
+    def run_unified_analysis(self, **kwargs) -> Dict[str, Any]:
+        """运行统一分析流程"""
+        analysis_type = kwargs.get('analysis_type', 'keywords')
+        
+        if analysis_type == 'keywords':
+            return self._run_keyword_analysis(**kwargs)
+        elif analysis_type == 'discovery':
+            return self._run_keyword_discovery(**kwargs)
+        elif analysis_type == 'root_trends':
+            return self._run_root_trends_analysis(**kwargs)
+        elif analysis_type == 'competitor':
+            return self._run_competitor_analysis(**kwargs)
+        else:
+            raise ValueError(f"不支持的分析类型: {analysis_type}")
+    
+    def _run_keyword_analysis(self, **kwargs) -> Dict[str, Any]:
+        """运行关键词分析"""
+        input_file = kwargs.get('input_file')
+        keywords = kwargs.get('keywords')
+        output_dir = kwargs.get('output_dir')
+        
+        if input_file:
+            return self.keyword_manager.analyze(input_file, 'file', output_dir)
+        elif keywords:
+            return self.keyword_manager.analyze(keywords, 'keywords', output_dir)
+        else:
+            raise ValueError("请提供输入文件或关键词列表")
+    
+    def _run_keyword_discovery(self, **kwargs) -> Dict[str, Any]:
+        """运行关键词发现"""
+        search_terms = kwargs.get('search_terms', ['AI tool', 'AI generator'])
+        output_dir = kwargs.get('output_dir')
+        
+        return self.discovery_manager.analyze(search_terms, output_dir)
+    
+    def _run_root_trends_analysis(self, **kwargs) -> Dict[str, Any]:
+        """运行词根趋势分析"""
+        output_dir = kwargs.get('output_dir')
+        from src.utils.constants import GOOGLE_TRENDS_CONFIG
+        timeframe = kwargs.get('timeframe', GOOGLE_TRENDS_CONFIG['default_timeframe'].replace('today ', ''))
+        batch_size = kwargs.get('batch_size', 5)
+        
+        return self.trend_manager.analyze(
+            'root_trends',
+            timeframe=timeframe,
+            batch_size=batch_size,
+            output_dir=output_dir
+        )
+    
+    def _run_competitor_analysis(self, **kwargs) -> Dict[str, Any]:
+        """运行竞品分析"""
+        if not self.enhanced_features_available:
+            return {'error': '增强功能不可用'}
+        
+        try:
+            sites = kwargs.get('sites', ['canva.com', 'midjourney.com'])
+            output_dir = kwargs.get('output_dir')
+            
+            return monitor_competitors(sites, output_dir)
+        except Exception as e:
+            return {'error': f'竞品分析失败: {e}'}
+    
+    def generate_daily_report(self, date: str = None) -> str:
+        """生成日报"""
+        report_date = date or datetime.now().strftime("%Y-%m-%d")
+        report_path = f"src/demand_mining/reports/daily_report_{report_date}.txt"
+        
+        try:
+            with open(report_path, 'w', encoding='utf-8') as f:
+                f.write(f"需求挖掘日报 - {report_date}\n")
+                f.write("=" * 50 + "\n\n")
+                
+                # 获取各管理器统计
+                stats = self.get_manager_stats()
+                for manager_name, manager_stats in stats.items():
+                    f.write(f"{manager_name}:\n")
+                    if isinstance(manager_stats, dict):
+                        for key, value in manager_stats.items():
+                            f.write(f"  {key}: {value}\n")
+                    else:
+                        f.write(f"  状态: {manager_stats}\n")
+                    f.write("\n")
+            
+            return report_path
+        except Exception as e:
+            return f"报告生成失败: {e}"
+
+    def get_manager_stats(self) -> Dict[str, Any]:
+        """获取所有管理器的统计信息"""
+        return {
+            'keyword_manager': self.keyword_manager.get_stats(),
+            'discovery_manager': self.discovery_manager.get_discovery_stats(),
+            'trend_manager': self.trend_manager.get_stats(),
+            'enhanced_features_available': self.enhanced_features_available
+        }
 
 
 def print_quiet_summary(result):
@@ -50,6 +198,7 @@ def print_quiet_summary(result):
             intent_desc = kw.get('intent', {}).get('intent_description', '未知')
             score = kw.get('opportunity_score', 0)
             print(f"   {i+1}. {kw['keyword']} (机会分数: {score}, 意图: {intent_desc})")
+
 
 def main():
     """主函数 - 提供统一的执行入口"""
@@ -138,6 +287,7 @@ def main():
     parser.add_argument('--config', help='配置文件路径')
     parser.add_argument('--quiet', '-q', action='store_true', help='静默模式，只显示最终结果')
     parser.add_argument('--verbose', '-v', action='store_true', help='详细模式，显示所有中间过程')
+    parser.add_argument('--stats', action='store_true', help='显示管理器统计信息')
     
     args = parser.parse_args()
     
@@ -153,8 +303,21 @@ def main():
         print("")
     
     try:
-        # 创建需求挖掘管理器
-        manager = DemandMiningManager(args.config)
+        # 创建集成需求挖掘管理器
+        manager = IntegratedDemandMiningManager(args.config)
+        
+        # 显示管理器统计信息
+        if args.stats:
+            stats = manager.get_manager_stats()
+            print("\n📊 管理器统计信息:")
+            for manager_name, manager_stats in stats.items():
+                if isinstance(manager_stats, dict):
+                    print(f"\n{manager_name}:")
+                    for key, value in manager_stats.items():
+                        print(f"  {key}: {value}")
+                else:
+                    print(f"{manager_name}: {manager_stats}")
+            return
         
         if args.input:
             # 分析关键词文件
@@ -363,7 +526,7 @@ def main():
             if not args.quiet:
                 print("📊 生成今日分析报告...")
             
-            report_path = manager.generate_daily_report(args.date)
+            report_path = manager.generate_daily_report()
             print(f"✅ 报告已生成: {report_path}")
         
         else:
@@ -399,6 +562,7 @@ def main():
             import traceback
             traceback.print_exc()
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

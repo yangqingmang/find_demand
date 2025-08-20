@@ -12,7 +12,7 @@ import pandas as pd
 from datetime import datetime
 from typing import Dict, List, Tuple, Set, Optional, Any, Union
 
-from src.demand_mining.analyzers.intent_analyzer import IntentAnalyzer
+from src.demand_mining.analyzers.intent_analyzer_v2 import IntentAnalyzerV2 as IntentAnalyzer
 from src.website_builder.structure_generator import WebsiteStructureGenerator
 from src.website_builder.content_planner import ContentPlanGenerator
 from src.website_builder.page_templates import PageTemplateManager

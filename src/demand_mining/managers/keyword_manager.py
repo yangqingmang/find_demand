@@ -36,7 +36,7 @@ class KeywordManager(BaseManager):
         """延迟加载意图分析器"""
         if self._intent_analyzer is None:
             try:
-                from src.demand_mining.analyzers.intent_analyzer import IntentAnalyzer
+                from src.demand_mining.analyzers.intent_analyzer_v2 import IntentAnalyzerV2 as IntentAnalyzer
                 self._intent_analyzer = IntentAnalyzer(
                     use_v2=True, 
                     enable_website_recommendations=True
