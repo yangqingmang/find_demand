@@ -15,6 +15,7 @@ from pathlib import Path
 from ..collectors.trends_collector import TrendsCollector
 from ..utils.logger import setup_logger
 from ..utils.file_utils import ensure_directory_exists
+from .analyzers.new_word_detector import NewWordDetector
 
 class RootWordTrendsAnalyzer:
     """词根趋势分析器"""
@@ -24,6 +25,16 @@ class RootWordTrendsAnalyzer:
         ensure_directory_exists(self.output_dir)
         self.logger = setup_logger(__name__)
         self.trends_collector = TrendsCollector()
+        
+        # 初始化新词检测器
+        try:
+            self.new_word_detector = NewWordDetector()
+            self.new_word_detection_available = True
+            self.logger.info("新词检测器初始化成功")
+        except Exception as e:
+            self.new_word_detector = None
+            self.new_word_detection_available = False
+            self.logger.warning(f"新词检测器初始化失败: {e}")
         
         # 51个词根列表
         self.root_words = [
@@ -101,10 +112,17 @@ class RootWordTrendsAnalyzer:
                         # 处理查询列表
                         for query_item in queries[:10]:  # 限制前10个
                             if isinstance(query_item, dict):
+                                query_text = query_item.get("query", "")
+                                query_value = query_item.get("value", 0)
+                                
+                                # 为关联想词添加新词检测
+                                new_word_info = self._detect_new_word_for_query(query_text)
+                                
                                 processed["related_queries"].append({
-                                    "query": query_item.get("query", ""),
-                                    "value": query_item.get("value", 0),
-                                    "type": "related"
+                                    "query": query_text,
+                                    "value": query_value,
+                                    "type": "related",
+                                    "new_word_detection": new_word_info
                                 })
                 
                 # 计算平均兴趣度
@@ -130,10 +148,14 @@ class RootWordTrendsAnalyzer:
                             query_value = row.get("query", "") if hasattr(row, 'get') else str(row.iloc[0]) if len(row) > 0 else ""
                             value_data = row.get("value", 0) if hasattr(row, 'get') else (row.iloc[1] if len(row) > 1 else 0)
                             
+                            # 为关联想词添加新词检测
+                            new_word_info = self._detect_new_word_for_query(str(query_value))
+                            
                             processed["related_queries"].append({
                                 "query": str(query_value),
                                 "value": int(value_data) if pd.notna(value_data) else 0,
-                                "type": "related"
+                                "type": "related",
+                                "new_word_detection": new_word_info
                             })
                         except Exception as row_error:
                             self.logger.warning(f"处理行数据时出错: {row_error}")
@@ -175,6 +197,64 @@ class RootWordTrendsAnalyzer:
             }
         
         return processed
+    
+    def _detect_new_word_for_query(self, query: str) -> Dict[str, Any]:
+        """
+        为单个关联想词进行新词检测
+        
+        参数:
+            query: 关联想词
+            
+        返回:
+            新词检测结果
+        """
+        if not self.new_word_detection_available or not query.strip():
+            return {
+                "is_new_word": False,
+                "new_word_score": 0.0,
+                "new_word_grade": "D",
+                "confidence_level": "low",
+                "growth_rate_7d": 0.0,
+                "historical_pattern": "unknown",
+                "detection_reasons": "新词检测不可用"
+            }
+        
+        try:
+            # 创建临时DataFrame进行新词检测
+            temp_df = pd.DataFrame({'query': [query]})
+            
+            # 使用新词检测器分析
+            result_df = self.new_word_detector.detect_new_words(temp_df, 'query')
+            
+            if len(result_df) > 0:
+                row = result_df.iloc[0]
+                return {
+                    "is_new_word": bool(row.get('is_new_word', False)),
+                    "new_word_score": float(row.get('new_word_score', 0.0)),
+                    "new_word_grade": str(row.get('new_word_grade', 'D')),
+                    "confidence_level": str(row.get('confidence_level', 'low')),
+                    "growth_rate_7d": float(row.get('growth_rate_7d', 0.0)),
+                    "historical_pattern": str(row.get('historical_pattern', 'unknown')),
+                    "detection_reasons": str(row.get('detection_reasons', ''))
+                }
+            else:
+                return self._get_default_new_word_result()
+                
+        except Exception as e:
+            self.logger.warning(f"关联想词 '{query}' 新词检测失败: {e}")
+            return self._get_default_new_word_result()
+    
+    def _get_default_new_word_result(self) -> Dict[str, Any]:
+        """获取默认新词检测结果"""
+        return {
+            "is_new_word": False,
+            "new_word_score": 0.0,
+            "new_word_grade": "D",
+            "confidence_level": "low",
+            "growth_rate_7d": 0.0,
+            "historical_pattern": "unknown",
+            "detection_reasons": "检测失败"
+        }
     
     def analyze_all_root_words(self, timeframe: str = None, batch_size: int = 5) -> Dict[str, Any]:
         """
@@ -295,13 +375,33 @@ class RootWordTrendsAnalyzer:
         for result in results["results"]:
             if result["status"] == "success" and result["data"]:
                 data = result["data"]
+                
+                # 统计新词信息
+                new_words_count = 0
+                high_confidence_new_words = 0
+                total_new_word_score = 0
+                
+                for query in data["related_queries"]:
+                    if "new_word_detection" in query:
+                        nwd = query["new_word_detection"]
+                        if nwd.get("is_new_word", False):
+                            new_words_count += 1
+                            total_new_word_score += nwd.get("new_word_score", 0)
+                            if nwd.get("confidence_level") == "high":
+                                high_confidence_new_words += 1
+                
+                avg_new_word_score = (total_new_word_score / new_words_count) if new_words_count > 0 else 0
+                
                 csv_data.append({
                     "词根": result["root_word"],
                     "状态": "成功",
                     "平均兴趣度": round(data["average_interest"], 2),
                     "峰值兴趣度": data["peak_interest"],
                     "趋势方向": data["trend_direction"],
-                    "相关查询数量": len(data["related_queries"])
+                    "相关查询数量": len(data["related_queries"]),
+                    "新词数量": new_words_count,
+                    "高置信度新词": high_confidence_new_words,
+                    "平均新词分数": round(avg_new_word_score, 1)
                 })
             else:
                 csv_data.append({
@@ -310,7 +410,10 @@ class RootWordTrendsAnalyzer:
                     "平均兴趣度": 0,
                     "峰值兴趣度": 0,
                     "趋势方向": "未知",
-                    "相关查询数量": 0
+                    "相关查询数量": 0,
+                    "新词数量": 0,
+                    "高置信度新词": 0,
+                    "平均新词分数": 0
                 })
         
         df = pd.DataFrame(csv_data)

@@ -1,0 +1,4386 @@
+{
+  "analysis_date": "2025-08-23T00:22:36.036203",
+  "timeframe": "now 7-d",
+  "total_root_words": 50,
+  "results": [
+    {
+      "root_word": "AI",
+      "status": "success",
+      "data": {
+        "keyword": "AI",
+        "trend_points": [],
+        "average_interest": 97.5,
+        "peak_interest": 146,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "ai bubble",
+            "value": 180,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "gauth ai",
+            "value": 100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "turbo ai",
+            "value": 60,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "math ai",
+            "value": 50,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:22:42.577743"
+    },
+    {
+      "root_word": "artificial intelligence",
+      "status": "success",
+      "data": {
+        "keyword": "artificial intelligence",
+        "trend_points": [],
+        "average_interest": 125.0,
+        "peak_interest": 187,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "artificial intelligence a modern approach 4th edition",
+            "value": 250,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "synthetic intelligence",
+            "value": 100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "algorithm definition",
+            "value": 90,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "artificial intelligence a modern approach",
+            "value": 60,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:22:53.120999"
+    },
+    {
+      "root_word": "machine learning",
+      "status": "success",
+      "data": {
+        "keyword": "machine learning",
+        "trend_points": [],
+        "average_interest": 22.6,
+        "peak_interest": 33,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "ai machine learning",
+            "value": 100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "what is machine learning",
+            "value": 59,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "ai and machine learning",
+            "value": 47,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "machine learning engineer",
+            "value": 35,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "machine learning model",
+            "value": 30,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "machine learning models",
+            "value": 26,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "is machine learning ai",
+            "value": 26,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "deep learning",
+            "value": 26,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "python machine learning",
+            "value": 20,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "google machine learning",
+            "value": 20,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:23:04.667616"
+    },
+    {
+      "root_word": "deep learning",
+      "status": "success",
+      "data": {
+        "keyword": "deep learning",
+        "trend_points": [],
+        "average_interest": 25.0,
+        "peak_interest": 37,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "deep reinforcement learning",
+            "value": 100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "deep learning ai",
+            "value": 55,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "machine learning",
+            "value": 55,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "what is deep learning",
+            "value": 35,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "deep learning models",
+            "value": 29,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "understanding deep learning",
+            "value": 9,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "deep learning book",
+            "value": 9,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "deep learning vs machine learning",
+            "value": 8,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "neural networks and deep learning",
+            "value": 7,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "deep learning with python",
+            "value": 5,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:23:15.577375"
+    },
+    {
+      "root_word": "neural network",
+      "status": "success",
+      "data": {
+        "keyword": "neural network",
+        "trend_points": [],
+        "average_interest": 160.0,
+        "peak_interest": 240,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "spiking neural network",
+            "value": 250,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "transformer neural network",
+            "value": 70,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:23:26.376476"
+    },
+    {
+      "root_word": "chatbot",
+      "status": "success",
+      "data": {
+        "keyword": "chatbot",
+        "trend_points": [],
+        "average_interest": 74.0,
+        "peak_interest": 111,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "britannica chatbot",
+            "value": 130,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "meta ai",
+            "value": 100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "meta ai chatbot",
+            "value": 100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "meta chatbot",
+            "value": 100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "crushon ai",
+            "value": 60,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "ai chatbot with no restrictions",
+            "value": 60,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "english ai chatbot",
+            "value": 50,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "janitor ai",
+            "value": 50,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "chatgbt",
+            "value": 50,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "candy ai",
+            "value": 40,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:23:37.517705"
+    },
+    {
+      "root_word": "GPT",
+      "status": "success",
+      "data": {
+        "keyword": "GPT",
+        "trend_points": [],
+        "average_interest": 4.68,
+        "peak_interest": 7,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "chat gpt",
+            "value": 100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "what is chat gpt",
+            "value": 3,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "ai gpt",
+            "value": 3,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "ai chat gpt",
+            "value": 2,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "gpt chat free",
+            "value": 2,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "chat gpt login",
+            "value": 1,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "chat gpt 5",
+            "value": 1,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "gpt meaning",
+            "value": 1,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "chat gpt 4",
+            "value": 1,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "chat gpt app",
+            "value": 1,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:23:49.653056"
+    },
+    {
+      "root_word": "OpenAI",
+      "status": "success",
+      "data": {
+        "keyword": "OpenAI",
+        "trend_points": [],
+        "average_interest": 236.66666666666666,
+        "peak_interest": 355,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "openai tried to copy itself to external servers",
+            "value": 750,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "openai cfo",
+            "value": 350,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "palantir stock",
+            "value": 130,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "openai consulting",
+            "value": 70,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "openai prompt optimizer",
+            "value": 70,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "openai agent",
+            "value": 50,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:24:01.306411"
+    },
+    {
+      "root_word": "ChatGPT",
+      "status": "success",
+      "data": {
+        "keyword": "ChatGPT",
+        "trend_points": [],
+        "average_interest": 2275.0,
+        "peak_interest": 3412,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "what my daughter told chatgpt",
+            "value": 4500,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "humanize ai",
+            "value": 50,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:24:13.818418"
+    },
+    {
+      "root_word": "language model",
+      "status": "success",
+      "data": {
+        "keyword": "language model",
+        "trend_points": [],
+        "average_interest": 120.0,
+        "peak_interest": 180,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "protein language model",
+            "value": 120,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:24:25.466389"
+    },
+    {
+      "root_word": "computer vision",
+      "status": "success",
+      "data": {
+        "keyword": "computer vision",
+        "trend_points": [],
+        "average_interest": 200.0,
+        "peak_interest": 300,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "computer vision deep learning",
+            "value": 350,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "computer vision models",
+            "value": 50,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:24:36.288592"
+    },
+    {
+      "root_word": "natural language processing",
+      "status": "success",
+      "data": {
+        "keyword": "natural language processing",
+        "trend_points": [],
+        "average_interest": 28.666666666666668,
+        "peak_interest": 43,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "ai natural language processing",
+            "value": 100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "what is natural language processing",
+            "value": 60,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "nlp",
+            "value": 51,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "nlp natural language processing",
+            "value": 49,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "machine learning",
+            "value": 39,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "natural language processing applications",
+            "value": 19,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "natural language processing is ai that",
+            "value": 18,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "generative ai",
+            "value": 17,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "natural language processing google",
+            "value": 17,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "natural language processing definition",
+            "value": 13,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:24:47.350027"
+    },
+    {
+      "root_word": "NLP",
+      "status": "success",
+      "data": {
+        "keyword": "NLP",
+        "trend_points": [],
+        "average_interest": 50.0,
+        "peak_interest": 75,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "nlp natural language processing",
+            "value": 50,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "natural language processing",
+            "value": 50,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:24:58.373547"
+    },
+    {
+      "root_word": "automation",
+      "status": "success",
+      "data": {
+        "keyword": "automation",
+        "trend_points": [],
+        "average_interest": 100.0,
+        "peak_interest": 150,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "invio automation",
+            "value": 100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:25:10.254017"
+    },
+    {
+      "root_word": "robot",
+      "status": "success",
+      "data": {
+        "keyword": "robot",
+        "trend_points": [],
+        "average_interest": 5157.727272727273,
+        "peak_interest": 7736,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "pregnancy robot real",
+            "value": 19950,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "china pregnant robot",
+            "value": 15800,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "china robot baby",
+            "value": 13400,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "pregnancy robot china",
+            "value": 10600,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "robot that can give birth",
+            "value": 10450,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "robot carrying baby",
+            "value": 9800,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "chinese pregnancy robot",
+            "value": 6900,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "china develops pregnancy robot",
+            "value": 4650,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "china pregnancy robot real",
+            "value": 4050,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "chinese robot pregnant",
+            "value": 3950,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:25:21.715296"
+    },
+    {
+      "root_word": "algorithm",
+      "status": "success",
+      "data": {
+        "keyword": "algorithm",
+        "trend_points": [],
+        "average_interest": 643.75,
+        "peak_interest": 965,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "dijkstra algorithm defeated",
+            "value": 8250,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "dijkstra's algorithm beaten",
+            "value": 550,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "ostrich algorithm",
+            "value": 450,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "how to reset your tiktok algorithm",
+            "value": 140,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "dijkstra's algorithm time complexity",
+            "value": 130,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "dijkstra algorithm beaten",
+            "value": 130,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "shor's algorithm",
+            "value": 120,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "standard algorithm multiplication",
+            "value": 110,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "what is an algorithm in computer science",
+            "value": 70,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "standard algorithm",
+            "value": 60,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:25:32.433915"
+    },
+    {
+      "root_word": "data science",
+      "status": "success",
+      "data": {
+        "keyword": "data science",
+        "trend_points": [],
+        "average_interest": 98.0,
+        "peak_interest": 147,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "control group definition",
+            "value": 130,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "qualitative data",
+            "value": 120,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "qualitative",
+            "value": 120,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "data science minor unc",
+            "value": 110,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "experiment definition",
+            "value": 110,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "observation definition",
+            "value": 110,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "observation",
+            "value": 110,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "independent variable",
+            "value": 110,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "dependent variable",
+            "value": 110,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "independent variable definition",
+            "value": 100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:25:43.373711"
+    },
+    {
+      "root_word": "big data",
+      "status": "success",
+      "data": {
+        "keyword": "big data",
+        "trend_points": [],
+        "average_interest": 17.304347826086957,
+        "peak_interest": 25,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "what is big data",
+            "value": 100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "big data analytics",
+            "value": 63,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "big data companies",
+            "value": 22,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "big data analysis",
+            "value": 21,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "big data and ai",
+            "value": 21,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "big data software",
+            "value": 17,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "big query",
+            "value": 16,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "big data services",
+            "value": 15,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "big data jobs",
+            "value": 14,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "big data definition",
+            "value": 12,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:25:53.886377"
+    },
+    {
+      "root_word": "analytics",
+      "status": "success",
+      "data": {
+        "keyword": "analytics",
+        "trend_points": [],
+        "average_interest": 286.6666666666667,
+        "peak_interest": 430,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "fusion analytics consulting llc",
+            "value": 500,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "crest analytics consulting llc",
+            "value": 300,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "kinch analytics",
+            "value": 60,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:26:05.460316"
+    },
+    {
+      "root_word": "prediction",
+      "status": "success",
+      "data": {
+        "keyword": "prediction",
+        "trend_points": [],
+        "average_interest": 2900.0,
+        "peak_interest": 4350,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "psg vs angers prediction",
+            "value": 7250,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "bengals vs commanders prediction",
+            "value": 5700,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "bengals commanders prediction",
+            "value": 5250,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "real madrid vs osasuna prediction",
+            "value": 4150,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "chelsea vs west ham prediction",
+            "value": 4100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "bears vs bills prediction",
+            "value": 3900,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "steelers vs panthers prediction",
+            "value": 3850,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "steelers panthers prediction",
+            "value": 3800,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "inter miami vs tigres uanl prediction",
+            "value": 3500,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "jaguars vs saints prediction",
+            "value": 3500,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:26:16.648462"
+    },
+    {
+      "root_word": "classification",
+      "status": "success",
+      "data": {
+        "keyword": "classification",
+        "trend_points": [],
+        "average_interest": 28738.75,
+        "peak_interest": 43108,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "bond classification nyt",
+            "value": 111100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "bond classification crossword",
+            "value": 61600,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "bond classification nyt crossword",
+            "value": 55800,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "bond classification",
+            "value": 1200,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "classification of matter",
+            "value": 80,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "taxonomic classification",
+            "value": 50,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "levels of classification",
+            "value": 40,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "classification of living things",
+            "value": 40,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:26:28.937434"
+    },
+    {
+      "root_word": "clustering",
+      "status": "success",
+      "data": {
+        "keyword": "clustering",
+        "trend_points": [],
+        "average_interest": 111.25,
+        "peak_interest": 166,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "clustering definition geography",
+            "value": 160,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "topic clustering",
+            "value": 150,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "data clustering algorithms",
+            "value": 130,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "clustering ap human geography definition",
+            "value": 130,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "clustering ap human geography",
+            "value": 120,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "spectral clustering",
+            "value": 80,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "definition of clustering",
+            "value": 70,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "clustering definition",
+            "value": 50,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:26:39.192786"
+    },
+    {
+      "root_word": "regression",
+      "status": "success",
+      "data": {
+        "keyword": "regression",
+        "trend_points": [],
+        "average_interest": 81.25,
+        "peak_interest": 121,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "regression toward the mean",
+            "value": 200,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "desmos linear regression",
+            "value": 120,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "desmos regression",
+            "value": 80,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "regression psychology",
+            "value": 70,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "linear regression calculator",
+            "value": 50,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "past life regression therapy near me",
+            "value": 50,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "the max-level player's 100th regression",
+            "value": 40,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "what is the 4 month sleep regression",
+            "value": 40,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:26:50.463434"
+    },
+    {
+      "root_word": "supervised learning",
+      "status": "success",
+      "data": {
+        "keyword": "supervised learning",
+        "trend_points": [],
+        "average_interest": 32.22222222222222,
+        "peak_interest": 48,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "unsupervised learning",
+            "value": 100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "machine learning",
+            "value": 84,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "what is supervised learning",
+            "value": 61,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "supervised learning vs unsupervised learning",
+            "value": 43,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "supervised vs unsupervised learning",
+            "value": 42,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "supervised and unsupervised learning",
+            "value": 40,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "self supervised learning",
+            "value": 38,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "reinforcement learning",
+            "value": 38,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "what is unsupervised learning",
+            "value": 25,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "semi supervised learning",
+            "value": 21,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:27:00.603255"
+    },
+    {
+      "root_word": "unsupervised learning",
+      "status": "success",
+      "data": {
+        "keyword": "unsupervised learning",
+        "trend_points": [],
+        "average_interest": 250.0,
+        "peak_interest": 375,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "unsupervised learning in an artificial training system improves",
+            "value": 450,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "deep unsupervised learning using nonequilibrium thermodynamics",
+            "value": 50,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:27:10.167174"
+    },
+    {
+      "root_word": "reinforcement learning",
+      "status": "success",
+      "data": {
+        "keyword": "reinforcement learning",
+        "trend_points": [],
+        "average_interest": 110.0,
+        "peak_interest": 165,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "deep reinforcement learning",
+            "value": 110,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:27:20.292908"
+    },
+    {
+      "root_word": "transfer learning",
+      "status": "success",
+      "data": {
+        "keyword": "transfer learning",
+        "trend_points": [],
+        "average_interest": 25250.0,
+        "peak_interest": 37875,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "fine tuning vs transfer learning",
+            "value": 25800,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "exploring the limits of transfer learning with a unified text-to-text transformer",
+            "value": 24700,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:27:30.632263"
+    },
+    {
+      "root_word": "generative AI",
+      "status": "success",
+      "data": {
+        "keyword": "generative AI",
+        "trend_points": [],
+        "average_interest": 400.0,
+        "peak_interest": 600,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "mit generative ai",
+            "value": 400,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:27:41.086289"
+    },
+    {
+      "root_word": "LLM",
+      "status": "success",
+      "data": {
+        "keyword": "LLM",
+        "trend_points": [],
+        "average_interest": 431.42857142857144,
+        "peak_interest": 647,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "sonic llm",
+            "value": 1100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "nano banana",
+            "value": 950,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "apple llm paper",
+            "value": 750,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "slm vs llm",
+            "value": 70,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "apple llm",
+            "value": 60,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "gemma 3",
+            "value": 50,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "llm meaning in ai",
+            "value": 40,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:27:52.778773"
+    },
+    {
+      "root_word": "transformer",
+      "status": "success",
+      "data": {
+        "keyword": "transformer",
+        "trend_points": [],
+        "average_interest": 80.0,
+        "peak_interest": 120,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "vision transformer",
+            "value": 80,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:28:03.859999"
+    },
+    {
+      "root_word": "BERT",
+      "status": "success",
+      "data": {
+        "keyword": "BERT",
+        "trend_points": [],
+        "average_interest": 116.66666666666667,
+        "peak_interest": 175,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "bert show",
+            "value": 160,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "the bert show",
+            "value": 150,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "bert kreischer",
+            "value": 40,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:28:14.347244"
+    },
+    {
+      "root_word": "attention mechanism",
+      "status": "success",
+      "data": {
+        "keyword": "attention mechanism",
+        "trend_points": [],
+        "average_interest": 100.0,
+        "peak_interest": 150,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "transformer architecture",
+            "value": 100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:28:24.088319"
+    },
+    {
+      "root_word": "encoder",
+      "status": "success",
+      "data": {
+        "keyword": "encoder",
+        "trend_points": [],
+        "average_interest": 94.28571428571429,
+        "peak_interest": 141,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "autonics encoder",
+            "value": 250,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "what is adobe media encoder used for",
+            "value": 120,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "cross encoder reranker",
+            "value": 80,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "caesar cypher encoder",
+            "value": 70,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "json encoder",
+            "value": 50,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "caesar cipher encoder",
+            "value": 50,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "sstv encoder",
+            "value": 40,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:28:34.238195"
+    },
+    {
+      "root_word": "decoder",
+      "status": "success",
+      "data": {
+        "keyword": "decoder",
+        "trend_points": [],
+        "average_interest": 50.0,
+        "peak_interest": 75,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "lexus vin decoder",
+            "value": 50,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:28:44.671861"
+    },
+    {
+      "root_word": "embedding",
+      "status": "success",
+      "data": {
+        "keyword": "embedding",
+        "trend_points": [],
+        "average_interest": 33.13333333333333,
+        "peak_interest": 49,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "embedding model",
+            "value": 100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "embedding models",
+            "value": 69,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "what is embedding",
+            "value": 67,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "text embedding",
+            "value": 54,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "vector embedding",
+            "value": 44,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "openai embedding",
+            "value": 25,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "image embedding",
+            "value": 24,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "rag",
+            "value": 21,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "what is an embedding",
+            "value": 17,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "gemini embedding",
+            "value": 17,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:28:54.527547"
+    },
+    {
+      "root_word": "tokenization",
+      "status": "success",
+      "data": {
+        "keyword": "tokenization",
+        "trend_points": [],
+        "average_interest": 65.0,
+        "peak_interest": 97,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "tokenization vs encryption",
+            "value": 80,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "what is tokenization of assets",
+            "value": 50,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:29:04.464271"
+    },
+    {
+      "root_word": "fine-tuning",
+      "status": "success",
+      "data": {
+        "keyword": "fine-tuning",
+        "trend_points": [],
+        "average_interest": 90.0,
+        "peak_interest": 135,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "supervised fine-tuning",
+            "value": 90,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:29:14.331548"
+    },
+    {
+      "root_word": "prompt engineering",
+      "status": "success",
+      "data": {
+        "keyword": "prompt engineering",
+        "trend_points": [],
+        "average_interest": 734.1666666666666,
+        "peak_interest": 1101,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "prompt engineering by andrew ng",
+            "value": 7800,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "google prompt engineering paper",
+            "value": 150,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "chain of thought prompting",
+            "value": 150,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "prompt engineering cheat sheet",
+            "value": 140,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "few shot prompting",
+            "value": 130,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "deeplearning ai prompt engineering",
+            "value": 90,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "prompt engineering jobs salary",
+            "value": 90,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "prompt engineering lee boonstra",
+            "value": 70,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "prompt engineering lee boonstra pdf",
+            "value": 70,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "ai prompt engineering certification",
+            "value": 40,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:29:24.344029"
+    },
+    {
+      "root_word": "few-shot learning",
+      "status": "success",
+      "data": {
+        "keyword": "few-shot learning",
+        "trend_points": [],
+        "average_interest": 10,
+        "peak_interest": 15,
+        "trend_direction": "stable",
+        "related_queries": []
+      },
+      "timestamp": "2025-08-23T00:29:34.343632"
+    },
+    {
+      "root_word": "zero-shot learning",
+      "status": "success",
+      "data": {
+        "keyword": "zero-shot learning",
+        "trend_points": [],
+        "average_interest": 10,
+        "peak_interest": 15,
+        "trend_direction": "stable",
+        "related_queries": []
+      },
+      "timestamp": "2025-08-23T00:29:44.034899"
+    },
+    {
+      "root_word": "multimodal",
+      "status": "success",
+      "data": {
+        "keyword": "multimodal",
+        "trend_points": [],
+        "average_interest": 580.0,
+        "peak_interest": 870,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "multimodal ai apps",
+            "value": 1100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "multimodal learning",
+            "value": 60,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:29:53.997080"
+    },
+    {
+      "root_word": "text-to-image",
+      "status": "success",
+      "data": {
+        "keyword": "text-to-image",
+        "trend_points": [],
+        "average_interest": 140.0,
+        "peak_interest": 210,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "google text-to-image ai",
+            "value": 140,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:30:04.596289"
+    },
+    {
+      "root_word": "image generation",
+      "status": "success",
+      "data": {
+        "keyword": "image generation",
+        "trend_points": [],
+        "average_interest": 15.590909090909092,
+        "peak_interest": 23,
+        "trend_direction": "stable",
+        "related_queries": [
+          {
+            "query": "image generation ai",
+            "value": 100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "ai for image generation",
+            "value": 44,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "best image generation ai",
+            "value": 26,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "free image generation",
+            "value": 19,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "best ai for image generation",
+            "value": 19,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "chatgpt image generation",
+            "value": 19,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "free image generation ai",
+            "value": 14,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "ai image generation tools",
+            "value": 13,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "google image generation",
+            "value": 11,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "gemini image generation",
+            "value": 10,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:30:15.033693"
+    },
+    {
+      "root_word": "voice synthesis",
+      "status": "success",
+      "data": {
+        "keyword": "voice synthesis",
+        "trend_points": [],
+        "average_interest": 10,
+        "peak_interest": 15,
+        "trend_direction": "stable",
+        "related_queries": []
+      },
+      "timestamp": "2025-08-23T00:30:24.770581"
+    },
+    {
+      "root_word": "speech recognition",
+      "status": "success",
+      "data": {
+        "keyword": "speech recognition",
+        "trend_points": [],
+        "average_interest": 130.0,
+        "peak_interest": 195,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "speech recognition does which of the following to understand your meaning? select all that apply.",
+            "value": 250,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "speech recognition error",
+            "value": 100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "automatic speech recognition",
+            "value": 40,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:30:34.340070"
+    },
+    {
+      "root_word": "recommendation system",
+      "status": "success",
+      "data": {
+        "keyword": "recommendation system",
+        "trend_points": [],
+        "average_interest": 44.5,
+        "peak_interest": 66,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "machine learning recommendation system",
+            "value": 100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "missionary recommendation system",
+            "value": 47,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "content based recommendation system",
+            "value": 26,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "missionary online recommendation system",
+            "value": 5,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:30:44.452227"
+    },
+    {
+      "root_word": "personalization",
+      "status": "success",
+      "data": {
+        "keyword": "personalization",
+        "trend_points": [],
+        "average_interest": 100.0,
+        "peak_interest": 150,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "personalization mall discount code",
+            "value": 190,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "personalisation or personalization",
+            "value": 140,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "yubikey personalization tool",
+            "value": 90,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "personalization mall customer service",
+            "value": 60,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "personalization christmas ornaments",
+            "value": 60,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "personalization synonym",
+            "value": 60,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:30:54.685330"
+    },
+    {
+      "root_word": "content generation",
+      "status": "success",
+      "data": {
+        "keyword": "content generation",
+        "trend_points": [],
+        "average_interest": 180.0,
+        "peak_interest": 270,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "why might marketers use text-to-image models in the creative process?",
+            "value": 180,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:31:04.299147"
+    },
+    {
+      "root_word": "code generation",
+      "status": "success",
+      "data": {
+        "keyword": "code generation",
+        "trend_points": [],
+        "average_interest": 48.0,
+        "peak_interest": 72,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "ai code generation",
+            "value": 100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "ai for code generation",
+            "value": 63,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "best ai for code generation",
+            "value": 30,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "qr code generation",
+            "value": 24,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "claude code generation",
+            "value": 23,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:31:14.447498"
+    },
+    {
+      "root_word": "AI assistant",
+      "status": "success",
+      "data": {
+        "keyword": "AI assistant",
+        "trend_points": [],
+        "average_interest": 37.0,
+        "peak_interest": 55,
+        "trend_direction": "declining",
+        "related_queries": [
+          {
+            "query": "best ai assistant",
+            "value": 100,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "google ai assistant",
+            "value": 52,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "ai virtual assistant",
+            "value": 26,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "gemini ai",
+            "value": 18,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "ai email assistant",
+            "value": 17,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          },
+          {
+            "query": "claude ai",
+            "value": 9,
+            "type": "related",
+            "new_word_detection": {
+              "is_new_word": false,
+              "new_word_score": 0.0,
+              "new_word_grade": "D",
+              "confidence_level": "low",
+              "growth_rate_7d": 0.0,
+              "historical_pattern": "unknown",
+              "detection_reasons": "检测失败"
+            }
+          }
+        ]
+      },
+      "timestamp": "2025-08-23T00:31:25.556313"
+    }
+  ],
+  "summary": {
+    "successful_analyses": 50,
+    "failed_analyses": 0,
+    "top_trending_words": [],
+    "declining_words": [
+      {
+        "word": "classification",
+        "average_interest": 28738.75
+      },
+      {
+        "word": "transfer learning",
+        "average_interest": 25250.0
+      },
+      {
+        "word": "ChatGPT",
+        "average_interest": 2275.0
+      },
+      {
+        "word": "prompt engineering",
+        "average_interest": 734.1666666666666
+      },
+      {
+        "word": "algorithm",
+        "average_interest": 643.75
+      },
+      {
+        "word": "multimodal",
+        "average_interest": 580.0
+      },
+      {
+        "word": "LLM",
+        "average_interest": 431.42857142857144
+      },
+      {
+        "word": "generative AI",
+        "average_interest": 400.0
+      },
+      {
+        "word": "analytics",
+        "average_interest": 286.6666666666667
+      },
+      {
+        "word": "unsupervised learning",
+        "average_interest": 250.0
+      },
+      {
+        "word": "OpenAI",
+        "average_interest": 236.66666666666666
+      },
+      {
+        "word": "computer vision",
+        "average_interest": 200.0
+      },
+      {
+        "word": "content generation",
+        "average_interest": 180.0
+      },
+      {
+        "word": "neural network",
+        "average_interest": 160.0
+      },
+      {
+        "word": "text-to-image",
+        "average_interest": 140.0
+      },
+      {
+        "word": "speech recognition",
+        "average_interest": 130.0
+      },
+      {
+        "word": "artificial intelligence",
+        "average_interest": 125.0
+      },
+      {
+        "word": "language model",
+        "average_interest": 120.0
+      },
+      {
+        "word": "BERT",
+        "average_interest": 116.66666666666667
+      },
+      {
+        "word": "clustering",
+        "average_interest": 111.25
+      },
+      {
+        "word": "reinforcement learning",
+        "average_interest": 110.0
+      },
+      {
+        "word": "automation",
+        "average_interest": 100.0
+      },
+      {
+        "word": "attention mechanism",
+        "average_interest": 100.0
+      },
+      {
+        "word": "personalization",
+        "average_interest": 100.0
+      },
+      {
+        "word": "data science",
+        "average_interest": 98.0
+      },
+      {
+        "word": "AI",
+        "average_interest": 97.5
+      },
+      {
+        "word": "encoder",
+        "average_interest": 94.28571428571429
+      },
+      {
+        "word": "fine-tuning",
+        "average_interest": 90.0
+      },
+      {
+        "word": "regression",
+        "average_interest": 81.25
+      },
+      {
+        "word": "transformer",
+        "average_interest": 80.0
+      },
+      {
+        "word": "chatbot",
+        "average_interest": 74.0
+      },
+      {
+        "word": "tokenization",
+        "average_interest": 65.0
+      },
+      {
+        "word": "NLP",
+        "average_interest": 50.0
+      },
+      {
+        "word": "decoder",
+        "average_interest": 50.0
+      },
+      {
+        "word": "code generation",
+        "average_interest": 48.0
+      },
+      {
+        "word": "recommendation system",
+        "average_interest": 44.5
+      },
+      {
+        "word": "AI assistant",
+        "average_interest": 37.0
+      },
+      {
+        "word": "embedding",
+        "average_interest": 33.13333333333333
+      },
+      {
+        "word": "supervised learning",
+        "average_interest": 32.22222222222222
+      },
+      {
+        "word": "natural language processing",
+        "average_interest": 28.666666666666668
+      },
+      {
+        "word": "deep learning",
+        "average_interest": 25.0
+      }
+    ],
+    "stable_words": [
+      {
+        "word": "robot",
+        "average_interest": 5157.727272727273
+      },
+      {
+        "word": "prediction",
+        "average_interest": 2900.0
+      },
+      {
+        "word": "machine learning",
+        "average_interest": 22.6
+      },
+      {
+        "word": "big data",
+        "average_interest": 17.304347826086957
+      },
+      {
+        "word": "image generation",
+        "average_interest": 15.590909090909092
+      },
+      {
+        "word": "few-shot learning",
+        "average_interest": 10
+      },
+      {
+        "word": "zero-shot learning",
+        "average_interest": 10
+      },
+      {
+        "word": "voice synthesis",
+        "average_interest": 10
+      },
+      {
+        "word": "GPT",
+        "average_interest": 4.68
+      }
+    ],
+    "average_interest_distribution": {}
+  }
+}

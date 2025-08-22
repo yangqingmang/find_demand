@@ -1,0 +1,51 @@
+﻿词根,状态,平均兴趣度,峰值兴趣度,趋势方向,相关查询数量,新词数量,高置信度新词,平均新词分数
+AI,成功,97.5,146,declining,4,0,0,0
+artificial intelligence,成功,125.0,187,declining,4,0,0,0
+machine learning,成功,22.6,33,stable,10,0,0,0
+deep learning,成功,25.0,37,declining,10,0,0,0
+neural network,成功,160.0,240,declining,2,0,0,0
+chatbot,成功,74.0,111,declining,10,0,0,0
+GPT,成功,4.68,7,stable,10,0,0,0
+OpenAI,成功,236.67,355,declining,6,0,0,0
+ChatGPT,成功,2275.0,3412,declining,2,0,0,0
+language model,成功,120.0,180,declining,1,0,0,0
+computer vision,成功,200.0,300,declining,2,0,0,0
+natural language processing,成功,28.67,43,declining,10,0,0,0
+NLP,成功,50.0,75,declining,2,0,0,0
+automation,成功,100.0,150,declining,1,0,0,0
+robot,成功,5157.73,7736,stable,10,0,0,0
+algorithm,成功,643.75,965,declining,10,0,0,0
+data science,成功,98.0,147,declining,10,0,0,0
+big data,成功,17.3,25,stable,10,0,0,0
+analytics,成功,286.67,430,declining,3,0,0,0
+prediction,成功,2900.0,4350,stable,10,0,0,0
+classification,成功,28738.75,43108,declining,8,0,0,0
+clustering,成功,111.25,166,declining,8,0,0,0
+regression,成功,81.25,121,declining,8,0,0,0
+supervised learning,成功,32.22,48,declining,10,0,0,0
+unsupervised learning,成功,250.0,375,declining,2,0,0,0
+reinforcement learning,成功,110.0,165,declining,1,0,0,0
+transfer learning,成功,25250.0,37875,declining,2,0,0,0
+generative AI,成功,400.0,600,declining,1,0,0,0
+LLM,成功,431.43,647,declining,7,0,0,0
+transformer,成功,80.0,120,declining,1,0,0,0
+BERT,成功,116.67,175,declining,3,0,0,0
+attention mechanism,成功,100.0,150,declining,1,0,0,0
+encoder,成功,94.29,141,declining,7,0,0,0
+decoder,成功,50.0,75,declining,1,0,0,0
+embedding,成功,33.13,49,declining,10,0,0,0
+tokenization,成功,65.0,97,declining,2,0,0,0
+fine-tuning,成功,90.0,135,declining,1,0,0,0
+prompt engineering,成功,734.17,1101,declining,10,0,0,0
+few-shot learning,成功,10.0,15,stable,0,0,0,0
+zero-shot learning,成功,10.0,15,stable,0,0,0,0
+multimodal,成功,580.0,870,declining,2,0,0,0
+text-to-image,成功,140.0,210,declining,1,0,0,0
+image generation,成功,15.59,23,stable,10,0,0,0
+voice synthesis,成功,10.0,15,stable,0,0,0,0
+speech recognition,成功,130.0,195,declining,3,0,0,0
+recommendation system,成功,44.5,66,declining,4,0,0,0
+personalization,成功,100.0,150,declining,6,0,0,0
+content generation,成功,180.0,270,declining,1,0,0,0
+code generation,成功,48.0,72,declining,5,0,0,0
+AI assistant,成功,37.0,55,declining,6,0,0,0

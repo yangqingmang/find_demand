@@ -1,0 +1,210 @@
+{
+  "successful_analyses": 50,
+  "failed_analyses": 0,
+  "top_trending_words": [],
+  "declining_words": [
+    {
+      "word": "unsupervised learning",
+      "average_interest": 89900.0
+    },
+    {
+      "word": "classification",
+      "average_interest": 32640.0
+    },
+    {
+      "word": "supervised learning",
+      "average_interest": 32300.0
+    },
+    {
+      "word": "big data",
+      "average_interest": 11300.0
+    },
+    {
+      "word": "computer vision",
+      "average_interest": 8200.0
+    },
+    {
+      "word": "language model",
+      "average_interest": 8110.0
+    },
+    {
+      "word": "prompt engineering",
+      "average_interest": 2348.5714285714284
+    },
+    {
+      "word": "ChatGPT",
+      "average_interest": 2275.0
+    },
+    {
+      "word": "LLM",
+      "average_interest": 1107.142857142857
+    },
+    {
+      "word": "algorithm",
+      "average_interest": 745.0
+    },
+    {
+      "word": "multimodal",
+      "average_interest": 405.0
+    },
+    {
+      "word": "BERT",
+      "average_interest": 400.0
+    },
+    {
+      "word": "OpenAI",
+      "average_interest": 358.3333333333333
+    },
+    {
+      "word": "generative AI",
+      "average_interest": 350.0
+    },
+    {
+      "word": "text-to-image",
+      "average_interest": 170.0
+    },
+    {
+      "word": "neural network",
+      "average_interest": 155.0
+    },
+    {
+      "word": "analytics",
+      "average_interest": 150.0
+    },
+    {
+      "word": "recommendation system",
+      "average_interest": 145.0
+    },
+    {
+      "word": "speech recognition",
+      "average_interest": 125.0
+    },
+    {
+      "word": "reinforcement learning",
+      "average_interest": 120.0
+    },
+    {
+      "word": "clustering",
+      "average_interest": 117.14285714285714
+    },
+    {
+      "word": "attention mechanism",
+      "average_interest": 100.0
+    },
+    {
+      "word": "artificial intelligence",
+      "average_interest": 97.5
+    },
+    {
+      "word": "personalization",
+      "average_interest": 93.33333333333333
+    },
+    {
+      "word": "AI",
+      "average_interest": 92.5
+    },
+    {
+      "word": "regression",
+      "average_interest": 85.55555555555556
+    },
+    {
+      "word": "chatbot",
+      "average_interest": 72.0
+    },
+    {
+      "word": "fine-tuning",
+      "average_interest": 70.0
+    },
+    {
+      "word": "transformer",
+      "average_interest": 65.0
+    },
+    {
+      "word": "encoder",
+      "average_interest": 65.0
+    },
+    {
+      "word": "tokenization",
+      "average_interest": 63.333333333333336
+    },
+    {
+      "word": "code generation",
+      "average_interest": 52.5
+    },
+    {
+      "word": "NLP",
+      "average_interest": 50.0
+    },
+    {
+      "word": "automation",
+      "average_interest": 50.0
+    },
+    {
+      "word": "decoder",
+      "average_interest": 50.0
+    },
+    {
+      "word": "embedding",
+      "average_interest": 40.0
+    },
+    {
+      "word": "content generation",
+      "average_interest": 40.0
+    },
+    {
+      "word": "transfer learning",
+      "average_interest": 39.666666666666664
+    },
+    {
+      "word": "AI assistant",
+      "average_interest": 33.0
+    },
+    {
+      "word": "image generation",
+      "average_interest": 31.0
+    },
+    {
+      "word": "natural language processing",
+      "average_interest": 26.8125
+    },
+    {
+      "word": "deep learning",
+      "average_interest": 25.53846153846154
+    }
+  ],
+  "stable_words": [
+    {
+      "word": "robot",
+      "average_interest": 5150.909090909091
+    },
+    {
+      "word": "prediction",
+      "average_interest": 3020.0
+    },
+    {
+      "word": "data science",
+      "average_interest": 97.14285714285714
+    },
+    {
+      "word": "machine learning",
+      "average_interest": 21.6
+    },
+    {
+      "word": "few-shot learning",
+      "average_interest": 10
+    },
+    {
+      "word": "zero-shot learning",
+      "average_interest": 10
+    },
+    {
+      "word": "voice synthesis",
+      "average_interest": 10
+    },
+    {
+      "word": "GPT",
+      "average_interest": 4.64
+    }
+  ],
+  "average_interest_distribution": {}
+}
