@@ -30,18 +30,7 @@ class BaseSEOToolCollector(ABC):
         self.logger = Logger()
         self.session = requests.Session()
         self.rate_limit_delay = 1.0  # 基础延迟1秒
-        self.last_request_time = 0
-    
-    def _wait_for_rate_limit(self):
-        """等待速率限制"""
-        current_time = time.time()
-        time_since_last = current_time - self.last_request_time
-        
-        if time_since_last < self.rate_limit_delay:
-            wait_time = self.rate_limit_delay - time_since_last
-            time.sleep(wait_time)
-        
-        self.last_request_time = time.time()
+
     
     @abstractmethod
     def get_keyword_data(self, keyword: str, **kwargs) -> Dict[str, Any]:
@@ -73,8 +62,8 @@ class SemrushCollector(BaseSEOToolCollector):
         try:
             self.logger.info(f"🔍 Semrush: 获取关键词 '{keyword}' 数据...")
             
-            self._wait_for_rate_limit()
-            
+
+
             # Semrush Keyword Overview API
             params = {
                 'type': 'phrase_this',
@@ -83,9 +72,9 @@ class SemrushCollector(BaseSEOToolCollector):
                 'database': database,
                 'export_columns': 'Ph,Nq,Cp,Co,Nr,Td'
             }
-            
+
             response = self.session.get(f"{self.base_url}reports/v1/projects/", params=params)
-            
+
             if response.status_code == 200:
                 data = self._parse_semrush_response(response.text)
                 self.logger.info(f"✓ Semrush: 成功获取 '{keyword}' 数据")
@@ -98,18 +87,18 @@ class SemrushCollector(BaseSEOToolCollector):
             else:
                 self.logger.error(f"❌ Semrush API错误: {response.status_code}")
                 return {}
-                
+
         except Exception as e:
             self.logger.error(f"❌ Semrush采集错误: {e}")
             return {}
-    
+
     def get_competitor_keywords(self, domain: str, database: str = "us", limit: int = 100) -> pd.DataFrame:
         """获取竞争对手关键词"""
         try:
             self.logger.info(f"🔍 Semrush: 获取域名 '{domain}' 的关键词...")
-            
-            self._wait_for_rate_limit()
-            
+
+
+
             params = {
                 'type': 'domain_organic',
                 'key': self.api_key,
@@ -118,9 +107,9 @@ class SemrushCollector(BaseSEOToolCollector):
                 'limit': limit,
                 'export_columns': 'Ph,Po,Pp,Pd,Nq,Cp,Ur,Tr,Tc,Co,Nr,Td'
             }
-            
+
             response = self.session.get(f"{self.base_url}reports/v1/projects/", params=params)
-            
+
             if response.status_code == 200:
                 df = self._parse_semrush_organic_response(response.text)
                 self.logger.info(f"✓ Semrush: 成功获取 {len(df)} 个关键词")
@@ -128,58 +117,58 @@ class SemrushCollector(BaseSEOToolCollector):
             else:
                 self.logger.error(f"❌ Semrush API错误: {response.status_code}")
                 return pd.DataFrame()
-                
+
         except Exception as e:
             self.logger.error(f"❌ Semrush采集错误: {e}")
             return pd.DataFrame()
-    
+
     def _parse_semrush_response(self, response_text: str) -> Dict:
         """解析Semrush响应"""
         lines = response_text.strip().split('\n')
         if len(lines) < 2:
             return {}
-        
+
         headers = lines[0].split(';')
         data = lines[1].split(';') if len(lines) > 1 else []
-        
+
         result = {}
         for i, header in enumerate(headers):
             if i < len(data):
                 result[header] = data[i]
-        
+
         return result
-    
+
     def _parse_semrush_organic_response(self, response_text: str) -> pd.DataFrame:
         """解析Semrush有机关键词响应"""
         lines = response_text.strip().split('\n')
         if len(lines) < 2:
             return pd.DataFrame()
-        
+
         headers = lines[0].split(';')
         data_rows = []
-        
+
         for line in lines[1:]:
             if line.strip():
                 data_rows.append(line.split(';'))
-        
+
         return pd.DataFrame(data_rows, columns=headers)
 
 
 class AhrefsCollector(BaseSEOToolCollector):
     """Ahrefs API 采集器"""
-    
+
     def __init__(self, api_key: str):
         super().__init__(api_key, "Ahrefs")
         self.base_url = "https://apiv2.ahrefs.com/"
         self.rate_limit_delay = 2.0  # Ahrefs限制较严格
-    
+
     def get_keyword_data(self, keyword: str, country: str = "us", **kwargs) -> Dict[str, Any]:
         """获取关键词数据"""
         try:
             self.logger.info(f"🔍 Ahrefs: 获取关键词 '{keyword}' 数据...")
-            
-            self._wait_for_rate_limit()
-            
+
+
+
             params = {
                 'token': self.api_key,
                 'from': 'keywords_explorer',
@@ -187,9 +176,9 @@ class AhrefsCollector(BaseSEOToolCollector):
                 'country': country,
                 'mode': 'exact'
             }
-            
+
             response = self.session.get(f"{self.base_url}keywords-explorer", params=params)
-            
+
             if response.status_code == 200:
                 data = response.json()
                 self.logger.info(f"✓ Ahrefs: 成功获取 '{keyword}' 数据")
@@ -202,18 +191,18 @@ class AhrefsCollector(BaseSEOToolCollector):
             else:
                 self.logger.error(f"❌ Ahrefs API错误: {response.status_code}")
                 return {}
-                
+
         except Exception as e:
             self.logger.error(f"❌ Ahrefs采集错误: {e}")
             return {}
-    
+
     def get_competitor_keywords(self, domain: str, country: str = "us", limit: int = 100) -> pd.DataFrame:
         """获取竞争对手关键词"""
         try:
             self.logger.info(f"🔍 Ahrefs: 获取域名 '{domain}' 的关键词...")
-            
-            self._wait_for_rate_limit()
-            
+
+
+
             params = {
                 'token': self.api_key,
                 'from': 'ahrefs_rank',
@@ -221,9 +210,9 @@ class AhrefsCollector(BaseSEOToolCollector):
                 'country': country,
                 'limit': limit
             }
-            
+
             response = self.session.get(f"{self.base_url}site-explorer", params=params)
-            
+
             if response.status_code == 200:
                 data = response.json()
                 df = self._parse_ahrefs_response(data)
@@ -232,11 +221,11 @@ class AhrefsCollector(BaseSEOToolCollector):
             else:
                 self.logger.error(f"❌ Ahrefs API错误: {response.status_code}")
                 return pd.DataFrame()
-                
+
         except Exception as e:
             self.logger.error(f"❌ Ahrefs采集错误: {e}")
             return pd.DataFrame()
-    
+
     def _parse_ahrefs_response(self, data: Dict) -> pd.DataFrame:
         """解析Ahrefs响应"""
         if 'keywords' in data:
@@ -246,19 +235,19 @@ class AhrefsCollector(BaseSEOToolCollector):
 
 class SimilarwebCollector(BaseSEOToolCollector):
     """Similarweb API 采集器"""
-    
+
     def __init__(self, api_key: str):
         super().__init__(api_key, "Similarweb")
         self.base_url = "https://api.similarweb.com/v1/"
         self.rate_limit_delay = 1.5
-    
+
     def get_keyword_data(self, keyword: str, country: str = "us", **kwargs) -> Dict[str, Any]:
         """获取关键词数据"""
         try:
             self.logger.info(f"🔍 Similarweb: 获取关键词 '{keyword}' 数据...")
-            
-            self._wait_for_rate_limit()
-            
+
+
+
             headers = {'api-key': self.api_key}
             params = {
                 'keyword': keyword,
@@ -266,13 +255,13 @@ class SimilarwebCollector(BaseSEOToolCollector):
                 'start_date': '2024-01',
                 'end_date': '2024-12'
             }
-            
+
             response = self.session.get(
                 f"{self.base_url}keywords/{keyword}/analysis",
                 headers=headers,
                 params=params
             )
-            
+
             if response.status_code == 200:
                 data = response.json()
                 self.logger.info(f"✓ Similarweb: 成功获取 '{keyword}' 数据")
@@ -285,18 +274,17 @@ class SimilarwebCollector(BaseSEOToolCollector):
             else:
                 self.logger.error(f"❌ Similarweb API错误: {response.status_code}")
                 return {}
-                
+
         except Exception as e:
             self.logger.error(f"❌ Similarweb采集错误: {e}")
             return {}
-    
+
     def get_competitor_keywords(self, domain: str, country: str = "us", limit: int = 100) -> pd.DataFrame:
         """获取竞争对手关键词"""
         try:
             self.logger.info(f"🔍 Similarweb: 获取域名 '{domain}' 的关键词...")
-            
-            self._wait_for_rate_limit()
-            
+
+
             headers = {'api-key': self.api_key}
             params = {
                 'domain': domain,

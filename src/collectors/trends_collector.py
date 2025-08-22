@@ -16,7 +16,6 @@ from src.utils import FileUtils, Logger
 
 from src.utils.constants import GOOGLE_TRENDS_CONFIG
 from config.config_manager import get_config
-from src.utils.mock_data_generator import MockDataGenerator
 
 config = get_config()
 
@@ -101,7 +100,7 @@ class TrendsCollector:
             dict: API响应数据
         """
         # 等待速率限制
-        time.sleep(5)
+        time.sleep(1)
         
         try:
             # 使用默认值填充参数
@@ -328,7 +327,7 @@ class TrendsCollector:
         self.logger.info(f"正在获取 '{keyword}' 的Rising Queries数据 (地区: {geo})...")
 
         # 等待速率限制（避免429错误）
-        time.sleep(5)
+        time.sleep(1)
         
         for attempt in range(self.retries):
             try:

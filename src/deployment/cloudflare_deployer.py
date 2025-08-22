@@ -229,8 +229,8 @@ class CloudflareDeployer(BaseDeployer):
                     self.deployment_status = 'failed'
                     return False, "部署失败"
                 
-                time.sleep(10)
-                wait_time += 10
+                time.sleep(2)
+                wait_time += 2
                 self.log(f"部署进行中... ({wait_time}s)")
             
             return False, "部署超时"

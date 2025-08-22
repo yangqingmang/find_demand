@@ -47,8 +47,6 @@ class IntegratedDemandMiningManager:
             self.new_word_detection_available = False
             print(f"⚠️ 新词检测器初始化失败: {e}")
 
-        self.enhanced_features_available = ENHANCED_FEATURES_AVAILABLE
-        
         print("🚀 集成需求挖掘管理器初始化完成")
         print("📊 已加载关键词管理器、发现管理器、趋势管理器")
         if self.new_word_detection_available:

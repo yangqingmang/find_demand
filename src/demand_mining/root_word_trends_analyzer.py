@@ -67,7 +67,7 @@ class RootWordTrendsAnalyzer:
             processed_data = self._process_trend_data(root_word, trend_data)
             
             # 添加延迟避免API限制 - 优化后的间隔时间
-            time.sleep(20)
+            time.sleep(1)
             
             return {
                 "root_word": root_word,
@@ -210,12 +210,7 @@ class RootWordTrendsAnalyzer:
                 results["results"].append(result)
                 
                 # 批次间延迟
-                time.sleep(2)
-            
-            # 批次间更长延迟
-            if i + batch_size < len(self.root_words):
-                self.logger.info("批次间休息...")
-                time.sleep(10)
+                time.sleep(5)
         
         # 生成摘要
         results["summary"] = self._generate_summary(results["results"])
