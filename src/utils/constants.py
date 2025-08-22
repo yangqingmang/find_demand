@@ -71,12 +71,12 @@ GOOGLE_TRENDS_CONFIG = {
     'default_timeframe': 'now 7-d',
     'timeframe_options': {
         '过去7天': 'now 7-d',
-        '过去1个月': 'now 1-m',
-        '过去3个月': 'now 3-m', 
-        '过去6个月': 'now 6-m',
-        '过去12个月': 'now 12-m',
-        '过去2年': 'now 2-y',
-        '过去5年': 'now 5-y'
+        '过去1个月': 'today 1-m',
+        '过去3个月': 'today 3-m',
+        '过去6个月': 'today 6-m',
+        '过去12个月': 'today 12-m',
+        '过去2年': 'today 2-y',
+        '过去5年': 'today 5-y'
     },
     'default_geo': 'US',
     'default_language': 'en-US',

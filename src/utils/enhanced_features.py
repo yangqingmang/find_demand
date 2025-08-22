@@ -5,11 +5,7 @@
 为主程序提供额外的增强功能
 """
 
-import os
-import json
-import schedule
-import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import List, Dict, Any
 
 def monitor_competitors(sites: List[str], output_dir: str = None) -> Dict[str, Any]:
@@ -123,7 +119,7 @@ def generate_seo_audit(domain: str, keywords: List[str] = None) -> Dict[str, Any
     
     return audit_results
 
-def batch_build_websites(top_keywords: int = 10, output_dir: str = None) -> Dict[str, Any]:
+def batch_build_websites(top_keywords: int = 10) -> Dict[str, Any]:
     """批量生成网站"""
     print(f"🏗️ 开始批量生成 {top_keywords} 个高价值关键词的网站...")
     
@@ -167,32 +163,6 @@ def batch_build_websites(top_keywords: int = 10, output_dir: str = None) -> Dict
     
     return build_results
 
-def setup_scheduler(schedule_type: str, time_str: str, action: str, **kwargs):
-    """设置定时任务"""
-    print(f"⏰ 设置定时任务: {schedule_type} at {time_str} - {action}")
-    
-    if schedule_type == 'daily':
-        schedule.every().day.at(time_str).do(_scheduled_task, action, **kwargs)
-    elif schedule_type == 'weekly':
-        schedule.every().week.at(time_str).do(_scheduled_task, action, **kwargs)
-    elif schedule_type == 'hourly':
-        schedule.every().hour.do(_scheduled_task, action, **kwargs)
-    
-    print("✅ 定时任务已设置")
-
-def run_scheduler():
-    """运行调度器"""
-    print("🚀 启动任务调度器...")
-    scheduler_running = True
-    
-    try:
-        while scheduler_running:
-            schedule.run_pending()
-            time.sleep(60)  # 每分钟检查一次
-    except KeyboardInterrupt:
-        print("\n⚠️ 调度器被用户中断")
-        scheduler_running = False
-
 def _scheduled_task(action: str, **kwargs):
     """执行定时任务"""
     print(f"🤖 执行定时任务: {action} at {datetime.now()}")
@@ -207,14 +177,6 @@ def _scheduled_task(action: str, **kwargs):
                 analysis = discoverer.analyze_keyword_trends(df)
                 print(f"✅ 定时发现完成: {analysis['total_keywords']} 个关键词")
         
-        elif action == 'analyze':
-            keywords_file = kwargs.get('keywords_file')
-            if keywords_file and os.path.exists(keywords_file):
-                from src.demand_mining.demand_mining_main import DemandMiningManager
-                manager = DemandMiningManager()
-                result = manager.analyze_keywords(keywords_file)
-                print(f"✅ 定时分析完成: {result['total_keywords']} 个关键词")
-        
         elif action == 'monitor':
             sites = kwargs.get('sites', ['canva.com', 'midjourney.com'])
             result = monitor_competitors(sites)
@@ -225,24 +187,16 @@ def _scheduled_task(action: str, **kwargs):
 
 def _save_competitor_monitoring_results(results: Dict, output_dir: str):
     """保存竞品监控结果"""
-    os.makedirs(output_dir, exist_ok=True)
+    from src.utils.file_utils import save_results_with_timestamp
     
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    file_path = os.path.join(output_dir, f'competitor_monitoring_{timestamp}.json')
-    
-    with open(file_path, 'w', encoding='utf-8') as f:
-        json.dump(results, f, ensure_ascii=False, indent=2)
+    file_path = save_results_with_timestamp(results, output_dir, 'competitor_monitoring')
     
     print(f"📁 竞品监控结果已保存: {file_path}")
 
 def _save_trend_predictions(predictions: Dict, output_dir: str):
     """保存趋势预测结果"""
-    os.makedirs(output_dir, exist_ok=True)
+    from src.utils.file_utils import save_results_with_timestamp
     
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    file_path = os.path.join(output_dir, f'trend_predictions_{timestamp}.json')
-    
-    with open(file_path, 'w', encoding='utf-8') as f:
-        json.dump(predictions, f, ensure_ascii=False, indent=2)
+    file_path = save_results_with_timestamp(predictions, output_dir, 'trend_predictions')
     
     print(f"📁 趋势预测结果已保存: {file_path}")

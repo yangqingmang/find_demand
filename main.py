@@ -9,25 +9,18 @@ import argparse
 import sys
 import os
 from datetime import datetime
-from typing import Dict, List, Any, Optional
-
-# 添加src目录到Python路径
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
-
+from typing import Dict, List, Any
+from src.demand_mining.tools.multi_platform_keyword_discovery import MultiPlatformKeywordDiscovery
+from src.utils.enhanced_features import (
+        monitor_competitors, predict_keyword_trends, generate_seo_audit,
+        batch_build_websites
+    )
 # 直接导入需求挖掘管理器组件
 from src.demand_mining.managers import KeywordManager, DiscoveryManager, TrendManager
 from src.utils.logger import setup_logger
 
-# 导入增强功能模块
-try:
-    from src.utils.enhanced_features import (
-        monitor_competitors, predict_keyword_trends, generate_seo_audit,
-        batch_build_websites, setup_scheduler, run_scheduler
-    )
-    ENHANCED_FEATURES_AVAILABLE = True
-except ImportError:
-    ENHANCED_FEATURES_AVAILABLE = False
-    print("⚠️ 增强功能模块未找到，部分功能将不可用")
+# 添加src目录到Python路径
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 
 class IntegratedDemandMiningManager:
@@ -41,9 +34,7 @@ class IntegratedDemandMiningManager:
         self.keyword_manager = KeywordManager(config_path)
         self.discovery_manager = DiscoveryManager(config_path)
         self.trend_manager = TrendManager(config_path)
-        
-        self.enhanced_features_available = ENHANCED_FEATURES_AVAILABLE
-        
+
         print("🚀 集成需求挖掘管理器初始化完成")
         print("📊 已加载关键词管理器、发现管理器、趋势管理器")
     
@@ -135,10 +126,9 @@ class IntegratedDemandMiningManager:
             output_dir=output_dir
         )
     
-    def _run_competitor_analysis(self, **kwargs) -> Dict[str, Any]:
+    @staticmethod
+    def _run_competitor_analysis(**kwargs) -> Dict[str, Any]:
         """运行竞品分析"""
-        if not self.enhanced_features_available:
-            return {'error': '增强功能不可用'}
         
         try:
             sites = kwargs.get('sites', ['canva.com', 'midjourney.com'])
@@ -179,7 +169,6 @@ class IntegratedDemandMiningManager:
             'keyword_manager': self.keyword_manager.get_stats(),
             'discovery_manager': self.discovery_manager.get_discovery_stats(),
             'trend_manager': self.trend_manager.get_stats(),
-            'enhanced_features_available': self.enhanced_features_available
         }
 
 
@@ -251,9 +240,6 @@ def main():
 
   # 批量生成网站
   python main.py --build-websites --top-keywords 5
-
-  # 设置定时任务
-  python main.py --schedule daily --time "09:00" --action discover --run-scheduler
         """
     )
     
@@ -274,13 +260,6 @@ def main():
     enhanced_group.add_argument('--domain', help='要审计的域名')
     enhanced_group.add_argument('--build-websites', action='store_true', help='批量生成网站')
     enhanced_group.add_argument('--top-keywords', type=int, default=10, help='使用前N个关键词')
-    
-    # 调度功能组
-    schedule_group = parser.add_argument_group('定时任务')
-    schedule_group.add_argument('--schedule', choices=['daily', 'weekly', 'hourly'], help='设置定时任务')
-    schedule_group.add_argument('--time', help='执行时间 (HH:MM)')
-    schedule_group.add_argument('--action', help='定时执行的动作')
-    schedule_group.add_argument('--run-scheduler', action='store_true', help='运行调度器')
     
     # 其他参数
     parser.add_argument('--output', default='src/demand_mining/reports', help='输出目录')
@@ -387,14 +366,15 @@ def main():
             
             try:
                 # 导入多平台发现工具
-                from src.demand_mining.tools.multi_platform_keyword_discovery import MultiPlatformKeywordDiscovery
+
                 
                 # 创建发现工具
                 discoverer = MultiPlatformKeywordDiscovery()
                 
                 # 执行发现
                 df = discoverer.discover_all_platforms(search_terms)
-                
+
+
                 if not df.empty:
                     # 分析趋势
                     analysis = discoverer.analyze_keyword_trends(df)
@@ -449,7 +429,7 @@ def main():
                     import traceback
                     traceback.print_exc()
         
-        elif args.monitor_competitors and ENHANCED_FEATURES_AVAILABLE:
+        elif args.monitor_competitors:
             # 竞品监控
             sites = args.sites or ['canva.com', 'midjourney.com', 'openai.com']
             if not args.quiet:
@@ -463,7 +443,7 @@ def main():
                 for comp in result['competitors'][:3]:
                     print(f"  • {comp['site']}: {comp['new_keywords_count']} 个新关键词")
         
-        elif args.predict_trends and ENHANCED_FEATURES_AVAILABLE:
+        elif args.predict_trends:
             # 趋势预测
             if not args.quiet:
                 print(f"📈 开始预测未来 {args.timeframe} 的关键词趋势...")
@@ -476,7 +456,7 @@ def main():
                 for kw in result['rising_keywords'][:3]:
                     print(f"  📈 {kw['keyword']}: {kw['predicted_growth']} (置信度: {kw['confidence']:.0%})")
         
-        elif args.seo_audit and ENHANCED_FEATURES_AVAILABLE:
+        elif args.seo_audit:
             # SEO审计
             if not args.domain:
                 print("❌ 请指定要审计的域名 (--domain)")
@@ -493,7 +473,7 @@ def main():
                 for gap in result['content_gaps'][:3]:
                     print(f"  • {gap}")
         
-        elif args.build_websites and ENHANCED_FEATURES_AVAILABLE:
+        elif args.build_websites:
             # 批量建站
             if not args.quiet:
                 print(f"🏗️ 开始批量生成 {args.top_keywords} 个网站...")
@@ -505,21 +485,6 @@ def main():
                 print("\n🌐 构建的网站:")
                 for site in result['websites'][:3]:
                     print(f"  • {site['keyword']}: {site['domain_suggestion']}")
-        
-        elif args.schedule and ENHANCED_FEATURES_AVAILABLE:
-            # 设置定时任务
-            if not args.time or not args.action:
-                print("❌ 请指定执行时间 (--time) 和动作 (--action)")
-                return
-            
-            setup_scheduler(args.schedule, args.time, args.action)
-            
-            if args.run_scheduler:
-                run_scheduler()
-        
-        elif args.run_scheduler and ENHANCED_FEATURES_AVAILABLE:
-            # 仅运行调度器
-            run_scheduler()
         
         elif args.report:
             # 生成分析报告

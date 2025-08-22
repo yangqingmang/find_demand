@@ -105,3 +105,25 @@ def save_json(data: Dict, file_path: str) -> str:
         json.dump(data, f, ensure_ascii=False, indent=2)
     
     return file_path
+
+def save_results_with_timestamp(results: Dict, output_dir: str, file_prefix: str) -> str:
+    """
+    保存结果到带时间戳的JSON文件
+    
+    Args:
+        results: 要保存的结果数据
+        output_dir: 输出目录
+        file_prefix: 文件名前缀
+        
+    Returns:
+        保存的文件路径
+    """
+    ensure_directory_exists(output_dir)
+    
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    file_path = os.path.join(output_dir, f'{file_prefix}_{timestamp}.json')
+    
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(results, f, ensure_ascii=False, indent=2)
+    
+    return file_path

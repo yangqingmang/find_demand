@@ -7,9 +7,11 @@
 import os
 import sys
 import pandas as pd
-import tempfile
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
+from src.demand_mining.analyzers.intent_analyzer_v2 import IntentAnalyzerV2 as IntentAnalyzer
+from src.demand_mining.analyzers.market_analyzer import MarketAnalyzer
+from src.demand_mining.analyzers.keyword_analyzer import KeywordAnalyzer
 
 # 添加项目根目录到路径
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -35,39 +37,21 @@ class KeywordManager(BaseManager):
     def intent_analyzer(self):
         """延迟加载意图分析器"""
         if self._intent_analyzer is None:
-            try:
-                from src.demand_mining.analyzers.intent_analyzer_v2 import IntentAnalyzerV2 as IntentAnalyzer
-                self._intent_analyzer = IntentAnalyzer(
-                    use_v2=True, 
-                    enable_website_recommendations=True
-                )
-            except ImportError as e:
-                print(f"⚠️ 无法导入意图分析器: {e}")
-                self._intent_analyzer = None
+            self._intent_analyzer = IntentAnalyzer()
         return self._intent_analyzer
     
     @property
     def market_analyzer(self):
         """延迟加载市场分析器"""
         if self._market_analyzer is None:
-            try:
-                from src.demand_mining.analyzers.market_analyzer import MarketAnalyzer
-                self._market_analyzer = MarketAnalyzer()
-            except ImportError as e:
-                print(f"⚠️ 无法导入市场分析器: {e}")
-                self._market_analyzer = None
+            self._market_analyzer = MarketAnalyzer()
         return self._market_analyzer
     
     @property
     def keyword_analyzer(self):
         """延迟加载关键词分析器"""
         if self._keyword_analyzer is None:
-            try:
-                from src.demand_mining.analyzers.keyword_analyzer import KeywordAnalyzer
-                self._keyword_analyzer = KeywordAnalyzer()
-            except ImportError as e:
-                print(f"⚠️ 无法导入关键词分析器: {e}")
-                self._keyword_analyzer = None
+            self._keyword_analyzer = KeywordAnalyzer()
         return self._keyword_analyzer
     
     def analyze(self, input_source: str, analysis_type: str = 'file', 
@@ -88,7 +72,7 @@ class KeywordManager(BaseManager):
         if analysis_type == 'file':
             return self._analyze_from_file(input_source, output_dir)
         elif analysis_type == 'keywords':
-            return self._analyze_from_keywords(input_source, output_dir)
+            return self._analyze_from_keywords([input_source], output_dir)
         else:
             raise ValueError(f"不支持的分析类型: {analysis_type}")
     
@@ -180,7 +164,7 @@ class KeywordManager(BaseManager):
             df = pd.DataFrame({'query': [keyword]})
             
             # 使用意图分析器进行完整分析
-            result_df = self.intent_analyzer.analyze_keywords(df, keyword_col='query')
+            result_df = self.intent_analyzer.analyze_keywords(df)
             
             if len(result_df) > 0:
                 row = result_df.iloc[0]
@@ -247,7 +231,8 @@ class KeywordManager(BaseManager):
                 'opportunity_indicators': []
             }
     
-    def _calculate_opportunity_score(self, intent_result: Dict, market_result: Dict) -> float:
+    @staticmethod
+    def _calculate_opportunity_score(intent_result: Dict, market_result: Dict) -> float:
         """计算综合机会分数"""
         try:
             # 基础评分权重
@@ -281,7 +266,8 @@ class KeywordManager(BaseManager):
             print(f"⚠️ 机会分数计算失败: {e}")
             return 0.0
     
-    def _get_default_intent_result(self) -> Dict[str, Any]:
+    @staticmethod
+    def _get_default_intent_result() -> Dict[str, Any]:
         """获取默认意图分析结果"""
         return {
             'primary_intent': 'Unknown',
@@ -291,7 +277,8 @@ class KeywordManager(BaseManager):
             'website_recommendations': {}
         }
     
-    def _calculate_ai_bonus(self, keyword: str) -> float:
+    @staticmethod
+    def _calculate_ai_bonus(keyword: str) -> float:
         """计算AI相关关键词加分"""
         keyword_lower = keyword.lower()
         ai_score = 0
@@ -312,7 +299,8 @@ class KeywordManager(BaseManager):
         
         return min(ai_score, 50)
     
-    def _assess_commercial_value(self, keyword: str) -> float:
+    @staticmethod
+    def _assess_commercial_value(keyword: str) -> float:
         """评估商业价值"""
         keyword_lower = keyword.lower()
         commercial_score = 0
@@ -341,7 +329,8 @@ class KeywordManager(BaseManager):
         
         return min(commercial_score, 50)
     
-    def _get_opportunity_indicators(self, keyword: str) -> List[str]:
+    @staticmethod
+    def _get_opportunity_indicators(keyword: str) -> List[str]:
         """获取机会指标"""
         indicators = []
         keyword_lower = keyword.lower()
@@ -364,7 +353,8 @@ class KeywordManager(BaseManager):
         
         return indicators
     
-    def _generate_intent_summary(self, keywords: List[Dict]) -> Dict[str, Any]:
+    @staticmethod
+    def _generate_intent_summary(keywords: List[Dict]) -> Dict[str, Any]:
         """生成意图摘要"""
         intent_counts = {}
         total_keywords = len(keywords)
@@ -384,13 +374,14 @@ class KeywordManager(BaseManager):
             'intent_percentages': intent_percentages,
             'dominant_intent': max(intent_counts.items(), key=lambda x: x[1])[0] if intent_counts else 'Unknown'
         }
-    
-    def _generate_market_insights(self, keywords: List[Dict]) -> Dict[str, Any]:
+
+    @staticmethod
+    def _generate_market_insights(keywords: List[Dict]) -> Dict[str, Any]:
         """生成市场洞察"""
         high_opportunity = [kw for kw in keywords if kw['opportunity_score'] >= 70]
         medium_opportunity = [kw for kw in keywords if 40 <= kw['opportunity_score'] < 70]
         low_opportunity = [kw for kw in keywords if kw['opportunity_score'] < 40]
-        
+
         return {
             'high_opportunity_count': len(high_opportunity),
             'medium_opportunity_count': len(medium_opportunity),
@@ -398,8 +389,9 @@ class KeywordManager(BaseManager):
             'top_opportunities': sorted(keywords, key=lambda x: x['opportunity_score'], reverse=True)[:10],
             'avg_opportunity_score': round(sum(kw['opportunity_score'] for kw in keywords) / len(keywords), 2) if keywords else 0
         }
-    
-    def _generate_recommendations(self, keywords: List[Dict]) -> List[str]:
+
+    @staticmethod
+    def _generate_recommendations(keywords: List[Dict]) -> List[str]:
         """生成建议"""
         recommendations = []
         
@@ -420,19 +412,16 @@ class KeywordManager(BaseManager):
         
         return recommendations
     
-    def _save_analysis_results(self, results: Dict[str, Any], output_dir: str) -> str:
+    @staticmethod
+    def _save_analysis_results(results: Dict[str, Any], output_dir: str) -> str:
         """保存分析结果"""
-        os.makedirs(output_dir, exist_ok=True)
-        
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        from src.utils.file_utils import save_results_with_timestamp
         
         # 保存JSON格式
-        json_path = os.path.join(output_dir, f'keyword_analysis_{timestamp}.json')
-        with open(json_path, 'w', encoding='utf-8') as f:
-            import json
-            json.dump(results, f, ensure_ascii=False, indent=2)
+        json_path = save_results_with_timestamp(results, output_dir, 'keyword_analysis')
         
         # 保存CSV格式（关键词详情）
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         csv_path = os.path.join(output_dir, f'keywords_detail_{timestamp}.csv')
         keywords_df = pd.DataFrame([
             {

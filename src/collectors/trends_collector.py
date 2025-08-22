@@ -12,20 +12,13 @@ import json
 import urllib.parse
 from pytrends.request import TrendReq
 import argparse
+from src.utils import FileUtils, Logger
 
-from src.utils import (
-    FileUtils, Logger, ExceptionHandler, APIError,
-    DEFAULT_CONFIG, VALIDATION_CONSTANTS
-)
 from src.utils.constants import GOOGLE_TRENDS_CONFIG
-try:
-    from config.config_manager import get_config
-    config = get_config()
-except ImportError:
-    # 如果配置管理器不可用，使用简化版配置
-    from src.utils.simple_config import get_config
-    config = get_config()
+from config.config_manager import get_config
 from src.utils.mock_data_generator import MockDataGenerator
+
+config = get_config()
 
 class TrendsCollector:
     """Google Trends 数据采集类 - 统一API请求管理"""
@@ -90,18 +83,6 @@ class TrendsCollector:
     def _connect(self):
         """创建pytrends连接"""
         self.pytrends = TrendReq(hl=self.hl, tz=self.tz, timeout=self.timeout)
-    
-    def _wait_for_rate_limit(self):
-        """等待速率限制间隔"""
-        current_time = time.time()
-        time_since_last = current_time - self.last_request_time
-        
-        if time_since_last < self.min_request_interval:
-            wait_time = self.min_request_interval - time_since_last
-            self.logger.info(f"⏳ 速率限制：等待 {wait_time:.1f} 秒...")
-            time.sleep(wait_time)
-        
-        self.last_request_time = time.time()
 
     def _make_unified_trends_request(self, request_type, keyword=None, geo=None, timeframe=None, 
                                    widget_token=None, widget_request=None):
@@ -120,7 +101,7 @@ class TrendsCollector:
             dict: API响应数据
         """
         # 等待速率限制
-        self._wait_for_rate_limit()
+        time.sleep(5)
         
         try:
             # 使用默认值填充参数
@@ -181,8 +162,8 @@ class TrendsCollector:
             elif response.status_code == 429:
                 # 专门处理429错误
                 self.logger.error(f"🚫 429 Too Many Requests - API请求过于频繁")
-                self.logger.info(f"⏰ 等待 {self.rate_limit_delay} 秒后重试...")
-                time.sleep(self.rate_limit_delay)
+                self.logger.info(f"⏰ 等待 5 秒后重试...")
+                time.sleep(5)
                 return None
             else:
                 self.logger.error(f"❌ {request_type}请求失败，状态码: {response.status_code}")
@@ -369,7 +350,7 @@ class TrendsCollector:
                 return pd.DataFrame(columns=['query', 'value', 'growth'])
         
         # 等待速率限制（避免429错误）
-        self._wait_for_rate_limit()
+        time.sleep(5)
         
         for attempt in range(self.retries):
             try:
