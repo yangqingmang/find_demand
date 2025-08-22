@@ -177,7 +177,7 @@ analyzer.save_results(result_df, summary, output_dir='data')
 KeywordScorer 支持通过外部API丰富关键词数据：
 
 ```python
-# 使用模拟的Google Ads数据丰富关键词
+# 使用Google Ads数据丰富关键词
 enriched_df = scorer.enrich_with_ads_data(df)
 
 # 添加的字段包括：

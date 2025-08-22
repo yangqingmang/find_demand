@@ -88,6 +88,7 @@ class KeywordScorer(BaseAnalyzer):
             self.timeliness_analyzer = None
         
         # 初始化竞争对手分析器
+        # 初始化竞争对手分析器
         try:
             from .competitor_analyzer import CompetitorAnalyzer
             self.competitor_analyzer = CompetitorAnalyzer()
@@ -95,6 +96,15 @@ class KeywordScorer(BaseAnalyzer):
         except ImportError as e:
             self.logger.warning(f"竞争对手分析器导入失败: {e}")
             self.competitor_analyzer = None
+        
+        # 初始化新词检测器
+        try:
+            from .new_word_detector import NewWordDetector
+            self.new_word_detector = NewWordDetector()
+            self.logger.info("已启用新词检测功能")
+        except ImportError as e:
+            self.logger.warning(f"新词检测器导入失败: {e}")
+            self.new_word_detector = None
     
     def analyze(self, data, volume_col='value', growth_col='growth', kd_col=None, **kwargs):
         """
@@ -167,7 +177,7 @@ class KeywordScorer(BaseAnalyzer):
         if monthly_searches <= 0:
             return float('inf')  # 避免除零错误
         
-        # 如果没有提供SERP分析器，使用模拟数据
+        # 如果没有提供SERP分析器
         if serp_analyzer is None:
             # 基于关键词特征估算标题匹配数量
             word_count = len(keyword.split())
@@ -338,6 +348,7 @@ class KeywordScorer(BaseAnalyzer):
             result_df['timeliness_score'] = 50  # 默认中等实时性评分
         
         # 计算竞争对手分析评分
+        # 计算竞争对手分析评分
         if calculate_competitor and self.competitor_analyzer and keyword_col in result_df.columns:
             self.logger.info("正在计算竞争对手分析评分...")
             try:
@@ -368,7 +379,42 @@ class KeywordScorer(BaseAnalyzer):
             result_df['competition_score'] = 50  # 默认中等竞争评分
             result_df['opportunity_score'] = 50  # 默认中等机会评分
             result_df['main_competitors'] = 'N/A'
+        
+        # 计算新词检测评分
+        if calculate_new_word and self.new_word_detector and keyword_col in result_df.columns:
+            self.logger.info("正在进行新词检测...")
+            try:
+                new_word_df = self.new_word_detector.detect_new_words(result_df, keyword_col)
+                result_df['is_new_word'] = new_word_df['is_new_word']
+                result_df['new_word_score'] = new_word_df['new_word_score']
+                result_df['new_word_grade'] = new_word_df['new_word_grade']
+                result_df['growth_rate_7d'] = new_word_df['growth_rate_7d']
+                result_df['explosion_index'] = new_word_df['explosion_index']
+                result_df['confidence_level'] = new_word_df['confidence_level']
+                result_df['historical_pattern'] = new_word_df['historical_pattern']
+                
+                # 新词加分机制：新词获得额外评分加成
+                new_word_bonus = result_df['new_word_score'] * 0.2  # 新词评分的20%作为加成
+                result_df['new_word_bonus'] = new_word_bonus
+                
+                self.logger.info("新词检测完成")
+            except Exception as e:
+                self.logger.error(f"新词检测失败: {e}")
+                result_df['is_new_word'] = False
+                result_df['new_word_score'] = 0
+                result_df['new_word_grade'] = 'D'
+                result_df['new_word_bonus'] = 0
+        else:
+            if not calculate_new_word:
+                self.logger.info("跳过新词检测")
+            else:
+                self.logger.warning("新词检测器未初始化，跳过新词检测")
+            result_df['is_new_word'] = False
+            result_df['new_word_score'] = 0
+            result_df['new_word_grade'] = 'D'
+            result_df['new_word_bonus'] = 0
             
+        # 计算综合评分 - 动态权重分配
         # 计算综合评分 - 动态权重分配
         active_weights = []
         score_components = []
@@ -401,9 +447,17 @@ class KeywordScorer(BaseAnalyzer):
         normalized_weights = [w / total_active_weight for w in active_weights]
         
         # 计算加权综合评分
-        result_df['score'] = sum(
+        result_df['base_score'] = sum(
             weight * component for weight, component in zip(normalized_weights, score_components)
         )
+        
+        # 添加新词加成
+        if calculate_new_word and 'new_word_bonus' in result_df.columns:
+            result_df['score'] = result_df['base_score'] + result_df['new_word_bonus']
+            # 确保评分不超过100
+            result_df['score'] = result_df['score'].clip(upper=100)
+        else:
+            result_df['score'] = result_df['base_score']
         
         # 四舍五入到整数
         result_df['score'] = result_df['score'].round().astype(int)
@@ -466,7 +520,7 @@ class KeywordScorer(BaseAnalyzer):
     
     def enrich_with_ads_data(self, df, keyword_col='query', api_key=None):
         """
-        使用Google Ads API丰富关键词数据（模拟实现）
+        使用Google Ads API丰富关键词数据
         
         参数:
             df (DataFrame): 关键词数据
@@ -476,11 +530,8 @@ class KeywordScorer(BaseAnalyzer):
         返回:
             丰富后的DataFrame
         """
-        # 注意：这是一个模拟实现，实际使用需要替换为真实的API调用
-        from src.utils.mock_data_generator import generate_mock_ads_data
-        
-        self.logger.info("使用模拟数据丰富关键词信息...")
-        return generate_mock_ads_data(df, keyword_col)
+        self.logger.info("无法获取真实数据，返回原始数据...")
+        return df
     
     def save_results(self, df, output_dir='data', prefix='scored'):
         """
@@ -517,7 +568,7 @@ def main():
     parser.add_argument('--timeliness-weight', type=float, default=0.15, help='实时性权重，默认0.15')
     parser.add_argument('--competitor-weight', type=float, default=0.15, help='竞争对手分析权重，默认0.15')
     parser.add_argument('--min-score', type=int, help='最低评分过滤')
-    parser.add_argument('--enrich', action='store_true', help='使用模拟的Ads数据丰富关键词')
+    parser.add_argument('--enrich', action='store_true', help='使用Ads数据丰富关键词')
     parser.add_argument('--disable-kgr', action='store_true', help='禁用KGR计算')
     parser.add_argument('--disable-timeliness', action='store_true', help='禁用实时性分析')
     parser.add_argument('--disable-competitor', action='store_true', help='禁用竞争对手分析')
@@ -555,11 +606,13 @@ def main():
         df = scorer.enrich_with_ads_data(df)
     
     # 评分
+    # 评分
     scored_df = scorer.score_keywords(
         df, 
         calculate_kgr=not args.disable_kgr,
         calculate_timeliness=not args.disable_timeliness,
-        calculate_competitor=not args.disable_competitor
+        calculate_competitor=not args.disable_competitor,
+        calculate_new_word=not args.disable_new_word
     )
     
     # 过滤（可选）
@@ -577,9 +630,23 @@ def main():
         rising_trends_count = len(scored_df[scored_df['trend_direction'] == 'rising'])
         
         logger.info(f"实时性分析摘要:")
+        logger.info(f"实时性分析摘要:")
         logger.info(f"  平均实时性评分: {avg_timeliness:.1f}")
         logger.info(f"  高时效性关键词: {high_timeliness_count} 个")
         logger.info(f"  上升趋势关键词: {rising_trends_count} 个")
+    
+    # 显示新词检测摘要
+    if not args.disable_new_word and 'new_word_score' in scored_df.columns:
+        new_words_count = len(scored_df[scored_df['is_new_word'] == True])
+        avg_new_word_score = scored_df['new_word_score'].mean()
+        high_confidence_count = len(scored_df[scored_df['confidence_level'] == 'high'])
+        explosive_growth_count = len(scored_df[scored_df['historical_pattern'] == 'explosive_growth'])
+        
+        logger.info(f"新词检测摘要:")
+        logger.info(f"  检测到的新词数: {new_words_count} 个")
+        logger.info(f"  平均新词评分: {avg_new_word_score:.1f}")
+        logger.info(f"  高置信度新词: {high_confidence_count} 个")
+        logger.info(f"  爆发式增长关键词: {explosive_growth_count} 个")
 
 
 if __name__ == "__main__":

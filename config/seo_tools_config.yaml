@@ -123,11 +123,4 @@ output:
 error_handling:
   max_retries: 3
   retry_delay: 5  # 秒
-  fallback_to_mock: true
   
-# 模拟数据配置
-mock_data:
-  enabled: true  # 开发阶段启用
-  quality: "high"
-  include_trends: true
-  realistic_values: true

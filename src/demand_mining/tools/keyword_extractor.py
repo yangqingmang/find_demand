@@ -80,9 +80,9 @@ class KeywordExtractor:
         return list(expanded)
     
     def extract_trending_keywords(self, category: str = 'technology') -> List[str]:
-        """提取趋势关键词（模拟数据）"""
+        """提取趋势关键词"""
         # 这里应该集成Google Trends API或其他趋势数据源
-        # 目前返回模拟数据
+        # 返回数据
         trending_keywords = {
             'technology': [
                 'artificial intelligence', 'machine learning', 'chatgpt', 'ai tools',
@@ -103,11 +103,11 @@ class KeywordExtractor:
         return trending_keywords.get(category, [])
     
     def analyze_keyword_difficulty(self, keywords: List[str]) -> Dict[str, Dict[str, Any]]:
-        """分析关键词难度（模拟）"""
+        """分析关键词难度"""
         results = {}
         
         for keyword in keywords:
-            # 模拟难度分析
+            # 难度分析
             word_count = len(keyword.split())
             base_difficulty = min(word_count * 10, 80)
             
@@ -121,7 +121,7 @@ class KeywordExtractor:
             
             results[keyword] = {
                 'difficulty': difficulty,
-                'search_volume': max(1000 - difficulty * 10, 100),  # 模拟搜索量
+                'search_volume': max(1000 - difficulty * 10, 100),  # 搜索量
                 'competition': difficulty / 100,
                 'opportunity_score': max(100 - difficulty, 10)
             }

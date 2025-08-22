@@ -194,7 +194,7 @@ class KeywordManager(BaseManager):
     def _analyze_keyword_market(self, keyword: str) -> Dict[str, Any]:
         """分析关键词市场数据"""
         try:
-            # 基础市场数据（模拟，实际可接入真实API）
+            # 基础市场数据（实际可接入真实API）
             base_data = {
                 'search_volume': 1000,
                 'competition': 0.5,

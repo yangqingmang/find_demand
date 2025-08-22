@@ -19,7 +19,6 @@ try:
 except ImportError:
     from src.utils.simple_config import get_config
     config = get_config()
-from src.utils.mock_data_generator import MockDataGenerator
 
 
 class BaseSEOToolCollector(ABC):
@@ -74,10 +73,6 @@ class SemrushCollector(BaseSEOToolCollector):
         try:
             self.logger.info(f"🔍 Semrush: 获取关键词 '{keyword}' 数据...")
             
-            # 如果启用模拟模式
-            if config.MOCK_MODE:
-                return self._generate_mock_keyword_data(keyword)
-            
             self._wait_for_rate_limit()
             
             # Semrush Keyword Overview API
@@ -102,19 +97,16 @@ class SemrushCollector(BaseSEOToolCollector):
                 }
             else:
                 self.logger.error(f"❌ Semrush API错误: {response.status_code}")
-                return self._generate_mock_keyword_data(keyword)
+                return {}
                 
         except Exception as e:
             self.logger.error(f"❌ Semrush采集错误: {e}")
-            return self._generate_mock_keyword_data(keyword)
+            return {}
     
     def get_competitor_keywords(self, domain: str, database: str = "us", limit: int = 100) -> pd.DataFrame:
         """获取竞争对手关键词"""
         try:
             self.logger.info(f"🔍 Semrush: 获取域名 '{domain}' 的关键词...")
-            
-            if config.MOCK_MODE:
-                return self._generate_mock_competitor_data(domain, limit)
             
             self._wait_for_rate_limit()
             
@@ -135,11 +127,11 @@ class SemrushCollector(BaseSEOToolCollector):
                 return df
             else:
                 self.logger.error(f"❌ Semrush API错误: {response.status_code}")
-                return self._generate_mock_competitor_data(domain, limit)
+                return pd.DataFrame()
                 
         except Exception as e:
             self.logger.error(f"❌ Semrush采集错误: {e}")
-            return self._generate_mock_competitor_data(domain, limit)
+            return pd.DataFrame()
     
     def _parse_semrush_response(self, response_text: str) -> Dict:
         """解析Semrush响应"""
@@ -171,46 +163,6 @@ class SemrushCollector(BaseSEOToolCollector):
                 data_rows.append(line.split(';'))
         
         return pd.DataFrame(data_rows, columns=headers)
-    
-    def _generate_mock_keyword_data(self, keyword: str) -> Dict:
-        """生成模拟关键词数据"""
-        mock_generator = MockDataGenerator()
-        mock_df = mock_generator.generate_trends_data([keyword])
-        
-        return {
-            'keyword': keyword,
-            'source': 'semrush_mock',
-            'data': {
-                'Ph': keyword,
-                'Nq': '12100',  # 搜索量
-                'Cp': '2.45',   # CPC
-                'Co': '0.67',   # 竞争度
-                'Nr': '1250000', # 搜索结果数
-                'Td': '45'      # 趋势
-            },
-            'status': 'mock'
-        }
-    
-    def _generate_mock_competitor_data(self, domain: str, limit: int) -> pd.DataFrame:
-        """生成模拟竞争对手数据"""
-        mock_generator = MockDataGenerator()
-        keywords = [f"{domain} keyword {i}" for i in range(1, min(limit + 1, 51))]
-        mock_results = mock_generator.generate_trends_data(keywords)
-        
-        all_data = []
-        for keyword, df in mock_results.items():
-            if not df.empty:
-                for _, row in df.iterrows():
-                    all_data.append({
-                        'Ph': row['query'],
-                        'Po': f"{len(all_data) + 1}",  # 排名
-                        'Nq': str(row['value'] * 100),  # 搜索量
-                        'Cp': f"{2.0 + (len(all_data) * 0.1):.2f}",  # CPC
-                        'Ur': f"https://{domain}/page{len(all_data) + 1}",
-                        'domain': domain
-                    })
-        
-        return pd.DataFrame(all_data[:limit])
 
 
 class AhrefsCollector(BaseSEOToolCollector):
@@ -225,9 +177,6 @@ class AhrefsCollector(BaseSEOToolCollector):
         """获取关键词数据"""
         try:
             self.logger.info(f"🔍 Ahrefs: 获取关键词 '{keyword}' 数据...")
-            
-            if config.MOCK_MODE:
-                return self._generate_mock_keyword_data(keyword)
             
             self._wait_for_rate_limit()
             
@@ -252,19 +201,16 @@ class AhrefsCollector(BaseSEOToolCollector):
                 }
             else:
                 self.logger.error(f"❌ Ahrefs API错误: {response.status_code}")
-                return self._generate_mock_keyword_data(keyword)
+                return {}
                 
         except Exception as e:
             self.logger.error(f"❌ Ahrefs采集错误: {e}")
-            return self._generate_mock_keyword_data(keyword)
+            return {}
     
     def get_competitor_keywords(self, domain: str, country: str = "us", limit: int = 100) -> pd.DataFrame:
         """获取竞争对手关键词"""
         try:
             self.logger.info(f"🔍 Ahrefs: 获取域名 '{domain}' 的关键词...")
-            
-            if config.MOCK_MODE:
-                return self._generate_mock_competitor_data(domain, limit)
             
             self._wait_for_rate_limit()
             
@@ -285,54 +231,17 @@ class AhrefsCollector(BaseSEOToolCollector):
                 return df
             else:
                 self.logger.error(f"❌ Ahrefs API错误: {response.status_code}")
-                return self._generate_mock_competitor_data(domain, limit)
+                return pd.DataFrame()
                 
         except Exception as e:
             self.logger.error(f"❌ Ahrefs采集错误: {e}")
-            return self._generate_mock_competitor_data(domain, limit)
+            return pd.DataFrame()
     
     def _parse_ahrefs_response(self, data: Dict) -> pd.DataFrame:
         """解析Ahrefs响应"""
         if 'keywords' in data:
             return pd.DataFrame(data['keywords'])
         return pd.DataFrame()
-    
-    def _generate_mock_keyword_data(self, keyword: str) -> Dict:
-        """生成模拟关键词数据"""
-        return {
-            'keyword': keyword,
-            'source': 'ahrefs_mock',
-            'data': {
-                'keyword': keyword,
-                'volume': 8900,
-                'difficulty': 45,
-                'cpc': 3.20,
-                'clicks': 5600,
-                'return_rate': 0.23
-            },
-            'status': 'mock'
-        }
-    
-    def _generate_mock_competitor_data(self, domain: str, limit: int) -> pd.DataFrame:
-        """生成模拟竞争对手数据"""
-        mock_generator = MockDataGenerator()
-        keywords = [f"{domain} ahrefs keyword {i}" for i in range(1, min(limit + 1, 51))]
-        mock_results = mock_generator.generate_trends_data(keywords)
-        
-        all_data = []
-        for keyword, df in mock_results.items():
-            if not df.empty:
-                for _, row in df.iterrows():
-                    all_data.append({
-                        'keyword': row['query'],
-                        'position': len(all_data) + 1,
-                        'volume': row['value'] * 150,
-                        'difficulty': min(100, 20 + (len(all_data) * 2)),
-                        'url': f"https://{domain}/page{len(all_data) + 1}",
-                        'domain': domain
-                    })
-        
-        return pd.DataFrame(all_data[:limit])
 
 
 class SimilarwebCollector(BaseSEOToolCollector):
@@ -347,9 +256,6 @@ class SimilarwebCollector(BaseSEOToolCollector):
         """获取关键词数据"""
         try:
             self.logger.info(f"🔍 Similarweb: 获取关键词 '{keyword}' 数据...")
-            
-            if config.MOCK_MODE:
-                return self._generate_mock_keyword_data(keyword)
             
             self._wait_for_rate_limit()
             
@@ -378,19 +284,16 @@ class SimilarwebCollector(BaseSEOToolCollector):
                 }
             else:
                 self.logger.error(f"❌ Similarweb API错误: {response.status_code}")
-                return self._generate_mock_keyword_data(keyword)
+                return {}
                 
         except Exception as e:
             self.logger.error(f"❌ Similarweb采集错误: {e}")
-            return self._generate_mock_keyword_data(keyword)
+            return {}
     
     def get_competitor_keywords(self, domain: str, country: str = "us", limit: int = 100) -> pd.DataFrame:
         """获取竞争对手关键词"""
         try:
             self.logger.info(f"🔍 Similarweb: 获取域名 '{domain}' 的关键词...")
-            
-            if config.MOCK_MODE:
-                return self._generate_mock_competitor_data(domain, limit)
             
             self._wait_for_rate_limit()
             
@@ -414,52 +317,17 @@ class SimilarwebCollector(BaseSEOToolCollector):
                 return df
             else:
                 self.logger.error(f"❌ Similarweb API错误: {response.status_code}")
-                return self._generate_mock_competitor_data(domain, limit)
+                return pd.DataFrame()
                 
         except Exception as e:
             self.logger.error(f"❌ Similarweb采集错误: {e}")
-            return self._generate_mock_competitor_data(domain, limit)
+            return pd.DataFrame()
     
     def _parse_similarweb_response(self, data: Dict) -> pd.DataFrame:
         """解析Similarweb响应"""
         if 'data' in data:
             return pd.DataFrame(data['data'])
         return pd.DataFrame()
-    
-    def _generate_mock_keyword_data(self, keyword: str) -> Dict:
-        """生成模拟关键词数据"""
-        return {
-            'keyword': keyword,
-            'source': 'similarweb_mock',
-            'data': {
-                'keyword': keyword,
-                'volume': 15600,
-                'trend': 'rising',
-                'competition': 'medium',
-                'traffic_share': 0.15
-            },
-            'status': 'mock'
-        }
-    
-    def _generate_mock_competitor_data(self, domain: str, limit: int) -> pd.DataFrame:
-        """生成模拟竞争对手数据"""
-        mock_generator = MockDataGenerator()
-        keywords = [f"{domain} similarweb keyword {i}" for i in range(1, min(limit + 1, 51))]
-        mock_results = mock_generator.generate_trends_data(keywords)
-        
-        all_data = []
-        for keyword, df in mock_results.items():
-            if not df.empty:
-                for _, row in df.iterrows():
-                    all_data.append({
-                        'keyword': row['query'],
-                        'volume': row['value'] * 200,
-                        'traffic_share': round(0.01 + (len(all_data) * 0.005), 3),
-                        'trend': 'stable' if len(all_data) % 3 == 0 else 'rising',
-                        'domain': domain
-                    })
-        
-        return pd.DataFrame(all_data[:limit])
 
 
 class IntegratedSEOCollector:
@@ -491,7 +359,7 @@ class IntegratedSEOCollector:
                 self.logger.info("✓ Similarweb采集器已初始化")
             
             if not self.collectors:
-                self.logger.warning("⚠️ 未配置任何SEO工具API密钥，将使用模拟数据")
+                self.logger.warning("⚠️ 未配置任何SEO工具API密钥")
                 
         except Exception as e:
             self.logger.error(f"❌ 初始化SEO采集器失败: {e}")

@@ -57,7 +57,6 @@ class ConfigData:
     DEBUG: bool = False
     LOG_LEVEL: str = "INFO"
     OUTPUT_DIR: str = "data/results"
-    MOCK_MODE: bool = False  # 这个值会被 .env.public 覆盖
 
 
 class ConfigManager:

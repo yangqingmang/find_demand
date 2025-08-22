@@ -334,16 +334,6 @@ python src/deployment/test_deployment.py
 python -c "from src.config.settings import config; config.show_status()"
 ```
 
-### 模拟模式（无API密钥时）
-
-```bash
-# 启用模拟模式进行测试
-export MOCK_MODE=true
-
-# 或在 .env 文件中添加
-echo "MOCK_MODE=true" >> config/.env
-```
-
 ---
 
 ## 📚 相关文档

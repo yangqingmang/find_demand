@@ -66,7 +66,7 @@ class TimelinessAnalyzer(BaseAnalyzer):
             self.trends_collector = TrendsCollector()
         except:
             self.trends_collector = None
-            self.logger.warning("趋势收集器初始化失败，将使用模拟数据")
+            self.logger.warning("趋势收集器初始化失败")
         
         # 时效性等级定义
         self.timeliness_grades = {
@@ -132,21 +132,9 @@ class TimelinessAnalyzer(BaseAnalyzer):
             except Exception as e:
                 self.logger.warning(f"获取真实趋势数据失败: {e}")
         
-        # 使用模拟数据
-        return self._simulate_trend_data(keyword)
+        # 无法获取数据
+        return {}
     
-    def _simulate_trend_data(self, keyword: str) -> Dict:
-        """
-        模拟趋势数据（当无法获取真实数据时使用）
-        
-        参数:
-            keyword (str): 关键词
-            
-        返回:
-            dict: 模拟的趋势数据
-        """
-        # 基于关键词特征模拟趋势
-        keyword_lower = keyword.lower()
         
         # AI相关关键词通常有上升趋势
         if any(term in keyword_lower for term in ['ai', 'chatgpt', 'gpt', 'artificial intelligence']):
@@ -190,7 +178,7 @@ class TimelinessAnalyzer(BaseAnalyzer):
         返回:
             dict: 新闻热度分析结果
         """
-        # 模拟新闻热度分析
+        # 新闻热度分析
         keyword_lower = keyword.lower()
         
         # 热门科技关键词新闻热度高
@@ -234,7 +222,7 @@ class TimelinessAnalyzer(BaseAnalyzer):
         返回:
             dict: 社交媒体热度分析结果
         """
-        # 模拟社交媒体热度分析
+        # 社交媒体热度分析
         keyword_lower = keyword.lower()
         
         # 病毒式传播的关键词

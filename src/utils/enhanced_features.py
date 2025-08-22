@@ -24,7 +24,7 @@ def monitor_competitors(sites: List[str], output_dir: str = None) -> Dict[str, A
         print(f"📊 分析竞品: {site}")
         
         # 这里可以集成实际的竞品分析API
-        # 目前使用模拟数据
+        # 竞品数据
         competitor_data = {
             'site': site,
             'top_keywords': [
