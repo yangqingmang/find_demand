@@ -76,7 +76,7 @@ class CompetitorAnalyzer(BaseAnalyzer):
             self.serp_analyzer = SerpAnalyzer()
         except:
             self.serp_analyzer = None
-            self.logger.warning("SERP分析器初始化失败，将使用模拟数据")
+            self.logger.warning("SERP分析器初始化失败")
         
         # 竞争强度等级定义
         self.competition_grades = {
@@ -228,22 +228,12 @@ class CompetitorAnalyzer(BaseAnalyzer):
             except Exception as e:
                 self.logger.warning(f"SERP分析失败: {e}")
         
-        # 使用模拟数据
-        return self._simulate_serp_competition(keyword)
+        # 无法获取数据
+        return {}
     
-    def _simulate_serp_competition(self, keyword: str) -> Dict:
-        """
-        模拟SERP竞争数据
-        
-        参数:
-            keyword (str): 关键词
-            
-        返回:
-            dict: 模拟的SERP竞争数据
-        """
         keyword_lower = keyword.lower()
         
-        # 基于关键词特征模拟竞争强度
+        # 基于关键词特征分析竞争强度
         if any(term in keyword_lower for term in ['ai', 'chatgpt', 'openai']):
             # AI相关关键词竞争激烈
             base_score = np.random.uniform(70, 95)

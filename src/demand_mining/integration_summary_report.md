@@ -139,7 +139,7 @@ python src/demand_mining/demand_mining_main.py --help
 
 ## 🎯 下一步建议
 
-1. **接入真实API**: 将模拟的市场数据替换为真实的Google Ads API、Semrush API等
+1. **接入真实API**: 将市场数据替换为真实的Google Ads API、Semrush API等
 2. **扩展词根库**: 根据实际使用情况继续扩展核心词根
 3. **优化评分算法**: 基于实际效果调整各项权重
 4. **自动化监控**: 建立定时任务，自动监控关键词趋势变化

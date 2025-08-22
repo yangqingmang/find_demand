@@ -25,7 +25,6 @@ except ImportError:
     # 如果配置管理器不可用，使用简化版配置
     from src.utils.simple_config import get_config
     config = get_config()
-from src.utils.mock_data_generator import MockDataGenerator
 
 class TrendsCollector:
     """Google Trends 数据采集类 - 统一API请求管理"""
@@ -303,20 +302,14 @@ class TrendsCollector:
         try:
             self.logger.info(f"正在获取 {geo} 地区的热门搜索数据...")
             
-            # 如果启用模拟模式，返回模拟数据
-            if config.MOCK_MODE:
-                self.logger.info("🔧 模拟模式：生成模拟热门搜索数据")
-                mock_generator = MockDataGenerator()
-                return mock_generator.generate_trending_searches(geo)
-            
             # 使用pytrends获取热门搜索
             trending_searches = self.pytrends.trending_searches(pn=geo)
             
             if trending_searches is not None and not trending_searches.empty:
                 # 重命名列以匹配预期格式
                 trending_searches.columns = ['query']
-                trending_searches['value'] = range(100, 100 - len(trending_searches), -1)  # 模拟热度值
-                trending_searches['growth'] = 'Trending'  # 标记为热门
+                trending_searches['value'] = range(100, 100 - len(trending_searches), -1)
+                trending_searches['growth'] = 'Trending'
                 
                 self.logger.info(f"✓ 成功获取 {len(trending_searches)} 个热门搜索")
                 return trending_searches
@@ -326,13 +319,7 @@ class TrendsCollector:
                 
         except Exception as e:
             self.logger.error(f"获取热门搜索数据时出错: {e}")
-            # 回退到模拟数据
-            try:
-                mock_generator = MockDataGenerator()
-                return mock_generator.generate_trending_searches(geo)
-            except Exception as mock_error:
-                self.logger.error(f"模拟数据生成也失败: {mock_error}")
-                return pd.DataFrame(columns=['query', 'value', 'growth'])
+            return pd.DataFrame(columns=['query', 'value', 'growth'])
     
     def fetch_rising_queries(self, keyword=None, geo=None, timeframe=None):
         """
@@ -357,16 +344,6 @@ class TrendsCollector:
             return self.get_trending_searches(geo=geo)
         
         self.logger.info(f"正在获取 '{keyword}' 的Rising Queries数据 (地区: {geo})...")
-        
-        # 如果启用模拟模式，返回模拟数据
-        if config.MOCK_MODE:
-            self.logger.info("🔧 模拟模式：生成模拟趋势数据")
-            mock_generator = MockDataGenerator()
-            mock_results = mock_generator.generate_trends_data([keyword], geo, timeframe)
-            if keyword in mock_results:
-                return mock_results[keyword]
-            else:
-                return pd.DataFrame(columns=['query', 'value', 'growth'])
         
         # 等待速率限制（避免429错误）
         self._wait_for_rate_limit()
@@ -410,17 +387,6 @@ class TrendsCollector:
                     self._connect()
                 else:
                     self.logger.error(f"❌ 多次尝试后仍然失败: {e}")
-                    self.logger.info("🔄 API失败，自动回退到模拟数据模式")
-                    # 自动回退到模拟数据
-                    try:
-                        mock_generator = MockDataGenerator()
-                        mock_results = mock_generator.generate_trends_data([keyword], geo, timeframe)
-                        if keyword in mock_results:
-                            self.logger.info(f"✅ 已生成 '{keyword}' 的模拟数据作为回退")
-                            return mock_results[keyword]
-                    except Exception as mock_error:
-                        self.logger.error(f"❌ 模拟数据生成也失败: {mock_error}")
-                    
                     return pd.DataFrame(columns=['query', 'value', 'growth'])
     
     def fetch_multiple_keywords(self, keywords, geo=None, timeframe=None):
@@ -438,12 +404,6 @@ class TrendsCollector:
         # 使用默认值
         geo = geo or self.API_CONFIG['default_params']['geo']
         timeframe = timeframe or self.API_CONFIG['default_params']['timeframe']
-        
-        # 如果启用模拟模式，直接生成所有关键词的模拟数据
-        if config.MOCK_MODE:
-            self.logger.info("🔧 模拟模式：批量生成模拟趋势数据")
-            mock_generator = MockDataGenerator()
-            return mock_generator.generate_trends_data(keywords, geo, timeframe)
         
         results = {}
         
@@ -565,53 +525,6 @@ class TrendsCollector:
         
         self.logger.info(f"正在获取关键词 '{keyword}' 的趋势数据...")
         
-        # 如果启用模拟模式，返回模拟数据
-        if config.MOCK_MODE:
-            self.logger.info("🔧 模拟模式：生成模拟趋势数据")
-            mock_generator = MockDataGenerator()
-            
-            try:
-                # 生成单个关键词的模拟数据
-                mock_results = mock_generator.generate_trends_data([keyword], geo, timeframe)
-                if keyword in mock_results:
-                    df = mock_results[keyword]
-                    
-                    # 确保DataFrame不为空且有正确的列
-                    if not df.empty and 'value' in df.columns:
-                        return {
-                            'keyword': keyword,
-                            'related_queries': df.to_dict('records'),
-                            'total_queries': len(df),
-                            'avg_volume': float(df['value'].mean()),
-                            'status': 'success'
-                        }
-                    else:
-                        return {
-                            'keyword': keyword,
-                            'related_queries': [],
-                            'total_queries': 0,
-                            'avg_volume': 0.0,
-                            'status': 'no_data'
-                        }
-                else:
-                    return {
-                        'keyword': keyword,
-                        'related_queries': [],
-                        'total_queries': 0,
-                        'avg_volume': 0.0,
-                        'status': 'no_data'
-                    }
-            except Exception as e:
-                self.logger.error(f"生成模拟数据时出错: {e}")
-                return {
-                    'keyword': keyword,
-                    'related_queries': [],
-                    'total_queries': 0,
-                    'avg_volume': 0.0,
-                    'status': 'error',
-                    'error': str(e)
-                }
-        
         # 获取Rising Queries数据
         try:
             df = self.fetch_rising_queries(keyword, geo, timeframe)
@@ -682,3 +595,22 @@ def main():
     parser.add_argument('--geo', help='地区代码，如US、GB等，默认使用配置中的值')
     parser.add_argument('--timeframe', help='时间范围，默认使用配置中的值')
     parser.add_argument('--output', default='data', help='输出目录，默认为data')
+    
+    args = parser.parse_args()
+    
+    # 创建采集器
+    collector = TrendsCollector()
+    
+    # 获取数据
+    results = collector.fetch_multiple_keywords(
+        keywords=args.keywords,
+        geo=args.geo,
+        timeframe=args.timeframe
+    )
+    
+    # 保存结果
+    collector.save_results(results, args.output)
+
+
+if __name__ == "__main__":
+    main()

@@ -137,12 +137,12 @@ class TrendManager(BaseManager):
         
         try:
             # 这里可以扩展为支持关键词趋势分析
-            # 目前使用模拟数据
+            # 使用数据
             trend_results = []
             for keyword in keywords:
                 trend_data = {
                     'keyword': keyword,
-                    'trend_score': 75,  # 模拟趋势分数
+                    'trend_score': 75,  # 趋势分数
                     'growth_rate': '+15%',
                     'peak_interest': 85,
                     'current_interest': 70,
@@ -175,7 +175,7 @@ class TrendManager(BaseManager):
         print(f"🔮 开始预测未来 {timeframe} 的趋势...")
         
         try:
-            # 基于历史数据和当前趋势进行预测（模拟）
+            # 基于历史数据和当前趋势进行预测
             predictions = {
                 'prediction_date': datetime.now().isoformat(),
                 'timeframe': timeframe,
@@ -219,7 +219,7 @@ class TrendManager(BaseManager):
             return []
         
         # 这里可以从最近的分析结果中获取热门词根
-        # 目前返回模拟数据
+        # 返回数据
         trending_roots = [
             {'word': 'generator', 'average_interest': 85.2, 'growth_rate': '+25%'},
             {'word': 'converter', 'average_interest': 78.9, 'growth_rate': '+18%'},

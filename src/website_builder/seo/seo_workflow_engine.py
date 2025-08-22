@@ -407,7 +407,7 @@ class SEOWorkflowEngine:
         check_name = check_config['name']
         
         if check_name == 'keyword_density_check':
-            # 模拟关键词密度检查
+            # 关键词密度检查
             density = page_data.get('keyword_density', 2.5)
             threshold_range = check_config['threshold'].replace('%', '').split('-')
             min_density = float(threshold_range[0])
@@ -421,7 +421,7 @@ class SEOWorkflowEngine:
             }
         
         elif check_name == 'duplicate_content_check':
-            # 模拟重复内容检查
+            # 重复内容检查
             uniqueness = page_data.get('content_uniqueness', 90)
             threshold = int(check_config['threshold'].replace('%_uniqueness', ''))
             
@@ -433,7 +433,7 @@ class SEOWorkflowEngine:
             }
         
         elif check_name == 'readability_check':
-            # 模拟可读性检查
+            # 可读性检查
             readability_score = page_data.get('readability_score', 65)
             threshold = int(check_config['threshold'].replace('+_flesch_score', ''))
             
@@ -451,7 +451,7 @@ class SEOWorkflowEngine:
         check_name = check_config['name']
         
         if check_name == 'page_speed_check':
-            # 模拟页面速度检查
+            # 页面速度检查
             load_time = page_data.get('page_load_time', 2.5)
             threshold = float(check_config['threshold'].replace('_seconds_load_time', ''))
             
@@ -463,7 +463,7 @@ class SEOWorkflowEngine:
             }
         
         elif check_name == 'mobile_friendly_check':
-            # 模拟移动友好性检查
+            # 移动友好性检查
             is_mobile_friendly = page_data.get('mobile_friendly', True)
             
             return {

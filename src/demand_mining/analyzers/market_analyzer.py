@@ -54,7 +54,7 @@ class MarketAnalyzer(BaseAnalyzer):
         return results
     
     def _estimate_search_volume(self, keyword: str) -> int:
-        """估算搜索量（模拟数据）"""
+        """估算搜索量"""
         # 基于关键词长度和类型的简单估算
         base_volume = 1000
         

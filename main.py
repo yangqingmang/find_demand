@@ -38,18 +38,88 @@ class IntegratedDemandMiningManager:
         self.logger = setup_logger(__name__)
         
         # 初始化各个管理器
+        # 初始化各个管理器
         self.keyword_manager = KeywordManager(config_path)
         self.discovery_manager = DiscoveryManager(config_path)
         self.trend_manager = TrendManager(config_path)
+        
+        # 初始化新词检测器
+        try:
+            from src.demand_mining.analyzers.new_word_detector import NewWordDetector
+            self.new_word_detector = NewWordDetector()
+            self.new_word_detection_available = True
+            print("✅ 新词检测器初始化成功")
+        except ImportError as e:
+            self.new_word_detector = None
+            self.new_word_detection_available = False
+            print(f"⚠️ 新词检测器初始化失败: {e}")
         
         self.enhanced_features_available = ENHANCED_FEATURES_AVAILABLE
         
         print("🚀 集成需求挖掘管理器初始化完成")
         print("📊 已加载关键词管理器、发现管理器、趋势管理器")
+        if self.new_word_detection_available:
+            print("🔍 新词检测功能已启用")
     
     def analyze_keywords(self, input_file: str, output_dir: str = None) -> Dict[str, Any]:
-        """分析关键词文件"""
-        return self.keyword_manager.analyze(input_file, 'file', output_dir)
+        """分析关键词文件（包含新词检测）"""
+        # 执行基础关键词分析
+        result = self.keyword_manager.analyze(input_file, 'file', output_dir)
+        
+        # 添加新词检测
+        if self.new_word_detection_available:
+            try:
+                print("🔍 正在进行新词检测...")
+                
+                # 读取关键词数据
+                import pandas as pd
+                df = pd.read_csv(input_file)
+                
+                # 执行新词检测
+                new_word_results = self.new_word_detector.detect_new_words(df)
+                
+                # 将新词检测结果合并到分析结果中
+                if 'keywords' in result:
+                    for i, keyword_data in enumerate(result['keywords']):
+                        if i < len(new_word_results):
+                            # 添加新词检测信息
+                            row = new_word_results.iloc[i]
+                            keyword_data['new_word_detection'] = {
+                                'is_new_word': bool(row.get('is_new_word', False)),
+                                'new_word_score': float(row.get('new_word_score', 0)),
+                                'new_word_grade': str(row.get('new_word_grade', 'D')),
+                                'growth_rate_7d': float(row.get('growth_rate_7d', 0)),
+                                'confidence_level': str(row.get('confidence_level', 'low'))
+                            }
+                            
+                            # 如果是新词，增加机会分数加成
+                            if row.get('is_new_word', False):
+                                original_score = keyword_data.get('opportunity_score', 0)
+                                new_word_bonus = row.get('new_word_score', 0) * 0.1  # 10%加成
+                                keyword_data['opportunity_score'] = min(100, original_score + new_word_bonus)
+                                keyword_data['new_word_bonus'] = new_word_bonus
+                
+                # 生成新词检测摘要
+                new_words_count = len(new_word_results[new_word_results['is_new_word'] == True])
+                high_confidence_count = len(new_word_results[new_word_results['confidence_level'] == 'high'])
+                
+                result['new_word_summary'] = {
+                    'total_analyzed': len(new_word_results),
+                    'new_words_detected': new_words_count,
+                    'high_confidence_new_words': high_confidence_count,
+                    'new_word_percentage': round(new_words_count / len(new_word_results) * 100, 1) if len(new_word_results) > 0 else 0
+                }
+                
+                print(f"✅ 新词检测完成: 发现 {new_words_count} 个新词 ({high_confidence_count} 个高置信度)")
+                
+            except Exception as e:
+                print(f"⚠️ 新词检测失败: {e}")
+                result['new_word_summary'] = {
+                    'error': str(e),
+                    'new_words_detected': 0
+                }
+        
+        return result
     
     def analyze_root_words(self, output_dir: str = None) -> Dict[str, Any]:
         """分析词根趋势"""
@@ -334,6 +404,12 @@ def main():
                 print(f"📊 高机会关键词: {result['market_insights']['high_opportunity_count']} 个")
                 print(f"📈 平均机会分数: {result['market_insights']['avg_opportunity_score']}")
                 
+                # 显示新词检测摘要
+                if 'new_word_summary' in result and result['new_word_summary'].get('new_words_detected', 0) > 0:
+                    summary = result['new_word_summary']
+                    print(f"🔍 新词检测: 发现 {summary['new_words_detected']} 个新词 ({summary['new_word_percentage']}%)")
+                    print(f"   高置信度新词: {summary['high_confidence_new_words']} 个")
+                
                 # 显示Top 5关键词
                 top_keywords = result['market_insights']['top_opportunities'][:5]
                 if top_keywords:
@@ -341,7 +417,11 @@ def main():
                     for i, kw in enumerate(top_keywords, 1):
                         intent_desc = kw['intent']['intent_description']
                         score = kw['opportunity_score']
-                        print(f"   {i}. {kw['keyword']} (分数: {score}, 意图: {intent_desc})")
+                        new_word_info = ""
+                        if 'new_word_detection' in kw and kw['new_word_detection']['is_new_word']:
+                            new_word_grade = kw['new_word_detection']['new_word_grade']
+                            new_word_info = f" [新词-{new_word_grade}级]"
+                        print(f"   {i}. {kw['keyword']} (分数: {score}, 意图: {intent_desc}){new_word_info}")
         
         elif args.keywords:
             # 分析单个关键词

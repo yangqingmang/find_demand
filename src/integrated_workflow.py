@@ -17,7 +17,10 @@ from typing import Dict, List, Any, Optional
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.demand_mining.demand_mining_main import DemandMiningManager
+from src.demand_mining.demand_mining_main import DemandMiningManager
+from src.demand_mining.demand_mining_main import DemandMiningManager
 from src.website_builder.builder_core import IntentBasedWebsiteBuilder
+from src.demand_mining.analyzers.new_word_detector import NewWordDetector
 
 
 class IntegratedWorkflow:
@@ -134,9 +137,70 @@ class IntegratedWorkflow:
             return workflow_results
     
     def _run_demand_mining(self, keywords_file: str) -> Dict[str, Any]:
-        """执行需求挖掘分析"""
+    def _run_demand_mining(self, keywords_file: str) -> Dict[str, Any]:
+        """执行需求挖掘分析（包含新词检测）"""
         output_dir = os.path.join(self.output_base_dir, 'demand_analysis')
-        return self.demand_miner.analyze_keywords(keywords_file, output_dir)
+        
+        # 执行基础需求挖掘
+        demand_results = self.demand_miner.analyze_keywords(keywords_file, output_dir)
+        
+        # 添加新词检测
+        try:
+            print("🔍 正在进行新词检测...")
+            
+            # 读取关键词数据
+            import pandas as pd
+            df = pd.read_csv(keywords_file)
+            
+            # 执行新词检测
+            new_word_detector = NewWordDetector()
+            new_word_results = new_word_detector.detect_new_words(df)
+            
+            # 将新词检测结果合并到需求挖掘结果中
+            if 'keywords' in demand_results:
+                for i, keyword_data in enumerate(demand_results['keywords']):
+                    if i < len(new_word_results):
+                        # 添加新词检测信息
+                        row = new_word_results.iloc[i]
+                        keyword_data['new_word_detection'] = {
+                            'is_new_word': bool(row.get('is_new_word', False)),
+                            'new_word_score': float(row.get('new_word_score', 0)),
+                            'new_word_grade': str(row.get('new_word_grade', 'D')),
+                            'growth_rate_7d': float(row.get('growth_rate_7d', 0)),
+                            'explosion_index': float(row.get('explosion_index', 1.0)),
+                            'confidence_level': str(row.get('confidence_level', 'low')),
+                            'historical_pattern': str(row.get('historical_pattern', 'unknown')),
+                            'detection_reasons': str(row.get('detection_reasons', ''))
+                        }
+                        
+                        # 如果是新词，增加机会分数加成
+                        if row.get('is_new_word', False):
+                            original_score = keyword_data.get('opportunity_score', 0)
+                            new_word_bonus = row.get('new_word_score', 0) * 0.1  # 10%加成
+                            keyword_data['opportunity_score'] = min(100, original_score + new_word_bonus)
+                            keyword_data['new_word_bonus'] = new_word_bonus
+            
+            # 生成新词检测摘要
+            new_words_count = len(new_word_results[new_word_results['is_new_word'] == True])
+            high_confidence_count = len(new_word_results[new_word_results['confidence_level'] == 'high'])
+            
+            demand_results['new_word_summary'] = {
+                'total_analyzed': len(new_word_results),
+                'new_words_detected': new_words_count,
+                'high_confidence_new_words': high_confidence_count,
+                'new_word_percentage': round(new_words_count / len(new_word_results) * 100, 1) if len(new_word_results) > 0 else 0
+            }
+            
+            print(f"✅ 新词检测完成: 发现 {new_words_count} 个新词 ({high_confidence_count} 个高置信度)")
+            
+        except Exception as e:
+            print(f"⚠️ 新词检测失败: {e}")
+            demand_results['new_word_summary'] = {
+                'error': str(e),
+                'new_words_detected': 0
+            }
+        
+        return demand_results
     
     def _filter_high_value_keywords(self, demand_results: Dict[str, Any]) -> List[Dict[str, Any]]:
         """筛选高价值关键词"""
@@ -363,7 +427,6 @@ class IntegratedWorkflow:
             
             try:
                 # 这里可以集成实际的部署逻辑
-                # 目前返回模拟结果
                 deployment_url = f"https://{website['project_name']}.pages.dev"
                 
                 deployment_results.append({
