@@ -80,8 +80,34 @@ class TrendsCollector:
         pd.set_option('future.no_silent_downcasting', True)
     
     def _connect(self):
-        """创建pytrends连接"""
+        """创建pytrends连接和Session"""
         self.pytrends = TrendReq(hl=self.hl, tz=self.tz, timeout=self.timeout)
+        
+        # 创建Session用于API请求
+        if not hasattr(self, 'session'):
+            self.session = requests.Session()
+            self._init_session()
+            self._init_session()
+    
+    def _init_session(self):
+        """初始化Session，访问主页建立会话"""
+        try:
+            # 访问主页建立会话和获取Cookie
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Connection': 'keep-alive'
+            }
+            
+            response = self.session.get('https://trends.google.com/', headers=headers, timeout=30)
+            if response.status_code == 200:
+                self.logger.info(f"✅ Session初始化成功，获得{len(self.session.cookies)}个Cookie")
+            else:
+                self.logger.warning(f"⚠️ Session初始化失败，状态码: {response.status_code}")
+                
+        except Exception as e:
+            self.logger.warning(f"⚠️ Session初始化异常: {e}")
 
     def _make_unified_trends_request(self, request_type, keyword=None, geo=None, timeframe=None, 
                                    widget_token=None, widget_request=None):
@@ -144,19 +170,18 @@ class TrendsCollector:
             self.logger.info(f"🔗 完整请求路径: {full_url}")
 
             
-            # 发送POST请求
-            response = requests.post(full_url, headers=self.API_CONFIG['headers'], timeout=self.timeout)
+            # 发送GET请求
+            # 使用Session发送GET请求
+            response = self.session.get(full_url, headers=self.API_CONFIG['headers'], timeout=self.timeout)
             
             if response.status_code == 200:
                 # 处理Google Trends API特殊的响应前缀
                 content = response.text
                 if content.startswith(")]}',"):
-                    content = content[5:]  # 去除 ")]}'"
-                elif content.startswith(")]}',\n"):
-                    content = content[6:]  # 去除 ")]}',\n"
+                    content = content[5:]
+                elif content.startswith(")]}'"):
+                    content = content[4:]
                 
-                self.logger.info(f"✅ {request_type}请求成功")
-                self.logger.debug(f"📄 响应内容前100字符: {content[:100]}")
                 return json.loads(content)
             elif response.status_code == 429:
                 # 专门处理429错误
@@ -165,12 +190,14 @@ class TrendsCollector:
                 time.sleep(5)
                 return None
             else:
-                self.logger.error(f"❌ {request_type}请求失败，状态码: {response.status_code}")
-                self.logger.error(f"📝 响应内容: {response.text[:500]}")
+                self.logger.error(f"❌ API请求失败，状态码: {response.status_code}")
                 return None
                 
+        except json.JSONDecodeError as e:
+            self.logger.error(f"❌ JSON解析失败: {e}")
+            return None
         except Exception as e:
-            self.logger.error(f"💥 {request_type}请求出错: {e}")
+            self.logger.error(f"❌ 请求异常: {e}")
             return None
     
     def _extract_related_queries_from_response(self, api_response):
@@ -196,23 +223,9 @@ class TrendsCollector:
                     widget_type = widget.get('type', '')
                     
                     if widget_id == 'RELATED_QUERIES' and widget_type == 'fe_related_searches':
-                        self.logger.info("找到相关查询widget")
-                        
-                        token = widget.get('token')
-                        if not token:
-                            self.logger.warning("相关查询widget缺少token")
-                            continue
-                        
-                        # 使用统一方法请求相关查询数据
-                        related_response = self._make_unified_trends_request(
-                            'related_searches',
-                            widget_token=token,
-                            widget_request=widget['request']
-                        )
-                        
-                        if related_response:
-                            return self._parse_related_queries_data(related_response)
-                        
+                        self.logger.info("找到相关查询widget，但不在此处调用API（避免重复请求）")
+                        # 不再在这里调用API，只返回空DataFrame
+                        # API调用应该在_fetch_trending_keywords_via_api中统一处理
                         break
             
             # 处理related_searches响应
@@ -268,6 +281,107 @@ class TrendsCollector:
             self.logger.error(f"解析相关查询数据出错: {e}")
             return pd.DataFrame(columns=['query', 'value', 'growth'])
     
+    def _fetch_trending_keywords_via_api(self, geo=None, timeframe=None):
+        """
+        使用base_urls中的两个接口请求热门关键词，而不是使用pytrends
+        从explore接口获取token，然后用token调用related_searches接口
+        
+        参数:
+            geo (str): 地区代码
+            timeframe (str): 时间范围
+            
+        返回:
+            pandas.DataFrame: 热门关键词数据
+        """
+        geo = geo or self.API_CONFIG['default_params']['geo']
+        timeframe = timeframe or self.API_CONFIG['default_params']['timeframe']
+        
+        all_trending_data = []
+        
+        try:
+            # 第一步：使用explore接口获取widgets和tokens
+            self.logger.info("🌐 第一步：使用explore接口获取热门数据和tokens...")
+            
+            explore_response = self._make_unified_trends_request(
+                'explore',
+                keyword="",  # 空关键词获取热门数据
+                geo=geo,
+                timeframe=timeframe
+            )
+            
+            if explore_response and 'widgets' in explore_response:
+                self.logger.info(f"✅ explore接口成功，找到 {len(explore_response['widgets'])} 个widgets")
+                
+                # 第二步：从widgets中找到相关查询的token，然后调用related_searches接口
+                for widget in explore_response['widgets']:
+                    widget_id = widget.get('id', '')
+                    widget_type = widget.get('type', '')
+                    
+                    self.logger.info(f"🔍 检查widget: {widget_id} (类型: {widget_type})")
+                    
+                    # 寻找相关查询widget
+                    if widget_id == 'RELATED_QUERIES' and widget_type == 'fe_related_searches':
+                        self.logger.info("🎯 找到相关查询widget，提取token...")
+                        
+                        token = widget.get('token')
+                        widget_request = widget.get('request')
+                        
+                        if token and widget_request:
+                            self.logger.info(f"✅ 成功提取token，调用related_searches接口...")
+                            
+                            # 使用token调用related_searches接口
+                            related_response = self._make_unified_trends_request(
+                                'related_searches',
+                                widget_token=token,
+                                widget_request=widget_request
+                            )
+                            
+                            if related_response:
+                                # 解析相关查询数据
+                                df = self._parse_related_queries_data(related_response)
+                                if not df.empty:
+                                    df['source'] = 'related_searches_via_api'
+                                    all_trending_data.append(df)
+                                    self.logger.info(f"✅ 从related_searches接口获取到 {len(df)} 条热门关键词")
+                                else:
+                                    self.logger.warning("⚠️ related_searches接口返回空数据")
+                            else:
+                                self.logger.warning("⚠️ related_searches接口调用失败")
+                        else:
+                            self.logger.warning("⚠️ 相关查询widget缺少token或request")
+                    
+                    # 也可以尝试从其他widget获取数据
+                    elif widget_id == 'TIMESERIES':
+                        self.logger.info("📈 找到时间序列widget，可用于趋势分析")
+                        # 这里可以进一步处理时间序列数据
+                        pass
+                
+                # 如果没有从widgets获取到数据，记录日志但不再尝试其他方式
+                if not all_trending_data:
+                    self.logger.info("⚠️ 未从相关查询widgets获取到数据")
+            else:
+                self.logger.warning("⚠️ explore接口未返回有效的widgets数据")
+        
+        except Exception as e:
+            self.logger.error(f"💥 使用API接口请求热门关键词时出错: {e}")
+        
+        # 如果API方式没有获取到数据，返回空DataFrame
+        if not all_trending_data:
+            self.logger.warning("⚠️ API方式未获取到数据，返回空结果")
+            return pd.DataFrame(columns=['query', 'value', 'growth'])
+        
+        # 合并所有数据
+        combined_df = pd.concat(all_trending_data, ignore_index=True)
+        
+        # 去重并按value排序
+        if 'query' in combined_df.columns:
+            combined_df = combined_df.drop_duplicates(subset=['query'], keep='first')
+            if 'value' in combined_df.columns:
+                combined_df = combined_df.sort_values('value', ascending=False)
+        
+        self.logger.info(f"🎉 成功获取热门关键词数据，共 {len(combined_df)} 条记录")
+        return combined_df
+    
     def get_trending_searches(self, geo=None):
         """
         获取热门搜索数据
@@ -305,24 +419,24 @@ class TrendsCollector:
     def fetch_rising_queries(self, keyword=None, geo=None, timeframe=None):
         """
         获取关键词的Rising Queries - 只使用pytrends避免双重请求
-        如果没有提供关键词，返回热门搜索数据
+        如果没有提供关键词，默认按照base_urls的两个URL请求Google Trends数据
         
         参数:
-            keyword (str, optional): 种子关键词，如果为空则返回热门搜索
+            keyword (str, optional): 种子关键词，如果为空则使用默认URLs请求数据
             geo (str): 地区代码，默认使用API_CONFIG中的值
             timeframe (str): 时间范围，默认使用API_CONFIG中的值
             
         返回:
-            pandas.DataFrame: Rising Queries数据或热门搜索数据
+            pandas.DataFrame: Rising Queries数据或默认趋势数据
         """
         # 使用默认值
         geo = geo or self.API_CONFIG['default_params']['geo']
         timeframe = timeframe or self.API_CONFIG['default_params']['timeframe']
         
-        # 如果没有提供关键词，返回热门搜索数据
+        # 如果没有提供关键词，使用base_urls的两个接口请求热门关键词
         if not keyword or not keyword.strip():
-            self.logger.info(f"未提供关键词，获取热门搜索数据 (地区: {geo})...")
-            return self.get_trending_searches(geo=geo)
+            self.logger.info(f"未提供关键词，使用base_urls接口请求热门关键词 (地区: {geo})...")
+            return self._fetch_trending_keywords_via_api(geo=geo, timeframe=timeframe)
         
         self.logger.info(f"正在获取 '{keyword}' 的Rising Queries数据 (地区: {geo})...")
 
@@ -364,8 +478,7 @@ class TrendsCollector:
                     self.logger.warning(f"⚠️ 获取数据时出错: {e}")
                     self.logger.info(f"⏰ 等待 {wait_time:.1f} 秒后重试 ({attempt+1}/{self.retries})...")
                     time.sleep(wait_time)
-                    # 重新连接
-                    self._connect()
+                    # 不重新连接，避免触发429错误
                 else:
                     self.logger.error(f"❌ 多次尝试后仍然失败: {e}")
                     return pd.DataFrame(columns=['query', 'value', 'growth'])
@@ -467,41 +580,41 @@ class TrendsCollector:
         else:
             keyword = keywords
         
-        # 如果没有提供关键词，返回热门搜索数据
+        # 如果没有提供关键词，调用fetch_rising_queries方法（避免重复实现）
         if not keyword or not keyword.strip():
-            self.logger.info(f"未提供关键词，获取热门搜索数据 (地区: {geo})...")
+            self.logger.info(f"未提供关键词，调用fetch_rising_queries获取热门关键词 (地区: {geo})...")
             
             try:
-                df = self.get_trending_searches(geo)
+                df = self.fetch_rising_queries(None, geo=geo, timeframe=timeframe)
                 
                 if not df.empty:
                     return {
-                        'keyword': 'trending_searches',
+                        'keyword': 'trending_keywords_via_api',
                         'related_queries': df.to_dict('records'),
                         'total_queries': len(df),
                         'avg_volume': float(df['value'].mean()) if 'value' in df.columns else 0.0,
                         'status': 'success',
-                        'data_type': 'trending_searches'
+                        'data_type': 'trending_keywords_via_api'
                     }
                 else:
                     return {
-                        'keyword': 'trending_searches',
+                        'keyword': 'trending_keywords_via_api',
                         'related_queries': [],
                         'total_queries': 0,
                         'avg_volume': 0.0,
                         'status': 'no_data',
-                        'data_type': 'trending_searches'
+                        'data_type': 'trending_keywords_via_api'
                     }
             except Exception as e:
-                self.logger.error(f"获取热门搜索数据时出错: {e}")
+                self.logger.error(f"获取热门关键词时出错: {e}")
                 return {
-                    'keyword': 'trending_searches',
+                    'keyword': 'trending_keywords_via_api',
                     'related_queries': [],
                     'total_queries': 0,
                     'avg_volume': 0.0,
                     'status': 'error',
                     'error': str(e),
-                    'data_type': 'trending_searches'
+                    'data_type': 'trending_keywords_via_api'
                 }
         
         self.logger.info(f"正在获取关键词 '{keyword}' 的趋势数据...")
