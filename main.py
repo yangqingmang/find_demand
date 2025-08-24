@@ -295,6 +295,9 @@ def main():
   # 生成分析报告
   python main.py --report
 
+  # 使用51个词根进行趋势分析
+  python main.py --use-root-words
+
   # 静默模式分析
   python main.py --input data/keywords.csv --quiet
 
@@ -337,6 +340,7 @@ def main():
     parser.add_argument('--quiet', '-q', action='store_true', help='静默模式，只显示最终结果')
     parser.add_argument('--verbose', '-v', action='store_true', help='详细模式，显示所有中间过程')
     parser.add_argument('--stats', action='store_true', help='显示管理器统计信息')
+    parser.add_argument('--use-root-words', action='store_true', help='使用51个词根进行趋势分析')
     
     args = parser.parse_args()
     
@@ -574,8 +578,8 @@ def main():
             report_path = manager.generate_daily_report()
             print(f"✅ 报告已生成: {report_path}")
         
-        else:
-            # 默认：使用51个词根进行趋势分析
+        elif args.use_root_words:
+            # 使用51个词根进行趋势分析
             if not args.quiet:
                 print("🌱 开始使用51个词根进行趋势分析...")
             
@@ -595,6 +599,11 @@ def main():
                     print("\n🏆 Top 5 热门词根:")
                     for i, word_data in enumerate(top_words, 1):
                         print(f"   {i}. {word_data['word']}: 平均兴趣度 {word_data['average_interest']:.1f}")
+        
+        else:
+            # 默认：显示帮助信息
+            parser.print_help()
+            return
         
         print(f"\n📁 详细结果已保存到 {args.output} 目录")
         
