@@ -7,7 +7,7 @@ import time
 import requests
 import json
 import urllib.parse
-from .trends_wrapper import TrendReq
+from .custom_trends_collector import CustomTrendsCollector
 import argparse
 from src.utils import FileUtils, Logger
 from src.utils.constants import GOOGLE_TRENDS_CONFIG
@@ -48,13 +48,13 @@ class TrendsCollector:
         self.backoff_factor = backoff_factor
         self.logger = Logger()
         
-        # 初始化 pytrends
+        # 初始化自定义 trends collector
         try:
-            self.pytrends = TrendReq(hl=self.hl, tz=self.tz, timeout=timeout, retries=retries, backoff_factor=backoff_factor)
+            self.trends_collector = CustomTrendsCollector(hl=self.hl, tz=self.tz, timeout=timeout, retries=retries, backoff_factor=backoff_factor)
             self.logger.info("Session初始化成功")
         except Exception as e:
             self.logger.error(f"Session初始化失败: {e}")
-            self.pytrends = None
+            self.trends_collector = None
     
     def get_trends_data(self, keywords, timeframe='today 12-m', geo=''):
         """
@@ -68,8 +68,8 @@ class TrendsCollector:
         Returns:
             pandas.DataFrame: 趋势数据
         """
-        if not self.pytrends:
-            self.logger.error("pytrends 未初始化")
+        if not self.trends_collector:
+            self.logger.error("trends_collector 未初始化")
             return pd.DataFrame()
             
         try:
@@ -83,10 +83,10 @@ class TrendsCollector:
             self.logger.info(f"   地理位置: {geo}")
             
             # 构建payload
-            self.pytrends.build_payload(keywords, cat=0, timeframe=timeframe, geo=geo, gprop='')
+            self.trends_collector.build_payload(keywords, cat=0, timeframe=timeframe, geo=geo, gprop='')
             
             # 获取兴趣度数据
-            interest_over_time = self.pytrends.interest_over_time()
+            interest_over_time = self.trends_collector.interest_over_time()
             
             if not interest_over_time.empty:
                 # 移除 'isPartial' 列
@@ -104,7 +104,7 @@ class TrendsCollector:
             self.logger.error(f"   请求参数: keywords={keywords}, timeframe={timeframe}, geo={geo}")
             return pd.DataFrame()
         
-        self.pytrends = TrendReq(hl=self.hl, tz=self.tz, timeout=self.timeout)
+        self.trends_collector = CustomTrendsCollector(hl=self.hl, tz=self.tz, timeout=self.timeout)
         self.session = requests.Session()
         self._init_session()
         
@@ -249,8 +249,8 @@ class TrendsCollector:
         geo = geo or self.API_CONFIG['default_params']['geo']
         
         try:
-            # 首先尝试使用pytrends的trending_searches方法
-            trending_searches = self.pytrends.trending_searches(pn=geo)
+            # 首先尝试使用自定义collector的trending_searches方法
+            trending_searches = self.trends_collector.trending_searches(pn=geo)
             
             if trending_searches is not None and not trending_searches.empty:
                 trending_searches.columns = ['query']
@@ -258,7 +258,7 @@ class TrendsCollector:
                 trending_searches['growth'] = 'Trending'
                 return trending_searches
             else:
-                self.logger.warning("pytrends trending_searches返回空数据，尝试备用方案")
+                self.logger.warning("自定义 trending_searches返回空数据，尝试备用方案")
                 return self._get_fallback_trending_data()
                 
         except Exception as e:
@@ -282,8 +282,8 @@ class TrendsCollector:
             for i, keyword in enumerate(fallback_keywords[:10]):  # 限制为前10个
                 try:
                     # 使用简单的趋势查询
-                    self.pytrends.build_payload([keyword], timeframe='now 7-d')
-                    interest_data = self.pytrends.interest_over_time()
+                    self.trends_collector.build_payload([keyword], timeframe='now 7-d')
+                    interest_data = self.trends_collector.interest_over_time()
                     
                     if not interest_data.empty and keyword in interest_data.columns:
                         avg_interest = interest_data[keyword].mean()
@@ -343,8 +343,8 @@ class TrendsCollector:
         
         for attempt in range(self.retries):
             try:
-                self.pytrends.build_payload([keyword], cat=0, timeframe=timeframe, geo=geo)
-                related_queries = self.pytrends.related_queries()
+                self.trends_collector.build_payload([keyword], cat=0, timeframe=timeframe, geo=geo)
+                related_queries = self.trends_collector.related_queries()
                 
                 if keyword in related_queries and related_queries[keyword]:
                     rising = related_queries[keyword]['rising']

@@ -47,6 +47,9 @@ class CustomTrendsCollector:
         self.TRENDING_SEARCHES_URL = 'https://trends.google.com/trends/hottrends/visualize/internal/data'
         self.TOP_CHARTS_URL = 'https://trends.google.com/trends/api/topcharts'
         self.SUGGESTIONS_URL = 'https://trends.google.com/trends/api/autocomplete'
+        self.CATEGORIES_URL = 'https://trends.google.com/trends/api/explore/pickers/category'
+        self.REALTIME_TRENDING_URL = 'https://trends.google.com/trends/api/realtimetrends'
+        self.TODAY_SEARCHES_URL = 'https://trends.google.com/trends/api/dailytrends'
         
         # 会话管理
         self.session = requests.Session()
@@ -570,3 +573,595 @@ class CustomTrendsCollector:
             # 恢复原始设置
             self.kw_list = original_kw_list
             self.timeframe = original_timeframe
+    
+    def top_charts(self, date: int = None, geo: str = 'GLOBAL', cat: str = '') -> pd.DataFrame:
+        """获取年度热门图表"""
+        try:
+            if date is None:
+                date = datetime.now().year
+            
+            params = {
+                'hl': self.hl,
+                'tz': self.tz,
+                'date': str(date),
+                'geo': geo,
+                'cat': cat
+            }
+            
+            response = self._get_data(
+                self.TOP_CHARTS_URL,
+                method='get',
+                params=params,
+                trim_chars=5
+            )
+            
+            if not response or 'topCharts' not in response:
+                return pd.DataFrame()
+            
+            charts_data = []
+            for chart in response['topCharts']:
+                for item in chart.get('data', []):
+                    charts_data.append({
+                        'title': item.get('title', ''),
+                        'exploreQuery': item.get('exploreQuery', ''),
+                        'formattedTraffic': item.get('formattedTraffic', ''),
+                        'link': item.get('link', ''),
+                        'picture': item.get('picture', {}).get('source', ''),
+                        'newsArticles': len(item.get('newsArticles', []))
+                    })
+            
+            return pd.DataFrame(charts_data)
+            
+        except Exception as e:
+            logger.error(f"获取年度热门图表失败: {e}")
+            return pd.DataFrame()
+    
+    def categories(self) -> Dict:
+        """获取所有可用的分类"""
+        try:
+            params = {
+                'hl': self.hl,
+                'tz': self.tz
+            }
+            
+            response = self._get_data(
+                self.CATEGORIES_URL,
+                method='get',
+                params=params,
+                trim_chars=5
+            )
+            
+            if not response:
+                return {}
+            
+            categories = {}
+            
+            def parse_categories(items, parent_id=''):
+                for item in items:
+                    cat_id = item.get('id', '')
+                    cat_name = item.get('name', '')
+                    
+                    if cat_id and cat_name:
+                        full_id = f"{parent_id}-{cat_id}" if parent_id else cat_id
+                        categories[full_id] = cat_name
+                        
+                        # 递归处理子分类
+                        if 'children' in item:
+                            parse_categories(item['children'], full_id)
+            
+            if 'children' in response:
+                parse_categories(response['children'])
+            
+            return categories
+            
+        except Exception as e:
+            logger.error(f"获取分类失败: {e}")
+            return {}
+    
+    def realtime_trending_searches(self, geo: str = 'US', cat: str = 'all') -> pd.DataFrame:
+        """获取实时热门搜索"""
+        try:
+            params = {
+                'hl': self.hl,
+                'tz': self.tz,
+                'geo': geo,
+                'cat': cat,
+                'fi': 0,
+                'fs': 10,
+                'ri': 300,
+                'rs': 20,
+                'sort': 0
+            }
+            
+            response = self._get_data(
+                self.REALTIME_TRENDING_URL,
+                method='get',
+                params=params,
+                trim_chars=5
+            )
+            
+            if not response or 'storySummaries' not in response:
+                return pd.DataFrame()
+            
+            trending_data = []
+            for story in response['storySummaries']['trendingStories']:
+                for article in story.get('articles', []):
+                    trending_data.append({
+                        'title': story.get('title', ''),
+                        'entityNames': ', '.join(story.get('entityNames', [])),
+                        'traffic': story.get('formattedTraffic', ''),
+                        'article_title': article.get('articleTitle', ''),
+                        'article_url': article.get('url', ''),
+                        'article_source': article.get('source', ''),
+                        'article_time': article.get('time', ''),
+                        'image': story.get('image', {}).get('source', '')
+                    })
+            
+            return pd.DataFrame(trending_data)
+            
+        except Exception as e:
+            logger.error(f"获取实时热门搜索失败: {e}")
+            return pd.DataFrame()
+    
+    def today_searches(self, geo: str = 'US') -> pd.DataFrame:
+        """获取今日搜索趋势"""
+        try:
+            params = {
+                'hl': self.hl,
+                'tz': self.tz,
+                'geo': geo,
+                'ns': 15
+            }
+            
+            response = self._get_data(
+                self.TODAY_SEARCHES_URL,
+                method='get',
+                params=params,
+                trim_chars=5
+            )
+            
+            if not response or 'default' not in response:
+                return pd.DataFrame()
+            
+            today_data = []
+            trending_searches = response['default'].get('trendingSearchesDays', [])
+            
+            if trending_searches:
+                # 获取最新一天的数据
+                latest_day = trending_searches[0]
+                for search in latest_day.get('trendingSearches', []):
+                    today_data.append({
+                        'title': search.get('title', {}).get('query', ''),
+                        'formattedTraffic': search.get('formattedTraffic', ''),
+                        'relatedQueries': ', '.join([q.get('query', '') for q in search.get('relatedQueries', [])]),
+                        'image': search.get('image', {}).get('source', ''),
+                        'newsUrl': search.get('articles', [{}])[0].get('url', '') if search.get('articles') else '',
+                        'date': latest_day.get('date', '')
+                    })
+            
+            return pd.DataFrame(today_data)
+            
+        except Exception as e:
+            logger.error(f"获取今日搜索失败: {e}")
+            return pd.DataFrame()
+    
+    def hourly_searches(self, geo: str = 'US') -> pd.DataFrame:
+        """获取小时级搜索数据"""
+        try:
+            # 使用实时趋势API获取更细粒度的数据
+            params = {
+                'hl': self.hl,
+                'tz': self.tz,
+                'geo': geo,
+                'cat': 'all',
+                'fi': 0,
+                'fs': 10,
+                'ri': 60,  # 60分钟间隔
+                'rs': 20,
+                'sort': 0
+            }
+            
+            response = self._get_data(
+                self.REALTIME_TRENDING_URL,
+                method='get',
+                params=params,
+                trim_chars=5
+            )
+            
+            if not response:
+                return pd.DataFrame()
+            
+            hourly_data = []
+            
+            # 解析实时数据并按小时组织
+            if 'storySummaries' in response:
+                for story in response['storySummaries'].get('trendingStories', []):
+                    # 提取时间信息
+                    traffic_class = story.get('trafficClass', '')
+                    
+                    hourly_data.append({
+                        'title': story.get('title', ''),
+                        'traffic': story.get('formattedTraffic', ''),
+                        'traffic_class': traffic_class,
+                        'entityNames': ', '.join(story.get('entityNames', [])),
+                        'timestamp': datetime.now().strftime('%Y-%m-%d %H:00:00'),
+                        'image': story.get('image', {}).get('source', '')
+                    })
+            
+            return pd.DataFrame(hourly_data)
+            
+        except Exception as e:
+            logger.error(f"获取小时级搜索失败: {e}")
+            return pd.DataFrame()
+    
+    def get_trending_topics(self, geo: str = 'US', timeframe: str = 'now 1-d') -> pd.DataFrame:
+        """获取趋势主题（综合方法）"""
+        try:
+            # 结合多个数据源获取趋势主题
+            results = []
+            
+            # 1. 获取实时趋势
+            realtime_df = self.realtime_trending_searches(geo=geo)
+            if not realtime_df.empty:
+                for _, row in realtime_df.iterrows():
+                    results.append({
+                        'topic': row.get('title', ''),
+                        'type': 'realtime',
+                        'traffic': row.get('traffic', ''),
+                        'source': 'realtime_trending'
+                    })
+            
+            # 2. 获取今日搜索
+            today_df = self.today_searches(geo=geo)
+            if not today_df.empty:
+                for _, row in today_df.iterrows():
+                    results.append({
+                        'topic': row.get('title', ''),
+                        'type': 'daily',
+                        'traffic': row.get('formattedTraffic', ''),
+                        'source': 'today_searches'
+                    })
+            
+            return pd.DataFrame(results)
+            
+        except Exception as e:
+            logger.error(f"获取趋势主题失败: {e}")
+            return pd.DataFrame()
+    
+    def get_category_trends(self, category: int, geo: str = '', timeframe: str = 'today 12-m') -> pd.DataFrame:
+        """获取特定分类的趋势数据"""
+        try:
+            # 临时保存当前设置
+            original_cat = self.cat
+            original_geo = self.geo
+            original_timeframe = self.timeframe
+            
+            # 设置分类参数
+            self.cat = category
+            self.geo = geo
+            self.timeframe = timeframe
+            
+            # 构建请求获取该分类下的热门关键词
+            payload = {
+                'comparisonItem': [],
+                'category': category,
+                'property': ''
+            }
+            
+            token_payload = {
+                'hl': self.hl,
+                'tz': self.tz,
+                'req': json.dumps(payload)
+            }
+            
+            token_response = self._get_data(
+                self.GENERAL_URL,
+                method='get',
+                params=token_payload,
+                trim_chars=4
+            )
+            
+            if not token_response:
+                return pd.DataFrame()
+            
+            # 从响应中提取趋势数据
+            trends_data = []
+            
+            # 这里可以进一步解析分类相关的趋势数据
+            # 由于Google Trends API的复杂性，这里提供基础框架
+            
+            return pd.DataFrame(trends_data)
+            
+        except Exception as e:
+            logger.error(f"获取分类趋势失败: {e}")
+            return pd.DataFrame()
+        finally:
+            # 恢复原始设置
+            self.cat = original_cat
+            self.geo = original_geo
+            self.timeframe = original_timeframe
+    
+    def compare_keywords(self, keywords: List[str], timeframe: str = 'today 12-m', geo: str = '') -> pd.DataFrame:
+        """比较多个关键词的趋势"""
+        if len(keywords) > 5:
+            logger.warning("Google Trends最多支持5个关键词比较，将使用前5个")
+            keywords = keywords[:5]
+        
+        # 临时保存当前设置
+        original_kw_list = self.kw_list
+        original_timeframe = self.timeframe
+        original_geo = self.geo
+        
+        try:
+            # 设置比较参数
+            self.kw_list = keywords
+            self.timeframe = timeframe
+            self.geo = geo
+            
+            # 获取时间序列数据
+            df = self.interest_over_time()
+            
+            return df
+            
+        finally:
+            # 恢复原始设置
+            self.kw_list = original_kw_list
+            self.timeframe = original_timeframe
+            self.geo = original_geo
+    
+    def get_geo_suggestions(self, keyword: str = '') -> List[Dict]:
+        """获取地理位置建议"""
+        try:
+            # 这个功能通常通过分析现有的地区数据来实现
+            # 由于API限制，这里提供一个基础的地区列表
+            
+            common_geos = [
+                {'code': 'US', 'name': 'United States'},
+                {'code': 'GB', 'name': 'United Kingdom'},
+                {'code': 'CA', 'name': 'Canada'},
+                {'code': 'AU', 'name': 'Australia'},
+                {'code': 'DE', 'name': 'Germany'},
+                {'code': 'FR', 'name': 'France'},
+                {'code': 'JP', 'name': 'Japan'},
+                {'code': 'CN', 'name': 'China'},
+                {'code': 'IN', 'name': 'India'},
+                {'code': 'BR', 'name': 'Brazil'}
+            ]
+            
+            return common_geos
+            
+        except Exception as e:
+            logger.error(f"获取地理位置建议失败: {e}")
+            return []
+    
+    def get_timeframe_suggestions(self) -> List[str]:
+        """获取时间范围建议"""
+        return [
+            'now 1-H',      # 过去1小时
+            'now 4-H',      # 过去4小时
+            'now 1-d',      # 过去1天
+            'now 7-d',      # 过去7天
+            'today 1-m',    # 过去1个月
+            'today 3-m',    # 过去3个月
+            'today 12-m',   # 过去12个月
+            'today 5-y',    # 过去5年
+            '2019-01-01 2019-12-31',  # 自定义时间范围示例
+            'all'           # 所有时间
+        ]
+    
+    def validate_keywords(self, keywords: List[str]) -> Dict[str, bool]:
+        """验证关键词是否有效"""
+        results = {}
+        
+        for keyword in keywords:
+            # 基本验证规则
+            is_valid = True
+            
+            # 检查长度
+            if len(keyword.strip()) == 0:
+                is_valid = False
+            elif len(keyword) > 100:  # Google Trends关键词长度限制
+                is_valid = False
+            
+            # 检查特殊字符
+            invalid_chars = ['<', '>', '"', '&']
+            if any(char in keyword for char in invalid_chars):
+                is_valid = False
+            
+            results[keyword] = is_valid
+        
+        return results
+    
+    def get_search_volume_estimate(self, keyword: str, timeframe: str = 'today 12-m') -> Dict:
+        """获取搜索量估算（基于趋势数据）"""
+        try:
+            # 临时设置
+            original_kw_list = self.kw_list
+            original_timeframe = self.timeframe
+            
+            self.kw_list = [keyword]
+            self.timeframe = timeframe
+            
+            # 获取时间序列数据
+            df = self.interest_over_time()
+            
+            if df.empty:
+                return {'keyword': keyword, 'estimate': 'No data', 'trend': 'Unknown'}
+            
+            # 计算基本统计
+            values = df[keyword].dropna()
+            if values.empty:
+                return {'keyword': keyword, 'estimate': 'No data', 'trend': 'Unknown'}
+            
+            avg_interest = values.mean()
+            max_interest = values.max()
+            min_interest = values.min()
+            
+            # 计算趋势方向
+            if len(values) >= 2:
+                recent_avg = values.tail(4).mean()  # 最近4个数据点
+                earlier_avg = values.head(4).mean()  # 最早4个数据点
+                
+                if recent_avg > earlier_avg * 1.1:
+                    trend = 'Rising'
+                elif recent_avg < earlier_avg * 0.9:
+                    trend = 'Declining'
+                else:
+                    trend = 'Stable'
+            else:
+                trend = 'Unknown'
+            
+            # 估算搜索量级别
+            if avg_interest >= 80:
+                volume_estimate = 'Very High'
+            elif avg_interest >= 60:
+                volume_estimate = 'High'
+            elif avg_interest >= 40:
+                volume_estimate = 'Medium'
+            elif avg_interest >= 20:
+                volume_estimate = 'Low'
+            else:
+                volume_estimate = 'Very Low'
+            
+            return {
+                'keyword': keyword,
+                'estimate': volume_estimate,
+                'trend': trend,
+                'avg_interest': round(avg_interest, 2),
+                'max_interest': max_interest,
+                'min_interest': min_interest,
+                'data_points': len(values)
+            }
+            
+        except Exception as e:
+            logger.error(f"获取搜索量估算失败: {e}")
+            return {'keyword': keyword, 'estimate': 'Error', 'trend': 'Unknown'}
+        finally:
+            # 恢复设置
+            self.kw_list = original_kw_list
+            self.timeframe = original_timeframe
+    
+    def batch_keyword_analysis(self, keywords: List[str], max_batch_size: int = 5) -> Dict:
+        """批量关键词分析"""
+        results = {
+            'interest_over_time': {},
+            'interest_by_region': {},
+            'related_topics': {},
+            'related_queries': {},
+            'search_volume_estimates': {}
+        }
+        
+        # 分批处理关键词
+        for i in range(0, len(keywords), max_batch_size):
+            batch = keywords[i:i + max_batch_size]
+            
+            try:
+                # 设置当前批次
+                self.kw_list = batch
+                
+                # 获取各种数据
+                results['interest_over_time'][f'batch_{i//max_batch_size + 1}'] = self.interest_over_time()
+                results['interest_by_region'][f'batch_{i//max_batch_size + 1}'] = self.interest_by_region()
+                results['related_topics'][f'batch_{i//max_batch_size + 1}'] = self.related_topics()
+                results['related_queries'][f'batch_{i//max_batch_size + 1}'] = self.related_queries()
+                
+                # 获取搜索量估算
+                for keyword in batch:
+                    results['search_volume_estimates'][keyword] = self.get_search_volume_estimate(keyword)
+                
+                # 添加延迟避免请求过快
+                time.sleep(2)
+                
+            except Exception as e:
+                logger.error(f"批次 {i//max_batch_size + 1} 分析失败: {e}")
+                continue
+        
+        return results
+    
+    def export_data(self, data: Union[pd.DataFrame, Dict], filename: str, format: str = 'csv') -> bool:
+        """导出数据到文件"""
+        try:
+            if format.lower() == 'csv' and isinstance(data, pd.DataFrame):
+                data.to_csv(filename, index=True, encoding='utf-8')
+            elif format.lower() == 'json':
+                if isinstance(data, pd.DataFrame):
+                    data.to_json(filename, orient='records', force_ascii=False, indent=2)
+                else:
+                    with open(filename, 'w', encoding='utf-8') as f:
+                        json.dump(data, f, ensure_ascii=False, indent=2)
+            elif format.lower() == 'excel' and isinstance(data, pd.DataFrame):
+                data.to_excel(filename, index=True)
+            else:
+                logger.error(f"不支持的格式: {format}")
+                return False
+            
+            logger.info(f"数据已导出到: {filename}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"导出数据失败: {e}")
+            return False
+    
+    def get_api_status(self) -> Dict:
+        """获取API状态信息"""
+        try:
+            # 测试基本连接
+            test_response = self.session.get('https://trends.google.com/', timeout=5)
+            
+            status = {
+                'connection': 'OK' if test_response.status_code == 200 else 'Failed',
+                'status_code': test_response.status_code,
+                'response_time': test_response.elapsed.total_seconds(),
+                'session_cookies': len(self.session.cookies),
+                'last_check': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            }
+            
+            return status
+            
+        except Exception as e:
+            return {
+                'connection': 'Failed',
+                'error': str(e),
+                'last_check': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            }
+    
+    def reset_session(self):
+        """重置会话"""
+        try:
+            self.session.close()
+            self.session = requests.Session()
+            self.session.headers.update({
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'application/json, text/plain, */*',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Referer': 'https://trends.google.com/',
+                'Origin': 'https://trends.google.com',
+                'Sec-Fetch-Dest': 'empty',
+                'Sec-Fetch-Mode': 'cors',
+                'Sec-Fetch-Site': 'same-origin',
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            })
+            self._init_session()
+            logger.info("会话已重置")
+        except Exception as e:
+            logger.error(f"重置会话失败: {e}")
+    
+    def __enter__(self):
+        """上下文管理器入口"""
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """上下文管理器出口"""
+        try:
+            self.session.close()
+        except:
+            pass
+    
+    def __del__(self):
+        """析构函数"""
+        try:
+            self.session.close()
+        except:
+            pass

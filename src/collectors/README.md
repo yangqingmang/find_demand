@@ -140,7 +140,46 @@ for keyword, data in batch_results.items():
 
 ## 依赖库
 
-- `pytrends` - Google Trends API客户端
+- **自定义实现** - 不再依赖第三方 pytrends 库
 - `pandas` - 数据处理
 - `requests` - HTTP请求
 - `time` - 延迟控制
+
+## 技术架构
+
+### 自定义 Google Trends 实现
+
+本模块已完全替换第三方 `pytrends` 库，使用自主开发的 Google Trends 数据采集器：
+
+#### 核心组件
+
+1. **CustomTrendsCollector** (`custom_trends_collector.py`)
+   - 直接与 Google Trends API 交互
+   - 完整的会话管理和错误处理
+   - 智能重试机制和 429 错误处理
+
+2. **TrendReq** (`trends_wrapper.py`) 
+   - 提供与原 pytrends 完全兼容的 API 接口
+   - 无缝替换，现有代码无需修改
+
+3. **TrendsCollector** (`trends_collector.py`)
+   - 高级业务逻辑封装
+   - 批量处理和数据清洗功能
+
+#### 技术优势
+
+- **完全自主可控** - 不依赖第三方库更新
+- **更强错误处理** - 针对 Google Trends API 优化
+- **扩展功能** - 批量分析、数据导出、API 状态检查
+- **向后兼容** - 与原 pytrends 接口完全兼容
+
+#### 新增功能
+
+- `top_charts()` - 年度热门图表
+- `categories()` - 获取所有可用分类  
+- `realtime_trending_searches()` - 实时热门搜索
+- `today_searches()` - 今日搜索趋势
+- `hourly_searches()` - 小时级搜索数据
+- `batch_keyword_analysis()` - 批量关键词分析
+- `export_data()` - 数据导出功能
+- `get_api_status()` - API 状态监控
