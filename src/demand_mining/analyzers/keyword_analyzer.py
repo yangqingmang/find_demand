@@ -33,6 +33,16 @@ class KeywordAnalyzer(BaseAnalyzer):
         elif hasattr(data, 'iterrows'):  # DataFrame
             keywords = data['query'].tolist() if 'query' in data.columns else data.iloc[:, 0].tolist()
             return self.analyze_keywords(keywords)
+        elif isinstance(data, dict):
+            # 处理字典类型数据
+            if 'query' in data:
+                keywords = [data['query']] if isinstance(data['query'], str) else data['query']
+            elif 'keyword' in data:
+                keywords = [data['keyword']] if isinstance(data['keyword'], str) else data['keyword']
+            else:
+                # 尝试获取第一个值作为关键词
+                keywords = list(data.values())[:1] if data else []
+            return self.analyze_keywords(keywords)
         else:
             return {}
     

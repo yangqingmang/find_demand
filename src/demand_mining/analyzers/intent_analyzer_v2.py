@@ -177,16 +177,38 @@ class IntentAnalyzerV2(BaseAnalyzer):
         """实现基础分析器的抽象方法"""
         return self.analyze_keywords(data, keyword_col)
 
-    def analyze_keywords(self, df, query_col='query') -> Dict[str, Any]:
+    def analyze_keywords(self, data, query_col='query') -> Dict[str, Any]:
         """分析关键词列表"""
-        self.log_analysis_start("搜索意图V2", f"，共 {len(df)} 个关键词")
+        # 处理不同类型的输入数据
+        if isinstance(data, list):
+            # 如果是列表，转换为字典列表
+            keywords = [{'query': kw} for kw in data]
+            self.log_analysis_start("搜索意图V2", f"，共 {len(keywords)} 个关键词")
+        elif hasattr(data, 'iterrows'):
+            # 如果是DataFrame
+            keywords = []
+            for idx, row in data.iterrows():
+                keywords.append({'query': str(row[query_col])})
+            self.log_analysis_start("搜索意图V2", f"，共 {len(keywords)} 个关键词")
+        elif isinstance(data, dict):
+            # 如果是单个字典
+            if query_col in data:
+                keywords = [{'query': str(data[query_col])}]
+            else:
+                # 尝试获取第一个值作为关键词
+                first_value = list(data.values())[0] if data else ""
+                keywords = [{'query': str(first_value)}]
+            self.log_analysis_start("搜索意图V2", f"，共 {len(keywords)} 个关键词")
+        else:
+            # 其他情况，返回空结果
+            return {'results': [], 'summary': {}, 'dataframe': None}
         
         results = []
         intent_counts = defaultdict(int)
         intent_keywords = defaultdict(list)
         
-        for idx, row in df.iterrows():
-            query = str(row[query_col])
+        for kw_data in keywords:
+            query = kw_data['query']
             intent_result = self.detect_intent(query)
             results.append(intent_result)
             

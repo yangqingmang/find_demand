@@ -178,14 +178,16 @@ class KeywordManager(BaseManager):
             
             # 使用意图分析器进行完整分析
             result_df = self.intent_analyzer.analyze_keywords(df)
+            result = self.intent_analyzer.analyze_keywords(df)
             
-            if len(result_df) > 0:
-                row = result_df.iloc[0]
+            # 处理意图分析结果
+            if result and 'results' in result and len(result['results']) > 0:
+                intent_data = result['results'][0]  # 获取第一个结果
                 return {
-                    'primary_intent': row.get('intent', 'Unknown'),
-                    'confidence': row.get('intent_confidence', 0.0),
-                    'secondary_intent': row.get('secondary_intent'),
-                    'intent_description': row.get('intent_description', ''),
+                    'primary_intent': intent_data.get('intent_primary', 'Unknown'),
+                    'confidence': intent_data.get('probability', 0.0),
+                    'secondary_intent': intent_data.get('intent_secondary', ''),
+                    'intent_description': intent_data.get('intent_primary', 'Unknown'),
                     'website_recommendations': {
                         'website_type': row.get('website_type'),
                         'ai_tool_category': row.get('ai_tool_category'),

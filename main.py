@@ -611,11 +611,16 @@ def main():
                 
                 collector = TrendsCollector()
                 
-                # 调用我们修改过的方法，不传入关键词以触发热门搜索
-                trend_data = collector.get_keyword_trends(None)
+                # 调用get_trending_searches方法获取热门搜索
+                trending_df = collector.get_trending_searches()
                 
-                if trend_data and trend_data.get('related_queries'):
-                    queries = trend_data['related_queries']
+                if not trending_df.empty:
+                    queries = trending_df.to_dict('records')
+                    trend_data = {
+                        'related_queries': queries,
+                        'data_type': 'trending_searches',
+                        'avg_volume': float(trending_df['value'].mean()) if 'value' in trending_df.columns else 0.0
+                    }
                     
                     if args.quiet:
                         print(f"\n🎯 热门关键词分析结果:")

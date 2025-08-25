@@ -48,6 +48,62 @@ class TrendsCollector:
         self.backoff_factor = backoff_factor
         self.logger = Logger()
         
+        # 初始化 pytrends
+        try:
+            self.pytrends = TrendReq(hl=self.hl, tz=self.tz, timeout=timeout, retries=retries, backoff_factor=backoff_factor)
+            self.logger.info("Session初始化成功")
+        except Exception as e:
+            self.logger.error(f"Session初始化失败: {e}")
+            self.pytrends = None
+    
+    def get_trends_data(self, keywords, timeframe='today 12-m', geo=''):
+        """
+        获取关键词趋势数据
+        
+        Args:
+            keywords: 关键词列表或单个关键词
+            timeframe: 时间范围，默认过去12个月
+            geo: 地理位置，默认全球
+            
+        Returns:
+            pandas.DataFrame: 趋势数据
+        """
+        if not self.pytrends:
+            self.logger.error("pytrends 未初始化")
+            return pd.DataFrame()
+            
+        try:
+            if isinstance(keywords, str):
+                keywords = [keywords]
+            
+            # 打印请求参数用于调试
+            self.logger.info(f"🔍 正在请求Google Trends数据:")
+            self.logger.info(f"   关键词: {keywords}")
+            self.logger.info(f"   时间范围: {timeframe}")
+            self.logger.info(f"   地理位置: {geo}")
+            
+            # 构建payload
+            self.pytrends.build_payload(keywords, cat=0, timeframe=timeframe, geo=geo, gprop='')
+            
+            # 获取兴趣度数据
+            interest_over_time = self.pytrends.interest_over_time()
+            
+            if not interest_over_time.empty:
+                # 移除 'isPartial' 列
+                if 'isPartial' in interest_over_time.columns:
+                    interest_over_time = interest_over_time.drop('isPartial', axis=1)
+                
+                self.logger.info(f"✅ 成功获取到 {len(interest_over_time)} 条趋势数据")
+                return interest_over_time
+            else:
+                self.logger.warning(f"⚠️ 未获取到关键词 {keywords} 的趋势数据")
+                return pd.DataFrame()
+                
+        except Exception as e:
+            self.logger.error(f"❌ 获取趋势数据失败: {e}")
+            self.logger.error(f"   请求参数: keywords={keywords}, timeframe={timeframe}, geo={geo}")
+            return pd.DataFrame()
+        
         self.pytrends = TrendReq(hl=self.hl, tz=self.tz, timeout=self.timeout)
         self.session = requests.Session()
         self._init_session()
@@ -100,7 +156,15 @@ class TrendsCollector:
                 }
             
             full_url = f"{url}?{urllib.parse.urlencode(params)}"
+            
+            # 打印完整的请求URL用于调试
+            self.logger.info(f"🔍 正在请求URL: {full_url}")
+            self.logger.info(f"📋 请求参数: {params}")
+            
             response = self.session.get(full_url, headers=self.API_CONFIG['headers'], timeout=self.timeout)
+            
+            # 打印响应状态
+            self.logger.info(f"📡 响应状态码: {response.status_code}")
             
             if response.status_code == 200:
                 content = response.text
