@@ -7,7 +7,7 @@
 import os
 import sys
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 
 # 添加项目根目录到路径
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -44,7 +44,7 @@ class TrendManager(BaseManager):
         """延迟加载词根管理器"""
         if self._root_manager is None:
             try:
-                from src.demand_mining.core.root_word_manager import RootWordManager
+                from src.demand_mining.root_word_manager import RootWordManager
                 self._root_manager = RootWordManager()
             except ImportError as e:
                 print(f"⚠️ 无法导入词根管理器: {e}")
