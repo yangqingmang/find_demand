@@ -102,7 +102,7 @@ result_df = analyzer.analyze_keywords(df, keyword_col='query')
 summary = analyzer.generate_intent_summary(result_df)
 
 # 保存结果
-analyzer.save_results(result_df, summary, output_dir='data')
+analyzer.save_results(result_df, summary)
 ```
 
 #### 意图识别规则
