@@ -9,11 +9,17 @@ import requests
 import json
 import time
 import re
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional
+from datetime import datetime
+from typing import Dict, List, Any
 from urllib.parse import quote
 import pandas as pd
 from collections import Counter
+import sys
+import os
+
+# 添加config目录到路径
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'config'))
+from config.config_manager import get_config
 
 class MultiPlatformKeywordDiscovery:
     """多平台关键词发现工具"""
@@ -23,6 +29,9 @@ class MultiPlatformKeywordDiscovery:
         self.session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
         })
+        
+        # 加载配置
+        self.config = get_config()
         
         # 平台配置
         self.platforms = {
@@ -37,10 +46,18 @@ class MultiPlatformKeywordDiscovery:
                 'enabled': True
             },
             'producthunt': {
-                'base_url': 'https://www.producthunt.com',
-                'enabled': False  # 需要API密钥
+                'base_url': 'https://api.producthunt.com/v2/api/graphql',
+                'enabled': bool(self.config.PRODUCTHUNT_API_TOKEN)
             }
         }
+        
+        # 设置ProductHunt认证头
+        if self.config.PRODUCTHUNT_API_TOKEN:
+            self.ph_headers = {
+                'Authorization': f'Bearer {self.config.PRODUCTHUNT_API_TOKEN}',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
         
         # AI相关subreddit列表
         self.ai_subreddits = [
@@ -231,6 +248,99 @@ class MultiPlatformKeywordDiscovery:
         
         return keywords
     
+    def discover_producthunt_keywords(self, search_term: str = "AI", days: int = 30) -> List[Dict]:
+        """从ProductHunt发现关键词"""
+        print(f"🔍 正在分析 ProductHunt (查询: {search_term})...")
+        
+        keywords = []
+        
+        if not self.config.PRODUCTHUNT_API_TOKEN:
+            print("⚠️ ProductHunt API Token未配置，跳过ProductHunt分析")
+            return keywords
+        
+        try:
+            # ProductHunt GraphQL查询
+            query = """
+            query($search: String!, $first: Int!) {
+              posts(search: $search, first: $first, order: VOTES) {
+                edges {
+                  node {
+                    id
+                    name
+                    tagline
+                    description
+                    votesCount
+                    commentsCount
+                    url
+                    topics {
+                      edges {
+                        node {
+                          name
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """
+            
+            variables = {
+                "search": search_term,
+                "first": 50
+            }
+            
+            response = self.session.post(
+                self.platforms['producthunt']['base_url'],
+                headers=self.ph_headers,
+                json={
+                    'query': query,
+                    'variables': variables
+                }
+            )
+            response.raise_for_status()
+            
+            data = response.json()
+            
+            if 'data' in data and 'posts' in data['data']:
+                posts = data['data']['posts']['edges']
+                
+                for post in posts:
+                    node = post['node']
+                    name = node.get('name', '')
+                    tagline = node.get('tagline', '')
+                    description = node.get('description', '')
+                    votes = node.get('votesCount', 0)
+                    comments = node.get('commentsCount', 0)
+                    url = node.get('url', '')
+                    
+                    # 从产品名称、标语和描述中提取关键词
+                    text_content = f"{name} {tagline} {description}"
+                    extracted_keywords = self._extract_keywords_from_text(text_content)
+                    
+                    # 添加主题标签作为关键词
+                    topics = node.get('topics', {}).get('edges', [])
+                    for topic in topics:
+                        topic_name = topic.get('node', {}).get('name', '')
+                        if topic_name:
+                            extracted_keywords.append(topic_name.lower())
+                    
+                    for keyword in extracted_keywords:
+                        keywords.append({
+                            'keyword': keyword,
+                            'source': 'producthunt',
+                            'title': name,
+                            'score': votes,
+                            'comments': comments,
+                            'url': url,
+                            'platform': 'producthunt'
+                        })
+        
+        except Exception as e:
+            print(f"❌ ProductHunt 分析失败: {e}")
+        
+        return keywords
+    
     def _extract_keywords_from_text(self, text: str) -> List[str]:
         """从文本中提取关键词"""
         keywords = []
@@ -280,9 +390,16 @@ class MultiPlatformKeywordDiscovery:
             all_keywords.extend(youtube_keywords)
         
         # Google搜索建议
+        # Google搜索建议
         for term in search_terms:
             google_keywords = self.discover_google_suggestions(term)
             all_keywords.extend(google_keywords)
+        
+        # ProductHunt分析
+        if self.platforms['producthunt']['enabled']:
+            for term in search_terms:
+                ph_keywords = self.discover_producthunt_keywords(term)
+                all_keywords.extend(ph_keywords)
         
         # 转换为DataFrame
         df = pd.DataFrame(all_keywords)

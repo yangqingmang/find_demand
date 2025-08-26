@@ -52,10 +52,20 @@ class IntegratedDemandMiningManager:
         if self.new_word_detection_available:
             print("🔍 新词检测功能已启用")
 
-    def analyze_keywords(self, input_file: str, output_dir: str = None) -> Dict[str, Any]:
-        """分析关键词文件（包含新词检测）"""
+    def analyze_keywords(self, input_file: str, output_dir: str = None, enable_serp: bool = False) -> Dict[str, Any]:
+        """分析关键词文件（包含新词检测和可选的SERP分析）"""
         # 执行基础关键词分析
         result = self.keyword_manager.analyze(input_file, 'file', output_dir)
+
+        # 如果启用SERP分析，执行SERP分析
+        if enable_serp:
+            try:
+                print("🔍 正在进行SERP分析...")
+                result = self._perform_serp_analysis(result, input_file)
+                print("✅ SERP分析完成")
+            except Exception as e:
+                print(f"⚠️ SERP分析失败: {e}")
+                result['serp_analysis_error'] = str(e)
 
         # 添加新词检测
         if self.new_word_detection_available:
@@ -111,6 +121,82 @@ class IntegratedDemandMiningManager:
                 }
 
         return result
+
+    def _perform_serp_analysis(self, result: Dict[str, Any], input_file: str) -> Dict[str, Any]:
+        """执行SERP分析"""
+        try:
+            from src.demand_mining.analyzers.serp_analyzer import SerpAnalyzer
+            
+            # 初始化SERP分析器
+            serp_analyzer = SerpAnalyzer()
+            
+            # 读取关键词数据
+            import pandas as pd
+            df = pd.read_csv(input_file)
+            
+            # 对每个关键词进行SERP分析
+            serp_results = []
+            total_keywords = len(df)
+            
+            for i, row in df.iterrows():
+                keyword = row.get('query', row.get('keyword', ''))
+                if keyword:
+                    print(f"  分析关键词 {i+1}/{total_keywords}: {keyword}")
+                    serp_result = serp_analyzer.analyze_keyword_serp(keyword)
+                    serp_results.append({
+                        'keyword': keyword,
+                        'serp_features': serp_result.get('serp_features', {}),
+                        'serp_intent': serp_result.get('intent', 'I'),
+                        'serp_confidence': serp_result.get('confidence', 0.0),
+                        'serp_secondary_intent': serp_result.get('secondary_intent', None)
+                    })
+            
+            # 将SERP分析结果合并到原结果中
+            if 'keywords' in result and serp_results:
+                for i, keyword_data in enumerate(result['keywords']):
+                    if i < len(serp_results):
+                        serp_data = serp_results[i]
+                        keyword_data['serp_analysis'] = {
+                            'features': serp_data['serp_features'],
+                            'intent': serp_data['serp_intent'],
+                            'confidence': serp_data['serp_confidence'],
+                            'secondary_intent': serp_data['serp_secondary_intent']
+                        }
+                        
+                        # 如果SERP分析置信度高，可以调整机会分数
+                        if serp_data['serp_confidence'] > 0.8:
+                            original_score = keyword_data.get('opportunity_score', 0)
+                            serp_bonus = serp_data['serp_confidence'] * 5  # 最多5分加成
+                            keyword_data['opportunity_score'] = min(100, original_score + serp_bonus)
+                            keyword_data['serp_bonus'] = serp_bonus
+            
+            # 生成SERP分析摘要
+            high_confidence_serp = len([r for r in serp_results if r['serp_confidence'] > 0.8])
+            commercial_intent = len([r for r in serp_results if r['serp_intent'] in ['C', 'T']])
+            
+            result['serp_summary'] = {
+                'total_analyzed': len(serp_results),
+                'high_confidence_serp': high_confidence_serp,
+                'commercial_intent_keywords': commercial_intent,
+                'serp_analysis_enabled': True
+            }
+            
+            return result
+            
+        except ImportError:
+            print("⚠️ SERP分析器未找到，跳过SERP分析")
+            result['serp_summary'] = {
+                'error': 'SERP分析器未找到',
+                'serp_analysis_enabled': False
+            }
+            return result
+        except Exception as e:
+            print(f"⚠️ SERP分析过程中出错: {e}")
+            result['serp_summary'] = {
+                'error': str(e),
+                'serp_analysis_enabled': False
+            }
+            return result
     
     def analyze_root_words(self, output_dir: str = None) -> Dict[str, Any]:
         """分析词根趋势"""
@@ -283,8 +369,14 @@ def main():
   # 分析关键词文件
   python main.py --input data/keywords.csv
   
+  # 分析关键词文件并启用SERP分析
+  python main.py --input data/keywords.csv --serp
+  
   # 分析单个关键词
   python main.py --keywords "ai generator" "ai converter"
+  
+  # 分析单个关键词并启用SERP分析
+  python main.py --keywords "AI" --serp
   
   # 多平台关键词发现
   python main.py --discover "AI image generator" "AI writing tool"
@@ -341,6 +433,7 @@ def main():
     parser.add_argument('--verbose', '-v', action='store_true', help='详细模式，显示所有中间过程')
     parser.add_argument('--stats', action='store_true', help='显示管理器统计信息')
     parser.add_argument('--use-root-words', action='store_true', help='使用51个词根进行趋势分析')
+    parser.add_argument('--serp', action='store_true', help='启用SERP分析功能')
     
     args = parser.parse_args()
     
@@ -376,8 +469,10 @@ def main():
             # 分析关键词文件
             if not args.quiet:
                 print("🚀 开始分析关键词文件...")
+                if args.serp:
+                    print("🔍 已启用SERP分析功能")
             
-            result = manager.analyze_keywords(args.input, args.output)
+            result = manager.analyze_keywords(args.input, args.output, enable_serp=args.serp)
             
             # 显示结果
             if args.quiet:
@@ -392,6 +487,13 @@ def main():
                     summary = result['new_word_summary']
                     print(f"🔍 新词检测: 发现 {summary['new_words_detected']} 个新词 ({summary['new_word_percentage']}%)")
                     print(f"   高置信度新词: {summary['high_confidence_new_words']} 个")
+
+                # 显示SERP分析摘要
+                if 'serp_summary' in result and result['serp_summary'].get('serp_analysis_enabled', False):
+                    serp_summary = result['serp_summary']
+                    print(f"🔍 SERP分析: 分析了 {serp_summary['total_analyzed']} 个关键词")
+                    print(f"   高置信度SERP: {serp_summary['high_confidence_serp']} 个")
+                    print(f"   商业意图关键词: {serp_summary['commercial_intent_keywords']} 个")
 
                 # 显示Top 5关键词
                 top_keywords = result['market_insights']['top_opportunities'][:5]
@@ -421,7 +523,7 @@ def main():
                 temp_file = f.name
             
             try:
-                result = manager.analyze_keywords(temp_file, args.output)
+                result = manager.analyze_keywords(temp_file, args.output, enable_serp=args.serp)
                 
                 # 显示结果
                 if args.quiet:

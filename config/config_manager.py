@@ -47,6 +47,8 @@ class ConfigData:
     # 其他 API 配置
     SERP_API_KEY: str = ""
     AHREFS_API_KEY: str = ""
+    PRODUCTHUNT_API_TOKEN: str = ""
+    PRODUCTHUNT_API_TOKEN: str = ""
     
     # 部署 API 配置
     VERCEL_API_TOKEN: str = ""
@@ -201,6 +203,7 @@ class ConfigManager:
             'GOOGLE_ADS_CLIENT_SECRET', 'GOOGLE_ADS_REFRESH_TOKEN',
             'GOOGLE_ADS_CUSTOMER_ID', 'GOOGLE_ADS_API_VERSION',
             'SERP_API_KEY', 'SERPAPI_KEY', 'AHREFS_API_KEY',
+            'PRODUCTHUNT_API_TOKEN',
             'DEBUG', 'LOG_LEVEL', 'OUTPUT_DIR'
         ]
         
