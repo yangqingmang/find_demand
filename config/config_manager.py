@@ -200,7 +200,7 @@ class ConfigManager:
             'GOOGLE_ADS_DEVELOPER_TOKEN', 'GOOGLE_ADS_CLIENT_ID',
             'GOOGLE_ADS_CLIENT_SECRET', 'GOOGLE_ADS_REFRESH_TOKEN',
             'GOOGLE_ADS_CUSTOMER_ID', 'GOOGLE_ADS_API_VERSION',
-            'SERP_API_KEY', 'AHREFS_API_KEY',
+            'SERP_API_KEY', 'SERPAPI_KEY', 'AHREFS_API_KEY',
             'DEBUG', 'LOG_LEVEL', 'OUTPUT_DIR'
         ]
         
@@ -238,9 +238,17 @@ class ConfigManager:
         # 获取 ConfigData 的所有字段
         config_data = ConfigData()
         
+        # 字段名映射
+        field_mapping = {
+            'SERPAPI_KEY': 'SERP_API_KEY'  # 兼容旧的字段名
+        }
+        
         for key, value in config_dict.items():
-            if hasattr(config_data, key):
-                setattr(config_data, key, value)
+            # 检查是否需要映射字段名
+            target_key = field_mapping.get(key, key)
+            
+            if hasattr(config_data, target_key):
+                setattr(config_data, target_key, value)
         
         return config_data
     

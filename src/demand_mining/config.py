@@ -27,7 +27,7 @@ BASE_CONFIG = {
         'keyword_planner': False,  # 需要API密钥
         'ahrefs': False,          # 需要API密钥
         'semrush': False,         # 需要API密钥
-        'serp_api': False         # 需要API密钥
+        'serp_api': True          # SERP API 已配置
     },
     
     # 分析深度
@@ -35,7 +35,7 @@ BASE_CONFIG = {
     
     # 意图分析配置
     'intent_config': {
-        'use_serp_analysis': False,  # 是否使用SERP分析
+        'use_serp_analysis': True,   # 是否使用SERP分析
         'confidence_threshold': 0.6,
         'enable_secondary_intent': True,
         'intent_weights': {
