@@ -1,653 +1,369 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-关键词评分模块 - Keyword Scorer
-基于多维度指标对关键词进行综合评分
+关键词评分分析器
+提供多维度的关键词评分功能，包括PRAY评分、商业价值评分等
 """
 
-import pandas as pd
-import numpy as np
-import os
-import argparse
+import logging
+from typing import Dict, List, Any, Optional, Tuple
+from dataclasses import dataclass
 import re
+import math
 
 from .base_analyzer import BaseAnalyzer
-try:
-    from src.utils import (
-        FileUtils, Logger, ExceptionHandler, DataError,
-        DEFAULT_CONFIG, SCORE_GRADES
-    )
-except ImportError:
-    # 如果无法导入utils，使用简化版本
-    class Logger:
-        def info(self, msg): print(f"INFO: {msg}")
-        def warning(self, msg): print(f"WARNING: {msg}")
-        def error(self, msg): print(f"ERROR: {msg}")
-    
-    class FileUtils:
-        @staticmethod
-        def generate_filename(prefix, extension='csv'):
-            from datetime import datetime
-            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            return f"{prefix}_{timestamp}.{extension}"
-        
-        @staticmethod
-        def save_dataframe(df, output_dir, filename):
-            import os
-            os.makedirs(output_dir, exist_ok=True)
-            file_path = os.path.join(output_dir, filename)
-            df.to_csv(file_path, index=False, encoding='utf-8-sig')
-            return file_path
-    
-    DEFAULT_CONFIG = {'high_score_threshold': 70}
-    SCORE_GRADES = ['D', 'C', 'B', 'A']
+from ..config import DemandMiningConfig
+
+logger = logging.getLogger(__name__)
+
+@dataclass
+class KeywordScore:
+    """关键词评分结果"""
+    keyword: str
+    pray_score: float
+    commercial_score: float
+    trend_score: float
+    competition_score: float
+    total_score: float
+    details: Dict[str, Any]
 
 class KeywordScorer(BaseAnalyzer):
-    """关键词评分类，用于对关键词进行综合评分"""
+    """关键词评分分析器"""
     
-    def __init__(self, volume_weight=0.2, growth_weight=0.2, kd_weight=0.15, kgr_weight=0.15, 
-                 timeliness_weight=0.15, competitor_weight=0.15):
-        """
-        初始化关键词评分器
-        
-        参数:
-            volume_weight (float): 搜索量权重
-            growth_weight (float): 增长率权重
-            kd_weight (float): 关键词难度权重
-            kgr_weight (float): KGR权重
-            timeliness_weight (float): 实时性权重
-            competitor_weight (float): 竞争对手分析权重
-        """
-        super().__init__()
-        self.volume_weight = volume_weight
-        self.growth_weight = growth_weight
-        self.kd_weight = kd_weight
-        self.kgr_weight = kgr_weight
-        self.timeliness_weight = timeliness_weight
-        self.competitor_weight = competitor_weight
-        
-        # 验证权重总和为1
-        total_weight = (volume_weight + growth_weight + kd_weight + kgr_weight + 
-                       timeliness_weight + competitor_weight)
-        if abs(total_weight - 1.0) > 0.001:
-            self.logger.warning(f"权重总和 ({total_weight}) 不等于1，已自动归一化")
-            self.volume_weight /= total_weight
-            self.growth_weight /= total_weight
-            self.kd_weight /= total_weight
-            self.kgr_weight /= total_weight
-            self.timeliness_weight /= total_weight
-            self.competitor_weight /= total_weight
-        
-        # 初始化实时性分析器
+    def __init__(self, config: Optional[DemandMiningConfig] = None):
+        super().__init__(config)
+        self._load_scoring_config()
+    
+    def _load_scoring_config(self):
+        """加载评分配置"""
         try:
-            from .timeliness_analyzer import TimelinessAnalyzer
-            self.timeliness_analyzer = TimelinessAnalyzer()
-            self.logger.info("已启用实时性分析功能")
-        except ImportError as e:
-            self.logger.warning(f"实时性分析器导入失败: {e}")
-            self.timeliness_analyzer = None
-        
-        # 初始化竞争对手分析器
-        # 初始化竞争对手分析器
-        try:
-            from .competitor_analyzer import CompetitorAnalyzer
-            self.competitor_analyzer = CompetitorAnalyzer()
-            self.logger.info("已启用竞争对手分析功能")
-        except ImportError as e:
-            self.logger.warning(f"竞争对手分析器导入失败: {e}")
-            self.competitor_analyzer = None
-        
-        # 初始化新词检测器
-        try:
-            from .new_word_detector import NewWordDetector
-            self.new_word_detector = NewWordDetector()
-            self.logger.info("已启用新词检测功能")
-        except ImportError as e:
-            self.logger.warning(f"新词检测器导入失败: {e}")
-            self.new_word_detector = None
+            self.scoring_config = self.config.get_config().get('keyword_scoring', {})
+            self.pray_weights = self.scoring_config.get('pray_weights', {
+                'potential': 0.3, 'reach': 0.25, 'authority': 0.25, 'yield': 0.2
+            })
+            self.commercial_indicators = self.scoring_config.get('commercial_indicators', {
+                'buy_keywords': ['buy', 'purchase', 'order', 'shop', 'price', 'cost', 'cheap', 'discount'],
+                'service_keywords': ['service', 'company', 'professional', 'expert', 'consultant'],
+                'comparison_keywords': ['vs', 'versus', 'compare', 'best', 'top', 'review']
+            })
+        except Exception as e:
+            logger.warning(f"加载评分配置失败，使用默认配置: {e}")
+            self._set_default_config()
     
-    def analyze(self, data, volume_col='value', growth_col='growth', kd_col=None, **kwargs):
-        """
-        实现基础分析器的抽象方法
-        
-        参数:
-            data: 关键词数据DataFrame
-            volume_col: 搜索量列名
-            growth_col: 增长率列名
-            kd_col: 关键词难度列名
-            **kwargs: 其他参数，包括:
-                - keyword_col: 关键词列名
-                - serp_analyzer: SERP分析器实例
-                - calculate_kgr: 是否计算KGR
-            
-        返回:
-            评分后的DataFrame
-        """
-        return self.score_keywords(
-            data, 
-            volume_col=volume_col, 
-            growth_col=growth_col, 
-            kd_col=kd_col,
-            keyword_col=kwargs.get('keyword_col', 'query'),
-            serp_analyzer=kwargs.get('serp_analyzer'),
-            calculate_kgr=kwargs.get('calculate_kgr', True)
-        )
+    def _set_default_config(self):
+        """设置默认配置"""
+        self.pray_weights = {'potential': 0.3, 'reach': 0.25, 'authority': 0.25, 'yield': 0.2}
+        self.commercial_indicators = {
+            'buy_keywords': ['buy', 'purchase', 'order', 'shop', 'price', 'cost'],
+            'service_keywords': ['service', 'company', 'professional', 'expert'],
+            'comparison_keywords': ['vs', 'versus', 'compare', 'best', 'top', 'review']
+        }
     
-    def normalize(self, series, min_val=None, max_val=None):
-        """
-        将数据系列归一化到0-100范围
+    def score_keywords(self, keywords: List[str], **kwargs) -> List[KeywordScore]:
+        """批量评分关键词"""
+        if not keywords:
+            return []
         
-        参数:
-            series: 要归一化的pandas Series
-            min_val: 最小值，如果为None则使用series的最小值
-            max_val: 最大值，如果为None则使用series的最大值
-            
-        返回:
-            归一化后的pandas Series
-        """
-        if series.empty:
-            return series
-            
-        if min_val is None:
-            min_val = series.min()
-        if max_val is None:
-            max_val = series.max()
-            
-        # 如果最大值等于最小值，返回50分
-        if max_val == min_val:
-            return pd.Series([50] * len(series))
-            
-        # 归一化到0-100
-        normalized = 100 * (series - min_val) / (max_val - min_val)
-        return normalized
-    
-    def calculate_kgr(self, keyword: str, monthly_searches: int, serp_analyzer=None) -> float:
-        """
-        计算关键词黄金比例 (Keyword Golden Ratio)
-        KGR = 标题中包含完整关键词的搜索结果数量 / 月搜索量
-        
-        参数:
-            keyword (str): 关键词
-            monthly_searches (int): 月搜索量
-            serp_analyzer: SERP分析器实例
-            
-        返回:
-            float: KGR值
-        """
-        if monthly_searches <= 0:
-            return float('inf')  # 避免除零错误
-        
-        # 如果没有提供SERP分析器
-        if serp_analyzer is None:
-            # 基于关键词特征估算标题匹配数量
-            word_count = len(keyword.split())
-            base_matches = max(50, 500 - word_count * 100)  # 长尾词匹配数量更少
-            
-            # 根据关键词类型调整
-            keyword_lower = keyword.lower()
-            if any(word in keyword_lower for word in ['best', 'top', 'review']):
-                title_matches = base_matches * 2  # 竞争激烈的词匹配更多
-            elif any(word in keyword_lower for word in ['how to', 'tutorial', 'guide']):
-                title_matches = base_matches * 1.5
-            else:
-                title_matches = base_matches
-        else:
-            # 使用真实SERP数据
+        results = []
+        for keyword in keywords:
             try:
-                search_result = serp_analyzer.search_google(f'allintitle:"{keyword}"')
-                if search_result and 'searchInformation' in search_result:
-                    title_matches = int(search_result['searchInformation'].get('totalResults', 0))
-                else:
-                    title_matches = 0
+                score = self.score_single_keyword(keyword, **kwargs)
+                results.append(score)
             except Exception as e:
-                self.logger.warning(f"SERP查询失败，使用估算值: {e}")
-                word_count = len(keyword.split())
-                title_matches = max(50, 500 - word_count * 100)
+                logger.error(f"评分关键词 '{keyword}' 失败: {e}")
+                results.append(self._create_default_score(keyword))
         
-        kgr = title_matches / monthly_searches
-        return round(kgr, 4)
+        return sorted(results, key=lambda x: x.total_score, reverse=True)
     
-    def calculate_kgr_score(self, kgr_value: float) -> float:
-        """
-        将KGR值转换为评分 (0-100)
-        KGR越小越好，理想值是0.25以下
+    def score_single_keyword(self, keyword: str, **kwargs) -> KeywordScore:
+        """单个关键词评分"""
+        if not keyword or not keyword.strip():
+            return self._create_default_score(keyword)
         
-        参数:
-            kgr_value (float): KGR值
-            
-        返回:
-            float: KGR评分 (0-100)
-        """
-        if kgr_value == float('inf'):
-            return 0
+        keyword = keyword.strip().lower()
         
-        # KGR评分规则:
-        # KGR < 0.25: 优秀 (90-100分)
-        # KGR 0.25-0.5: 良好 (70-89分)
-        # KGR 0.5-1.0: 一般 (40-69分)
-        # KGR > 1.0: 困难 (0-39分)
+        # 计算各项评分
+        pray_score = self._calculate_pray_score(keyword, **kwargs)
+        commercial_score = self._calculate_commercial_score(keyword)
+        trend_score = self._calculate_trend_score(keyword, **kwargs)
+        competition_score = self._calculate_competition_score(keyword, **kwargs)
         
-        if kgr_value < 0.25:
-            # 线性映射到90-100分
-            score = 100 - (kgr_value / 0.25) * 10
-        elif kgr_value < 0.5:
-            # 线性映射到70-89分
-            score = 89 - ((kgr_value - 0.25) / 0.25) * 19
-        elif kgr_value < 1.0:
-            # 线性映射到40-69分
-            score = 69 - ((kgr_value - 0.5) / 0.5) * 29
-        else:
-            # 线性映射到0-39分
-            score = max(0, 39 - (kgr_value - 1.0) * 10)
-        
-        return round(score, 1)
-    
-    def score_keywords(self, df, volume_col='value', growth_col='growth', kd_col=None, 
-                          keyword_col='query', serp_analyzer=None, calculate_kgr=True, 
-                          calculate_timeliness=True, calculate_competitor=True):
-        """
-        对关键词进行评分
-        
-        参数:
-            df (DataFrame): 包含关键词数据的DataFrame
-            volume_col (str): 搜索量列名
-            growth_col (str): 增长率列名
-            kd_col (str): 关键词难度列名，如果为None则不考虑KD
-            keyword_col (str): 关键词列名
-            serp_analyzer: SERP分析器实例，用于计算真实KGR
-            calculate_kgr (bool): 是否计算KGR
-            calculate_timeliness (bool): 是否计算实时性评分
-            calculate_competitor (bool): 是否计算竞争对手分析评分
-            
-        返回:
-            添加了评分列的DataFrame
-        """
-        if not self.validate_input(df):
-            return df
-        
-        self.log_analysis_start("关键词评分", f"，共 {len(df)} 个关键词")
-            
-        # 创建副本避免修改原始数据
-        result_df = df.copy()
-        
-        # 归一化搜索量
-        if volume_col in result_df.columns:
-            result_df['volume_score'] = self.normalize(result_df[volume_col])
-        else:
-            self.logger.warning(f"未找到搜索量列 '{volume_col}'")
-            result_df['volume_score'] = 0
-            
-        # 归一化增长率
-        if growth_col in result_df.columns:
-            # 确保增长率为数值型
-            if result_df[growth_col].dtype == 'object':
-                # 尝试从字符串中提取数字，如 "1,500%" -> 1500
-                result_df[growth_col] = result_df[growth_col].apply(
-                    lambda x: float(re.sub(r'[^0-9.]', '', str(x))) if pd.notnull(x) else 0
-                )
-            result_df['growth_score'] = self.normalize(result_df[growth_col])
-        else:
-            self.logger.warning(f"未找到增长率列 '{growth_col}'")
-            result_df['growth_score'] = 0
-            
-        # 归一化关键词难度（KD越低越好，所以用100减去归一化值）
-        if kd_col and kd_col in result_df.columns:
-            result_df['kd_score'] = 100 - self.normalize(result_df[kd_col])
-        else:
-            self.logger.warning(f"未找到关键词难度列 '{kd_col}'，使用默认值")
-            result_df['kd_score'] = 50  # 默认中等难度
-        
-        # 计算KGR评分
-        if calculate_kgr and keyword_col in result_df.columns:
-            self.logger.info("正在计算KGR (Keyword Golden Ratio)...")
-            kgr_values = []
-            kgr_scores = []
-            
-            for idx, row in result_df.iterrows():
-                keyword = row[keyword_col]
-                monthly_searches = row.get(volume_col, 100)  # 默认搜索量
-                
-                # 如果有月搜索量数据，优先使用
-                if 'monthly_searches' in result_df.columns:
-                    monthly_searches = row.get('monthly_searches', monthly_searches)
-                elif 'avg_monthly_searches' in result_df.columns:
-                    monthly_searches = row.get('avg_monthly_searches', monthly_searches)
-                
-                # 计算KGR
-                kgr_value = self.calculate_kgr(keyword, monthly_searches, serp_analyzer)
-                kgr_score = self.calculate_kgr_score(kgr_value)
-                
-                kgr_values.append(kgr_value)
-                kgr_scores.append(kgr_score)
-            
-            result_df['kgr_value'] = kgr_values
-            result_df['kgr_score'] = kgr_scores
-            
-            self.logger.info(f"KGR计算完成，平均KGR值: {np.mean([k for k in kgr_values if k != float('inf')]):.3f}")
-        else:
-            self.logger.warning("跳过KGR计算")
-            result_df['kgr_score'] = 50  # 默认中等KGR评分
-        
-        # 计算实时性评分
-        if calculate_timeliness and self.timeliness_analyzer and keyword_col in result_df.columns:
-            self.logger.info("正在计算实时性评分...")
-            try:
-                timeliness_df = self.timeliness_analyzer.analyze_timeliness(result_df, keyword_col)
-                result_df['timeliness_score'] = timeliness_df['timeliness_score']
-                result_df['timeliness_grade'] = timeliness_df['timeliness_grade']
-                result_df['trend_direction'] = timeliness_df['trend_direction']
-                self.logger.info("实时性评分计算完成")
-            except Exception as e:
-                self.logger.error(f"实时性评分计算失败: {e}")
-                result_df['timeliness_score'] = 50  # 默认中等实时性评分
-        else:
-            if not calculate_timeliness:
-                self.logger.info("跳过实时性评分计算")
-            else:
-                self.logger.warning("实时性分析器未初始化，跳过实时性评分")
-            result_df['timeliness_score'] = 50  # 默认中等实时性评分
-        
-        # 计算竞争对手分析评分
-        # 计算竞争对手分析评分
-        if calculate_competitor and self.competitor_analyzer and keyword_col in result_df.columns:
-            self.logger.info("正在计算竞争对手分析评分...")
-            try:
-                competitor_df = self.competitor_analyzer.analyze_competitors(result_df, keyword_col)
-                result_df['competition_score'] = competitor_df['competition_score']
-                result_df['competition_grade'] = competitor_df['competition_grade']
-                result_df['opportunity_score'] = competitor_df['opportunity_score']
-                
-                # 检查是否存在竞争对手相关字段
-                if 'top_competitor_domain' in competitor_df.columns:
-                    result_df['main_competitors'] = competitor_df['top_competitor_domain']
-                elif 'main_competitors' in competitor_df.columns:
-                    result_df['main_competitors'] = competitor_df['main_competitors']
-                else:
-                    result_df['main_competitors'] = 'N/A'
-                
-                self.logger.info("竞争对手分析评分计算完成")
-            except Exception as e:
-                self.logger.error(f"竞争对手分析评分计算失败: {e}")
-                result_df['competition_score'] = 50  # 默认中等竞争评分
-                result_df['opportunity_score'] = 50  # 默认中等机会评分
-                result_df['main_competitors'] = 'N/A'
-        else:
-            if not calculate_competitor:
-                self.logger.info("跳过竞争对手分析计算")
-            else:
-                self.logger.warning("竞争对手分析器未初始化，跳过竞争分析")
-            result_df['competition_score'] = 50  # 默认中等竞争评分
-            result_df['opportunity_score'] = 50  # 默认中等机会评分
-            result_df['main_competitors'] = 'N/A'
-        
-        # 计算新词检测评分
-        if calculate_new_word and self.new_word_detector and keyword_col in result_df.columns:
-            self.logger.info("正在进行新词检测...")
-            try:
-                new_word_df = self.new_word_detector.detect_new_words(result_df, keyword_col)
-                result_df['is_new_word'] = new_word_df['is_new_word']
-                result_df['new_word_score'] = new_word_df['new_word_score']
-                result_df['new_word_grade'] = new_word_df['new_word_grade']
-                result_df['growth_rate_7d'] = new_word_df['growth_rate_7d']
-                result_df['explosion_index'] = new_word_df['explosion_index']
-                result_df['confidence_level'] = new_word_df['confidence_level']
-                result_df['historical_pattern'] = new_word_df['historical_pattern']
-                
-                # 新词加分机制：新词获得额外评分加成
-                new_word_bonus = result_df['new_word_score'] * 0.2  # 新词评分的20%作为加成
-                result_df['new_word_bonus'] = new_word_bonus
-                
-                self.logger.info("新词检测完成")
-            except Exception as e:
-                self.logger.error(f"新词检测失败: {e}")
-                result_df['is_new_word'] = False
-                result_df['new_word_score'] = 0
-                result_df['new_word_grade'] = 'D'
-                result_df['new_word_bonus'] = 0
-        else:
-            if not calculate_new_word:
-                self.logger.info("跳过新词检测")
-            else:
-                self.logger.warning("新词检测器未初始化，跳过新词检测")
-            result_df['is_new_word'] = False
-            result_df['new_word_score'] = 0
-            result_df['new_word_grade'] = 'D'
-            result_df['new_word_bonus'] = 0
-            
-        # 计算综合评分 - 动态权重分配
-        # 计算综合评分 - 动态权重分配
-        active_weights = []
-        score_components = []
-        
-        # 基础评分组件
-        active_weights.extend([self.volume_weight, self.growth_weight, self.kd_weight])
-        score_components.extend([
-            result_df['volume_score'],
-            result_df['growth_score'], 
-            result_df['kd_score']
-        ])
-        
-        # KGR评分组件
-        if calculate_kgr and 'kgr_score' in result_df.columns:
-            active_weights.append(self.kgr_weight)
-            score_components.append(result_df['kgr_score'])
-        
-        # 实时性评分组件
-        if calculate_timeliness and 'timeliness_score' in result_df.columns:
-            active_weights.append(self.timeliness_weight)
-            score_components.append(result_df['timeliness_score'])
-        
-        # 竞争对手分析评分组件（使用opportunity_score，分数越高越好）
-        if calculate_competitor and 'opportunity_score' in result_df.columns:
-            active_weights.append(self.competitor_weight)
-            score_components.append(result_df['opportunity_score'])
-        
-        # 归一化权重
-        total_active_weight = sum(active_weights)
-        normalized_weights = [w / total_active_weight for w in active_weights]
-        
-        # 计算加权综合评分
-        result_df['base_score'] = sum(
-            weight * component for weight, component in zip(normalized_weights, score_components)
+        # 计算总分
+        total_score = self._calculate_total_score(
+            pray_score, commercial_score, trend_score, competition_score
         )
         
-        # 添加新词加成
-        if calculate_new_word and 'new_word_bonus' in result_df.columns:
-            result_df['score'] = result_df['base_score'] + result_df['new_word_bonus']
-            # 确保评分不超过100
-            result_df['score'] = result_df['score'].clip(upper=100)
+        return KeywordScore(
+            keyword=keyword,
+            pray_score=pray_score,
+            commercial_score=commercial_score,
+            trend_score=trend_score,
+            competition_score=competition_score,
+            total_score=total_score,
+            details={
+                'length': len(keyword),
+                'word_count': len(keyword.split()),
+                'has_numbers': bool(re.search(r'\d', keyword)),
+                'has_special_chars': bool(re.search(r'[^\w\s]', keyword))
+            }
+        )
+    
+    def _calculate_pray_score(self, keyword: str, **kwargs) -> float:
+        """计算PRAY评分"""
+        try:
+            # Potential (潜力)
+            potential = self._calculate_potential(keyword, kwargs.get('search_volume', 0))
+            
+            # Reach (覆盖面)
+            reach = self._calculate_reach(keyword, kwargs.get('related_keywords', []))
+            
+            # Authority (权威性)
+            authority = self._calculate_authority(keyword, kwargs.get('domain_authority', 0))
+            
+            # Yield (收益)
+            yield_score = self._calculate_yield(keyword, kwargs.get('cpc', 0))
+            
+            # 加权计算
+            pray_score = (
+                potential * self.pray_weights['potential'] +
+                reach * self.pray_weights['reach'] +
+                authority * self.pray_weights['authority'] +
+                yield_score * self.pray_weights['yield']
+            )
+            
+            return min(max(pray_score, 0), 100)
+        except Exception as e:
+            logger.error(f"计算PRAY评分失败: {e}")
+            return 50.0
+    
+    def _calculate_potential(self, keyword: str, search_volume: int) -> float:
+        """计算潜力评分"""
+        if search_volume <= 0:
+            return self._estimate_potential_by_keyword(keyword)
+        
+        # 基于搜索量的潜力评分
+        if search_volume >= 10000:
+            return 90.0
+        elif search_volume >= 1000:
+            return 70.0 + (search_volume - 1000) / 9000 * 20
+        elif search_volume >= 100:
+            return 50.0 + (search_volume - 100) / 900 * 20
         else:
-            result_df['score'] = result_df['base_score']
+            return 30.0 + search_volume / 100 * 20
+    
+    def _estimate_potential_by_keyword(self, keyword: str) -> float:
+        """基于关键词特征估算潜力"""
+        score = 50.0
         
-        # 四舍五入到整数
-        result_df['score'] = result_df['score'].round().astype(int)
+        # 长度因子
+        length = len(keyword)
+        if 5 <= length <= 15:
+            score += 10
+        elif length > 20:
+            score -= 10
         
-        # 添加评分等级
-        result_df['grade'] = pd.cut(
-            result_df['score'],
-            bins=[0, 30, 50, 70, 100],
-            labels=['D', 'C', 'B', 'A']
+        # 词数因子
+        word_count = len(keyword.split())
+        if 2 <= word_count <= 4:
+            score += 5
+        elif word_count > 6:
+            score -= 5
+        
+        return min(max(score, 0), 100)
+    
+    def _calculate_reach(self, keyword: str, related_keywords: List[str]) -> float:
+        """计算覆盖面评分"""
+        base_score = 50.0
+        
+        # 相关关键词数量
+        related_count = len(related_keywords)
+        if related_count > 0:
+            base_score += min(related_count * 2, 30)
+        
+        # 关键词通用性
+        common_words = ['how', 'what', 'why', 'when', 'where', 'best', 'top', 'guide']
+        if any(word in keyword for word in common_words):
+            base_score += 10
+        
+        return min(max(base_score, 0), 100)
+    
+    def _calculate_authority(self, keyword: str, domain_authority: float) -> float:
+        """计算权威性评分"""
+        if domain_authority > 0:
+            return min(domain_authority, 100)
+        
+        # 基于关键词特征估算权威性
+        score = 50.0
+        
+        # 品牌词或专业术语
+        if any(indicator in keyword for indicator in ['official', 'professional', 'expert', 'certified']):
+            score += 20
+        
+        return min(max(score, 0), 100)
+    
+    def _calculate_yield(self, keyword: str, cpc: float) -> float:
+        """计算收益评分"""
+        if cpc > 0:
+            # CPC越高，收益潜力越大
+            if cpc >= 5.0:
+                return 90.0
+            elif cpc >= 2.0:
+                return 70.0 + (cpc - 2.0) / 3.0 * 20
+            elif cpc >= 0.5:
+                return 50.0 + (cpc - 0.5) / 1.5 * 20
+            else:
+                return 30.0 + cpc / 0.5 * 20
+        
+        return self._estimate_yield_by_keyword(keyword)
+    
+    def _estimate_yield_by_keyword(self, keyword: str) -> float:
+        """基于关键词特征估算收益"""
+        score = 50.0
+        
+        # 商业意图关键词
+        commercial_words = self.commercial_indicators['buy_keywords']
+        if any(word in keyword for word in commercial_words):
+            score += 20
+        
+        return min(max(score, 0), 100)
+    
+    def _calculate_commercial_score(self, keyword: str) -> float:
+        """计算商业价值评分"""
+        score = 0.0
+        
+        # 购买意图
+        buy_words = self.commercial_indicators['buy_keywords']
+        buy_matches = sum(1 for word in buy_words if word in keyword)
+        score += buy_matches * 15
+        
+        # 服务意图
+        service_words = self.commercial_indicators['service_keywords']
+        service_matches = sum(1 for word in service_words if word in keyword)
+        score += service_matches * 10
+        
+        # 比较意图
+        comparison_words = self.commercial_indicators['comparison_keywords']
+        comparison_matches = sum(1 for word in comparison_words if word in keyword)
+        score += comparison_matches * 12
+        
+        return min(score, 100)
+    
+    def _calculate_trend_score(self, keyword: str, **kwargs) -> float:
+        """计算趋势评分"""
+        trend_data = kwargs.get('trend_data', {})
+        if not trend_data:
+            return 50.0
+        
+        try:
+            # 获取趋势值
+            current_trend = trend_data.get('current', 50)
+            trend_direction = trend_data.get('direction', 'stable')
+            
+            score = current_trend
+            
+            # 趋势方向调整
+            if trend_direction == 'rising':
+                score += 10
+            elif trend_direction == 'falling':
+                score -= 10
+            
+            return min(max(score, 0), 100)
+        except Exception:
+            return 50.0
+    
+    def _calculate_competition_score(self, keyword: str, **kwargs) -> float:
+        """计算竞争度评分（分数越高表示竞争越小，机会越大）"""
+        competition_level = kwargs.get('competition', 'medium')
+        
+        competition_scores = {
+            'low': 80.0,
+            'medium': 50.0,
+            'high': 20.0
+        }
+        
+        return competition_scores.get(competition_level, 50.0)
+    
+    def _calculate_total_score(self, pray: float, commercial: float, 
+                             trend: float, competition: float) -> float:
+        """计算总评分"""
+        # 权重配置
+        weights = {
+            'pray': 0.4,
+            'commercial': 0.3,
+            'trend': 0.2,
+            'competition': 0.1
+        }
+        
+        total = (
+            pray * weights['pray'] +
+            commercial * weights['commercial'] +
+            trend * weights['trend'] +
+            competition * weights['competition']
         )
         
-        # 添加KGR等级（如果计算了KGR）
-        if calculate_kgr and 'kgr_value' in result_df.columns:
-            def get_kgr_grade(kgr_val):
-                if kgr_val == float('inf'):
-                    return 'F'
-                elif kgr_val < 0.25:
-                    return 'A'
-                elif kgr_val < 0.5:
-                    return 'B'
-                elif kgr_val < 1.0:
-                    return 'C'
-                else:
-                    return 'D'
+        return min(max(total, 0), 100)
+    
+    def _create_default_score(self, keyword: str) -> KeywordScore:
+        """创建默认评分"""
+        return KeywordScore(
+            keyword=keyword,
+            pray_score=50.0,
+            commercial_score=30.0,
+            trend_score=50.0,
+            competition_score=50.0,
+            total_score=45.0,
+            details={'error': 'Failed to calculate score'}
+        )
+    
+    def get_top_keywords(self, keywords: List[str], top_n: int = 10, **kwargs) -> List[KeywordScore]:
+        """获取评分最高的关键词"""
+        if not keywords:
+            return []
+        
+        scores = self.score_keywords(keywords, **kwargs)
+        return scores[:min(top_n, len(scores))]
+    
+    def filter_by_score(self, keywords: List[str], min_score: float = 60.0, **kwargs) -> List[KeywordScore]:
+        """按评分过滤关键词"""
+        if not keywords:
+            return []
+        
+        scores = self.score_keywords(keywords, **kwargs)
+        return [score for score in scores if score.total_score >= min_score]
+    
+    def export_scores(self, scores: List[KeywordScore], format: str = 'dict') -> Any:
+        """导出评分结果"""
+        if format == 'dict':
+            return [
+                {
+                    'keyword': score.keyword,
+                    'pray_score': score.pray_score,
+                    'commercial_score': score.commercial_score,
+                    'trend_score': score.trend_score,
+                    'competition_score': score.competition_score,
+                    'total_score': score.total_score,
+                    'details': score.details
+                }
+                for score in scores
+            ]
+        elif format == 'csv':
+            import csv
+            import io
             
-            result_df['kgr_grade'] = result_df['kgr_value'].apply(get_kgr_grade)
-        
-        self.log_analysis_complete("关键词评分", len(result_df))
-        return result_df
-    
-    def filter_keywords(self, df, min_score=None, min_volume=None, min_growth=None, max_kd=None):
-        """
-        根据条件过滤关键词
-        
-        参数:
-            df (DataFrame): 关键词数据
-            min_score (int): 最低评分
-            min_volume (int): 最低搜索量
-            min_growth (float): 最低增长率
-            max_kd (int): 最高关键词难度
+            output = io.StringIO()
+            writer = csv.writer(output)
             
-        返回:
-            过滤后的DataFrame
-        """
-        filtered_df = df.copy()
-        
-        if min_score is not None:
-            filtered_df = filtered_df[filtered_df['score'] >= min_score]
+            # 写入表头
+            writer.writerow([
+                'Keyword', 'PRAY Score', 'Commercial Score', 
+                'Trend Score', 'Competition Score', 'Total Score'
+            ])
             
-        if min_volume is not None and 'value' in filtered_df.columns:
-            filtered_df = filtered_df[filtered_df['value'] >= min_volume]
+            # 写入数据
+            for score in scores:
+                writer.writerow([
+                    score.keyword, score.pray_score, score.commercial_score,
+                    score.trend_score, score.competition_score, score.total_score
+                ])
             
-        if min_growth is not None and 'growth' in filtered_df.columns:
-            filtered_df = filtered_df[filtered_df['growth'] >= min_growth]
-            
-        if max_kd is not None and 'kd' in filtered_df.columns:
-            filtered_df = filtered_df[filtered_df['kd'] <= max_kd]
-            
-        return filtered_df
-    
-    def enrich_with_ads_data(self, df, keyword_col='query', api_key=None):
-        """
-        使用Google Ads API丰富关键词数据
-        
-        参数:
-            df (DataFrame): 关键词数据
-            keyword_col (str): 关键词列名
-            api_key (str): Google Ads API密钥
-            
-        返回:
-            丰富后的DataFrame
-        """
-        self.logger.info("无法获取真实数据，返回原始数据...")
-        return df
-    
-    def save_results(self, df, output_dir='data', prefix='scored'):
-        """
-        保存评分结果
-        
-        参数:
-            df (DataFrame): 评分后的DataFrame
-            output_dir (str): 输出目录
-            prefix (str): 文件名前缀
-        """
-        # 保存主要结果
-        filename = FileUtils.generate_filename(prefix, extension='csv')
-        file_path = FileUtils.save_dataframe(df, output_dir, filename)
-        self.logger.info(f"已保存评分结果到: {file_path}")
-        
-        # 保存高分关键词
-        high_score_threshold = DEFAULT_CONFIG['high_score_threshold']
-        high_score_df = df[df['score'] >= high_score_threshold].sort_values('score', ascending=False)
-        if not high_score_df.empty:
-            high_score_filename = FileUtils.generate_filename(f'{prefix}_high_score', extension='csv')
-            high_score_path = FileUtils.save_dataframe(high_score_df, output_dir, high_score_filename)
-            self.logger.info(f"已保存高分关键词 ({len(high_score_df)}个) 到: {high_score_path}")
-
-
-def main():
-    """主函数"""
-    parser = argparse.ArgumentParser(description='关键词评分工具')
-    parser.add_argument('--input', required=True, help='输入CSV文件路径')
-    parser.add_argument('--output', default='data', help='输出目录，默认为data')
-    parser.add_argument('--volume-weight', type=float, default=0.25, help='搜索量权重，默认0.25')
-    parser.add_argument('--growth-weight', type=float, default=0.25, help='增长率权重，默认0.25')
-    parser.add_argument('--kd-weight', type=float, default=0.15, help='关键词难度权重，默认0.15')
-    parser.add_argument('--kgr-weight', type=float, default=0.15, help='KGR权重，默认0.15')
-    parser.add_argument('--timeliness-weight', type=float, default=0.15, help='实时性权重，默认0.15')
-    parser.add_argument('--competitor-weight', type=float, default=0.15, help='竞争对手分析权重，默认0.15')
-    parser.add_argument('--min-score', type=int, help='最低评分过滤')
-    parser.add_argument('--enrich', action='store_true', help='使用Ads数据丰富关键词')
-    parser.add_argument('--disable-kgr', action='store_true', help='禁用KGR计算')
-    parser.add_argument('--disable-timeliness', action='store_true', help='禁用实时性分析')
-    parser.add_argument('--disable-competitor', action='store_true', help='禁用竞争对手分析')
-    
-    args = parser.parse_args()
-    
-    # 创建日志记录器
-    logger = Logger()
-    
-    # 检查输入文件是否存在
-    if not os.path.exists(args.input):
-        logger.error(f"输入文件 '{args.input}' 不存在")
-        return
-    
-    # 读取输入文件
-    try:
-        df = pd.read_csv(args.input)
-        logger.info(f"已读取 {len(df)} 条关键词数据")
-    except Exception as e:
-        logger.error(f"读取文件时出错: {e}")
-        return
-    
-    # 创建评分器
-    scorer = KeywordScorer(
-        volume_weight=args.volume_weight,
-        growth_weight=args.growth_weight,
-        kd_weight=args.kd_weight,
-        kgr_weight=args.kgr_weight,
-        timeliness_weight=args.timeliness_weight,
-        competitor_weight=args.competitor_weight
-    )
-    
-    # 丰富数据（可选）
-    if args.enrich:
-        df = scorer.enrich_with_ads_data(df)
-    
-    # 评分
-    # 评分
-    scored_df = scorer.score_keywords(
-        df, 
-        calculate_kgr=not args.disable_kgr,
-        calculate_timeliness=not args.disable_timeliness,
-        calculate_competitor=not args.disable_competitor,
-        calculate_new_word=not args.disable_new_word
-    )
-    
-    # 过滤（可选）
-    if args.min_score:
-        scored_df = scorer.filter_keywords(scored_df, min_score=args.min_score)
-        logger.info(f"过滤后剩余 {len(scored_df)} 条关键词")
-    
-    # 保存结果
-    scorer.save_results(scored_df, args.output)
-    
-    # 显示实时性分析摘要
-    if not args.disable_timeliness and 'timeliness_score' in scored_df.columns:
-        avg_timeliness = scored_df['timeliness_score'].mean()
-        high_timeliness_count = len(scored_df[scored_df['timeliness_grade'].isin(['A', 'B'])])
-        rising_trends_count = len(scored_df[scored_df['trend_direction'] == 'rising'])
-        
-        logger.info(f"实时性分析摘要:")
-        logger.info(f"实时性分析摘要:")
-        logger.info(f"  平均实时性评分: {avg_timeliness:.1f}")
-        logger.info(f"  高时效性关键词: {high_timeliness_count} 个")
-        logger.info(f"  上升趋势关键词: {rising_trends_count} 个")
-    
-    # 显示新词检测摘要
-    if not args.disable_new_word and 'new_word_score' in scored_df.columns:
-        new_words_count = len(scored_df[scored_df['is_new_word'] == True])
-        avg_new_word_score = scored_df['new_word_score'].mean()
-        high_confidence_count = len(scored_df[scored_df['confidence_level'] == 'high'])
-        explosive_growth_count = len(scored_df[scored_df['historical_pattern'] == 'explosive_growth'])
-        
-        logger.info(f"新词检测摘要:")
-        logger.info(f"  检测到的新词数: {new_words_count} 个")
-        logger.info(f"  平均新词评分: {avg_new_word_score:.1f}")
-        logger.info(f"  高置信度新词: {high_confidence_count} 个")
-        logger.info(f"  爆发式增长关键词: {explosive_growth_count} 个")
-
-
-if __name__ == "__main__":
-    main()
+            return output.getvalue()
+        else:
+            return scores

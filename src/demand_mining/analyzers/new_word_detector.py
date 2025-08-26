@@ -104,50 +104,50 @@ class NewWordDetector(BaseAnalyzer):
         """
         if self.trends_collector:
             try:
-                # 获取不同时间段的真实数据
-                data_12m = self.trends_collector.get_trends_data([keyword], timeframe='12m')
-                data_90d = self.trends_collector.get_trends_data([keyword], timeframe='3m')
-                data_30d = self.trends_collector.get_trends_data([keyword], timeframe='1m')
-                data_7d = self.trends_collector.get_trends_data([keyword], timeframe='7d')
+                # 获取不同时间段的真实数据 - 使用正确的时间格式
+                data_12m = self.trends_collector.get_trends_data([keyword], timeframe='today 12-m')
+                data_90d = self.trends_collector.get_trends_data([keyword], timeframe='today 3-m')
+                data_30d = self.trends_collector.get_trends_data([keyword], timeframe='today 1-m')
+                data_7d = self.trends_collector.get_trends_data([keyword], timeframe='now 7-d')
                 
                 result = {}
                 
                 # 处理12个月数据
-                if data_12m and keyword in data_12m:
-                    values_12m = data_12m[keyword]['values']
-                    result['avg_12m'] = np.mean(values_12m) if values_12m else 0
-                    result['max_12m'] = max(values_12m) if values_12m else 0
+                if not data_12m.empty and keyword in data_12m.columns:
+                    values_12m = data_12m[keyword].values
+                    result['avg_12m'] = float(np.mean(values_12m)) if len(values_12m) > 0 else 0.0
+                    result['max_12m'] = float(np.max(values_12m)) if len(values_12m) > 0 else 0.0
                 else:
-                    result['avg_12m'] = 0
-                    result['max_12m'] = 0
+                    result['avg_12m'] = 0.0
+                    result['max_12m'] = 0.0
                 
                 # 处理90天数据
-                if data_90d and keyword in data_90d:
-                    values_90d = data_90d[keyword]['values']
-                    result['avg_90d'] = np.mean(values_90d) if values_90d else 0
-                    result['max_90d'] = max(values_90d) if values_90d else 0
+                if not data_90d.empty and keyword in data_90d.columns:
+                    values_90d = data_90d[keyword].values
+                    result['avg_90d'] = float(np.mean(values_90d)) if len(values_90d) > 0 else 0.0
+                    result['max_90d'] = float(np.max(values_90d)) if len(values_90d) > 0 else 0.0
                 else:
-                    result['avg_90d'] = 0
-                    result['max_90d'] = 0
+                    result['avg_90d'] = 0.0
+                    result['max_90d'] = 0.0
                 
                 # 处理30天数据
-                if data_30d and keyword in data_30d:
-                    values_30d = data_30d[keyword]['values']
-                    result['avg_30d'] = np.mean(values_30d) if values_30d else 0
-                    result['max_30d'] = max(values_30d) if values_30d else 0
+                if not data_30d.empty and keyword in data_30d.columns:
+                    values_30d = data_30d[keyword].values
+                    result['avg_30d'] = float(np.mean(values_30d)) if len(values_30d) > 0 else 0.0
+                    result['max_30d'] = float(np.max(values_30d)) if len(values_30d) > 0 else 0.0
                 else:
-                    result['avg_30d'] = 0
-                    result['max_30d'] = 0
+                    result['avg_30d'] = 0.0
+                    result['max_30d'] = 0.0
                 
                 # 处理7天数据
-                if data_7d and keyword in data_7d:
-                    values_7d = data_7d[keyword]['values']
-                    result['avg_7d'] = np.mean(values_7d) if values_7d else 0
-                    result['max_7d'] = max(values_7d) if values_7d else 0
-                    result['recent_trend'] = values_7d[-3:] if len(values_7d) >= 3 else values_7d
+                if not data_7d.empty and keyword in data_7d.columns:
+                    values_7d = data_7d[keyword].values
+                    result['avg_7d'] = float(np.mean(values_7d)) if len(values_7d) > 0 else 0.0
+                    result['max_7d'] = float(np.max(values_7d)) if len(values_7d) > 0 else 0.0
+                    result['recent_trend'] = values_7d[-3:].tolist() if len(values_7d) >= 3 else values_7d.tolist()
                 else:
-                    result['avg_7d'] = 0
-                    result['max_7d'] = 0
+                    result['avg_7d'] = 0.0
+                    result['max_7d'] = 0.0
                     result['recent_trend'] = []
                 
                 return result

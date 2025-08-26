@@ -12,6 +12,7 @@ from typing import Dict, List, Any
 from src.demand_mining.analyzers.intent_analyzer_v2 import IntentAnalyzerV2 as IntentAnalyzer
 from src.demand_mining.analyzers.market_analyzer import MarketAnalyzer
 from src.demand_mining.analyzers.keyword_analyzer import KeywordAnalyzer
+from src.demand_mining.analyzers.comprehensive_analyzer import ComprehensiveAnalyzer
 
 # 添加项目根目录到路径
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -30,6 +31,7 @@ class KeywordManager(BaseManager):
         self._intent_analyzer = None
         self._market_analyzer = None
         self._keyword_analyzer = None
+        self._comprehensive_analyzer = None
         
         print("🔍 关键词管理器初始化完成")
     
@@ -54,8 +56,15 @@ class KeywordManager(BaseManager):
             self._keyword_analyzer = KeywordAnalyzer()
         return self._keyword_analyzer
     
+    @property
+    def comprehensive_analyzer(self):
+        """延迟加载综合分析器"""
+        if self._comprehensive_analyzer is None:
+            self._comprehensive_analyzer = ComprehensiveAnalyzer()
+        return self._comprehensive_analyzer
+    
     def analyze(self, input_source: str, analysis_type: str = 'file', 
-                output_dir: str = None) -> Dict[str, Any]:
+                output_dir: str = None, use_comprehensive: bool = False) -> Dict[str, Any]:
         """
         分析关键词
         
@@ -63,11 +72,15 @@ class KeywordManager(BaseManager):
             input_source: 输入源（文件路径或关键词列表）
             analysis_type: 分析类型 ('file' 或 'keywords')
             output_dir: 输出目录
+            use_comprehensive: 是否使用综合分析器
             
         Returns:
             分析结果
         """
-        print(f"🚀 开始关键词分析 - 类型: {analysis_type}")
+        print(f"🚀 开始关键词分析 - 类型: {analysis_type}, 综合分析: {use_comprehensive}")
+        
+        if use_comprehensive:
+            return self._comprehensive_analyze(input_source, analysis_type, output_dir)
         
         if analysis_type == 'file':
             return self._analyze_from_file(input_source, output_dir)
@@ -165,14 +178,16 @@ class KeywordManager(BaseManager):
             
             # 使用意图分析器进行完整分析
             result_df = self.intent_analyzer.analyze_keywords(df)
+            result = self.intent_analyzer.analyze_keywords(df)
             
-            if len(result_df) > 0:
-                row = result_df.iloc[0]
+            # 处理意图分析结果
+            if result and 'results' in result and len(result['results']) > 0:
+                intent_data = result['results'][0]  # 获取第一个结果
                 return {
-                    'primary_intent': row.get('intent', 'Unknown'),
-                    'confidence': row.get('intent_confidence', 0.0),
-                    'secondary_intent': row.get('secondary_intent'),
-                    'intent_description': row.get('intent_description', ''),
+                    'primary_intent': intent_data.get('intent_primary', 'Unknown'),
+                    'confidence': intent_data.get('probability', 0.0),
+                    'secondary_intent': intent_data.get('intent_secondary', ''),
+                    'intent_description': intent_data.get('intent_primary', 'Unknown'),
                     'website_recommendations': {
                         'website_type': row.get('website_type'),
                         'ai_tool_category': row.get('ai_tool_category'),
@@ -437,3 +452,147 @@ class KeywordManager(BaseManager):
         keywords_df.to_csv(csv_path, index=False, encoding='utf-8-sig')
         
         return json_path
+    
+    def _comprehensive_analyze(self, input_source: str, analysis_type: str, output_dir: str = None) -> Dict[str, Any]:
+        """使用综合分析器进行全面分析"""
+        print("🔧 启动综合分析模式...")
+        
+        # 准备数据
+        if analysis_type == 'file':
+            if not os.path.exists(input_source):
+                raise FileNotFoundError(f"输入文件不存在: {input_source}")
+            
+            # 读取数据
+            if input_source.endswith('.csv'):
+                df = pd.read_csv(input_source)
+            elif input_source.endswith('.json'):
+                df = pd.read_json(input_source)
+            else:
+                raise ValueError("不支持的文件格式，请使用CSV或JSON文件")
+            
+            print(f"✅ 成功读取 {len(df)} 条关键词数据")
+            
+        elif analysis_type == 'keywords':
+            keywords = [input_source] if isinstance(input_source, str) else input_source
+            df = pd.DataFrame({'query': keywords})
+            print(f"✅ 接收到 {len(keywords)} 个关键词")
+        else:
+            raise ValueError(f"不支持的分析类型: {analysis_type}")
+        
+        # 执行综合分析
+        try:
+            analysis_result = self.comprehensive_analyzer.analyze(df)
+            
+            # 保存结果
+            if output_dir:
+                output_path = self.comprehensive_analyzer.export_comprehensive_report(
+                    analysis_result, output_dir
+                )
+                analysis_result['output_path'] = output_path
+                print(f"📊 综合分析报告已保存到: {output_dir}")
+            
+            # 生成简化的返回结果（兼容原有接口）
+            simplified_result = self._convert_to_legacy_format(analysis_result)
+            
+            return simplified_result
+            
+        except Exception as e:
+            print(f"❌ 综合分析失败: {e}")
+            # 降级到原有分析方法
+            print("🔄 降级到基础分析模式...")
+            if analysis_type == 'file':
+                return self._analyze_from_file(input_source, output_dir)
+            else:
+                return self._analyze_from_keywords([input_source], output_dir)
+    
+    def _convert_to_legacy_format(self, comprehensive_result: Dict[str, Any]) -> Dict[str, Any]:
+        """将综合分析结果转换为兼容原有接口的格式"""
+        df = comprehensive_result['results']
+        summary = comprehensive_result['summary']
+        
+        # 转换为原有格式
+        legacy_result = {
+            'total_keywords': summary['total_keywords'],
+            'analysis_time': comprehensive_result['analysis_time'],
+            'keywords': [],
+            'intent_summary': {},
+            'market_insights': {},
+            'recommendations': [],
+            'comprehensive_summary': summary  # 新增综合摘要
+        }
+        
+        # 转换关键词详情
+        for _, row in df.iterrows():
+            keyword_result = {
+                'keyword': row['query'],
+                'comprehensive_score': row.get('comprehensive_score', 0),
+                'comprehensive_grade': row.get('comprehensive_grade', 'C'),
+                'intent': {
+                    'primary_intent': row.get('intent_intent', 'Unknown'),
+                    'confidence': row.get('intent_confidence', 0.0),
+                    'intent_description': row.get('intent_intent_description', '')
+                },
+                'market': {
+                    'search_volume': row.get('market_search_volume', 0),
+                    'competition': row.get('market_competition', 0.5),
+                    'cpc': row.get('market_cpc', 0.0)
+                },
+                'timeliness': {
+                    'score': row.get('timeliness_score', 50.0),
+                    'grade': row.get('timeliness_grade', 'C'),
+                    'trend_direction': row.get('timeliness_trend_direction', 'stable')
+                },
+                'scorer': {
+                    'total_score': row.get('scorer_total_score', 50.0),
+                    'pray_score': row.get('scorer_pray_score', 50.0),
+                    'commercial_score': row.get('scorer_commercial_score', 30.0)
+                },
+                'opportunity_score': row.get('comprehensive_score', 50.0)  # 使用综合评分作为机会分数
+            }
+            legacy_result['keywords'].append(keyword_result)
+        
+        # 生成意图摘要
+        if 'intent_intent' in df.columns:
+            intent_counts = df['intent_intent'].value_counts().to_dict()
+            total = len(df)
+            legacy_result['intent_summary'] = {
+                'total_keywords': total,
+                'intent_distribution': intent_counts,
+                'intent_percentages': {k: round(v/total*100, 1) for k, v in intent_counts.items()},
+                'dominant_intent': max(intent_counts.items(), key=lambda x: x[1])[0] if intent_counts else 'Unknown'
+            }
+        
+        # 生成市场洞察
+        high_opportunity = df[df['comprehensive_score'] >= 80] if 'comprehensive_score' in df.columns else pd.DataFrame()
+        medium_opportunity = df[(df['comprehensive_score'] >= 60) & (df['comprehensive_score'] < 80)] if 'comprehensive_score' in df.columns else pd.DataFrame()
+        low_opportunity = df[df['comprehensive_score'] < 60] if 'comprehensive_score' in df.columns else pd.DataFrame()
+        
+        legacy_result['market_insights'] = {
+            'high_opportunity_count': len(high_opportunity),
+            'medium_opportunity_count': len(medium_opportunity),
+            'low_opportunity_count': len(low_opportunity),
+            'top_opportunities': df.nlargest(10, 'comprehensive_score')[['query', 'comprehensive_score']].to_dict('records') if 'comprehensive_score' in df.columns else [],
+            'avg_opportunity_score': round(df['comprehensive_score'].mean(), 2) if 'comprehensive_score' in df.columns else 50.0
+        }
+        
+        # 生成建议
+        recommendations = []
+        if len(high_opportunity) > 0:
+            recommendations.append(f"🎯 发现 {len(high_opportunity)} 个高价值关键词 (综合评分≥80)，建议优先开发")
+            top_3 = high_opportunity.nlargest(3, 'comprehensive_score')
+            for i, (_, row) in enumerate(top_3.iterrows(), 1):
+                recommendations.append(f"   {i}. {row['query']} (综合评分: {row['comprehensive_score']})")
+        
+        if 'timeliness_grade' in df.columns:
+            high_timeliness = df[df['timeliness_grade'].isin(['A', 'B'])]
+            if len(high_timeliness) > 0:
+                recommendations.append(f"⏰ 发现 {len(high_timeliness)} 个高时效性关键词，建议快速行动")
+        
+        if 'scorer_commercial_score' in df.columns:
+            high_commercial = df[df['scorer_commercial_score'] >= 70]
+            if len(high_commercial) > 0:
+                recommendations.append(f"💰 发现 {len(high_commercial)} 个高商业价值关键词，变现潜力大")
+        
+        legacy_result['recommendations'] = recommendations
+        
+        return legacy_result

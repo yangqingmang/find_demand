@@ -280,35 +280,3 @@ class AdsCollector:
         
         self.logger.info(f"Google Ads 数据已保存到: {filepath}")
         return filepath
-
-def main():
-    """测试函数"""
-    try:
-        collector = AdsCollector()
-        
-        # 测试关键词
-        test_keywords = ['ai tools', 'chatgpt']
-        
-        print("开始测试 Google Ads API...")
-        df = collector.get_keyword_ideas(test_keywords, geo_target='US')
-        
-        if not df.empty:
-            print(f"✓ 成功获取 {len(df)} 个关键词数据")
-            print("\n前5个结果:")
-            print(df.head())
-            
-            # 保存结果
-            filepath = collector.save_results(df)
-            print(f"\n结果已保存到: {filepath}")
-        else:
-            print("✗ 未获取到数据")
-        
-    except Exception as e:
-        print(f"✗ 测试失败: {e}")
-        print("\n请检查:")
-        print("1. 是否已安装 google-ads 包")
-        print("2. 是否已正确配置 Google Ads API 密钥")
-        print("3. 运行 python setup_config.py 进行配置")
-
-if __name__ == "__main__":
-    main()

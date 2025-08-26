@@ -187,6 +187,61 @@ def load_user_config(config_path: str) -> Dict[str, Any]:
     
     return config
 
+
+class DemandMiningConfig:
+    """需求挖掘配置类"""
+    
+    def __init__(self, config_path: str = None):
+        """初始化配置"""
+        if config_path:
+            self.config = load_user_config(config_path)
+        else:
+            self.config = get_config()
+    
+    def get(self, key: str, default=None):
+        """获取配置项"""
+        return self.config.get(key, default)
+    
+    def get_nested(self, *keys, default=None):
+        """获取嵌套配置项"""
+        value = self.config
+        for key in keys:
+            if isinstance(value, dict) and key in value:
+                value = value[key]
+            else:
+                return default
+        return value
+    
+    @property
+    def min_search_volume(self) -> int:
+        """最小搜索量"""
+        return self.config.get('min_search_volume', 100)
+    
+    @property
+    def max_competition(self) -> float:
+        """最大竞争度"""
+        return self.config.get('max_competition', 0.8)
+    
+    @property
+    def opportunity_threshold(self) -> int:
+        """机会分数阈值"""
+        return self.config.get('opportunity_threshold', 70)
+    
+    @property
+    def intent_config(self) -> Dict[str, Any]:
+        """意图分析配置"""
+        return self.config.get('intent_config', {})
+    
+    @property
+    def opportunity_weights(self) -> Dict[str, float]:
+        """机会评分权重"""
+        return self.config.get('opportunity_weights', OPPORTUNITY_WEIGHTS)
+    
+    @property
+    def intent_descriptions(self) -> Dict[str, str]:
+        """意图描述"""
+        return self.config.get('intent_descriptions', INTENT_DESCRIPTIONS)
+
 if __name__ == '__main__':
     # 测试配置
     config = get_config()

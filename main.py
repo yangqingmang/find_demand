@@ -341,7 +341,6 @@ def main():
     parser.add_argument('--verbose', '-v', action='store_true', help='详细模式，显示所有中间过程')
     parser.add_argument('--stats', action='store_true', help='显示管理器统计信息')
     parser.add_argument('--use-root-words', action='store_true', help='使用51个词根进行趋势分析')
-    parser.add_argument('--use-pytrends', action='store_true', help='使用pytrends库获取热门搜索词')
     
     args = parser.parse_args()
     
@@ -590,4 +589,97 @@ def main():
             if args.quiet:
                 print_quiet_summary(result)
             else:
-                print(f"\n🎉 词根趋势分析完成! 共分析 {result.get('total_root_words', 0)}
+                print(f"\n🎉 词根趋势分析完成! 共分析 {result.get('total_root_words', 0)} 个词根")
+                print(f"📊 成功分析: {result.get('successful_analyses', 0)} 个")
+                print(f"📈 上升趋势词根: {len(result.get('top_trending_words', []))}")
+                
+                # 显示Top 5词根
+                top_words = result.get('top_trending_words', [])[:5]
+                if top_words:
+                    print("\n🏆 Top 5 热门词根:")
+                    for i, word_data in enumerate(top_words, 1):
+                        print(f"   {i}. {word_data['word']}: 平均兴趣度 {word_data['average_interest']:.1f}")
+        
+        else:
+            # 默认：执行热门关键词分析
+            if not args.quiet:
+                print("🔥 未指定参数，执行默认热门关键词分析...")
+            
+            try:
+                # 直接使用trends_collector获取热门关键词
+                from src.collectors.trends_collector import TrendsCollector
+                
+                collector = TrendsCollector()
+                
+                # 调用get_trending_searches方法获取热门搜索
+                trending_df = collector.get_trending_searches()
+
+                if not trending_df.empty:
+                    queries = trending_df.to_dict('records')
+                    trend_data = {
+                        'related_queries': queries,
+                        'data_type': 'trending_searches',
+                        'avg_volume': float(trending_df['value'].mean()) if 'value' in trending_df.columns else 0.0
+                    }
+                    
+                    if args.quiet:
+                        print(f"\n🎯 热门关键词分析结果:")
+                        print(f"   • 获取关键词: {len(queries)} 个")
+                        print(f"   • 数据来源: {trend_data.get('data_type', 'unknown')}")
+                        
+                        # 显示Top 3关键词
+                        if queries:
+                            print("\n🏆 Top 3 热门关键词:")
+                            for i, query_data in enumerate(queries[:3], 1):
+                                keyword = query_data.get('query', '')
+                                value = query_data.get('value', 0)
+                                print(f"   {i}. {keyword} (热度: {value})")
+                    else:
+                        print(f"\n🎉 热门关键词分析完成! 共获取 {len(queries)} 个热门关键词")
+                        print(f"📊 数据来源: {trend_data.get('data_type', 'unknown')}")
+                        print(f"📈 平均热度: {trend_data.get('avg_volume', 0):.1f}")
+                        
+                        # 显示热门关键词结果
+                        print("\n🔥 热门关键词列表:")
+                        for i, query_data in enumerate(queries[:10], 1):  # 显示前10个
+                            keyword = query_data.get('query', '')
+                            value = query_data.get('value', 0)
+                            growth = query_data.get('growth', '')
+                            print(f"   {i}. {keyword} (热度: {value}, 增长: {growth})")
+                        
+                        # 保存结果到文件
+                        import pandas as pd
+                        from datetime import datetime
+                        
+                        df = pd.DataFrame(queries)
+                        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                        output_file = os.path.join(args.output, f"trending_keywords_{timestamp}.csv")
+                        
+                        # 确保输出目录存在
+                        os.makedirs(args.output, exist_ok=True)
+                        df.to_csv(output_file, index=False, encoding='utf-8')
+                        print(f"\n📁 结果已保存到: {output_file}")
+                else:
+                    print("⚠️ 未获取到热门关键词数据")
+                    
+            except Exception as e:
+                print(f"❌ 获取热门关键词时出错: {e}")
+                if args.verbose:
+                    import traceback
+                    traceback.print_exc()
+        
+        print(f"\n📁 详细结果已保存到 {args.output} 目录")
+        
+    except KeyboardInterrupt:
+        print("\n⚠️ 分析被用户中断")
+        sys.exit(1)
+    except Exception as e:
+        print(f"❌ 分析过程中出现错误: {str(e)}")
+        if args.verbose:
+            import traceback
+            traceback.print_exc()
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
