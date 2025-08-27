@@ -478,6 +478,62 @@ class CustomTrendsCollector:
         except Exception as e:
             logger.error(f"获取相关查询失败: {e}")
             return {}
+
+    def batch_related_queries(
+        self,
+        keywords: List[str],
+        timeframe: str = 'today 3-m',
+        geo: str = '',
+        cat: int = 0,
+        gprop: str = '',
+        delay_per_batch: int = 5
+    ) -> Dict[str, Dict[str, pd.DataFrame]]:
+        """
+        为大量关键词自动分批获取其“相关查询”。
+
+        Args:
+            keywords: 要查询的关键词列表.
+            timeframe: 时间范围.
+            geo: 地理位置.
+            cat: 类别.
+            gprop: Google Property.
+            delay_per_batch: 每批API请求之间的延迟（秒）.
+
+        Returns:
+            一个大字典，键是每个关键词，值是包含'top'和'rising' DataFrame的字典。
+        """
+        final_results = {}
+        batch_size = 5  # Google Trends API 限制
+
+        logger.info(f"开始为 {len(keywords)} 个关键词批量获取相关查询...")
+
+        for i in range(0, len(keywords), batch_size):
+            batch = keywords[i:i + batch_size]
+            logger.info(f"正在处理批次 {i//batch_size + 1}，关键词: {batch}")
+
+            try:
+                # 设置当前批次的关键词
+                self.build_payload(batch, cat=cat, timeframe=timeframe, geo=geo, gprop=gprop)
+                
+                # 获取相关查询数据
+                batch_result = self.related_queries()
+
+                if batch_result:
+                    final_results.update(batch_result)
+                else:
+                    logger.warning(f"批次 {i//batch_size + 1} 未返回任何数据。")
+
+                # 在批次之间添加延迟
+                if i + batch_size < len(keywords):
+                    logger.info(f"批次处理完成，暂停 {delay_per_batch} 秒...")
+                    time.sleep(delay_per_batch)
+
+            except Exception as e:
+                logger.error(f"处理批次 {i//batch_size + 1} 时出错: {e}")
+                continue
+        
+        logger.info(f"所有批次处理完成，共获取了 {len(final_results)} 个关键词的相关查询。")
+        return final_results
     
     def trending_searches(self, pn: str = 'united_states') -> pd.DataFrame:
         """获取热门搜索"""
@@ -1124,6 +1180,73 @@ class CustomTrendsCollector:
             self.kw_list = original_kw_list
             self.timeframe = original_timeframe
             self.geo = original_geo
+
+    def compare_keyword_by_geo(
+        self,
+        keyword: str,
+        geo_list: List[str],
+        timeframe: str = 'today 12-m',
+        cat: int = 0,
+        gprop: str = '',
+        delay: int = 2
+    ) -> pd.DataFrame:
+        """
+        比较同一个关键词在多个不同地区的兴趣度。
+
+        Args:
+            keyword: 要查询的单个关键词.
+            geo_list: 要对比的地理位置代码列表 (例如 ['US', 'GB', 'JP']).
+            timeframe: 时间范围.
+            cat: 类别.
+            gprop: Google Property.
+            delay: 每次API请求之间的延迟（秒）.
+
+        Returns:
+            一个以日期为索引，以地理位置为列的Pandas DataFrame，展示关键词在不同地区的兴趣度对比。
+        """
+        # 输入验证
+        if not keyword or not keyword.strip():
+            raise ValueError("关键词不能为空")
+        
+        if not geo_list:
+            raise ValueError("地理位置列表不能为空")
+        
+        if len(geo_list) > 5:
+            logger.warning("地理位置过多，将使用前5个")
+            geo_list = geo_list[:5]
+        
+        all_geo_data = []
+        logger.info(f"开始对关键词 '{keyword}' 进行跨地区对比...")
+
+        for geo in geo_list:
+            try:
+                logger.info(f"正在获取 '{geo}' 地区的数据...")
+                self.build_payload([keyword], cat=cat, timeframe=timeframe, geo=geo, gprop=gprop)
+                df = self.interest_over_time()
+
+                if not df.empty and keyword in df.columns:
+                    # 重命名列为地理位置代码，以便合并
+                    series = df[[keyword]].rename(columns={keyword: geo})
+                    all_geo_data.append(series)
+                else:
+                    logger.warning(f"在 '{geo}' 地区未获取到关键词 '{keyword}' 的数据。")
+
+                time.sleep(delay)
+
+            except Exception as e:
+                logger.error(f"获取 '{geo}' 地区数据时出错: {e}")
+                continue
+        
+        if not all_geo_data:
+            logger.warning("所有地区均未返回有效数据。")
+            return pd.DataFrame()
+
+        # 合并所有地区的数据
+        # 使用 outer join 以保留所有日期，缺失值将为 NaN
+        combined_df = pd.concat(all_geo_data, axis=1, join='outer')
+        
+        logger.info(f"成功合并 {len(all_geo_data)} 个地区的数据，共 {len(combined_df)} 个数据点")
+        return combined_df.sort_index()
     
     def get_geo_suggestions(self, keyword: str = '') -> List[Dict]:
         """获取地理位置建议"""
