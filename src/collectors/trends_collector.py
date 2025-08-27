@@ -47,6 +47,8 @@ class TrendsCollector:
         self.retries = retries
         self.backoff_factor = backoff_factor
         self.logger = Logger()
+        self.session = requests.Session()
+        self._init_session()
         
         # 初始化自定义 trends collector
         try:
@@ -55,7 +57,9 @@ class TrendsCollector:
         except Exception as e:
             self.logger.error(f"Session初始化失败: {e}")
             self.trends_collector = None
-    
+            
+        pd.set_option('future.no_silent_downcasting', True)
+
     def get_trends_data(self, keywords, timeframe='today 12-m', geo=''):
         """
         获取关键词趋势数据
@@ -103,12 +107,6 @@ class TrendsCollector:
             self.logger.error(f"❌ 获取趋势数据失败: {e}")
             self.logger.error(f"   请求参数: keywords={keywords}, timeframe={timeframe}, geo={geo}")
             return pd.DataFrame()
-        
-        self.trends_collector = CustomTrendsCollector(hl=self.hl, tz=self.tz, timeout=self.timeout)
-        self.session = requests.Session()
-        self._init_session()
-        
-        pd.set_option('future.no_silent_downcasting', True)
     
     def _init_session(self):
         """初始化Session"""
@@ -366,7 +364,7 @@ class TrendsCollector:
                 else:
                     self.logger.error(f"多次尝试失败: {e}")
                     return pd.DataFrame(columns=['query', 'value', 'growth'])
-        return None
+        return pd.DataFrame(columns=['query', 'value', 'growth'])
 
     def fetch_multiple_keywords(self, keywords, geo=None, timeframe=None):
         """批量获取关键词数据"""
