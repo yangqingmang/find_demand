@@ -156,8 +156,8 @@ class TrendsCollector:
             full_url = f"{url}?{urllib.parse.urlencode(params)}"
             
             # 打印完整的请求URL用于调试
-            self.logger.info(f"🔍 正在请求URL: {full_url}")
-            self.logger.info(f"📋 请求参数: {params}")
+            self.logger.debug(f"🔍 正在请求URL: {full_url}")
+            self.logger.debug(f"📋 请求参数: {params}")
             
             response = self.session.get(full_url, headers=self.API_CONFIG['headers'], timeout=self.timeout)
             
