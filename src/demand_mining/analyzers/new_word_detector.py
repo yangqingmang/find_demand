@@ -15,8 +15,11 @@ import json
 from .base_analyzer import BaseAnalyzer
 
 try:
-    from src.utils import Logger, FileUtils
-    from src.collectors.trends_collector import TrendsCollector
+    import sys
+    import os
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+    from collectors.trends_collector import TrendsCollector
+    from utils import Logger, FileUtils
 except ImportError:
     class Logger:
         def info(self, msg): print(f"INFO: {msg}")

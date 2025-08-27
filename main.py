@@ -713,8 +713,8 @@ def main():
                 
                 collector = TrendsCollector()
                 
-                # 调用get_trending_searches方法获取热门搜索
-                trending_df = collector.get_trending_searches()
+                # 调用fetch_rising_queries方法获取热门搜索
+                trending_df = collector.fetch_rising_queries()
 
                 if not trending_df.empty:
                     queries = trending_df.to_dict('records')
