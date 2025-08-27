@@ -5,7 +5,8 @@ Google Trends包装器
 
 import pandas as pd
 from typing import List, Dict, Optional, Union
-from .custom_trends_collector import CustomTrendsCollector
+from .trends_singleton import TrendsSingleton
+from .trends_singleton import get_trends_collector
 import logging
 
 logger = logging.getLogger(__name__)
@@ -28,14 +29,9 @@ class TrendReq:
             retries: 重试次数
             backoff_factor: 退避因子
         """
-        self.collector = CustomTrendsCollector(
-            hl=hl, 
-            tz=tz, 
-            timeout=timeout, 
-            proxies=proxies, 
-            retries=retries, 
-            backoff_factor=backoff_factor
-        )
+        # 使用单例模式获取收集器实例
+        # 使用单例模式获取收集器实例
+        self.collector = get_trends_collector()
         
         # 存储当前的payload参数
         self._current_kw_list = []

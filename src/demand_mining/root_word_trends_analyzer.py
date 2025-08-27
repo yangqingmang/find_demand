@@ -24,7 +24,8 @@ class RootWordTrendsAnalyzer:
         self.output_dir = output_dir
         ensure_directory_exists(self.output_dir)
         self.logger = setup_logger(__name__)
-        self.trends_collector = TrendsCollector()
+        from ..collectors.trends_singleton import get_trends_collector
+        self.trends_collector = get_trends_collector()
         
         # 初始化新词检测器
         try:

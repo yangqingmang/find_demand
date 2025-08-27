@@ -189,14 +189,14 @@ class KeywordManager(BaseManager):
                     'secondary_intent': intent_data.get('intent_secondary', ''),
                     'intent_description': intent_data.get('intent_primary', 'Unknown'),
                     'website_recommendations': {
-                        'website_type': row.get('website_type'),
-                        'ai_tool_category': row.get('ai_tool_category'),
-                        'domain_suggestions': row.get('domain_suggestions', []),
-                        'monetization_strategy': row.get('monetization_strategy', []),
-                        'technical_requirements': row.get('technical_requirements', []),
-                        'competition_analysis': row.get('competition_analysis', {}),
-                        'development_priority': row.get('development_priority', {}),
-                        'content_strategy': row.get('content_strategy', [])
+                        'website_type': intent_data.get('website_type', 'Unknown'),
+                        'ai_tool_category': intent_data.get('ai_tool_category', 'General'),
+                        'domain_suggestions': intent_data.get('domain_suggestions', []),
+                        'monetization_strategy': intent_data.get('monetization_strategy', []),
+                        'technical_requirements': intent_data.get('technical_requirements', []),
+                        'competition_analysis': intent_data.get('competition_analysis', {}),
+                        'development_priority': intent_data.get('development_priority', {}),
+                        'content_strategy': intent_data.get('content_strategy', [])
                     }
                 }
             else:

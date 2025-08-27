@@ -66,7 +66,8 @@ class TimelinessAnalyzer(BaseAnalyzer):
         
         # 初始化趋势收集器
         try:
-            self.trends_collector = TrendsCollector()
+            from ...collectors.trends_singleton import get_trends_collector
+            self.trends_collector = get_trends_collector()
         except:
             self.trends_collector = None
             self.logger.warning("趋势收集器初始化失败")

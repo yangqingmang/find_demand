@@ -703,69 +703,114 @@ def main():
                         print(f"   {i}. {word_data['word']}: 平均兴趣度 {word_data['average_interest']:.1f}")
         
         else:
-            # 默认：执行热门关键词分析
+            # 默认：执行热门关键词分析并进行需求挖掘
             if not args.quiet:
-                print("🔥 未指定参数，执行默认热门关键词分析...")
+                print("🔥 未指定参数，执行默认热门关键词分析和需求挖掘...")
+            
             
             try:
-                # 直接使用trends_collector获取热门关键词
-                from src.collectors.trends_collector import TrendsCollector
+                # 使用已有的趋势管理器，避免创建新的收集器实例
+                # 使用已有的趋势管理器，避免创建新的收集器实例
+                trending_words = manager.trend_manager.get_trending_root_words(limit=20)
                 
-                collector = TrendsCollector()
+                # 将词根转换为DataFrame格式
+                import pandas as pd
+                if trending_words:
+                    trending_df = pd.DataFrame([
+                        {
+                            'query': word['word'],
+                            'value': word.get('average_interest', 0),
+                            'growth': word.get('growth_rate', '0%')
+                        }
+                        for word in trending_words
+                    ])
+                else:
+                    trending_df = pd.DataFrame(columns=['query', 'value', 'growth'])
                 
-                # 调用fetch_rising_queries方法获取热门搜索
-                trending_df = collector.fetch_rising_queries()
+                # 如果趋势管理器没有数据，返回空DataFrame
+                if trending_df is None:
+                    trending_df = pd.DataFrame(columns=['query', 'value', 'growth'])
 
                 if not trending_df.empty:
-                    queries = trending_df.to_dict('records')
-                    trend_data = {
-                        'related_queries': queries,
-                        'data_type': 'trending_searches',
-                        'avg_volume': float(trending_df['value'].mean()) if 'value' in trending_df.columns else 0.0
-                    }
+                    # 保存热门关键词到临时文件
+                    import pandas as pd
+                    import tempfile
+                    from datetime import datetime
                     
-                    if args.quiet:
-                        print(f"\n🎯 热门关键词分析结果:")
-                        print(f"   • 获取关键词: {len(queries)} 个")
-                        print(f"   • 数据来源: {trend_data.get('data_type', 'unknown')}")
+                    # 确保DataFrame有正确的列名
+                    if 'query' not in trending_df.columns and len(trending_df.columns) > 0:
+                        # 如果没有query列，使用第一列作为关键词
+                        trending_df = trending_df.rename(columns={trending_df.columns[0]: 'query'})
+                    
+                    # 创建临时文件进行需求挖掘分析
+                    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, encoding='utf-8') as f:
+                        trending_df.to_csv(f.name, index=False)
+                        temp_file = f.name
+                    
+                    try:
+                        if not args.quiet:
+                            print(f"🔍 获取到 {len(trending_df)} 个热门关键词，开始需求挖掘分析...")
                         
-                        # 显示Top 3关键词
-                        if queries:
-                            print("\n🏆 Top 3 热门关键词:")
-                            for i, query_data in enumerate(queries[:3], 1):
-                                keyword = query_data.get('query', '')
-                                value = query_data.get('value', 0)
-                                print(f"   {i}. {keyword} (热度: {value})")
-                    else:
-                        print(f"\n🎉 热门关键词分析完成! 共获取 {len(queries)} 个热门关键词")
-                        print(f"📊 数据来源: {trend_data.get('data_type', 'unknown')}")
-                        print(f"📈 平均热度: {trend_data.get('avg_volume', 0):.1f}")
+                        # 执行需求挖掘分析
+                        # 执行需求挖掘分析，禁用新词检测避免429错误
+                        manager.new_word_detection_available = False
+                        result = manager.analyze_keywords(temp_file, args.output, enable_serp=False)
                         
-                        # 显示热门关键词结果
-                        print("\n🔥 热门关键词列表:")
-                        for i, query_data in enumerate(queries[:10], 1):  # 显示前10个
-                            keyword = query_data.get('query', '')
-                            value = query_data.get('value', 0)
-                            growth = query_data.get('growth', '')
-                            print(f"   {i}. {keyword} (热度: {value}, 增长: {growth})")
+                        # 显示结果
+                        if args.quiet:
+                            print_quiet_summary(result)
+                        else:
+                            print(f"\n🎉 需求挖掘分析完成! 共分析 {result['total_keywords']} 个热门关键词")
+                            print(f"📊 高机会关键词: {result['market_insights']['high_opportunity_count']} 个")
+                            print(f"📈 平均机会分数: {result['market_insights']['avg_opportunity_score']}")
+                            
+                            # 显示新词检测摘要
+                            if 'new_word_summary' in result and result['new_word_summary'].get('new_words_detected', 0) > 0:
+                                summary = result['new_word_summary']
+                                print(f"🔍 新词检测: 发现 {summary['new_words_detected']} 个新词 ({summary['new_word_percentage']}%)")
+                                print(f"   高置信度新词: {summary['high_confidence_new_words']} 个")
+
+                            # 显示Top 5机会关键词
+                            top_keywords = result['market_insights']['top_opportunities'][:5]
+                            if top_keywords:
+                                print("\n🏆 Top 5 机会关键词:")
+                                for i, kw in enumerate(top_keywords, 1):
+                                    intent_desc = kw['intent']['intent_description']
+                                    score = kw['opportunity_score']
+                                    new_word_info = ""
+                                    if 'new_word_detection' in kw and kw['new_word_detection']['is_new_word']:
+                                        new_word_grade = kw['new_word_detection']['new_word_grade']
+                                        new_word_info = f" [新词-{new_word_grade}级]"
+                                    print(f"   {i}. {kw['keyword']} (分数: {score}, 意图: {intent_desc}){new_word_info}")
+                            
+                            # 显示原始热门关键词信息
+                            print(f"\n🔥 原始热门关键词数据:")
+                            print(f"   • 数据来源: Google Trends 热门搜索")
+                            if 'value' in trending_df.columns:
+                                print(f"   • 平均热度: {trending_df['value'].mean():.1f}")
+                            
+                            # 保存原始热门关键词
+                            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                            trending_output_file = os.path.join(args.output, f"trending_keywords_raw_{timestamp}.csv")
+                            os.makedirs(args.output, exist_ok=True)
+                            trending_df.to_csv(trending_output_file, index=False, encoding='utf-8')
+                            print(f"📁 原始热门关键词已保存到: {trending_output_file}")
                         
-                        # 保存结果到文件
-                        import pandas as pd
-                        from datetime import datetime
+                    finally:
+                        # 清理临时文件
+                        os.unlink(temp_file)
                         
-                        df = pd.DataFrame(queries)
-                        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                        output_file = os.path.join(args.output, f"trending_keywords_{timestamp}.csv")
-                        
-                        # 确保输出目录存在
-                        os.makedirs(args.output, exist_ok=True)
-                        df.to_csv(output_file, index=False, encoding='utf-8')
-                        print(f"\n📁 结果已保存到: {output_file}")
                 else:
-                    print("⚠️ 未获取到热门关键词数据")
+                    # 当无法获取在线数据时，直接报告失败
+                    print("❌ 无法连接到 Google Trends API，热门关键词获取失败")
+                    print("💡 建议:")
+                    print("   1. 检查网络连接")
+                    print("   2. 稍后重试")
+                    print("   3. 或使用 -k 参数指定关键词文件进行分析")
+                    sys.exit(1)
                     
             except Exception as e:
-                print(f"❌ 获取热门关键词时出错: {e}")
+                print(f"❌ 获取热门关键词或需求挖掘时出错: {e}")
                 if args.verbose:
                     import traceback
                     traceback.print_exc()

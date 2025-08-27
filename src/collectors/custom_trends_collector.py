@@ -930,50 +930,67 @@ class CustomTrendsCollector:
             logger.error(f"获取分类失败: {e}")
             return {}
     
+    
     def realtime_trending_searches(self, geo: str = 'US', cat: str = 'all') -> pd.DataFrame:
-        """获取实时热门搜索"""
+        """使用explore API获取热门搜索 - 单次请求版本避免429错误"""
         try:
-            params = {
-                'hl': self.hl,
-                'tz': self.tz,
-                'geo': geo,
-                'cat': cat,
-                'fi': 0,
-                'fs': 10,
-                'ri': 300,
-                'rs': 20,
-                'sort': 0
-            }
+            logger.info("使用explore API获取热门关键词...")
             
-            response = self._get_data(
-                self.REALTIME_TRENDING_URL,
-                method='get',
-                params=params,
-                trim_chars=5
-            )
+            # 只使用一个种子关键词，避免多次API请求
+            seed_keyword = 'AI'  # 使用最通用的关键词
             
-            if not response or 'storySummaries' not in response:
-                return pd.DataFrame()
-            
-            trending_data = []
-            for story in response['storySummaries']['trendingStories']:
-                for article in story.get('articles', []):
-                    trending_data.append({
-                        'title': story.get('title', ''),
-                        'entityNames': ', '.join(story.get('entityNames', [])),
-                        'traffic': story.get('formattedTraffic', ''),
-                        'article_title': article.get('articleTitle', ''),
-                        'article_url': article.get('url', ''),
-                        'article_source': article.get('source', ''),
-                        'article_time': article.get('time', ''),
-                        'image': story.get('image', {}).get('source', '')
-                    })
-            
-            return pd.DataFrame(trending_data)
+            try:
+                logger.info(f"正在获取种子关键词 '{seed_keyword}' 的相关查询...")
+                
+                # 构建payload获取相关查询
+                self.build_payload([seed_keyword], timeframe='today 12-m', geo=geo)
+                related_queries = self.related_queries()
+                
+                if seed_keyword in related_queries and related_queries[seed_keyword]:
+                    # 优先使用rising查询
+                    if 'rising' in related_queries[seed_keyword] and related_queries[seed_keyword]['rising'] is not None and not related_queries[seed_keyword]['rising'].empty:
+                        rising_df = related_queries[seed_keyword]['rising'].copy()
+                        rising_df['source'] = f'rising_{seed_keyword}'
+                        rising_df['category'] = seed_keyword
+                        
+                        # 确保所有必需的列都存在
+                        if 'growth' not in rising_df.columns:
+                            rising_df['growth'] = '0%'
+                        if 'value' not in rising_df.columns:
+                            rising_df['value'] = 0
+                        
+                        result_df = rising_df[['query', 'value', 'growth']].head(20)
+                        logger.info(f"成功获取到 {len(result_df)} 个热门关键词")
+                        return result_df
+                    
+                    # 如果没有rising查询，使用top查询
+                    elif 'top' in related_queries[seed_keyword] and related_queries[seed_keyword]['top'] is not None and not related_queries[seed_keyword]['top'].empty:
+                        top_df = related_queries[seed_keyword]['top'].copy()
+                        top_df['source'] = f'top_{seed_keyword}'
+                        top_df['category'] = seed_keyword
+                        
+                        # 为top查询添加growth列
+                        if 'value' in top_df.columns:
+                            top_df['growth'] = '0%'  # top查询没有增长率
+                        else:
+                            top_df['value'] = 0
+                            top_df['growth'] = '0%'
+                        
+                        result_df = top_df[['query', 'value', 'growth']].head(20)
+                        logger.info(f"成功获取到 {len(result_df)} 个热门关键词")
+                        return result_df
+                
+                logger.warning("未能获取到任何热门关键词")
+                return pd.DataFrame(columns=['query', 'value', 'growth'])
+                
+            except Exception as e:
+                logger.error(f"多次遇到429错误，请求失败")
+                # 如果遇到429错误，直接返回空结果，不再重试
+                return pd.DataFrame(columns=['query', 'value', 'growth'])
             
         except Exception as e:
-            logger.error(f"获取实时热门搜索失败: {e}")
-            return pd.DataFrame()
+            logger.error(f"获取热门搜索失败: {e}")
+            return pd.DataFrame(columns=['query', 'value', 'growth'])
     
     def today_searches(self, geo: str = 'US') -> pd.DataFrame:
         """获取今日搜索趋势"""
@@ -1487,6 +1504,56 @@ class CustomTrendsCollector:
         except Exception as e:
             logger.error(f"重置会话失败: {e}")
     
+    def fetch_rising_queries(self, keyword=None, geo=None, timeframe=None):
+        """获取Rising Queries - 兼容方法"""
+        try:
+            # 如果没有指定关键词，使用explore API获取热门搜索
+            if not keyword or not keyword.strip():
+                return self.realtime_trending_searches(geo or 'US')
+            
+            # 如果指定了关键词，获取相关查询
+            self.build_payload([keyword], timeframe=timeframe or self.timeframe, geo=geo or self.geo)
+            related_queries = self.related_queries()
+            
+            if related_queries is not None and not related_queries.empty:
+                # 优先返回rising查询，如果没有则返回top查询
+                if keyword in related_queries:
+                    if related_queries[keyword]['rising'] is not None and not related_queries[keyword]['rising'].empty:
+                        return related_queries[keyword]['rising']
+                    elif related_queries[keyword]['top'] is not None and not related_queries[keyword]['top'].empty:
+                        top_df = related_queries[keyword]['top'].copy()
+                        if 'value' in top_df.columns:
+                            top_df['growth'] = 0  # top查询没有增长率
+                        return top_df
+            
+            # 如果都没有，返回空DataFrame
+            return pd.DataFrame(columns=['query', 'value', 'growth'])
+            
+        except Exception as e:
+            logger.error(f"获取Rising Queries失败: {e}")
+            # 返回空DataFrame而不是静态数据
+            return pd.DataFrame(columns=['query', 'value', 'growth'])
+    
+    def get_trends_data(self, keywords, timeframe='today 12-m', geo=''):
+        """
+        获取关键词的趋势数据 (兼容方法)
+        
+        参数:
+            keywords: 关键词列表
+            timeframe: 时间范围
+            geo: 地理位置
+            
+        返回:
+            DataFrame: 趋势数据
+        """
+        try:
+            # 构建payload并获取数据
+            self.build_payload(keywords, timeframe=timeframe, geo=geo)
+            return self.interest_over_time()
+        except Exception as e:
+            logger.error(f"获取趋势数据失败: {e}")
+            return pd.DataFrame()
+
     def __enter__(self):
         """上下文管理器入口"""
         return self

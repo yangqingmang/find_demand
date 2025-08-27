@@ -18,7 +18,7 @@ try:
     import sys
     import os
     sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-    from collectors.trends_collector import TrendsCollector
+    from collectors.trends_singleton import get_trends_collector
     from utils import Logger, FileUtils
 except ImportError:
     class Logger:
@@ -64,13 +64,28 @@ class NewWordDetector(BaseAnalyzer):
             'min_recent_volume': min_recent_volume
         }
         
-        # 初始化趋势收集器
+        # 初始化趋势收集器 - 使用单例模式避免重复创建会话
+        # 初始化趋势收集器 - 使用单例模式避免重复创建会话
         try:
-            self.trends_collector = TrendsCollector()
+            from ..collectors.trends_singleton import get_trends_collector
+            self.trends_collector = get_trends_collector()
             self.logger.info("趋势收集器初始化成功")
-        except:
-            self.trends_collector = None
-            self.logger.warning("趋势收集器初始化失败")
+        except ImportError:
+            try:
+                from collectors.trends_singleton import get_trends_collector
+                self.trends_collector = get_trends_collector()
+                self.logger.info("趋势收集器初始化成功")
+            except ImportError:
+                try:
+                    from ...collectors.trends_singleton import get_trends_collector
+                    self.trends_collector = get_trends_collector()
+                    self.logger.info("趋势收集器初始化成功")
+                except:
+                    self.trends_collector = None
+                    self.logger.warning("趋势收集器初始化失败")
+        
+        # 添加请求缓存避免重复请求
+        self._trends_cache = {}
         
         # 新词等级定义
         self.new_word_grades = {
@@ -105,13 +120,24 @@ class NewWordDetector(BaseAnalyzer):
         返回:
             dict: 包含不同时间段搜索数据的字典
         """
+        # 检查缓存
+        cache_key = f"trends_{keyword}"
+        if cache_key in self._trends_cache:
+            return self._trends_cache[cache_key]
+        
         if self.trends_collector:
             try:
-                # 获取不同时间段的真实数据 - 使用正确的时间格式
+                # 只获取12个月数据，从中提取其他时间段的数据
                 data_12m = self.trends_collector.get_trends_data([keyword], timeframe='today 12-m')
-                data_90d = self.trends_collector.get_trends_data([keyword], timeframe='today 3-m')
-                data_30d = self.trends_collector.get_trends_data([keyword], timeframe='today 1-m')
-                data_7d = self.trends_collector.get_trends_data([keyword], timeframe='now 7-d')
+                
+                # 如果12个月数据获取失败，尝试获取3个月数据
+                if data_12m.empty:
+                    data_12m = self.trends_collector.get_trends_data([keyword], timeframe='today 3-m')
+                
+                # 从12个月数据中计算其他时间段
+                data_90d = data_12m.tail(90) if len(data_12m) >= 90 else data_12m
+                data_30d = data_12m.tail(30) if len(data_12m) >= 30 else data_12m
+                data_7d = data_12m.tail(7) if len(data_12m) >= 7 else data_12m
                 
                 result = {}
                 
@@ -153,439 +179,204 @@ class NewWordDetector(BaseAnalyzer):
                     result['max_7d'] = 0.0
                     result['recent_trend'] = []
                 
+                # 缓存结果
+                self._trends_cache[cache_key] = result
                 return result
                 
             except Exception as e:
                 self.logger.warning(f"获取真实历史数据失败: {e}")
         
-        # 无法获取数据
-        return {}
+        # 无法获取数据时返回空结果
+        return {
+            'avg_12m': 0.0,
+            'max_12m': 0.0,
+            'avg_90d': 0.0,
+            'max_90d': 0.0,
+            'avg_30d': 0.0,
+            'max_30d': 0.0,
+            'avg_7d': 0.0,
+            'max_7d': 0.0,
+            'recent_trend': []
+        }
     
-        keyword_lower = keyword.lower()
-        
-        # 判断关键词类型，分析不同的历史数据模式
-        
-        # AI相关新词 - 典型的新词模式
-        if any(term in keyword_lower for term in ['chatgpt', 'gpt-4', 'claude', 'gemini', 'copilot']):
-            return {
-                'avg_12m': np.random.uniform(5, 25),      # 12个月平均很低
-                'max_12m': np.random.uniform(10, 40),
-                'avg_90d': np.random.uniform(8, 35),      # 90天平均较低
-                'max_90d': np.random.uniform(15, 50),
-                'avg_30d': np.random.uniform(15, 45),     # 30天开始增长
-                'max_30d': np.random.uniform(25, 60),
-                'avg_7d': np.random.uniform(80, 200),     # 7天爆发式增长
-                'max_7d': np.random.uniform(150, 300),
-                'recent_trend': [180, 220, 250]          # 持续上升
-            }
-        
-        # 新工具类关键词
-        elif any(term in keyword_lower for term in ['ai tool', 'generator', 'creator', 'maker']):
-            return {
-                'avg_12m': np.random.uniform(10, 40),
-                'max_12m': np.random.uniform(20, 60),
-                'avg_90d': np.random.uniform(15, 50),
-                'max_90d': np.random.uniform(25, 70),
-                'avg_30d': np.random.uniform(25, 60),
-                'max_30d': np.random.uniform(40, 80),
-                'avg_7d': np.random.uniform(60, 150),
-                'max_7d': np.random.uniform(100, 200),
-                'recent_trend': [120, 140, 160]
-            }
-        
-        # 传统关键词 - 不符合新词模式
-        elif any(term in keyword_lower for term in ['google', 'facebook', 'youtube', 'amazon']):
-            return {
-                'avg_12m': np.random.uniform(200, 500),   # 历史搜索量很高
-                'max_12m': np.random.uniform(400, 800),
-                'avg_90d': np.random.uniform(180, 450),
-                'max_90d': np.random.uniform(350, 700),
-                'avg_30d': np.random.uniform(190, 480),
-                'max_30d': np.random.uniform(380, 750),
-                'avg_7d': np.random.uniform(200, 500),    # 7天增长不明显
-                'max_7d': np.random.uniform(400, 800),
-                'recent_trend': [450, 460, 470]          # 稳定增长
-            }
-        
-        # 其他关键词 - 中等模式
-        else:
-            # 随机决定是否为新词
-            is_new_word = np.random.random() < 0.3  # 30%概率为新词
-            
-            if is_new_word:
-                return {
-                    'avg_12m': np.random.uniform(5, 50),
-                    'max_12m': np.random.uniform(10, 80),
-                    'avg_90d': np.random.uniform(10, 60),
-                    'max_90d': np.random.uniform(20, 90),
-                    'avg_30d': np.random.uniform(20, 70),
-                    'max_30d': np.random.uniform(30, 100),
-                    'avg_7d': np.random.uniform(50, 180),
-                    'max_7d': np.random.uniform(80, 250),
-                    'recent_trend': [120, 150, 180]
-                }
-            else:
-                return {
-                    'avg_12m': np.random.uniform(80, 300),
-                    'max_12m': np.random.uniform(150, 500),
-                    'avg_90d': np.random.uniform(75, 280),
-                    'max_90d': np.random.uniform(140, 450),
-                    'avg_30d': np.random.uniform(70, 290),
-                    'max_30d': np.random.uniform(130, 480),
-                    'avg_7d': np.random.uniform(80, 320),
-                    'max_7d': np.random.uniform(160, 520),
-                    'recent_trend': [280, 290, 300]
-                }
-    
-    def calculate_new_word_score(self, historical_data: Dict) -> Dict:
+    def calculate_new_word_score(self, historical_data: Dict) -> float:
         """
-        根据历史数据计算新词评分
+        计算新词得分
         
         参数:
             historical_data (dict): 历史搜索数据
             
         返回:
-            dict: 新词分析结果
+            float: 新词得分 (0-100)
         """
-        score = 0
-        reasons = []
+        score = 0.0
         
-        # 检查12个月平均搜索量是否较低
-        if historical_data['avg_12m'] <= self.thresholds['low_volume_12m']:
-            score += 25
-            reasons.append(f"12个月平均搜索量低 ({historical_data['avg_12m']:.1f})")
+        # 获取数据
+        avg_12m = historical_data.get('avg_12m', 0)
+        avg_90d = historical_data.get('avg_90d', 0)
+        avg_30d = historical_data.get('avg_30d', 0)
+        avg_7d = historical_data.get('avg_7d', 0)
         
-        # 检查90天平均搜索量是否较低
-        if historical_data['avg_90d'] <= self.thresholds['low_volume_90d']:
-            score += 20
-            reasons.append(f"90天平均搜索量低 ({historical_data['avg_90d']:.1f})")
-        
-        # 检查30天平均搜索量是否较低
-        if historical_data['avg_30d'] <= self.thresholds['low_volume_30d']:
+        # 1. 历史搜索量低 (40分)
+        if avg_12m <= self.thresholds['low_volume_12m']:
             score += 15
-            reasons.append(f"30天平均搜索量低 ({historical_data['avg_30d']:.1f})")
-        
-        # 检查7天是否有大幅增长
-        if historical_data['avg_30d'] > 0:
-            growth_rate_7d = ((historical_data['avg_7d'] - historical_data['avg_30d']) / 
-                             historical_data['avg_30d']) * 100
-        else:
-            growth_rate_7d = 0
-        
-        if growth_rate_7d >= self.thresholds['high_growth_7d']:
-            score += 30
-            reasons.append(f"7天增长率高 ({growth_rate_7d:.1f}%)")
-        elif growth_rate_7d >= self.thresholds['high_growth_7d'] * 0.5:
+        if avg_90d <= self.thresholds['low_volume_90d']:
             score += 15
-            reasons.append(f"7天增长率中等 ({growth_rate_7d:.1f}%)")
-        
-        # 检查最近搜索量是否达到最低要求
-        if historical_data['avg_7d'] >= self.thresholds['min_recent_volume']:
+        if avg_30d <= self.thresholds['low_volume_30d']:
             score += 10
-            reasons.append(f"最近搜索量充足 ({historical_data['avg_7d']:.1f})")
         
-        # 检查趋势是否持续上升
-        if len(historical_data['recent_trend']) >= 2:
-            trend_increasing = all(
-                historical_data['recent_trend'][i] <= historical_data['recent_trend'][i+1] 
-                for i in range(len(historical_data['recent_trend'])-1)
-            )
-            if trend_increasing:
-                score += 10
-                reasons.append("最近趋势持续上升")
+        # 2. 近期增长率高 (40分)
+        if avg_30d > 0 and avg_7d > avg_30d:
+            growth_rate = ((avg_7d - avg_30d) / avg_30d) * 100
+            if growth_rate >= self.thresholds['high_growth_7d']:
+                score += 40
+            elif growth_rate >= self.thresholds['high_growth_7d'] * 0.5:
+                score += 25
+            elif growth_rate >= self.thresholds['high_growth_7d'] * 0.25:
+                score += 15
         
-        # 计算新词强度指数 (0-100)
-        new_word_intensity = min(100, score)
+        # 3. 最近搜索量达标 (20分)
+        if avg_7d >= self.thresholds['min_recent_volume']:
+            score += 20
+        elif avg_7d >= self.thresholds['min_recent_volume'] * 0.5:
+            score += 10
         
-        # 计算爆发指数
-        if historical_data['avg_30d'] > 0:
-            explosion_index = historical_data['avg_7d'] / historical_data['avg_30d']
-        else:
-            explosion_index = historical_data['avg_7d'] / 1  # 避免除零
-        
-        return {
-            'new_word_score': round(new_word_intensity, 1),
-            'growth_rate_7d': round(growth_rate_7d, 1),
-            'explosion_index': round(explosion_index, 2),
-            'is_new_word': new_word_intensity >= 60,  # 60分以上认为是新词
-            'confidence_level': 'high' if new_word_intensity >= 80 else 'medium' if new_word_intensity >= 60 else 'low',
-            'detection_reasons': reasons,
-            'historical_pattern': self._classify_pattern(historical_data)
-        }
-    
-    def _classify_pattern(self, data: Dict) -> str:
-        """
-        分类历史数据模式
-        
-        参数:
-            data (dict): 历史数据
-            
-        返回:
-            str: 模式类型
-        """
-        # 计算各时间段的相对增长
-        if data['avg_30d'] > 0:
-            growth_7d_vs_30d = data['avg_7d'] / data['avg_30d']
-        else:
-            growth_7d_vs_30d = float('inf')
-        
-        if data['avg_90d'] > 0:
-            growth_30d_vs_90d = data['avg_30d'] / data['avg_90d']
-        else:
-            growth_30d_vs_90d = float('inf')
-        
-        # 判断模式
-        if growth_7d_vs_30d > 3 and growth_30d_vs_90d > 2:
-            return 'explosive_growth'  # 爆发式增长
-        elif growth_7d_vs_30d > 2:
-            return 'rapid_growth'      # 快速增长
-        elif growth_7d_vs_30d > 1.5:
-            return 'steady_growth'     # 稳定增长
-        elif growth_7d_vs_30d > 1:
-            return 'slow_growth'       # 缓慢增长
-        else:
-            return 'stable_or_declining'  # 稳定或下降
+        return min(score, 100.0)
     
     def get_new_word_grade(self, score: float) -> str:
         """
-        根据评分获取新词等级
+        根据得分获取新词等级
         
         参数:
-            score (float): 新词评分
+            score (float): 新词得分
             
         返回:
-            str: 新词等级
+            str: 新词等级 (S/A/B/C/D)
         """
         for grade, info in self.new_word_grades.items():
             if score >= info['min_score']:
                 return grade
         return 'D'
     
-    def detect_new_words(self, df: pd.DataFrame, keyword_col: str = 'query') -> pd.DataFrame:
+    def detect_new_words(self, data: pd.DataFrame, keyword_col: str = 'query') -> pd.DataFrame:
         """
-        检测DataFrame中的新词
+        检测新词
         
         参数:
-            df (DataFrame): 关键词数据
+            data (pd.DataFrame): 包含关键词的数据
             keyword_col (str): 关键词列名
             
         返回:
-            添加了新词检测结果的DataFrame
+            pd.DataFrame: 添加了新词检测结果的数据
         """
-        if not self.validate_input(df, [keyword_col]):
-            return df
+        if data.empty or keyword_col not in data.columns:
+            return data
         
-        self.log_analysis_start("新词检测", f"，共 {len(df)} 个关键词")
+        results = []
         
-        # 创建副本避免修改原始数据
-        result_df = df.copy()
+        # 批量处理关键词，每批最多3个，避免429错误
+        keywords = data[keyword_col].tolist()
+        batch_size = 3
         
-        # 初始化结果列
-        result_columns = [
-            'is_new_word', 'new_word_score', 'new_word_grade', 'new_word_description',
-            'growth_rate_7d', 'explosion_index', 'confidence_level', 'historical_pattern',
-            'avg_volume_12m', 'avg_volume_90d', 'avg_volume_30d', 'avg_volume_7d',
-            'detection_reasons'
-        ]
-        
-        for col in result_columns:
-            result_df[col] = None
-        
-        # 分析每个关键词
-        for idx, row in result_df.iterrows():
-            keyword = str(row[keyword_col])
+        for i in range(0, len(keywords), batch_size):
+            batch_keywords = keywords[i:i + batch_size]
+            batch_indices = data.index[i:i + batch_size]
             
-            try:
+            for j, keyword in enumerate(batch_keywords):
+                idx = batch_indices[j]
+                row = data.loc[idx]
+                
                 # 获取历史数据
                 historical_data = self.get_historical_data(keyword)
                 
-                # 计算新词评分
-                new_word_result = self.calculate_new_word_score(historical_data)
+                # 计算新词得分
+                score = self.calculate_new_word_score(historical_data)
                 
-                # 获取等级和描述
-                grade = self.get_new_word_grade(new_word_result['new_word_score'])
-                description = self.new_word_grades[grade]['description']
+                # 获取新词等级
+                grade = self.get_new_word_grade(score)
                 
-                # 更新DataFrame
-                result_df.at[idx, 'is_new_word'] = bool(new_word_result['is_new_word'])
-                result_df.at[idx, 'new_word_score'] = float(new_word_result['new_word_score'])
-                result_df.at[idx, 'new_word_grade'] = grade
-                result_df.at[idx, 'new_word_description'] = description
-                result_df.at[idx, 'growth_rate_7d'] = float(new_word_result['growth_rate_7d'])
-                result_df.at[idx, 'explosion_index'] = float(new_word_result['explosion_index'])
-                result_df.at[idx, 'confidence_level'] = new_word_result['confidence_level']
-                result_df.at[idx, 'historical_pattern'] = new_word_result['historical_pattern']
-                
-                # 历史数据
-                result_df.at[idx, 'avg_volume_12m'] = float(historical_data['avg_12m'])
-                result_df.at[idx, 'avg_volume_90d'] = float(historical_data['avg_90d'])
-                result_df.at[idx, 'avg_volume_30d'] = float(historical_data['avg_30d'])
-                result_df.at[idx, 'avg_volume_7d'] = float(historical_data['avg_7d'])
-                
-                # 检测原因
-                result_df.at[idx, 'detection_reasons'] = '; '.join(new_word_result['detection_reasons'])
-                
-                if (idx + 1) % 10 == 0:
-                    self.logger.info(f"已检测 {idx + 1}/{len(df)} 个关键词")
-                    
-            except Exception as e:
-                self.logger.error(f"检测关键词 '{keyword}' 时出错: {e}")
-                # 设置默认值
-                result_df.at[idx, 'is_new_word'] = False
-                result_df.at[idx, 'new_word_score'] = 0.0
-                result_df.at[idx, 'new_word_grade'] = 'D'
-                result_df.at[idx, 'new_word_description'] = '非新词'
-                result_df.at[idx, 'growth_rate_7d'] = 0.0
-                result_df.at[idx, 'explosion_index'] = 1.0
-                result_df.at[idx, 'confidence_level'] = 'low'
-                result_df.at[idx, 'historical_pattern'] = 'unknown'
-                result_df.at[idx, 'avg_volume_12m'] = 0.0
-                result_df.at[idx, 'avg_volume_90d'] = 0.0
-                result_df.at[idx, 'avg_volume_30d'] = 0.0
-                result_df.at[idx, 'avg_volume_7d'] = 0.0
-                result_df.at[idx, 'detection_reasons'] = '检测失败'
+                # 添加结果
+            result = {
+                'keyword': keyword,
+                'new_word_score': score,
+                'new_word_grade': grade,
+                'is_new_word': score >= 60,  # 添加is_new_word字段
+                'confidence_level': 'high' if score >= 80 else 'medium' if score >= 60 else 'low',  # 添加confidence_level字段
+                'grade_description': self.new_word_grades[grade]['description'],
+                'avg_12m': historical_data.get('avg_12m', 0),
+                'avg_90d': historical_data.get('avg_90d', 0),
+                'avg_30d': historical_data.get('avg_30d', 0),
+                'avg_7d': historical_data.get('avg_7d', 0),
+                'recent_trend': historical_data.get('recent_trend', [])
+            }
+            
+            results.append(result)
+            
+            # 批次间添加短暂间隔，避免429错误
+            if i + batch_size < len(keywords):
+                import time
+                time.sleep(0.3)
         
-        # 确保数值列的数据类型正确
-        numeric_columns = ['new_word_score', 'growth_rate_7d', 'explosion_index',
-                          'avg_volume_12m', 'avg_volume_90d', 'avg_volume_30d', 'avg_volume_7d']
+        # 转换为DataFrame
+        new_word_df = pd.DataFrame(results)
         
-        for col in numeric_columns:
-            if col in result_df.columns:
-                result_df[col] = pd.to_numeric(result_df[col], errors='coerce')
+        # 合并到原数据
+        if not new_word_df.empty:
+            # 重置索引确保合并正确
+            data_reset = data.reset_index(drop=True)
+            new_word_df_reset = new_word_df.reset_index(drop=True)
+            
+            # 合并数据
+            merged_data = pd.concat([data_reset, new_word_df_reset.drop('keyword', axis=1)], axis=1)
+            return merged_data
         
-        # 确保布尔列的数据类型正确
-        if 'is_new_word' in result_df.columns:
-            result_df['is_new_word'] = result_df['is_new_word'].astype(bool)
-        
-        self.log_analysis_complete("新词检测", len(result_df))
-        return result_df
+        return data
     
-    def generate_new_word_summary(self, df: pd.DataFrame) -> Dict:
+    def get_top_new_words(self, data: pd.DataFrame, top_n: int = 10) -> pd.DataFrame:
         """
-        生成新词检测摘要
+        获取得分最高的新词
         
         参数:
-            df (DataFrame): 带有新词检测结果的DataFrame
+            data (pd.DataFrame): 包含新词检测结果的数据
+            top_n (int): 返回前N个新词
             
         返回:
-            dict: 新词检测摘要
+            pd.DataFrame: 排序后的新词数据
         """
-        if 'new_word_score' not in df.columns:
-            return {'error': '数据中没有新词检测结果'}
+        if 'new_word_score' not in data.columns:
+            return pd.DataFrame()
         
-        # 新词统计
-        new_words = df[df['is_new_word'] == True]
+        # 按新词得分排序
+        sorted_data = data.sort_values('new_word_score', ascending=False)
         
-        # 等级分布
-        grade_counts = df['new_word_grade'].value_counts().to_dict()
-        
-        # 模式分布
-        pattern_counts = df['historical_pattern'].value_counts().to_dict()
-        
-        # 高置信度新词
-        high_confidence = df[df['confidence_level'] == 'high']
-        
-        # 爆发式增长关键词
-        explosive_growth = df[df['historical_pattern'] == 'explosive_growth']
-        
-        return {
-            'total_keywords': len(df),
-            'new_words_count': len(new_words),
-            'new_words_percentage': round(len(new_words) / len(df) * 100, 1),
-            'average_new_word_score': round(df['new_word_score'].mean(), 1),
-            'grade_distribution': grade_counts,
-            'pattern_distribution': pattern_counts,
-            'high_confidence_new_words': high_confidence['query'].tolist() if 'query' in df.columns else [],
-            'explosive_growth_keywords': explosive_growth['query'].tolist() if 'query' in df.columns else [],
-            'top_10_new_words': new_words.nlargest(10, 'new_word_score')['query'].tolist() if 'query' in df.columns and not new_words.empty else []
-        }
+        return sorted_data.head(top_n)
     
-    def save_results(self, df: pd.DataFrame, output_dir: str = 'data', prefix: str = 'new_words'):
+    def export_results(self, data: pd.DataFrame, output_path: str = None) -> str:
         """
-        保存新词检测结果
+        导出新词检测结果
         
         参数:
-            df (DataFrame): 检测结果DataFrame
-            output_dir (str): 输出目录
-            prefix (str): 文件名前缀
+            data (pd.DataFrame): 新词检测结果数据
+            output_path (str): 输出路径
+            
+        返回:
+            str: 输出文件路径
         """
-        # 保存主要结果
-        filename = FileUtils.generate_filename(prefix, extension='csv')
-        file_path = FileUtils.save_dataframe(df, output_dir, filename)
-        self.logger.info(f"已保存新词检测结果到: {file_path}")
+        if output_path is None:
+            output_path = FileUtils.generate_filename('new_word_detection', 'csv')
         
-        # 保存检测到的新词
-        new_words_df = df[df['is_new_word'] == True].sort_values('new_word_score', ascending=False)
-        if not new_words_df.empty:
-            new_words_filename = FileUtils.generate_filename(f'{prefix}_detected', extension='csv')
-            new_words_path = FileUtils.save_dataframe(new_words_df, output_dir, new_words_filename)
-            self.logger.info(f"已保存检测到的新词 ({len(new_words_df)}个) 到: {new_words_path}")
+        # 选择要导出的列
+        export_columns = [
+            'keyword', 'new_word_score', 'new_word_grade', 'grade_description',
+            'avg_12m', 'avg_90d', 'avg_30d', 'avg_7d'
+        ]
         
-        # 保存高置信度新词
-        high_confidence_df = df[df['confidence_level'] == 'high'].sort_values('new_word_score', ascending=False)
-        if not high_confidence_df.empty:
-            high_conf_filename = FileUtils.generate_filename(f'{prefix}_high_confidence', extension='csv')
-            high_conf_path = FileUtils.save_dataframe(high_confidence_df, output_dir, high_conf_filename)
-            self.logger.info(f"已保存高置信度新词 ({len(high_confidence_df)}个) 到: {high_conf_path}")
-
-
-def main():
-    """主函数"""
-    import argparse
-    import os
-    
-    parser = argparse.ArgumentParser(description='新词检测工具')
-    parser.add_argument('--input', required=True, help='输入CSV文件路径')
-    parser.add_argument('--output', default='data', help='输出目录，默认为data')
-    parser.add_argument('--keyword-col', default='query', help='关键词列名，默认为query')
-    parser.add_argument('--low-volume-12m', type=int, default=100, help='12个月低搜索量阈值')
-    parser.add_argument('--low-volume-90d', type=int, default=50, help='90天低搜索量阈值')
-    parser.add_argument('--low-volume-30d', type=int, default=30, help='30天低搜索量阈值')
-    parser.add_argument('--high-growth-7d', type=float, default=200, help='7天高增长率阈值(%)')
-    parser.add_argument('--min-recent-volume', type=int, default=20, help='最近7天最低搜索量')
-    
-    args = parser.parse_args()
-    
-    # 检查输入文件
-    if not os.path.exists(args.input):
-        print(f"错误: 输入文件 '{args.input}' 不存在")
-        return
-    
-    # 读取数据
-    try:
-        df = pd.read_csv(args.input)
-        print(f"已读取 {len(df)} 条关键词数据")
-    except Exception as e:
-        print(f"读取文件时出错: {e}")
-        return
-    
-    # 创建检测器
-    detector = NewWordDetector(
-        low_volume_threshold_12m=args.low_volume_12m,
-        low_volume_threshold_90d=args.low_volume_90d,
-        low_volume_threshold_30d=args.low_volume_30d,
-        high_growth_threshold_7d=args.high_growth_7d,
-        min_recent_volume=args.min_recent_volume
-    )
-    
-    # 检测新词
-    result_df = detector.detect_new_words(df, args.keyword_col)
-    
-    # 生成摘要
-    summary = detector.generate_new_word_summary(result_df)
-    
-    # 保存结果
-    detector.save_results(result_df, args.output)
-    
-    # 显示摘要
-    print("\n=== 新词检测摘要 ===")
-    print(f"总关键词数: {summary['total_keywords']}")
-    print(f"检测到的新词数: {summary['new_words_count']}")
-    print(f"新词占比: {summary['new_words_percentage']}%")
-    print(f"平均新词评分: {summary['average_new_word_score']}")
-    print(f"高置信度新词数: {len(summary['high_confidence_new_words'])}")
-    print(f"爆发式增长关键词数: {len(summary['explosive_growth_keywords'])}")
-
-
-if __name__ == "__main__":
-    main()
+        # 过滤存在的列
+        available_columns = [col for col in export_columns if col in data.columns]
+        
+        if available_columns:
+            export_data = data[available_columns]
+            export_data.to_csv(output_path, index=False, encoding='utf-8-sig')
+            self.logger.info(f"新词检测结果已导出到: {output_path}")
+        
+        return output_path
