@@ -574,6 +574,222 @@ class CustomTrendsCollector:
             self.kw_list = original_kw_list
             self.timeframe = original_timeframe
     
+    def get_historical_daily_data(
+        self,
+        keywords: List[str],
+        start_date: str,
+        end_date: str,
+        geo: str = '',
+        cat: int = 0,
+        gprop: str = '',
+        overlap_days: int = 60,
+        delay: int = 2,
+        max_chunks: int = 50
+    ) -> pd.DataFrame:
+        """
+        获取长时间跨度的每日精确兴趣度数据，通过分块请求和数据拼接来避免Google Trends的降采样。
+
+        Args:
+            keywords: 要查询的关键词列表.
+            start_date: 开始日期, 格式 'YYYY-MM-DD'.
+            end_date: 结束日期, 格式 'YYYY-MM-DD'.
+            geo: 地理位置.
+            cat: 类别.
+            gprop: Google Property.
+            overlap_days: 用于计算缩放比例的重叠天数 (30-90).
+            delay: 每次API请求之间的延迟（秒）.
+            max_chunks: 最大分块数量限制.
+
+        Returns:
+            一个包含拼接和标准化后每日数据的Pandas DataFrame.
+        
+        Raises:
+            ValueError: 当参数无效时抛出.
+        """
+        # 参数验证
+        if not keywords or not isinstance(keywords, list):
+            raise ValueError("关键词列表不能为空且必须是列表类型")
+        
+        if len(keywords) > 5:
+            logger.warning("Google Trends最多支持5个关键词，将使用前5个")
+            keywords = keywords[:5]
+        
+        # 验证并解析日期
+        try:
+            start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+            end_dt = datetime.strptime(end_date, '%Y-%m-%d')
+        except ValueError as e:
+            raise ValueError(f"日期格式错误，请使用 'YYYY-MM-DD' 格式: {e}")
+
+        if start_dt >= end_dt:
+            raise ValueError("开始日期必须早于结束日期")
+        
+        if (end_dt - start_dt).days > 365 * 10:  # 限制最大10年
+            raise ValueError("时间跨度过长，最大支持10年")
+        
+        # 验证重叠天数
+        if not 30 <= overlap_days <= 90:
+            logger.warning("重叠天数建议在30-90天之间，已调整为60天")
+            overlap_days = 60
+
+        try:
+            # Google Trends在约270天内提供每日数据，使用保守窗口
+            chunk_duration_days = 260
+            
+            if (end_dt - start_dt).days <= chunk_duration_days:
+                # 时间范围足够短，直接请求
+                self.build_payload(keywords, cat=cat, timeframe=f'{start_date} {end_date}', geo=geo, gprop=gprop)
+                return self.interest_over_time()
+
+            # --- 数据分块逻辑 ---
+            date_chunks = []
+            current_start = start_dt
+            chunk_count = 0
+            
+            while current_start < end_dt and chunk_count < max_chunks:
+                chunk_end = min(current_start + timedelta(days=chunk_duration_days), end_dt)
+                date_chunks.append((current_start.strftime('%Y-%m-%d'), chunk_end.strftime('%Y-%m-%d')))
+                
+                # 计算下一个分块的起始点
+                if chunk_end >= end_dt:
+                    break
+                    
+                next_start_point = chunk_end - timedelta(days=overlap_days)
+                
+                # 防止死循环：确保有进展
+                if next_start_point <= current_start:
+                    logger.warning("分块逻辑异常，强制推进到下一个时间点")
+                    next_start_point = current_start + timedelta(days=chunk_duration_days - overlap_days + 1)
+                
+                current_start = next_start_point
+                chunk_count += 1
+
+            if chunk_count >= max_chunks:
+                logger.warning(f"达到最大分块数量限制 ({max_chunks})，可能无法获取完整数据")
+
+            # --- 获取并拼接数据 ---
+            all_data = []
+            logger.info(f"时间范围过长，将分为 {len(date_chunks)} 块进行请求...")
+            
+            for i, (start, end) in enumerate(date_chunks):
+                try:
+                    logger.info(f"正在获取第 {i+1}/{len(date_chunks)} 块数据: {start} 到 {end}")
+                    
+                    self.build_payload(keywords, cat=cat, timeframe=f'{start} {end}', geo=geo, gprop=gprop)
+                    chunk_df = self.interest_over_time()
+                    
+                    if not chunk_df.empty:
+                        # 验证数据质量
+                        if len(chunk_df) < 7:  # 少于一周的数据可能有问题
+                            logger.warning(f"时间段 {start} 到 {end} 数据点过少: {len(chunk_df)} 个")
+                        all_data.append(chunk_df)
+                    else:
+                        logger.warning(f"时间段 {start} 到 {end} 未获取到数据")
+                    
+                    # 动态调整延迟
+                    actual_delay = delay + (i * 0.5)  # 随着请求增多，延迟递增
+                    logger.info(f"暂停 {actual_delay:.1f} 秒...")
+                    time.sleep(actual_delay)
+                    
+                except Exception as e:
+                    logger.error(f"获取时间段 {start} 到 {end} 数据时出错: {e}")
+                    continue
+
+            if not all_data:
+                logger.error("所有分块请求均未返回有效数据")
+                return pd.DataFrame()
+
+            if len(all_data) == 1:
+                logger.info("只有一个数据块，直接返回")
+                return all_data[0].sort_index()
+
+            # --- 数据标准化与拼接 ---
+            logger.info("开始拼接和标准化数据...")
+            stitched_df = all_data[0].copy()
+            
+            for i in range(1, len(all_data)):
+                next_df = all_data[i].copy()
+                
+                # 找到重叠部分
+                overlap_start = max(next_df.index.min(), stitched_df.index.min())
+                overlap_end = min(stitched_df.index.max(), next_df.index.max())
+                
+                if overlap_start > overlap_end:
+                    # 没有重叠，直接拼接
+                    logger.warning(f"第 {i+1} 块数据与前面数据无重叠，直接拼接")
+                    stitched_df = pd.concat([stitched_df, next_df])
+                    continue
+
+                # 获取重叠数据
+                try:
+                    overlap_stitched = stitched_df.loc[overlap_start:overlap_end]
+                    overlap_next = next_df.loc[overlap_start:overlap_end]
+                except KeyError:
+                    logger.warning(f"第 {i+1} 块数据重叠部分索引异常，直接拼接")
+                    stitched_df = pd.concat([stitched_df, next_df])
+                    continue
+
+                if overlap_stitched.empty or overlap_next.empty:
+                    logger.warning(f"第 {i+1} 块数据重叠部分为空，直接拼接")
+                    stitched_df = pd.concat([stitched_df, next_df])
+                    continue
+
+                # 计算缩放因子
+                scaling_factors = {}
+                for keyword in keywords:
+                    if keyword in overlap_stitched.columns and keyword in overlap_next.columns:
+                        old_values = overlap_stitched[keyword].dropna()
+                        new_values = overlap_next[keyword].dropna()
+                        
+                        if len(old_values) == 0 or len(new_values) == 0:
+                            scaling_factors[keyword] = 1.0
+                            continue
+                            
+                        old_mean = old_values.mean()
+                        new_mean = new_values.mean()
+                        
+                        if new_mean > 0 and old_mean >= 0:
+                            scaling_factors[keyword] = old_mean / new_mean
+                        elif old_mean == 0 and new_mean == 0:
+                            scaling_factors[keyword] = 1.0
+                        else:
+                            # 如果新数据为0但旧数据不为0，保持原始比例
+                            scaling_factors[keyword] = 1.0
+                            logger.warning(f"关键词 '{keyword}' 在第 {i+1} 块中缩放因子异常，使用1.0")
+                    else:
+                        scaling_factors[keyword] = 1.0
+                
+                # 应用缩放因子
+                for keyword, factor in scaling_factors.items():
+                    if keyword in next_df.columns and factor != 1.0:
+                        next_df[keyword] = next_df[keyword] * factor
+                        logger.debug(f"关键词 '{keyword}' 应用缩放因子: {factor:.3f}")
+                
+                # 拼接非重叠部分
+                non_overlap_next = next_df[next_df.index > overlap_end]
+                if not non_overlap_next.empty:
+                    stitched_df = pd.concat([stitched_df, non_overlap_next])
+
+            # 最终处理
+            result_df = stitched_df.sort_index()
+            
+            # 去除重复索引
+            if result_df.index.duplicated().any():
+                logger.warning("发现重复索引，正在去重...")
+                result_df = result_df[~result_df.index.duplicated(keep='first')]
+            
+            # 填充缺失值
+            if result_df.isnull().any().any():
+                logger.info("填充缺失值...")
+                result_df = result_df.fillna(method='ffill').fillna(0)
+            
+            logger.info(f"数据拼接完成，共 {len(result_df)} 个数据点")
+            return result_df
+            
+        except Exception as e:
+            logger.error(f"获取历史每日数据失败: {e}")
+            return pd.DataFrame()
+
     def top_charts(self, date: int = None, geo: str = 'GLOBAL', cat: str = '') -> pd.DataFrame:
         """获取年度热门图表"""
         try:
