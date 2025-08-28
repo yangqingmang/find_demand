@@ -6,17 +6,17 @@
 """
 
 from typing import Optional
-from .custom_trends_collector import CustomTrendsCollector
+from .trends_collector import TrendsCollector
 
 # 全局变量存储单例实例
-_trends_collector_instance: Optional[CustomTrendsCollector] = None
+_trends_collector_instance: Optional[TrendsCollector] = None
 
-def get_trends_collector() -> CustomTrendsCollector:
+def get_trends_collector() -> TrendsCollector:
     """
     获取趋势收集器单例实例
     
     返回:
-        CustomTrendsCollector: 趋势收集器实例
+        TrendsCollector: 趋势收集器实例
     """
     global _trends_collector_instance
     
@@ -25,10 +25,10 @@ def get_trends_collector() -> CustomTrendsCollector:
     
     if _trends_collector_instance is None:
         # 简单单例模式，无锁
-        _trends_collector_instance = CustomTrendsCollector()
-        logger.info("🆕 创建新的CustomTrendsCollector实例")
+        _trends_collector_instance = TrendsCollector()
+        logger.info("🆕 创建新的TrendsCollector实例")
     else:
-        logger.info("♻️ 复用现有的CustomTrendsCollector实例")
+        logger.info("♻️ 复用现有的TrendsCollector实例")
     
     return _trends_collector_instance
 

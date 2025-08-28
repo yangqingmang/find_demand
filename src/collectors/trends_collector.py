@@ -46,10 +46,10 @@ class TrendsCollector:
         self.backoff_factor = backoff_factor
         self.logger = Logger()
         
-        # 使用单例模式获取 trends collector，不再创建独立的session
+        # 直接使用 CustomTrendsCollector，避免循环依赖
         try:
-            from src.collectors.trends_singleton import get_trends_collector
-            self.trends_collector = get_trends_collector()
+            from .custom_trends_collector import CustomTrendsCollector
+            self.trends_collector = CustomTrendsCollector()
             self.logger.info("Session初始化成功")
         except Exception as e:
             self.logger.error(f"Session初始化失败: {e}")
@@ -247,6 +247,7 @@ class TrendsCollector:
                         widget_request = widget.get('request')
 
                         if token and widget_request:
+                            time.sleep(2)
                             related_response = self._make_api_request('related_searches',
                                                                       widget_token=token,
                                                                       widget_request=widget_request)

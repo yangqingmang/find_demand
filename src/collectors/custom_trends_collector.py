@@ -1,3 +1,4 @@
+
 """
 自定义Google Trends数据采集器
 替代pytrends库，提供更灵活的控制和更新能力
@@ -40,15 +41,17 @@ class TrendsAPIClient:
     DEFAULT_HEADERS = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': 'application/json, text/plain, */*',
-        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8',
         'Accept-Encoding': 'gzip, deflate, br',
         'Referer': 'https://trends.google.com/',
         'Origin': 'https://trends.google.com',
         'Sec-Fetch-Dest': 'empty',
         'Sec-Fetch-Mode': 'cors',
         'Sec-Fetch-Site': 'same-origin',
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
+        'Connection': 'keep-alive',
+        'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+        'Sec-Ch-Ua-Mobile': '?0',
+        'Sec-Ch-Ua-Platform': '"macOS"'
     }
     
     def __init__(self, hl: str = 'en-US', tz: int = 360, 
@@ -100,7 +103,7 @@ class TrendsAPIClient:
                 self.initialized = False
                 
         except Exception as e:
-            logger.error(f"❌ 会话初始化失败: {e}")
+            logger.warning(f"⚠️ 会话初始化失败，将在首次请求时重试: {e}")
             self.initialized = False
     
     def _get_data(self, url: str, method: str = 'get', trim_chars: int = 0, 
@@ -167,8 +170,13 @@ class TrendsAPIClient:
                     
             except requests.exceptions.RequestException as e:
                 if attempt < self.retries:
-                    wait_time = self.backoff_factor * (2 ** attempt) + random.uniform(1, 3)
-                    logger.warning(f"请求失败，等待{wait_time:.1f}秒后重试: {e}")
+                    # 对于连接中断，增加更长的等待时间
+                    if "Connection aborted" in str(e) or "RemoteDisconnected" in str(e):
+                        wait_time = (self.backoff_factor * (2 ** attempt) + random.uniform(3, 8)) * 2
+                        logger.warning(f"连接中断，等待{wait_time:.1f}秒后重试: {e}")
+                    else:
+                        wait_time = self.backoff_factor * (2 ** attempt) + random.uniform(1, 3)
+                        logger.warning(f"请求失败，等待{wait_time:.1f}秒后重试: {e}")
                     time.sleep(wait_time)
                     continue
                 else:

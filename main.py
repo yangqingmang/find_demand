@@ -672,11 +672,11 @@ def main():
                 print("🔥 未指定参数，使用 Rising Queries 获取热门关键词并进行需求挖掘...")
             
             try:
-                # 导入 TrendsCollector
-                from src.collectors.trends_collector import TrendsCollector
+                # 使用单例获取 TrendsCollector
+                from src.collectors.trends_singleton import get_trends_collector
                 
-                # 创建 TrendsCollector 实例
-                trends_collector = TrendsCollector()
+                # 获取 TrendsCollector 单例实例
+                trends_collector = get_trends_collector()
                 
                 # 使用 fetch_rising_queries 获取热门关键词
                 if not args.quiet:
