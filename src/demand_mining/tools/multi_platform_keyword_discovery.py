@@ -483,14 +483,90 @@ class MultiPlatformKeywordDiscovery:
 
 def main():
     """主函数"""
+    import argparse
+    
+    # 命令行参数解析
+    parser = argparse.ArgumentParser(description="多平台关键词发现工具")
+    parser.add_argument("--input", "-i", help="输入关键词文件路径 (CSV格式，包含keyword列)")
+    parser.add_argument("--keywords", "-k", help="直接指定关键词，用逗号分隔")
+    parser.add_argument("--use-root-words", "-r", action="store_true", help="使用51个词根生成关键词")
+    parser.add_argument("--limit", "-l", type=int, default=10, help="每个来源使用的关键词数量限制")
+    args = parser.parse_args()
+    
     # 初始化发现工具
     discoverer = MultiPlatformKeywordDiscovery()
     
-    # 搜索词汇
-    search_terms = [
-        'AI tool', 'AI generator', 'AI writer', 'AI assistant',
-        'machine learning', 'chatbot', 'automation'
-    ]
+    # 获取初始关键词
+    search_terms = []
+    
+    if args.input:
+        # 从CSV文件读取关键词
+        try:
+            import pandas as pd
+            df_input = pd.read_csv(args.input)
+            if 'keyword' in df_input.columns:
+                search_terms = df_input['keyword'].tolist()
+                print(f"✅ 从文件 {args.input} 读取了 {len(search_terms)} 个关键词")
+            else:
+                print("❌ 输入文件必须包含'keyword'列")
+                return
+        except Exception as e:
+            print(f"❌ 读取输入文件失败: {e}")
+            return
+    
+    elif args.keywords:
+        # 直接使用指定的关键词
+        search_terms = [k.strip() for k in args.keywords.split(',')]
+        print(f"✅ 使用指定的 {len(search_terms)} 个关键词")
+    
+    elif args.use_root_words:
+        # 使用词根相关关键词
+        try:
+            # 尝试从词根趋势数据目录读取
+            root_words_dir = os.path.join(os.path.dirname(__file__), '..', '..', '..', 'data', 'root_word_trends')
+            if os.path.exists(root_words_dir):
+                # 查找最新的词根趋势文件
+                files = [f for f in os.listdir(root_words_dir) if f.endswith('.csv')]
+                if files:
+                    # 按修改时间排序，获取最新文件
+                    latest_file = max(files, key=lambda f: os.path.getmtime(os.path.join(root_words_dir, f)))
+                    file_path = os.path.join(root_words_dir, latest_file)
+                    
+                    # 读取词根趋势数据
+                    import pandas as pd
+                    df_roots = pd.read_csv(file_path)
+                    if 'keyword' in df_roots.columns:
+                        # 获取关键词
+                        search_terms = df_roots['keyword'].head(args.limit).tolist()
+                        print(f"✅ 从词根趋势文件 {latest_file} 读取了 {len(search_terms)} 个关键词")
+                    else:
+                        raise ValueError("词根趋势文件缺少'keyword'列")
+                else:
+                    raise FileNotFoundError("未找到词根趋势CSV文件")
+            else:
+                raise FileNotFoundError(f"词根趋势目录不存在: {root_words_dir}")
+                
+        except Exception as e:
+            print(f"❌ 读取词根趋势数据失败: {e}")
+            # 使用默认关键词作为备选
+            search_terms = [
+                'AI tool', 'AI generator', 'AI writer', 'AI assistant',
+                'machine learning', 'chatbot', 'automation'
+            ]
+            print(f"⚠️ 使用默认关键词: {', '.join(search_terms)}")
+    
+    else:
+        # 使用默认关键词
+        search_terms = [
+            'AI tool', 'AI generator', 'AI writer', 'AI assistant',
+            'machine learning', 'chatbot', 'automation'
+        ]
+        print(f"ℹ️ 使用默认关键词: {', '.join(search_terms)}")
+    
+    # 限制关键词数量
+    if args.limit and len(search_terms) > args.limit:
+        search_terms = search_terms[:args.limit]
+        print(f"ℹ️ 限制使用前 {args.limit} 个关键词")
     
     print("🔍 多平台关键词发现工具")
     print(f"📊 搜索词汇: {', '.join(search_terms)}")
@@ -526,3 +602,9 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
+# 示例用法:
+# 1. 使用默认关键词: python multi_platform_keyword_discovery.py
+# 2. 指定关键词: python multi_platform_keyword_discovery.py --keywords "AI tools,machine learning,data science"
+# 3. 从文件读取: python multi_platform_keyword_discovery.py --input path/to/keywords.csv
+# 4. 使用词根: python multi_platform_keyword_discovery.py --use-root-words --limit 20
