@@ -8,7 +8,7 @@ import json
 import time
 import random
 import threading
-from typing import List, Dict, Optional, Callable, TypeVar, Any
+from typing import List, Dict, Optional, Callable, TypeVar, Any, Union
 import pandas as pd
 import logging
 from functools import wraps
@@ -92,7 +92,7 @@ class TrendsAPIClient:
         self.initialized = False
     
     def _get_data(self, url: str, method: str = 'get', trim_chars: int = 0, 
-                  use_cache: bool = True, **kwargs) -> dict[Any, Any] | None | Any:
+                  use_cache: bool = True, **kwargs) -> Union[dict[Any, Any], None, Any]:
         """发送请求获取数据"""
         # 生成缓存键
         cache_key = None

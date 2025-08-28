@@ -4,12 +4,10 @@
 
 import pandas as pd
 import time
-import requests
 import json
 import urllib.parse
-from .custom_trends_collector import CustomTrendsCollector
 import argparse
-from src.utils import FileUtils, Logger
+from src.utils import Logger
 from src.utils.constants import GOOGLE_TRENDS_CONFIG
 from config.config_manager import get_config
 
@@ -115,7 +113,10 @@ class TrendsCollector:
         
         geo = geo or self.API_CONFIG['default_params']['geo']
         timeframe = timeframe or self.API_CONFIG['default_params']['timeframe']
-        
+
+        url = ''
+        params={}
+
         try:
             if request_type == 'explore':
                 url = self.API_CONFIG['base_urls']['explore']
@@ -177,16 +178,100 @@ class TrendsCollector:
             return None
 
     def fetch_rising_queries(self, keyword=None, geo=None, timeframe=None):
-        """获取Rising Queries - 兼容方法"""
-        if not self.trends_collector:
-            self.logger.error("trends_collector 未初始化")
-            return []
-            
+        """获取Rising Queries"""
+        geo = geo or self.API_CONFIG['default_params']['geo']
+        timeframe = timeframe or self.API_CONFIG['default_params']['timeframe']
+
+        if not keyword or not keyword.strip():
+            return self._fetch_trending_via_api(geo=geo, timeframe=timeframe)
+
+        time.sleep(1)
+
+        for attempt in range(self.retries):
+            try:
+                self.trends_collector.build_payload([keyword], cat=0, timeframe=timeframe, geo=geo)
+                related_queries = self.trends_collector.related_queries()
+
+                if keyword in related_queries and related_queries[keyword]:
+                    rising = related_queries[keyword]['rising']
+                    top = related_queries[keyword]['top']
+
+                    if rising is not None and not rising.empty:
+                        return rising
+                    elif top is not None and not top.empty:
+                        top['growth'] = 0
+                        return top
+
+                return pd.DataFrame(columns=['query', 'value', 'growth'])
+
+            except Exception as e:
+                if attempt < self.retries - 1:
+                    wait_time = self.backoff_factor * (2 ** attempt)
+                    self.logger.warning(f"获取数据出错，等待{wait_time:.1f}秒重试: {e}")
+                    time.sleep(wait_time)
+                else:
+                    self.logger.error(f"多次尝试失败: {e}")
+                    return pd.DataFrame(columns=['query', 'value', 'growth'])
+        return None
+
+    def _fetch_trending_via_api(self, geo=None, timeframe=None):
+        """通过API获取热门关键词"""
+        all_data = []
+
         try:
-            return self.trends_collector.fetch_rising_queries(keyword, geo, timeframe)
+            explore_response = self._make_api_request('explore', keyword="", geo=geo, timeframe=timeframe)
+
+            if explore_response and 'widgets' in explore_response:
+                for widget in explore_response['widgets']:
+                    if widget.get('id') == 'RELATED_QUERIES' and widget.get('type') == 'fe_related_searches':
+                        token = widget.get('token')
+                        widget_request = widget.get('request')
+
+                        if token and widget_request:
+                            related_response = self._make_api_request('related_searches',
+                                                                      widget_token=token,
+                                                                      widget_request=widget_request)
+                            if related_response:
+                                df = self._parse_related_queries(related_response)
+                                if not df.empty:
+                                    df['source'] = 'api'
+                                    all_data.append(df)
         except Exception as e:
-            self.logger.error(f"获取Rising Queries失败: {e}")
-            return []
+            self.logger.error(f"API获取热门关键词出错: {e}")
+
+        if not all_data:
+            return pd.DataFrame(columns=['query', 'value', 'growth'])
+
+        combined_df = pd.concat(all_data, ignore_index=True)
+        if 'query' in combined_df.columns:
+            combined_df = combined_df.drop_duplicates(subset=['query'], keep='first')
+            if 'value' in combined_df.columns:
+                combined_df = combined_df.sort_values('value', ascending=False)
+
+        return combined_df
+
+    def _parse_related_queries(self, data):
+        """解析相关查询数据"""
+        queries = []
+        try:
+            if 'default' in data and 'rankedList' in data['default']:
+                for ranked_list in data['default']['rankedList']:
+                    for item in ranked_list.get('rankedKeyword', []):
+                        query = item.get('query', '')
+                        value = item.get('value', 0)
+                        formatted_value = item.get('formattedValue', '0')
+
+                        growth = formatted_value if '%' in str(formatted_value) else f"{value}%"
+                        queries.append({
+                            'query': query,
+                            'value': value,
+                            'growth': growth
+                        })
+
+            return pd.DataFrame(queries) if queries else pd.DataFrame(columns=['query', 'value', 'growth'])
+        except Exception as e:
+            self.logger.error(f"解析数据出错: {e}")
+            return pd.DataFrame(columns=['query', 'value', 'growth'])
 
     def get_related_queries(self, keyword, geo='', timeframe='today 12-m'):
         """获取相关查询"""
