@@ -39,6 +39,9 @@ def setup_logger(name: str = None, level: str = "INFO") -> logging.Logger:
     if logger.handlers:
         return logger
     
+    # 防止日志传播到父logger，避免重复输出
+    logger.propagate = False
+    
     # 创建控制台处理器
     console_handler = logging.StreamHandler()
     console_handler.setLevel(log_level)

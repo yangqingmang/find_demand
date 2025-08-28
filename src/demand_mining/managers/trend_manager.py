@@ -25,6 +25,7 @@ class TrendManager(BaseManager):
         self._root_manager = None
         print("📈 趋势管理器初始化完成")
     
+    @property
     def trend_analyzer(self):
         """延迟加载趋势分析器 - 使用单例模式避免重复创建"""
         if self._trend_analyzer is None:
