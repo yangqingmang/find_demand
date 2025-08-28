@@ -481,20 +481,91 @@ class MultiPlatformKeywordDiscovery:
         return csv_path, json_path
 
 
+def run_discovery(input_keywords=None, limit=10, output_dir=None, verbose=True):
+    """
+    运行多平台关键词发现
+    
+    参数:
+        input_keywords: 输入关键词列表，如果为None则使用默认关键词
+        limit: 限制使用的关键词数量
+        output_dir: 输出目录，如果为None则使用默认目录
+        verbose: 是否打印详细信息
+    
+    返回:
+        tuple: (关键词DataFrame, 分析结果字典, 输出CSV路径, 输出JSON路径)
+    """
+    # 初始化发现工具
+    discoverer = MultiPlatformKeywordDiscovery()
+    
+    # 获取初始关键词
+    if input_keywords is None or len(input_keywords) == 0:
+        # 使用默认关键词
+        search_terms = [
+            'AI tool', 'AI generator', 'AI writer', 'AI assistant',
+            'machine learning', 'chatbot', 'automation'
+        ]
+        if verbose:
+            print(f"ℹ️ 使用默认关键词: {', '.join(search_terms)}")
+    else:
+        search_terms = input_keywords
+        if verbose:
+            print(f"✅ 使用提供的 {len(search_terms)} 个关键词")
+    
+    # 限制关键词数量
+    if limit and len(search_terms) > limit:
+        search_terms = search_terms[:limit]
+        if verbose:
+            print(f"ℹ️ 限制使用前 {limit} 个关键词")
+    
+    if verbose:
+        print("🔍 多平台关键词发现工具")
+        print(f"📊 搜索词汇: {', '.join(search_terms)}")
+        print("-" * 50)
+    
+    # 发现关键词
+    df = discoverer.discover_all_platforms(search_terms)
+    
+    if not df.empty:
+        # 分析趋势
+        analysis = discoverer.analyze_keyword_trends(df)
+        
+        if verbose:
+            # 显示结果摘要
+            print("\n📈 发现结果摘要:")
+            print(f"总关键词数: {analysis['total_keywords']}")
+            print(f"平台分布: {analysis['platform_distribution']}")
+            print(f"平均关键词长度: {analysis['keyword_length_stats']['avg_length']:.1f} 字符")
+            
+            print("\n🏆 热门关键词 (按评分排序):")
+            for i, kw in enumerate(analysis['top_keywords_by_score'][:5], 1):
+                print(f"  {i}. {kw['keyword']} (评分: {kw['score']}, 来源: {kw['platform']})")
+            
+            print("\n🔤 常见词汇:")
+            for word, count in list(analysis['common_terms'].items())[:10]:
+                print(f"  {word}: {count}次")
+        
+        # 保存结果
+        csv_path, json_path = discoverer.save_results(df, analysis, output_dir=output_dir)
+        
+        return df, analysis, csv_path, json_path
+    else:
+        if verbose:
+            print("❌ 未发现任何关键词，请检查网络连接或调整搜索参数")
+        return pd.DataFrame(), {}, None, None
+
+
 def main():
-    """主函数"""
+    """命令行入口函数"""
     import argparse
     
     # 命令行参数解析
     parser = argparse.ArgumentParser(description="多平台关键词发现工具")
     parser.add_argument("--input", "-i", help="输入关键词文件路径 (CSV格式，包含keyword列)")
     parser.add_argument("--keywords", "-k", help="直接指定关键词，用逗号分隔")
-    parser.add_argument("--use-root-words", "-r", action="store_true", help="使用51个词根生成关键词")
+    parser.add_argument("--use-root-words", "-r", action="store_true", help="使用词根趋势数据")
     parser.add_argument("--limit", "-l", type=int, default=10, help="每个来源使用的关键词数量限制")
+    parser.add_argument("--output-dir", "-o", help="输出目录")
     args = parser.parse_args()
-    
-    # 初始化发现工具
-    discoverer = MultiPlatformKeywordDiscovery()
     
     # 获取初始关键词
     search_terms = []
@@ -555,56 +626,36 @@ def main():
             ]
             print(f"⚠️ 使用默认关键词: {', '.join(search_terms)}")
     
-    else:
-        # 使用默认关键词
-        search_terms = [
-            'AI tool', 'AI generator', 'AI writer', 'AI assistant',
-            'machine learning', 'chatbot', 'automation'
-        ]
-        print(f"ℹ️ 使用默认关键词: {', '.join(search_terms)}")
-    
-    # 限制关键词数量
-    if args.limit and len(search_terms) > args.limit:
-        search_terms = search_terms[:args.limit]
-        print(f"ℹ️ 限制使用前 {args.limit} 个关键词")
-    
-    print("🔍 多平台关键词发现工具")
-    print(f"📊 搜索词汇: {', '.join(search_terms)}")
-    print("-" * 50)
-    
-    # 发现关键词
-    df = discoverer.discover_all_platforms(search_terms)
-    
-    if not df.empty:
-        # 分析趋势
-        analysis = discoverer.analyze_keyword_trends(df)
-        
-        # 显示结果摘要
-        print("\n📈 发现结果摘要:")
-        print(f"总关键词数: {analysis['total_keywords']}")
-        print(f"平台分布: {analysis['platform_distribution']}")
-        print(f"平均关键词长度: {analysis['keyword_length_stats']['avg_length']:.1f} 字符")
-        
-        print("\n🏆 热门关键词 (按评分排序):")
-        for i, kw in enumerate(analysis['top_keywords_by_score'][:5], 1):
-            print(f"  {i}. {kw['keyword']} (评分: {kw['score']}, 来源: {kw['platform']})")
-        
-        print("\n🔤 常见词汇:")
-        for word, count in list(analysis['common_terms'].items())[:10]:
-            print(f"  {word}: {count}次")
-        
-        # 保存结果
-        discoverer.save_results(df, analysis)
-    
-    else:
-        print("❌ 未发现任何关键词，请检查网络连接或调整搜索参数")
+    # 运行发现过程
+    run_discovery(
+        input_keywords=search_terms,
+        limit=args.limit,
+        output_dir=args.output_dir,
+        verbose=True
+    )
 
 
 if __name__ == "__main__":
     main()
     
 # 示例用法:
-# 1. 使用默认关键词: python multi_platform_keyword_discovery.py
-# 2. 指定关键词: python multi_platform_keyword_discovery.py --keywords "AI tools,machine learning,data science"
-# 3. 从文件读取: python multi_platform_keyword_discovery.py --input path/to/keywords.csv
-# 4. 使用词根: python multi_platform_keyword_discovery.py --use-root-words --limit 20
+# 1. 命令行使用:
+#    - 使用默认关键词: python multi_platform_keyword_discovery.py
+#    - 指定关键词: python multi_platform_keyword_discovery.py --keywords "AI tools,machine learning,data science"
+#    - 从文件读取: python multi_platform_keyword_discovery.py --input path/to/keywords.csv
+#    - 使用词根: python multi_platform_keyword_discovery.py --use-root-words --limit 20
+#
+# 2. 作为模块导入:
+#    from demand_mining.tools.multi_platform_keyword_discovery import run_discovery
+#    
+#    # 使用主流程中获取的关键词
+#    keywords = ["ai writing", "machine learning", "data science"]
+#    df, analysis, csv_path, json_path = run_discovery(
+#        input_keywords=keywords,
+#        limit=10,
+#        output_dir="output/multi_platform_keywords",
+#        verbose=True
+#    )
+#    
+#    # 使用结果进行后续处理
+#    top_keywords = df.head(20)
