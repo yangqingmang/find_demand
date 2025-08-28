@@ -27,16 +27,24 @@ class TrendManager(BaseManager):
     
     @property
     def trend_analyzer(self):
-        """延迟加载趋势分析器"""
+        """延迟加载趋势分析器 - 使用单例模式避免重复创建"""
         if self._trend_analyzer is None:
             try:
-                from src.demand_mining.root_word_trends_analyzer import RootWordTrendsAnalyzer
-                self._trend_analyzer = RootWordTrendsAnalyzer(
+                # 使用单例模式获取趋势分析器，避免重复创建实例
+                from src.demand_mining.analyzers.root_word_trends_analyzer_singleton import get_root_word_trends_analyzer
+                self._trend_analyzer = get_root_word_trends_analyzer(
                     output_dir=os.path.join(self.output_dir, 'root_word_trends')
                 )
-            except ImportError as e:
-                print(f"⚠️ 无法导入趋势分析器: {e}")
-                self._trend_analyzer = None
+            except ImportError:
+                try:
+                    # 如果单例不存在，直接导入但不创建新实例
+                    from src.demand_mining.root_word_trends_analyzer import RootWordTrendsAnalyzer
+                    # 不创建新实例，返回None让调用方处理
+                    print("⚠️ 趋势分析器单例不可用，跳过创建新实例避免429错误")
+                    self._trend_analyzer = None
+                except ImportError as e:
+                    print(f"⚠️ 无法导入趋势分析器: {e}")
+                    self._trend_analyzer = None
         return self._trend_analyzer
     
     @property
@@ -90,37 +98,16 @@ class TrendManager(BaseManager):
                 batch_size=batch_size
             )
             
-            # 转换为统一格式
-            unified_result = {
-                'analysis_type': 'root_words_trends',
-                'analysis_time': results['analysis_date'],
-                'total_root_words': results['total_root_words'],
-                'successful_analyses': results['summary']['successful_analyses'],
-                'failed_analyses': results['summary']['failed_analyses'],
-                'top_trending_words': results['summary']['top_trending_words'],
-                'declining_words': results['summary']['declining_words'],
-                'stable_words': results['summary']['stable_words'],
-                'total_keywords': results['total_root_words'],
-                'market_insights': {
-                    'high_opportunity_count': len(results['summary']['top_trending_words']),
-                    'avg_opportunity_score': self._calculate_avg_interest(results['summary']['top_trending_words'])
-                }
-            }
-            
-            # 保存结果
-            if output_dir:
-                output_path = self.save_results(unified_result, output_dir, 'root_trends')
-                unified_result['output_path'] = output_path
-            
-            print(f"✅ 词根趋势分析完成!")
-            print(f"   成功分析: {unified_result['successful_analyses']} 个词根")
-            print(f"   失败分析: {unified_result['failed_analyses']} 个词根")
-            print(f"   上升趋势: {len(unified_result['top_trending_words'])} 个词根")
-            
-            return unified_result
+            # 确保返回正确的结果格式
+            if results is None:
+                return self._create_empty_trend_result()
+                
+            return results
             
         except Exception as e:
-            print(f"❌ 词根趋势分析失败: {e}")
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"词根趋势分析失败: {e}")
             return self._create_empty_trend_result()
     
     def _analyze_keyword_trends(self, keywords: List[str],
@@ -268,14 +255,14 @@ class TrendManager(BaseManager):
         # 生成Markdown报告
         report_content = f"""# 趋势分析报告
 
-## 📊 分析概览
-- **分析时间**: {results.get('analysis_time', '')}
-- **分析类型**: {results.get('analysis_type', '')}
-- **总词根数**: {results.get('total_root_words', 0)}
-- **成功分析**: {results.get('successful_analyses', 0)}
-
-## 📈 上升趋势词根
-"""
+        ## 📊 分析概览
+        - **分析时间**: {results.get('analysis_time', '')}
+        - **分析类型**: {results.get('analysis_type', '')}
+        - **总词根数**: {results.get('total_root_words', 0)}
+        - **成功分析**: {results.get('successful_analyses', 0)}
+        
+        ## 📈 上升趋势词根
+        """
         
         # 添加上升趋势词根
         top_trending = results.get('top_trending_words', [])
@@ -294,21 +281,21 @@ class TrendManager(BaseManager):
         
         # 添加建议
         report_content += f"""
-## 💡 趋势建议
-
-### 重点关注
-- 优先开发上升趋势词根相关的AI工具
-- 关注新兴技术词根的发展机会
-- 建立趋势监控和预警机制
-
-### 市场机会
-- 基于热门词根创建产品原型
-- 结合AI前缀扩展关键词组合
-- 关注竞争度较低的新兴词根
-
----
-*报告生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
-"""
+        ## 💡 趋势建议
+        
+        ### 重点关注
+        - 优先开发上升趋势词根相关的AI工具
+        - 关注新兴技术词根的发展机会
+        - 建立趋势监控和预警机制
+        
+        ### 市场机会
+        - 基于热门词根创建产品原型
+        - 结合AI前缀扩展关键词组合
+        - 关注竞争度较低的新兴词根
+        
+        ---
+        *报告生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
+        """
         
         # 保存报告
         os.makedirs(output_dir, exist_ok=True)

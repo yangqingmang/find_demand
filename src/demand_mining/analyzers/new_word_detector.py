@@ -65,24 +65,17 @@ class NewWordDetector(BaseAnalyzer):
         }
         
         # 初始化趋势收集器 - 使用单例模式避免重复创建会话
-        # 初始化趋势收集器 - 使用单例模式避免重复创建会话
+        self.trends_collector = None
         try:
-            from ..collectors.trends_singleton import get_trends_collector
+            from src.collectors.trends_singleton import get_trends_collector
             self.trends_collector = get_trends_collector()
-            self.logger.info("趋势收集器初始化成功")
         except ImportError:
-            try:
-                from collectors.trends_singleton import get_trends_collector
-                self.trends_collector = get_trends_collector()
-                self.logger.info("趋势收集器初始化成功")
-            except ImportError:
-                try:
-                    from ...collectors.trends_singleton import get_trends_collector
-                    self.trends_collector = get_trends_collector()
-                    self.logger.info("趋势收集器初始化成功")
-                except:
-                    self.trends_collector = None
-                    self.logger.warning("趋势收集器初始化失败")
+            pass
+        
+        if self.trends_collector:
+            self.logger.info("趋势收集器初始化成功")
+        else:
+            self.logger.warning("趋势收集器初始化失败")
         
         # 添加请求缓存避免重复请求
         self._trends_cache = {}

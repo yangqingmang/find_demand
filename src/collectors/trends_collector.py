@@ -50,7 +50,7 @@ class TrendsCollector:
         
         # 使用单例模式获取 trends collector，不再创建独立的session
         try:
-            from .trends_singleton import get_trends_collector
+            from src.collectors.trends_singleton import get_trends_collector
             self.trends_collector = get_trends_collector()
             self.logger.info("Session初始化成功")
         except Exception as e:

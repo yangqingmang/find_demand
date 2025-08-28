@@ -5,7 +5,7 @@ Google Trends包装器
 
 import pandas as pd
 from typing import List, Dict, Optional, Union
-from .trends_singleton import get_trends_collector
+from src.collectors.trends_singleton import get_trends_collector
 import logging
 
 logger = logging.getLogger(__name__)

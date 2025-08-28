@@ -44,7 +44,6 @@ class IntegratedDemandMiningManager:
         self.logger = setup_logger(__name__)
         
         # 初始化各个管理器
-        # 初始化各个管理器
         self.keyword_manager = KeywordManager(config_path)
         self.discovery_manager = DiscoveryManager(config_path)
         self.trend_manager = TrendManager(config_path)
@@ -214,22 +213,38 @@ class IntegratedDemandMiningManager:
     def analyze_root_words(self, output_dir: str = None) -> Dict[str, Any]:
         """分析词根趋势"""
         try:
-            from src.demand_mining.root_word_trends_analyzer import RootWordTrendsAnalyzer
-            
+            # 使用已有的趋势管理器，避免创建新的分析器实例
             analyzer_output_dir = output_dir or f"{get_reports_dir()}/root_word_trends"
-            analyzer = RootWordTrendsAnalyzer(analyzer_output_dir)
             
-            # 执行分析
-            results = analyzer.analyze_all_root_words(timeframe="now 7-d", batch_size=5)
+            # 直接使用趋势管理器进行分析
+            results = self.trend_manager.analyze(
+                'root_trends',
+                timeframe="now 7-d",
+                batch_size=5,
+                output_dir=analyzer_output_dir
+            )
+            
+            # 检查结果是否为空
+            if results is None:
+                results = {
+                    'total_root_words': 0,
+                    'summary': {
+                        'successful_analyses': 0,
+                        'failed_analyses': 0,
+                        'top_trending_words': [],
+                        'declining_words': [],
+                        'stable_words': []
+                    }
+                }
             
             # 转换为兼容格式
             return {
                 'total_root_words': results.get('total_root_words', 0),
-                'successful_analyses': results['summary'].get('successful_analyses', 0),
-                'failed_analyses': results['summary'].get('failed_analyses', 0),
-                'top_trending_words': results['summary'].get('top_trending_words', []),
-                'declining_words': results['summary'].get('declining_words', []),
-                'stable_words': results['summary'].get('stable_words', []),
+                'successful_analyses': results.get('summary', {}).get('successful_analyses', 0),
+                'failed_analyses': results.get('summary', {}).get('failed_analyses', 0),
+                'top_trending_words': results.get('summary', {}).get('top_trending_words', []),
+                'declining_words': results.get('summary', {}).get('declining_words', []),
+                'stable_words': results.get('summary', {}).get('stable_words', []),
                 'output_path': analyzer_output_dir
             }
             
@@ -242,70 +257,6 @@ class IntegratedDemandMiningManager:
                 'top_trending_words': []
             }
     
-    def discover_keywords(self, search_terms: List[str], output_dir: str = None) -> Dict[str, Any]:
-        """多平台关键词发现"""
-        return self.discovery_manager.analyze(search_terms, output_dir)
-    
-    def run_unified_analysis(self, **kwargs) -> Dict[str, Any]:
-        """运行统一分析流程"""
-        analysis_type = kwargs.get('analysis_type', 'keywords')
-        
-        if analysis_type == 'keywords':
-            return self._run_keyword_analysis(**kwargs)
-        elif analysis_type == 'discovery':
-            return self._run_keyword_discovery(**kwargs)
-        elif analysis_type == 'root_trends':
-            return self._run_root_trends_analysis(**kwargs)
-        elif analysis_type == 'competitor':
-            return self._run_competitor_analysis(**kwargs)
-        else:
-            raise ValueError(f"不支持的分析类型: {analysis_type}")
-    
-    def _run_keyword_analysis(self, **kwargs) -> Dict[str, Any]:
-        """运行关键词分析"""
-        input_file = kwargs.get('input_file')
-        keywords = kwargs.get('keywords')
-        output_dir = kwargs.get('output_dir')
-        
-        if input_file:
-            return self.keyword_manager.analyze(input_file, 'file', output_dir)
-        elif keywords:
-            return self.keyword_manager.analyze(keywords, 'keywords', output_dir)
-        else:
-            raise ValueError("请提供输入文件或关键词列表")
-    
-    def _run_keyword_discovery(self, **kwargs) -> Dict[str, Any]:
-        """运行关键词发现"""
-        search_terms = kwargs.get('search_terms', ['AI tool', 'AI generator'])
-        output_dir = kwargs.get('output_dir')
-        
-        return self.discovery_manager.analyze(search_terms, output_dir)
-    
-    def _run_root_trends_analysis(self, **kwargs) -> Dict[str, Any]:
-        """运行词根趋势分析"""
-        output_dir = kwargs.get('output_dir')
-        from src.utils.constants import GOOGLE_TRENDS_CONFIG
-        timeframe = kwargs.get('timeframe', GOOGLE_TRENDS_CONFIG['default_timeframe'].replace('today ', ''))
-        batch_size = kwargs.get('batch_size', 5)
-        
-        return self.trend_manager.analyze(
-            'root_trends',
-            timeframe=timeframe,
-            batch_size=batch_size,
-            output_dir=output_dir
-        )
-    
-    @staticmethod
-    def _run_competitor_analysis(**kwargs) -> Dict[str, Any]:
-        """运行竞品分析"""
-        
-        try:
-            sites = kwargs.get('sites', ['canva.com', 'midjourney.com'])
-            output_dir = kwargs.get('output_dir')
-            
-            return monitor_competitors(sites, output_dir)
-        except Exception as e:
-            return {'error': f'竞品分析失败: {e}'}
     
     def generate_daily_report(self, date: str = None) -> str:
         """生成日报"""
@@ -722,7 +673,6 @@ def main():
             
             
             try:
-                # 使用已有的趋势管理器，避免创建新的收集器实例
                 # 使用已有的趋势管理器，避免创建新的收集器实例
                 trending_words = manager.trend_manager.get_trending_root_words(limit=20)
                 

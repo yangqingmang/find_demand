@@ -7,6 +7,7 @@ import requests
 import json
 import time
 import random
+import threading
 from typing import List, Dict, Optional, Callable, TypeVar, Any
 import pandas as pd
 import logging
@@ -106,57 +107,64 @@ class TrendsAPIClient:
                 logger.debug(f"使用缓存数据: {url}")
                 return self._cache[cache_key]
         
-        s = self.session
-        s.headers.update({'accept-language': self.hl})
-        
-        if self.proxies:
-            s.proxies.update(self.proxies)
-        
-        for attempt in range(self.retries + 1):
-            try:
-                # 添加随机延迟避免429错误
-                if attempt > 0:
-                    delay = random.uniform(2, 5) + (attempt * 2)
-                    time.sleep(delay)
-                
-                response = s.get(url, timeout=self.timeout, **kwargs) if method.lower() == 'get' else s.post(url, timeout=self.timeout, **kwargs)
-                
-                # 特殊处理429错误
-                if response.status_code == 429:
+        # 使用类级别的锁确保同一时间只有一个请求
+        logger.info(f"🔒 尝试获取请求锁: {url}")
+        with CustomTrendsCollector._request_lock:
+            logger.info(f"✅ 已获取请求锁，开始请求: {url}")
+            s = self.session
+            s.headers.update({'accept-language': self.hl})
+            
+            if self.proxies:
+                s.proxies.update(self.proxies)
+            
+            # 在每个请求前添加固定延迟，避免并发请求
+            time.sleep(2.5)
+            
+            for attempt in range(self.retries + 1):
+                try:
+                    # 添加随机延迟避免429错误
+                    if attempt > 0:
+                        delay = random.uniform(5, 10) + (attempt * 3)
+                        time.sleep(delay)
+                    
+                    response = s.get(url, timeout=self.timeout, **kwargs) if method.lower() == 'get' else s.post(url, timeout=self.timeout, **kwargs)
+                    
+                    # 特殊处理429错误
+                    if response.status_code == 429:
+                        if attempt < self.retries:
+                            wait_time = 20 + (attempt * 10) + random.uniform(5, 15)
+                            logger.warning(f"遇到429错误，等待{wait_time:.1f}秒后重试...")
+                            time.sleep(wait_time)
+                            continue
+                        else:
+                            logger.error("多次遇到429错误，请求失败")
+                            return {}
+                    
+                    response.raise_for_status()
+                    
+                    # 处理响应数据
+                    content = response.text[trim_chars:] if trim_chars > 0 else response.text
+                    
+                    # 尝试解析JSON
+                    try:
+                        result = json.loads(content)
+                        # 缓存结果
+                        if cache_key:
+                            self._cache[cache_key] = result
+                        return result
+                    except json.JSONDecodeError:
+                        logger.warning(f"无法解析JSON响应: {content[:100]}...")
+                        return {}
+                        
+                except requests.exceptions.RequestException as e:
                     if attempt < self.retries:
-                        wait_time = 10 + (attempt * 5) + random.uniform(0, 5)
-                        logger.warning(f"遇到429错误，等待{wait_time:.1f}秒后重试...")
+                        wait_time = self.backoff_factor * (2 ** attempt) + random.uniform(1, 3)
+                        logger.warning(f"请求失败，等待{wait_time:.1f}秒后重试: {e}")
                         time.sleep(wait_time)
                         continue
                     else:
-                        logger.error("多次遇到429错误，请求失败")
+                        logger.error(f"请求最终失败: {e}")
                         return {}
-                
-                response.raise_for_status()
-                
-                # 处理响应数据
-                content = response.text[trim_chars:] if trim_chars > 0 else response.text
-                
-                # 尝试解析JSON
-                try:
-                    result = json.loads(content)
-                    # 缓存结果
-                    if cache_key:
-                        self._cache[cache_key] = result
-                    return result
-                except json.JSONDecodeError:
-                    logger.warning(f"无法解析JSON响应: {content[:100]}...")
-                    return {}
-                    
-            except requests.exceptions.RequestException as e:
-                if attempt < self.retries:
-                    wait_time = self.backoff_factor * (2 ** attempt) + random.uniform(1, 3)
-                    logger.warning(f"请求失败，等待{wait_time:.1f}秒后重试: {e}")
-                    time.sleep(wait_time)
-                    continue
-                else:
-                    logger.error(f"请求最终失败: {e}")
-                    return {}
     
     def clear_cache(self) -> None:
         """清除请求缓存"""
@@ -210,9 +218,12 @@ def error_handler(default_return: Any = None) -> Callable:
 class CustomTrendsCollector(TrendsAPIClient):
     """自定义Google Trends数据采集器"""
     
+    # 类级别的请求锁，确保同一时间只有一个请求
+    _request_lock = threading.Lock()
+    
     def __init__(self, hl: str = 'en-US', tz: int = 360, geo: str = '', 
-                 timeout: tuple = (2, 5), proxies: Optional[Dict[str, str]] = None, 
-                 retries: int = 0, backoff_factor: float = 0):
+                 timeout: tuple = (5, 20), proxies: Optional[Dict[str, str]] = None, 
+                 retries: int = 1, backoff_factor: float = 0.5):
         """初始化采集器"""
         super().__init__(hl, tz, timeout, proxies, retries, backoff_factor)
         
@@ -645,3 +656,46 @@ class CustomTrendsCollector(TrendsAPIClient):
         # 构建payload并获取数据
         self.build_payload(keywords, timeframe=timeframe, geo=geo)
         return self.interest_over_time()
+    
+    @error_handler(dict)
+    def get_keyword_trends(self, keyword, timeframe='today 12-m', geo=''):
+        """获取关键词趋势数据 - 为root_word_trends_analyzer提供的接口
+
+        Args:
+            keyword: 关键词（字符串或列表）
+            timeframe: 时间范围
+            geo: 地理位置
+
+        Returns:
+            包含趋势数据和相关查询的字典
+        """
+        try:
+            # 确保keyword是列表格式
+            if isinstance(keyword, str):
+                keywords = [keyword]
+            else:
+                keywords = keyword
+
+            # 构建payload
+            self.build_payload(keywords, timeframe=timeframe, geo=geo)
+
+            # 获取趋势数据
+            interest_data = self.interest_over_time()
+
+            # 获取相关查询
+            related_queries = self.related_queries()
+
+            # 构建返回数据
+            result = {
+                'interest_over_time': interest_data,
+                'related_queries': related_queries,
+                'keyword': keywords[0] if len(keywords) == 1 else keywords,
+                'timeframe': timeframe,
+                'geo': geo
+            }
+
+            return result
+
+        except Exception as e:
+            logger.error(f"获取关键词趋势失败: {e}")
+            return {}

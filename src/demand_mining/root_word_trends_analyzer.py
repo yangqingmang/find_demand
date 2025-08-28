@@ -9,13 +9,9 @@ import pandas as pd
 from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
 import time
-import logging
-from pathlib import Path
 
-from ..collectors.trends_collector import TrendsCollector
 from ..utils.logger import setup_logger
 from ..utils.file_utils import ensure_directory_exists
-from .analyzers.new_word_detector import NewWordDetector
 
 class RootWordTrendsAnalyzer:
     """词根趋势分析器"""
@@ -24,18 +20,28 @@ class RootWordTrendsAnalyzer:
         self.output_dir = output_dir
         ensure_directory_exists(self.output_dir)
         self.logger = setup_logger(__name__)
-        from ..collectors.trends_singleton import get_trends_collector
-        self.trends_collector = get_trends_collector()
         
-        # 初始化新词检测器
+        # 添加调试日志追踪实例创建
+        import threading
+        thread_id = threading.current_thread().ident
+        self.logger.info(f"🔧 RootWordTrendsAnalyzer实例创建 - 线程ID: {thread_id}")
+        
+        # 使用绝对导入路径确保单例一致性
+        from src.collectors.trends_singleton import get_trends_collector
+        self.logger.info(f"📞 调用get_trends_collector() - 线程ID: {thread_id}")
+        self.trends_collector = get_trends_collector()
+        self.logger.info(f"✅ trends_collector获取完成 - 线程ID: {thread_id}")
+        
+        # 初始化新词检测器 - 使用单例模式
         try:
-            self.new_word_detector = NewWordDetector()
+            from .analyzers.new_word_detector_singleton import get_new_word_detector
+            self.new_word_detector = get_new_word_detector()
             self.new_word_detection_available = True
-            self.logger.info("新词检测器初始化成功")
+            self.logger.info("新词检测器单例初始化成功")
         except Exception as e:
             self.new_word_detector = None
             self.new_word_detection_available = False
-            self.logger.warning(f"新词检测器初始化失败: {e}")
+            self.logger.warning(f"新词检测器单例初始化失败: {e}")
         
         # 51个词根列表
         self.root_words = [
@@ -78,8 +84,8 @@ class RootWordTrendsAnalyzer:
             # 处理趋势数据
             processed_data = self._process_trend_data(root_word, trend_data)
             
-            # 添加延迟避免API限制 - 优化后的间隔时间
-            time.sleep(1)
+            # 添加延迟避免API限制 - 增加间隔时间避免429错误
+            time.sleep(3)
             
             return {
                 "root_word": root_word,
@@ -257,49 +263,6 @@ class RootWordTrendsAnalyzer:
             "detection_reasons": "检测失败"
         }
     
-    def analyze_all_root_words(self, timeframe: str = None, batch_size: int = 5) -> Dict[str, Any]:
-        """
-        分析所有词根的趋势
-        
-        参数:
-            timeframe: 时间范围，默认使用统一配置中的值
-            batch_size: 批处理大小，默认5个词根一批
-            
-        返回:
-            完整的分析结果
-        """
-        if timeframe is None:
-            from src.utils.constants import GOOGLE_TRENDS_CONFIG
-            timeframe = GOOGLE_TRENDS_CONFIG['default_timeframe'].replace('today ', '')
-        self.logger.info(f"开始分析 {len(self.root_words)} 个词根的趋势")
-        
-        results = {
-            "analysis_date": datetime.now().isoformat(),
-            "timeframe": timeframe,
-            "total_root_words": len(self.root_words),
-            "results": [],
-            "summary": {}
-        }
-        
-        # 分批处理词根
-        for i in range(0, len(self.root_words), batch_size):
-            batch = self.root_words[i:i + batch_size]
-            self.logger.info(f"处理批次 {i//batch_size + 1}: {batch}")
-            
-            for root_word in batch:
-                result = self.analyze_single_root_word(root_word, timeframe)
-                results["results"].append(result)
-                
-                # 批次间延迟
-                time.sleep(5)
-        
-        # 生成摘要
-        results["summary"] = self._generate_summary(results["results"])
-        
-        # 保存结果
-        self._save_results(results)
-        
-        return results
     
     def _generate_summary(self, results: List[Dict]) -> Dict[str, Any]:
         """生成分析摘要"""
@@ -453,24 +416,3 @@ class RootWordTrendsAnalyzer:
             self.logger.error(f"获取 {root_word} 相关关键词时出错: {str(e)}")
             return []
 
-def main():
-    """主函数 - 运行词根趋势分析"""
-    analyzer = RootWordTrendsAnalyzer()
-    
-    print("开始分析51个词根的趋势...")
-    results = analyzer.analyze_all_root_words(timeframe="now 7-d")
-    
-    print(f"\n分析完成!")
-    print(f"成功分析: {results['summary']['successful_analyses']} 个词根")
-    print(f"失败分析: {results['summary']['failed_analyses']} 个词根")
-    
-    print(f"\n上升趋势词根 ({len(results['summary']['top_trending_words'])}):")
-    for word_data in results['summary']['top_trending_words'][:10]:
-        print(f"  - {word_data['word']}: 平均兴趣度 {word_data['average_interest']:.1f}")
-    
-    print(f"\n下降趋势词根 ({len(results['summary']['declining_words'])}):")
-    for word_data in results['summary']['declining_words'][:5]:
-        print(f"  - {word_data['word']}: 平均兴趣度 {word_data['average_interest']:.1f}")
-
-if __name__ == "__main__":
-    main()

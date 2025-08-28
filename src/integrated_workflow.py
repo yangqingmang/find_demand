@@ -216,7 +216,9 @@ class IntegratedWorkflow:
             df = pd.read_csv(keywords_file)
             
             # 执行新词检测
-            new_word_detector = NewWordDetector()
+        try:
+            from src.demand_mining.analyzers.new_word_detector_singleton import get_new_word_detector
+            new_word_detector = get_new_word_detector()
             new_word_results = new_word_detector.detect_new_words(df)
             
             # 将新词检测结果合并到需求挖掘结果中

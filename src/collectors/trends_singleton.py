@@ -22,11 +22,18 @@ def get_trends_collector() -> CustomTrendsCollector:
     """
     global _trends_collector_instance
     
+    import logging
+    logger = logging.getLogger(__name__)
+    
     if _trends_collector_instance is None:
         with _lock:
             # 双重检查锁定模式
             if _trends_collector_instance is None:
                 _trends_collector_instance = CustomTrendsCollector()
+            else:
+                logger.info("🔄 使用已存在的CustomTrendsCollector实例（双重检查）")
+    else:
+        logger.info("♻️ 复用现有的CustomTrendsCollector实例")
     
     return _trends_collector_instance
 

@@ -65,11 +65,14 @@ class TimelinessAnalyzer(BaseAnalyzer):
             self.seasonal_weight /= total_weight
         
         # 初始化趋势收集器
+        self.trends_collector = None
         try:
-            from ...collectors.trends_singleton import get_trends_collector
+            from src.collectors.trends_singleton import get_trends_collector
             self.trends_collector = get_trends_collector()
         except:
-            self.trends_collector = None
+            pass
+        
+        if not self.trends_collector:
             self.logger.warning("趋势收集器初始化失败")
         
         # 时效性等级定义
