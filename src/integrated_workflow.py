@@ -16,11 +16,10 @@ from typing import Dict, List, Any, Optional
 # 添加项目根目录到路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.demand_mining.demand_mining_main import DemandMiningManager
-from src.demand_mining.demand_mining_main import DemandMiningManager
-from src.demand_mining.demand_mining_main import DemandMiningManager
+from src.demand_mining.managers.keyword_manager import KeywordManager
 from src.website_builder.builder_core import IntentBasedWebsiteBuilder
 from src.demand_mining.analyzers.new_word_detector import NewWordDetector
+from src.demand_mining.managers.discovery_manager import DiscoveryManager
 
 
 class IntegratedWorkflow:
@@ -36,10 +35,11 @@ class IntegratedWorkflow:
         self._ensure_output_dirs()
         
         # 初始化各模块
-        self.demand_miner = DemandMiningManager()
+        self.demand_miner = KeywordManager()
+        self.discovery_manager = DiscoveryManager()
         
         print("🚀 集成工作流初始化完成")
-        print("📊 支持功能：需求挖掘 → 意图分析 → 网站生成 → 自动部署")
+        print("📊 支持功能：需求挖掘 → 多平台关键词发现 → 意图分析 → 网站生成 → 自动部署")
     
     def _get_default_config(self) -> Dict[str, Any]:
         """获取默认配置"""
@@ -57,6 +57,7 @@ class IntegratedWorkflow:
         dirs = [
             self.output_base_dir,
             os.path.join(self.output_base_dir, 'demand_analysis'),
+            os.path.join(self.output_base_dir, 'multi_platform_keywords'),
             os.path.join(self.output_base_dir, 'intent_analysis'),
             os.path.join(self.output_base_dir, 'websites'),
             os.path.join(self.output_base_dir, 'reports')
@@ -93,8 +94,29 @@ class IntegratedWorkflow:
             workflow_results['steps_completed'].append('demand_mining')
             workflow_results['demand_analysis'] = demand_results
             
-            # 步骤2: 筛选高价值关键词
-            print("\n🎯 步骤2: 筛选高价值关键词...")
+            # 步骤2: 多平台关键词发现
+            print("\n🔍 步骤2: 执行多平台关键词发现...")
+            # 从需求挖掘结果中提取关键词
+            initial_keywords = [kw['keyword'] for kw in demand_results.get('keywords', [])[:10]]
+            if not initial_keywords and 'keywords' in demand_results:
+                # 尝试其他可能的键名
+                for key in ['query', 'term']:
+                    if key in demand_results['keywords'][0]:
+                        initial_keywords = [kw[key] for kw in demand_results.get('keywords', [])[:10]]
+                        break
+            
+            # 如果仍然没有关键词，使用默认关键词
+            if not initial_keywords:
+                initial_keywords = ['AI tool', 'AI generator', 'AI writer']
+                print("⚠️ 未从需求挖掘结果中找到关键词，使用默认关键词")
+            
+            # 执行多平台关键词发现
+            discovery_results = self._run_multi_platform_discovery(initial_keywords)
+            workflow_results['steps_completed'].append('multi_platform_discovery')
+            workflow_results['multi_platform_discovery'] = discovery_results
+            
+            # 步骤3: 筛选高价值关键词
+            print("\n🎯 步骤3: 筛选高价值关键词...")
             high_value_keywords = self._filter_high_value_keywords(demand_results)
             workflow_results['steps_completed'].append('keyword_filtering')
             workflow_results['high_value_keywords'] = high_value_keywords
@@ -136,7 +158,48 @@ class IntegratedWorkflow:
             print(f"❌ 工作流执行失败: {e}")
             return workflow_results
     
-    def _run_demand_mining(self, keywords_file: str) -> Dict[str, Any]:
+    def _run_multi_platform_discovery(self, initial_keywords: List[str]) -> Dict[str, Any]:
+        """执行多平台关键词发现"""
+        output_dir = os.path.join(self.output_base_dir, 'multi_platform_keywords')
+        
+        try:
+            print(f"🔍 开始多平台关键词发现，基于 {len(initial_keywords)} 个初始关键词...")
+            print(f"📊 初始关键词: {', '.join(initial_keywords[:5])}{'...' if len(initial_keywords) > 5 else ''}")
+            
+            # 使用发现管理器执行多平台关键词发现
+            discovery_results = self.discovery_manager.analyze(
+                search_terms=initial_keywords,
+                output_dir=output_dir
+            )
+            
+            # 如果发现了关键词，显示摘要
+            if discovery_results and 'total_keywords' in discovery_results and discovery_results['total_keywords'] > 0:
+                print(f"✅ 多平台关键词发现完成，发现 {discovery_results['total_keywords']} 个关键词")
+                
+                # 显示平台分布
+                if 'platform_distribution' in discovery_results:
+                    platforms = discovery_results['platform_distribution']
+                    print(f"📊 平台分布: {', '.join([f'{p}({c})' for p, c in platforms.items()])}")
+                
+                # 显示热门关键词
+                if 'top_keywords_by_score' in discovery_results and discovery_results['top_keywords_by_score']:
+                    print("🏆 热门关键词:")
+                    for i, kw in enumerate(discovery_results['top_keywords_by_score'][:5], 1):
+                        print(f"  {i}. {kw['keyword']} (评分: {kw['score']}, 来源: {kw['platform']})")
+            else:
+                print("⚠️ 未发现任何关键词")
+            
+            return discovery_results
+            
+        except Exception as e:
+            print(f"❌ 多平台关键词发现失败: {e}")
+            return {
+                'error': str(e),
+                'total_keywords': 0,
+                'platform_distribution': {},
+                'top_keywords_by_score': []
+            }
+    
     def _run_demand_mining(self, keywords_file: str) -> Dict[str, Any]:
         """执行需求挖掘分析（包含新词检测）"""
         output_dir = os.path.join(self.output_base_dir, 'demand_analysis')
@@ -461,6 +524,7 @@ class IntegratedWorkflow:
         
         # 统计数据
         total_keywords = len(workflow_results.get('demand_analysis', {}).get('keywords', []))
+        discovered_keywords = workflow_results.get('multi_platform_discovery', {}).get('total_keywords', 0)
         high_value_count = len(workflow_results.get('high_value_keywords', []))
         successful_websites = len([w for w in workflow_results.get('generated_projects', []) if w.get('status') == 'success'])
         successful_deployments = len([d for d in workflow_results.get('deployment_results', []) if d.get('status') == 'success'])
@@ -475,12 +539,41 @@ class IntegratedWorkflow:
 
 ## 📈 数据统计
 - **总关键词数**: {total_keywords}
+- **多平台发现关键词**: {discovered_keywords}
 - **高价值关键词**: {high_value_count}
 - **成功生成网站**: {successful_websites}
 - **成功部署网站**: {successful_deployments}
 
-## 🎯 高价值关键词列表
+## 🔍 多平台关键词发现
 """
+        
+        # 添加多平台关键词发现结果
+        discovery_results = workflow_results.get('multi_platform_discovery', {})
+        if discovery_results and 'total_keywords' in discovery_results and discovery_results['total_keywords'] > 0:
+            # 平台分布
+            if 'platform_distribution' in discovery_results:
+                report_content += "### 平台分布\n"
+                for platform, count in discovery_results['platform_distribution'].items():
+                    report_content += f"- **{platform}**: {count} 个关键词\n"
+                report_content += "\n"
+            
+            # 热门关键词
+            if 'top_keywords_by_score' in discovery_results and discovery_results['top_keywords_by_score']:
+                report_content += "### 热门关键词\n"
+                for i, kw in enumerate(discovery_results['top_keywords_by_score'][:10], 1):
+                    report_content += f"{i}. **{kw['keyword']}** (评分: {kw['score']}, 来源: {kw['platform']})\n"
+                report_content += "\n"
+            
+            # 常见词汇
+            if 'common_terms' in discovery_results and discovery_results['common_terms']:
+                report_content += "### 常见词汇\n"
+                for word, count in list(discovery_results['common_terms'].items())[:10]:
+                    report_content += f"- **{word}**: {count}次\n"
+                report_content += "\n"
+        else:
+            report_content += "未发现多平台关键词或发现过程失败。\n\n"
+        
+        report_content += "## 🎯 高价值关键词列表\n"
         
         # 添加高价值关键词详情
         for kw in workflow_results.get('high_value_keywords', [])[:10]:  # 只显示前10个
@@ -579,6 +672,7 @@ def main():
         
         if results['status'] == 'success':
             print(f"\n🎉 集成工作流执行成功！")
+            print(f"🔍 多平台发现了 {results.get('multi_platform_discovery', {}).get('total_keywords', 0)} 个关键词")
             print(f"📋 详细报告: {results.get('report_path', '')}")
             return 0
         else:
