@@ -17,7 +17,7 @@ class BaseManager(ABC):
     def __init__(self, config_path: str = None):
         """初始化基础管理器"""
         self.config = self._load_config(config_path)
-        self.output_dir = "output/reports"
+        self.output_dir = self.config.get('output_settings', {}).get('reports_dir', 'output/reports')
         self._ensure_output_dirs()
     
     def _load_config(self, config_path: str) -> Dict[str, Any]:
@@ -28,9 +28,20 @@ class BaseManager(ABC):
             'min_confidence': 0.7,
             'output_formats': ['csv', 'json'],
             'data_sources': ['google_trends', 'keyword_planner'],
-            'analysis_depth': 'standard'
+            'analysis_depth': 'standard',
+            'output_settings': {
+                'reports_dir': 'output/reports'
+            }
         }
         
+        # 优先加载 integrated_workflow_config.json
+        integrated_config_path = os.path.join(os.path.dirname(__file__), '../../../config/integrated_workflow_config.json')
+        if os.path.exists(integrated_config_path):
+            with open(integrated_config_path, 'r', encoding='utf-8') as f:
+                integrated_config = json.load(f)
+                default_config.update(integrated_config)
+        
+        # 如果指定了其他配置文件，则覆盖
         if config_path and os.path.exists(config_path):
             with open(config_path, 'r', encoding='utf-8') as f:
                 user_config = json.load(f)

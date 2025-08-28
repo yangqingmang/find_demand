@@ -8,8 +8,21 @@
 import argparse
 import sys
 import os
+import json
 from datetime import datetime
 from typing import Dict, List, Any
+
+def get_reports_dir() -> str:
+    """从配置文件获取报告输出目录"""
+    try:
+        config_path = os.path.join(os.path.dirname(__file__), 'config/integrated_workflow_config.json')
+        if os.path.exists(config_path):
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+                return config.get('output_settings', {}).get('reports_dir', 'output/reports')
+    except:
+        pass
+    return 'output/reports'
 from src.demand_mining.tools.multi_platform_keyword_discovery import MultiPlatformKeywordDiscovery
 from src.utils.enhanced_features import (
         monitor_competitors, predict_keyword_trends, generate_seo_audit,
@@ -203,7 +216,7 @@ class IntegratedDemandMiningManager:
         try:
             from src.demand_mining.root_word_trends_analyzer import RootWordTrendsAnalyzer
             
-            analyzer_output_dir = output_dir or "src/demand_mining/reports/root_word_trends"
+            analyzer_output_dir = output_dir or f"{get_reports_dir()}/root_word_trends"
             analyzer = RootWordTrendsAnalyzer(analyzer_output_dir)
             
             # 执行分析
@@ -297,7 +310,7 @@ class IntegratedDemandMiningManager:
     def generate_daily_report(self, date: str = None) -> str:
         """生成日报"""
         report_date = date or datetime.now().strftime("%Y-%m-%d")
-        report_path = f"src/demand_mining/reports/daily_report_{report_date}.txt"
+        report_path = f"{get_reports_dir()}/daily_report_{report_date}.txt"
         
         try:
             with open(report_path, 'w', encoding='utf-8') as f:
@@ -427,7 +440,7 @@ def main():
     enhanced_group.add_argument('--top-keywords', type=int, default=10, help='使用前N个关键词')
 
     # 其他参数
-    parser.add_argument('--output', default='src/demand_mining/reports', help='输出目录')
+    parser.add_argument('--output', default=get_reports_dir(), help='输出目录')
     parser.add_argument('--config', help='配置文件路径')
     parser.add_argument('--quiet', '-q', action='store_true', help='静默模式，只显示最终结果')
     parser.add_argument('--verbose', '-v', action='store_true', help='详细模式，显示所有中间过程')
