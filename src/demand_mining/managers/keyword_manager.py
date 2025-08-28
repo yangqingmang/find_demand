@@ -177,7 +177,6 @@ class KeywordManager(BaseManager):
             df = pd.DataFrame({'query': [keyword]})
             
             # 使用意图分析器进行完整分析
-            result_df = self.intent_analyzer.analyze_keywords(df)
             result = self.intent_analyzer.analyze_keywords(df)
             
             # 处理意图分析结果
