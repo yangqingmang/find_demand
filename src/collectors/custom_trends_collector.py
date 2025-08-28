@@ -83,13 +83,25 @@ class TrendsAPIClient:
         self._cache: Dict[str, Any] = {}
     
     def _init_session(self) -> None:
-        """初始化会话，获取必要的cookies
-        
-        延迟初始化策略：跳过预初始化，在首次请求时自动获取cookies
-        """
-        # 延迟初始化，避免不必要的网络请求
-        logger.debug("会话将在首次请求时自动初始化")
-        self.initialized = False
+        """初始化会话，获取必要的cookies"""
+        try:
+            # 访问Google Trends主页获取必要的cookies
+            logger.info("🔧 正在初始化Google Trends会话...")
+            
+            # 先访问主页获取cookies
+            main_page_url = 'https://trends.google.com/'
+            response = self.session.get(main_page_url, timeout=self.timeout)
+            
+            if response.status_code == 200:
+                self.initialized = True
+                logger.info("✅ Google Trends会话初始化成功")
+            else:
+                logger.warning(f"⚠️ 主页访问失败，状态码: {response.status_code}")
+                self.initialized = False
+                
+        except Exception as e:
+            logger.error(f"❌ 会话初始化失败: {e}")
+            self.initialized = False
     
     def _get_data(self, url: str, method: str = 'get', trim_chars: int = 0, 
                   use_cache: bool = True, **kwargs) -> Union[dict[Any, Any], None, Any]:

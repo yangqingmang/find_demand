@@ -150,6 +150,25 @@ class TrendsCollector:
             
             # 使用trends_collector的session进行请求
             if self.trends_collector and hasattr(self.trends_collector, 'session'):
+                # 确保session已正确初始化
+                if not getattr(self.trends_collector, 'initialized', False):
+                    self.logger.info("🔧 Session未初始化，正在初始化...")
+                    try:
+                        # 访问主页获取必要的cookies
+                        main_page_response = self.trends_collector.session.get(
+                            'https://trends.google.com/', 
+                            headers=self.API_CONFIG['headers'], 
+                            timeout=self.timeout
+                        )
+                        if main_page_response.status_code == 200:
+                            self.trends_collector.initialized = True
+                            self.logger.info("✅ Session初始化成功")
+                        else:
+                            self.logger.warning(f"⚠️ 主页访问失败: {main_page_response.status_code}")
+                    except Exception as session_error:
+                        self.logger.error(f"Session初始化失败: {session_error}")
+                
+                time.sleep(2)
                 response = self.trends_collector.session.get(full_url, headers=self.API_CONFIG['headers'], timeout=self.timeout)
             else:
                 self.logger.error("trends_collector未初始化或没有session")

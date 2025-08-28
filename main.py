@@ -686,7 +686,17 @@ def main():
                 
                 # 将 rising queries 转换为DataFrame格式
                 import pandas as pd
-                if rising_queries and len(rising_queries) > 0:
+                # 处理不同类型的 rising_queries 返回值
+                if isinstance(rising_queries, pd.DataFrame):
+                    # 如果已经是DataFrame，直接使用
+                    trending_df = rising_queries.head(20)  # 限制前20个
+                    # 确保有query列
+                    if 'query' not in trending_df.columns:
+                        if 'title' in trending_df.columns:
+                            trending_df = trending_df.rename(columns={'title': 'query'})
+                        elif len(trending_df.columns) > 0:
+                            trending_df = trending_df.rename(columns={trending_df.columns[0]: 'query'})
+                elif rising_queries and len(rising_queries) > 0:
                     # 如果返回的是字符串列表
                     if isinstance(rising_queries[0], str):
                         trending_df = pd.DataFrame([
@@ -711,7 +721,7 @@ def main():
                 else:
                     trending_df = pd.DataFrame(columns=['query'])
 
-                if not trending_df.empty:
+                if trending_df is not None and not trending_df.empty:
                     # 保存热门关键词到临时文件
                     import tempfile
                     from datetime import datetime
