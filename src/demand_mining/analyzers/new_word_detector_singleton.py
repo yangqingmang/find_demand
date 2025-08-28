@@ -6,12 +6,10 @@
 避免创建多个NewWordDetector实例导致的并发请求问题
 """
 
-import threading
 from typing import Optional
 
 # 全局变量存储单例实例
 _new_word_detector_instance: Optional['NewWordDetector'] = None
-_lock = threading.Lock()
 
 def get_new_word_detector():
     """
@@ -23,11 +21,9 @@ def get_new_word_detector():
     global _new_word_detector_instance
     
     if _new_word_detector_instance is None:
-        with _lock:
-            # 双重检查锁定模式
-            if _new_word_detector_instance is None:
-                from .new_word_detector import NewWordDetector
-                _new_word_detector_instance = NewWordDetector()
+        # 简单单例模式，无锁
+        from .new_word_detector import NewWordDetector
+        _new_word_detector_instance = NewWordDetector()
     
     return _new_word_detector_instance
 
@@ -37,9 +33,8 @@ def reset_new_word_detector():
     """
     global _new_word_detector_instance
     
-    with _lock:
-        if _new_word_detector_instance is not None:
-            # 如果有清理方法，在这里调用
-            if hasattr(_new_word_detector_instance, 'close'):
-                _new_word_detector_instance.close()
-        _new_word_detector_instance = None
+    if _new_word_detector_instance is not None:
+        # 如果有清理方法，在这里调用
+        if hasattr(_new_word_detector_instance, 'close'):
+            _new_word_detector_instance.close()
+    _new_word_detector_instance = None

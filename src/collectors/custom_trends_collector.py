@@ -119,64 +119,61 @@ class TrendsAPIClient:
                 logger.debug(f"使用缓存数据: {url}")
                 return self._cache[cache_key]
         
-        # 使用类级别的锁确保同一时间只有一个请求
-        logger.info(f"🔒 尝试获取请求锁: {url}")
-        with CustomTrendsCollector._request_lock:
-            logger.info(f"✅ 已获取请求锁，开始请求: {url}")
-            s = self.session
-            s.headers.update({'accept-language': self.hl})
-            
-            if self.proxies:
-                s.proxies.update(self.proxies)
-            
-            # 在每个请求前添加固定延迟，避免并发请求
-            time.sleep(1)
-            
-            for attempt in range(self.retries + 1):
-                try:
-                    # 添加随机延迟避免429错误
-                    if attempt > 0:
-                        delay = random.uniform(5, 10) + (attempt * 3)
-                        time.sleep(delay)
-                    
-                    response = s.get(url, timeout=self.timeout, **kwargs) if method.lower() == 'get' else s.post(url, timeout=self.timeout, **kwargs)
-                    
-                    # 特殊处理429错误
-                    if response.status_code == 429:
-                        if attempt < self.retries:
-                            wait_time = 20 + (attempt * 10) + random.uniform(5, 15)
-                            logger.warning(f"遇到429错误，等待{wait_time:.1f}秒后重试...")
-                            time.sleep(wait_time)
-                            continue
-                        else:
-                            logger.error("多次遇到429错误，请求失败")
-                            return {}
-                    
-                    response.raise_for_status()
-                    
-                    # 处理响应数据
-                    content = response.text[trim_chars:] if trim_chars > 0 else response.text
-                    
-                    # 尝试解析JSON
-                    try:
-                        result = json.loads(content)
-                        # 缓存结果
-                        if cache_key:
-                            self._cache[cache_key] = result
-                        return result
-                    except json.JSONDecodeError:
-                        logger.warning(f"无法解析JSON响应: {content[:100]}...")
-                        return {}
-                        
-                except requests.exceptions.RequestException as e:
+        # 直接发送请求，无锁
+        s = self.session
+        s.headers.update({'accept-language': self.hl})
+        
+        if self.proxies:
+            s.proxies.update(self.proxies)
+        
+        # 在每个请求前添加固定延迟，避免并发请求
+        time.sleep(1)
+        
+        for attempt in range(self.retries + 1):
+            try:
+                # 添加随机延迟避免429错误
+                if attempt > 0:
+                    delay = random.uniform(5, 10) + (attempt * 3)
+                    time.sleep(delay)
+                
+                response = s.get(url, timeout=self.timeout, **kwargs) if method.lower() == 'get' else s.post(url, timeout=self.timeout, **kwargs)
+                
+                # 特殊处理429错误
+                if response.status_code == 429:
                     if attempt < self.retries:
-                        wait_time = self.backoff_factor * (2 ** attempt) + random.uniform(1, 3)
-                        logger.warning(f"请求失败，等待{wait_time:.1f}秒后重试: {e}")
+                        wait_time = 20 + (attempt * 10) + random.uniform(5, 15)
+                        logger.warning(f"遇到429错误，等待{wait_time:.1f}秒后重试...")
                         time.sleep(wait_time)
                         continue
                     else:
-                        logger.error(f"请求最终失败: {e}")
+                        logger.error("多次遇到429错误，请求失败")
                         return {}
+                
+                response.raise_for_status()
+                
+                # 处理响应数据
+                content = response.text[trim_chars:] if trim_chars > 0 else response.text
+                
+                # 尝试解析JSON
+                try:
+                    result = json.loads(content)
+                    # 缓存结果
+                    if cache_key:
+                        self._cache[cache_key] = result
+                    return result
+                except json.JSONDecodeError:
+                    logger.warning(f"无法解析JSON响应: {content[:100]}...")
+                    return {}
+                    
+            except requests.exceptions.RequestException as e:
+                if attempt < self.retries:
+                    wait_time = self.backoff_factor * (2 ** attempt) + random.uniform(1, 3)
+                    logger.warning(f"请求失败，等待{wait_time:.1f}秒后重试: {e}")
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    logger.error(f"请求最终失败: {e}")
+                    return {}
     
     def clear_cache(self) -> None:
         """清除请求缓存"""
@@ -229,9 +226,6 @@ def error_handler(default_return: Any = None) -> Callable:
 
 class CustomTrendsCollector(TrendsAPIClient):
     """自定义Google Trends数据采集器"""
-    
-    # 类级别的请求锁，确保同一时间只有一个请求
-    _request_lock = threading.Lock()
     
     def __init__(self, hl: str = 'en-US', tz: int = 360, geo: str = '', 
                  timeout: tuple = (5, 20), proxies: Optional[Dict[str, str]] = None, 

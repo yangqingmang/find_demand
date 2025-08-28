@@ -21,27 +21,25 @@ class RootWordTrendsAnalyzer:
         ensure_directory_exists(self.output_dir)
         self.logger = setup_logger(__name__)
         
-        # 添加调试日志追踪实例创建
-        import threading
-        thread_id = threading.current_thread().ident
-        self.logger.info(f"🔧 RootWordTrendsAnalyzer实例创建 - 线程ID: {thread_id}")
+        # 使用单例模式（已移除锁逻辑）
+        try:
+            from src.collectors.trends_singleton import get_trends_collector
+            self.trends_collector = get_trends_collector()
+            self.logger.info("TrendsCollector单例获取成功")
+        except Exception as e:
+            self.logger.error(f"TrendsCollector单例获取失败: {e}")
+            self.trends_collector = None
         
-        # 使用绝对导入路径确保单例一致性
-        from src.collectors.trends_singleton import get_trends_collector
-        self.logger.info(f"📞 调用get_trends_collector() - 线程ID: {thread_id}")
-        self.trends_collector = get_trends_collector()
-        self.logger.info(f"✅ trends_collector获取完成 - 线程ID: {thread_id}")
-        
-        # 初始化新词检测器 - 使用单例模式
+        # 使用新词检测器单例（已移除锁逻辑）
         try:
             from .analyzers.new_word_detector_singleton import get_new_word_detector
             self.new_word_detector = get_new_word_detector()
             self.new_word_detection_available = True
-            self.logger.info("新词检测器单例初始化成功")
+            self.logger.info("NewWordDetector单例获取成功")
         except Exception as e:
             self.new_word_detector = None
             self.new_word_detection_available = False
-            self.logger.warning(f"新词检测器单例初始化失败: {e}")
+            self.logger.warning(f"NewWordDetector单例获取失败: {e}")
         
         # 51个词根列表
         self.root_words = [
