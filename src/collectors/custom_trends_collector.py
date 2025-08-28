@@ -130,7 +130,7 @@ class TrendsAPIClient:
                 s.proxies.update(self.proxies)
             
             # 在每个请求前添加固定延迟，避免并发请求
-            time.sleep(2.5)
+            time.sleep(1)
             
             for attempt in range(self.retries + 1):
                 try:

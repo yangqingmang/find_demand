@@ -321,54 +321,54 @@ def main():
         description='需求挖掘分析工具 - 整合六大挖掘方法',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-🎯 六大需求挖掘方法:
-  1. 基于词根关键词拓展 (52个核心词根)
-  2. 基于SEO大站流量分析 (8个竞品网站)
-  3. 搜索引擎下拉推荐
-  4. 循环挖掘法
-  5. 付费广告关键词分析
-  6. 收入排行榜分析
-
-📋 使用示例:
-  # 分析关键词文件
-  python main.py --input data/keywords.csv
-  
-  # 分析关键词文件并启用SERP分析
-  python main.py --input data/keywords.csv --serp
-  
-  # 分析单个关键词
-  python main.py --keywords "ai generator" "ai converter"
-  
-  # 分析单个关键词并启用SERP分析
-  python main.py --keywords "AI" --serp
-  
-  # 多平台关键词发现
-  python main.py --discover "AI image generator" "AI writing tool"
-  
-  # 使用默认搜索词进行多平台发现
-  python main.py --discover default
-  
-  # 生成分析报告
-  python main.py --report
-
-  # 使用51个词根进行趋势分析
-  python main.py --use-root-words
-
-  # 静默模式分析
-  python main.py --input data/keywords.csv --quiet
-
-🚀 增强功能示例:
-  # 监控竞品关键词变化
-  python main.py --monitor-competitors --sites canva.com midjourney.com
-
-  # 预测关键词趋势
-  python main.py --predict-trends --timeframe 30d
-
-  # SEO审计
-  python main.py --seo-audit --domain your-site.com --keywords "ai tool" "ai generator"
-
-  # 批量生成网站
-  python main.py --build-websites --top-keywords 5
+            🎯 六大需求挖掘方法:
+              1. 基于词根关键词拓展 (52个核心词根)
+              2. 基于SEO大站流量分析 (8个竞品网站)
+              3. 搜索引擎下拉推荐
+              4. 循环挖掘法
+              5. 付费广告关键词分析
+              6. 收入排行榜分析
+            
+            📋 使用示例:
+              # 分析关键词文件
+              python main.py --input data/keywords.csv
+              
+              # 分析关键词文件并启用SERP分析
+              python main.py --input data/keywords.csv --serp
+              
+              # 分析单个关键词
+              python main.py --keywords "ai generator" "ai converter"
+              
+              # 分析单个关键词并启用SERP分析
+              python main.py --keywords "AI" --serp
+              
+              # 多平台关键词发现
+              python main.py --discover "AI image generator" "AI writing tool"
+              
+              # 使用默认搜索词进行多平台发现
+              python main.py --discover default
+              
+              # 生成分析报告
+              python main.py --report
+            
+              # 使用51个词根进行趋势分析
+              python main.py --use-root-words
+            
+              # 静默模式分析
+              python main.py --input data/keywords.csv --quiet
+            
+            🚀 增强功能示例:
+              # 监控竞品关键词变化
+              python main.py --monitor-competitors --sites canva.com midjourney.com
+            
+              # 预测关键词趋势
+              python main.py --predict-trends --timeframe 30d
+            
+              # SEO审计
+              python main.py --seo-audit --domain your-site.com --keywords "ai tool" "ai generator"
+            
+              # 批量生成网站
+              python main.py --build-websites --top-keywords 5
         """
     )
     

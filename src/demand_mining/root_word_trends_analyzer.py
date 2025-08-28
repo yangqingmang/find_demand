@@ -263,6 +263,59 @@ class RootWordTrendsAnalyzer:
             "detection_reasons": "检测失败"
         }
     
+    def analyze_all_root_words(self, timeframe: str = None, batch_size: int = 5) -> Dict[str, Any]:
+        """
+        分析所有词根的趋势
+        
+        参数:
+            timeframe: 时间范围
+            batch_size: 批处理大小
+            
+        返回:
+            包含所有分析结果的字典
+        """
+        self.logger.info(f"🌱 开始分析{len(self.root_words)}个词根的趋势...")
+        
+        results = []
+        successful_count = 0
+        
+        for i, root_word in enumerate(self.root_words):
+            try:
+                self.logger.info(f"正在分析词根 {i+1}/{len(self.root_words)}: {root_word}")
+                result = self.analyze_single_root_word(root_word, timeframe)
+                results.append(result)
+                
+                if result["status"] == "success":
+                    successful_count += 1
+                    
+            except Exception as e:
+                self.logger.error(f"分析词根 {root_word} 时出错: {e}")
+                results.append({
+                    "root_word": root_word,
+                    "status": "error", 
+                    "error": str(e)
+                })
+        
+        # 生成摘要
+        summary = self._generate_summary(results)
+        
+        # 构建最终结果
+        final_results = {
+            "analysis_type": "root_words_trends",
+            "analysis_time": datetime.now().isoformat(),
+            "total_root_words": len(self.root_words),
+            "successful_analyses": successful_count,
+            "failed_analyses": len(self.root_words) - successful_count,
+            "results": results,
+            "summary": summary
+        }
+        
+        # 保存结果
+        self._save_results(final_results)
+        
+        self.logger.info(f"✅ 词根趋势分析完成! 成功分析 {successful_count}/{len(self.root_words)} 个词根")
+        
+        return final_results
     
     def _generate_summary(self, results: List[Dict]) -> Dict[str, Any]:
         """生成分析摘要"""

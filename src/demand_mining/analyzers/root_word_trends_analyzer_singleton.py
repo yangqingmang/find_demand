@@ -8,6 +8,8 @@
 import threading
 from typing import Optional
 
+from src.demand_mining.root_word_trends_analyzer import RootWordTrendsAnalyzer
+
 # 全局变量存储单例实例
 _root_word_trends_analyzer_instance: Optional['RootWordTrendsAnalyzer'] = None
 _lock = threading.Lock()
