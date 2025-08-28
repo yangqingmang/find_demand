@@ -119,3 +119,4 @@ Thumbs.db
 data/temp/
 logs/
 *.tmp
+output

@@ -84,21 +84,11 @@ class TrendsAPIClient:
     def _init_session(self) -> None:
         """初始化会话，获取必要的cookies
         
-        快速失败策略：使用较短的超时时间，避免长时间等待
+        延迟初始化策略：跳过预初始化，在首次请求时自动获取cookies
         """
-        try:
-            # 使用较短的超时时间，快速失败
-            init_timeout = (2, 5)
-            response = self.session.get('https://trends.google.com/', timeout=init_timeout)
-            if response.status_code == 200:
-                logger.info("会话初始化成功")
-                self.initialized = True
-            else:
-                logger.warning(f"会话初始化警告: {response.status_code}")
-        except requests.exceptions.Timeout:
-            logger.warning("会话初始化超时，将在实际请求时自动获取cookies")
-        except Exception as e:
-            logger.warning(f"会话初始化失败: {e}")
+        # 延迟初始化，避免不必要的网络请求
+        logger.debug("会话将在首次请求时自动初始化")
+        self.initialized = False
     
     def _get_data(self, url: str, method: str = 'get', trim_chars: int = 0, 
                   use_cache: bool = True, **kwargs) -> dict[Any, Any] | None | Any:

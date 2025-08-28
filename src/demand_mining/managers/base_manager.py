@@ -17,7 +17,7 @@ class BaseManager(ABC):
     def __init__(self, config_path: str = None):
         """初始化基础管理器"""
         self.config = self._load_config(config_path)
-        self.output_dir = "src/demand_mining/reports"
+        self.output_dir = "output/reports"
         self._ensure_output_dirs()
     
     def _load_config(self, config_path: str) -> Dict[str, Any]:

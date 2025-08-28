@@ -31,9 +31,43 @@ class ConfigCrypto:
         self.private_key = None
         self.public_key = None
         
-        # 密钥文件路径
-        self.private_key_path = os.path.join(os.path.dirname(__file__), 'private.key')
-        self.public_key_path = os.path.join(os.path.dirname(__file__), 'public.key')
+        # 密钥文件路径 - 根据操作系统自动适配到用户根目录
+        # 密钥文件路径 - 根据操作系统自动适配到用户根目录
+        self.private_key_path = self._get_key_path('private.key')
+        self.public_key_path = self._get_key_path('public.key')
+    
+    def _get_key_path(self, filename: str) -> str:
+        """
+        根据操作系统获取密钥文件路径
+        
+        Args:
+            filename: 密钥文件名
+            
+        Returns:
+            完整的密钥文件路径
+        """
+        import platform
+        
+        # 获取用户根目录
+        home_dir = os.path.expanduser('~')
+        
+        # 根据操作系统选择合适的目录
+        system = platform.system().lower()
+        
+        if system == 'windows':
+            # Windows: C:\Users\username\.find_demand\keys\
+            keys_dir = os.path.join(home_dir, '.find_demand', 'keys')
+        elif system == 'darwin':  # macOS
+            # macOS: /Users/username/.find_demand/keys/
+            keys_dir = os.path.join(home_dir, '.find_demand', 'keys')
+        else:  # Linux and others
+            # Linux: /home/username/.find_demand/keys/
+            keys_dir = os.path.join(home_dir, '.find_demand', 'keys')
+        
+        # 确保目录存在
+        os.makedirs(keys_dir, exist_ok=True)
+        
+        return os.path.join(keys_dir, filename)
     
     def generate_key_pair(self) -> tuple:
         """
