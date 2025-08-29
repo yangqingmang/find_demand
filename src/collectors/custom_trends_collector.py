@@ -8,8 +8,6 @@ import requests
 import json
 import time
 import random
-import threading
-import os
 from typing import List, Dict, Optional, Callable, TypeVar, Any, Union
 import pandas as pd
 import logging
@@ -18,27 +16,7 @@ import hashlib
 
 logger = logging.getLogger(__name__)
 
-# 加载Google Trends headers配置
-def load_google_trends_headers():
-    """加载Google Trends请求头配置"""
-    config_path = os.path.join(os.path.dirname(__file__), '..', '..', 'config', 'google_trends_headers.json')
-    try:
-        with open(config_path, 'r', encoding='utf-8') as f:
-            headers_config = json.load(f)
-            return headers_config['google_trends_headers']
-    except Exception as e:
-        # 如果加载失败，返回默认headers
-        return {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'application/json, text/plain, */*',
-            'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Referer': 'https://trends.google.com/',
-            'Origin': 'https://trends.google.com',
-            'Sec-Fetch-Dest': 'empty',
-            'Sec-Fetch-Mode': 'cors',
-            'Sec-Fetch-Site': 'same-origin'
-        }
+from .google_trends_session import GoogleTrendsSession
 
 # 类型变量定义
 T = TypeVar('T')
@@ -60,8 +38,8 @@ class TrendsAPIClient:
     REALTIME_TRENDING_URL = 'https://trends.google.com/trends/api/realtimetrends'
     TODAY_SEARCHES_URL = 'https://trends.google.com/trends/api/dailytrends'
 
-    # 默认请求头 - 从配置文件加载
-    DEFAULT_HEADERS = load_google_trends_headers()
+    # 使用公共session管理，不再需要DEFAULT_HEADERS
+    pass
     
     def __init__(self, hl: str = 'en-US', tz: int = 360, 
                  timeout: tuple[float, float] = (3, 7), proxies: Optional[Dict[str, str]] = None, 
@@ -84,36 +62,15 @@ class TrendsAPIClient:
         self.backoff_factor = backoff_factor
         self.initialized = False
         
-        # 会话管理
-        self.session = requests.Session()
-        self.session.headers.update(self.DEFAULT_HEADERS)
-        
-        # 异步初始化会话，不阻塞主流程
-        self._init_session()
+        # 会话管理 - 使用全局session避免重复初始化
+        from .google_trends_session import get_global_session
+        self.trends_session = get_global_session()
+        self.session = self.trends_session.get_session()
         
         # 简单的内存缓存
         self._cache: Dict[str, Any] = {}
     
-    def _init_session(self) -> None:
-        """初始化会话，获取必要的cookies"""
-        try:
-            # 访问Google Trends主页获取必要的cookies
-            logger.info("🔧 正在初始化Google Trends会话...")
-            
-            # 先访问主页获取cookies
-            main_page_url = 'https://trends.google.com/'
-            response = self.session.get(main_page_url, timeout=self.timeout)
-            
-            if response.status_code == 200:
-                self.initialized = True
-                logger.info("✅ Google Trends会话初始化成功")
-            else:
-                logger.warning(f"⚠️ 主页访问失败，状态码: {response.status_code}")
-                self.initialized = False
-                
-        except Exception as e:
-            logger.warning(f"⚠️ 会话初始化失败，将在首次请求时重试: {e}")
-            self.initialized = False
+    # _init_session 方法已移至 GoogleTrendsSession 类中统一管理
     
     def _get_data(self, url: str, method: str = 'get', trim_chars: int = 0, 
                   use_cache: bool = True, **kwargs) -> Union[dict[Any, Any], None, Any]:
@@ -200,10 +157,10 @@ class TrendsAPIClient:
     def reset_session(self) -> None:
         """重置会话"""
         try:
-            self.session.close()
-            self.session = requests.Session()
-            self.session.headers.update(self.DEFAULT_HEADERS)
-            self._init_session()
+            from .google_trends_session import reset_global_session
+            reset_global_session()
+            self.trends_session = get_global_session()
+            self.session = self.trends_session.get_session()
             logger.info("会话已重置")
         except Exception as e:
             logger.error(f"重置会话失败: {e}")
@@ -722,3 +679,21 @@ class CustomTrendsCollector(TrendsAPIClient):
         except Exception as e:
             logger.error(f"获取关键词趋势失败: {e}")
             return {}
+
+# 全局session实例
+_global_session = None
+
+def get_global_session() -> GoogleTrendsSession:
+    """获取全局session实例"""
+    global _global_session
+    if _global_session is None:
+        _global_session = GoogleTrendsSession()
+    return _global_session
+
+def reset_global_session() -> None:
+    """重置全局session"""
+    global _global_session
+    if _global_session:
+        _global_session.reset_session()
+    else:
+        _global_session = GoogleTrendsSession()

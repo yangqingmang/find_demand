@@ -3,46 +3,17 @@
 """Google Trends 数据采集模块"""
 
 import pandas as pd
-import pandas as pd
 import time
 import json
 import urllib.parse
 import argparse
-import requests
-import os
 from src.utils import Logger
 from src.utils.constants import GOOGLE_TRENDS_CONFIG
 from config.config_manager import get_config
 
 config = get_config()
 
-# 加载Google Trends headers配置
-def load_google_trends_headers():
-    """加载Google Trends请求头配置"""
-    config_path = os.path.join(os.path.dirname(__file__), '..', '..', 'config', 'google_trends_headers.json')
-    try:
-        with open(config_path, 'r', encoding='utf-8') as f:
-            headers_config = json.load(f)
-            return headers_config['google_trends_headers']
-    except Exception as e:
-        # 如果加载失败，返回默认headers
-        return {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'application/json, text/plain, */*',
-            'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Referer': 'https://trends.google.com/',
-            'Origin': 'https://trends.google.com',
-            'Sec-Fetch-Dest': 'empty',
-            'Sec-Fetch-Mode': 'cors',
-            'Sec-Fetch-Site': 'same-origin',
-            'Connection': 'keep-alive',
-            'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
-            'Sec-Ch-Ua-Mobile': '?0',
-            'Sec-Ch-Ua-Platform': '"macOS"'
-        }
-
-GOOGLE_TRENDS_HEADERS = load_google_trends_headers()
+from .google_trends_session import get_global_session
 
 class TrendsCollector:
     """Google Trends 数据采集类"""
@@ -276,25 +247,17 @@ class TrendsCollector:
                 'req': '{"comparisonItem":[{"keyword":"","geo":"US","time":"now 7-d"}],"category":0,"property":""}'
             }
             
-            # 使用配置文件中的headers
-            headers = GOOGLE_TRENDS_HEADERS.copy()
+            # 使用公共session管理
+            trends_session = get_global_session()
             
-            # 使用 session 自动获取的 cookies，不再硬编码
-            if hasattr(self, 'trends_collector') and self.trends_collector and hasattr(self.trends_collector, 'session'):
-                # 使用 trends_collector 的 session 发送请求
-                response = self.trends_collector.session.get(url, params=params, headers=headers, timeout=(10, 20))
-            else:
-                # 如果没有 session，创建新的 session 并初始化
-                session = requests.Session()
-                # 先访问主页获取 cookies
-                session.get('https://trends.google.com/', timeout=(10, 20))
-                response = session.get(url, params=params, headers=headers, timeout=(10, 20))
-            self.logger.info(f"📡 响应状态码: {response.status_code}")
-            
+            try:
+                response = trends_session.get(url, params=params)
+            except Exception as session_error:
+                self.logger.error(f"❌ 请求失败: {session_error}")
+                return pd.DataFrame(columns=['query', 'value', 'growth'])
             
             if response.status_code == 200:
                 content = response.text
-                self.logger.info(f"📄 原始响应前50字符: {content[:50]}")
                 
                 # 处理Google的特殊前缀
                 # 处理Google的特殊前缀
@@ -342,15 +305,9 @@ class TrendsCollector:
                                     }
                                     
                                     self.logger.info("🔍 正在请求related_searches接口...")
-                                    # 使用 session 自动获取的 cookies，不再硬编码
-                                    if hasattr(self, 'trends_collector') and self.trends_collector and hasattr(self.trends_collector, 'session'):
-                                        related_response = self.trends_collector.session.get(related_url, params=related_params, headers=headers, timeout=(10, 20))
-                                    else:
-                                        # 如果没有 session，创建新的 session 并初始化
-                                        session = requests.Session()
-                                        session.get('https://trends.google.com/', timeout=(10, 20))
-                                        related_response = session.get(related_url, params=related_params, headers=headers, timeout=(10, 20))
-                                    self.logger.info(f"📡 Related searches响应状态码: {related_response.status_code}")
+                                    # 使用公共session管理
+                                    trends_session = get_global_session()
+                                    related_response = trends_session.get(related_url, params=related_params)
                                     
                                     if related_response.status_code == 200:
                                         related_content = related_response.text
@@ -405,7 +362,6 @@ class TrendsCollector:
             self.logger.error(f"API请求异常: {e}")
             return pd.DataFrame(columns=['query', 'value', 'growth'])
 
-        return combined_df
 
     def _parse_related_queries(self, data):
         """解析相关查询数据"""
