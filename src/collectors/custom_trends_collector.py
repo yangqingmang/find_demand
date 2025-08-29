@@ -339,7 +339,7 @@ class CustomTrendsCollector(TrendsAPIClient):
         # 转换日期格式
         if not df.empty:
             try:
-                df['date'] = pd.to_datetime(df['date'])
+                df['date'] = pd.to_datetime(df['date'], format='mixed', errors='coerce')
                 df.set_index('date', inplace=True)
             except:
                 logger.warning("日期格式转换失败")

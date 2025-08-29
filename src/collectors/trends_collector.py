@@ -476,6 +476,19 @@ class TrendsCollector:
             self.logger.error(f"获取历史兴趣数据失败: {e}")
             return pd.DataFrame()
 
+    def get_keyword_trends(self, keyword, timeframe='today 12-m', geo=''):
+        """获取关键词趋势数据 - 为root_word_trends_analyzer提供的接口"""
+        if not self.trends_collector:
+            self.logger.error("trends_collector 未初始化")
+            return {}
+            
+        try:
+            # 调用CustomTrendsCollector的get_keyword_trends方法
+            return self.trends_collector.get_keyword_trends(keyword, timeframe, geo)
+        except Exception as e:
+            self.logger.error(f"获取关键词趋势失败: {e}")
+            return {}
+
 
 def main():
     """主函数 - 用于测试"""
