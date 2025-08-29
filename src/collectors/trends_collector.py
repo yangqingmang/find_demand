@@ -9,11 +9,40 @@ import json
 import urllib.parse
 import argparse
 import requests
+import os
 from src.utils import Logger
 from src.utils.constants import GOOGLE_TRENDS_CONFIG
 from config.config_manager import get_config
 
 config = get_config()
+
+# 加载Google Trends headers配置
+def load_google_trends_headers():
+    """加载Google Trends请求头配置"""
+    config_path = os.path.join(os.path.dirname(__file__), '..', '..', 'config', 'google_trends_headers.json')
+    try:
+        with open(config_path, 'r', encoding='utf-8') as f:
+            headers_config = json.load(f)
+            return headers_config['google_trends_headers']
+    except Exception as e:
+        # 如果加载失败，返回默认headers
+        return {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'application/json, text/plain, */*',
+            'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Referer': 'https://trends.google.com/',
+            'Origin': 'https://trends.google.com',
+            'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'same-origin',
+            'Connection': 'keep-alive',
+            'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+            'Sec-Ch-Ua-Mobile': '?0',
+            'Sec-Ch-Ua-Platform': '"macOS"'
+        }
+
+GOOGLE_TRENDS_HEADERS = load_google_trends_headers()
 
 class TrendsCollector:
     """Google Trends 数据采集类"""
@@ -247,28 +276,19 @@ class TrendsCollector:
                 'req': '{"comparisonItem":[{"keyword":"","geo":"US","time":"now 7-d"}],"category":0,"property":""}'
             }
             
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Accept': 'application/json, text/plain, */*',
-                'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8',
-                'Accept-Encoding': 'gzip, deflate, br',
-                'Referer': 'https://trends.google.com/',
-                'Origin': 'https://trends.google.com',
-                'Sec-Fetch-Dest': 'empty',
-                'Sec-Fetch-Mode': 'cors',
-                'Sec-Fetch-Site': 'same-origin',
-                'Connection': 'keep-alive',
-                'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
-                'Sec-Ch-Ua-Mobile': '?0',
-                'Sec-Ch-Ua-Platform': '"macOS"'
-            }
+            # 使用配置文件中的headers
+            headers = GOOGLE_TRENDS_HEADERS.copy()
             
-            cookies = {
-                'NID': '525=fLh7D-36m-1GRIZPs6PutrD-099zKXsw25teyXDOrmoA5MmLftb_DxwyCSx7z2KKcX82Z-Q33I0W6hX8WmokZ7e2_mZt9-FJ12EOkvtJ_rSPPKWDoUnoRvnjwWbKWhj4_fLsGS5LEZOVDnELgtroxey4gWwYP8eySEtSnQTfI3Cr0bc62CieNvgJDbWnLyRrWQ'
-            }
-            
-            # 直接发送请求
-            response = requests.get(url, params=params, headers=headers, cookies=cookies, timeout=(10, 20))
+            # 使用 session 自动获取的 cookies，不再硬编码
+            if hasattr(self, 'trends_collector') and self.trends_collector and hasattr(self.trends_collector, 'session'):
+                # 使用 trends_collector 的 session 发送请求
+                response = self.trends_collector.session.get(url, params=params, headers=headers, timeout=(10, 20))
+            else:
+                # 如果没有 session，创建新的 session 并初始化
+                session = requests.Session()
+                # 先访问主页获取 cookies
+                session.get('https://trends.google.com/', timeout=(10, 20))
+                response = session.get(url, params=params, headers=headers, timeout=(10, 20))
             self.logger.info(f"📡 响应状态码: {response.status_code}")
             
             
@@ -322,7 +342,14 @@ class TrendsCollector:
                                     }
                                     
                                     self.logger.info("🔍 正在请求related_searches接口...")
-                                    related_response = requests.get(related_url, params=related_params, headers=headers, cookies=cookies, timeout=(10, 20))
+                                    # 使用 session 自动获取的 cookies，不再硬编码
+                                    if hasattr(self, 'trends_collector') and self.trends_collector and hasattr(self.trends_collector, 'session'):
+                                        related_response = self.trends_collector.session.get(related_url, params=related_params, headers=headers, timeout=(10, 20))
+                                    else:
+                                        # 如果没有 session，创建新的 session 并初始化
+                                        session = requests.Session()
+                                        session.get('https://trends.google.com/', timeout=(10, 20))
+                                        related_response = session.get(related_url, params=related_params, headers=headers, timeout=(10, 20))
                                     self.logger.info(f"📡 Related searches响应状态码: {related_response.status_code}")
                                     
                                     if related_response.status_code == 200:

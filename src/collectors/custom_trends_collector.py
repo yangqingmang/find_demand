@@ -9,6 +9,7 @@ import json
 import time
 import random
 import threading
+import os
 from typing import List, Dict, Optional, Callable, TypeVar, Any, Union
 import pandas as pd
 import logging
@@ -16,6 +17,28 @@ from functools import wraps
 import hashlib
 
 logger = logging.getLogger(__name__)
+
+# 加载Google Trends headers配置
+def load_google_trends_headers():
+    """加载Google Trends请求头配置"""
+    config_path = os.path.join(os.path.dirname(__file__), '..', '..', 'config', 'google_trends_headers.json')
+    try:
+        with open(config_path, 'r', encoding='utf-8') as f:
+            headers_config = json.load(f)
+            return headers_config['google_trends_headers']
+    except Exception as e:
+        # 如果加载失败，返回默认headers
+        return {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'application/json, text/plain, */*',
+            'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Referer': 'https://trends.google.com/',
+            'Origin': 'https://trends.google.com',
+            'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'same-origin'
+        }
 
 # 类型变量定义
 T = TypeVar('T')
@@ -36,23 +59,9 @@ class TrendsAPIClient:
     CATEGORIES_URL = 'https://trends.google.com/trends/api/explore/pickers/category'
     REALTIME_TRENDING_URL = 'https://trends.google.com/trends/api/realtimetrends'
     TODAY_SEARCHES_URL = 'https://trends.google.com/trends/api/dailytrends'
-    
-    # 默认请求头
-    DEFAULT_HEADERS = {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'application/json, text/plain, */*',
-        'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Referer': 'https://trends.google.com/',
-        'Origin': 'https://trends.google.com',
-        'Sec-Fetch-Dest': 'empty',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Site': 'same-origin',
-        'Connection': 'keep-alive',
-        'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
-        'Sec-Ch-Ua-Mobile': '?0',
-        'Sec-Ch-Ua-Platform': '"macOS"'
-    }
+
+    # 默认请求头 - 从配置文件加载
+    DEFAULT_HEADERS = load_google_trends_headers()
     
     def __init__(self, hl: str = 'en-US', tz: int = 360, 
                  timeout: tuple[float, float] = (3, 7), proxies: Optional[Dict[str, str]] = None, 
