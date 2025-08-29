@@ -14,5 +14,14 @@
     "created_at": "2025-08-18T12:59:48.168532",
     "directory": "generated_websites/weather_hurricane_erin_20250818_125948",
     "status": "plan_generated"
+  },
+  {
+    "project_name": "AI工具生成器平台",
+    "theme": "ai_tools",
+    "main_keyword": "ai generator",
+    "created_at": "2025-08-29T14:00:00.000Z",
+    "estimated_launch_date": "2025-12-15",
+    "directory": "generated_websites/current/ai_tools_generator_platform",
+    "status": "planning"
   }
 ]

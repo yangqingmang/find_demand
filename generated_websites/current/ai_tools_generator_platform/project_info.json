@@ -1,0 +1,44 @@
+{
+  "project_name": "WebhookHub",
+  "project_name_cn": "智能Webhook管理平台",
+  "theme": "webhook_management",
+  "main_keyword": "webhook receiver",
+  "created_at": "2025-08-29T16:00:00.000Z",
+  "directory": "generated_websites/current/ai_tools_generator_platform",
+  "status": "detailed_planning",
+  "estimated_launch_date": "2025-12-29",
+  "target_audience": ["小企业技术负责人", "电商企业主", "SaaS创始人", "数字营销机构"],
+  "core_features": [
+    "智能Webhook接收",
+    "多渠道转发系统",
+    "AI智能分类处理",
+    "可视化管理界面",
+    "企业级安全验证",
+    "实时监控和分析"
+  ],
+  "tech_stack": {
+    "frontend": "Next.js 14 + Tailwind CSS + Shadcn/ui",
+    "backend": "Next.js API Routes + Supabase",
+    "database": "PostgreSQL (Supabase)",
+    "hosting": "Vercel",
+    "queue": "Redis (Upstash)",
+    "integrations": ["Resend", "Twilio", "Slack API"]
+  },
+  "business_model": {
+    "primary": "subscription",
+    "pricing_tiers": ["free", "starter", "professional", "enterprise"],
+    "revenue_streams": ["subscriptions", "usage_fees", "enterprise_services"]
+  },
+  "development_timeline": {
+    "phase_1": "MVP开发 (8周)",
+    "phase_2": "产品优化 (4周)", 
+    "phase_3": "市场推广 (4周)",
+    "total_duration": "16周"
+  },
+  "market_analysis": {
+    "target_market": "海外中小企业",
+    "market_size": "$420M SAM",
+    "first_year_revenue_target": "$38,000",
+    "user_target": "300个付费用户"
+  }
+}
