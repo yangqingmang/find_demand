@@ -856,6 +856,7 @@ def main():
                         hot_result = manager.analyze_keywords(temp_file, args.output, enable_serp=False)
                         print(f"✅ 第一步完成! 分析了 {hot_result['total_keywords']} 个热门关键词")
                     finally:
+                        import os
                         os.unlink(temp_file)
                 else:
                     print("⚠️ 第一步失败：无法获取热门关键词")
@@ -1065,6 +1066,7 @@ def main():
         
     except KeyboardInterrupt:
         print("\n⚠️ 分析被用户中断")
+        import sys
         sys.exit(1)
     except Exception as e:
         print(f"❌ 分析过程中出现错误: {str(e)}")
