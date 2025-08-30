@@ -378,6 +378,8 @@ def main():
     input_group.add_argument('--keywords', nargs='+', help='直接输入关键词（可以是多个）')
     input_group.add_argument('--discover', nargs='+', help='多平台关键词发现（可指定搜索词汇）')
     input_group.add_argument('--report', action='store_true', help='生成今日分析报告')
+    input_group.add_argument('--hotkeywords', action='store_true', help='搜索热门关键词')
+    input_group.add_argument('--all', action='store_true', help='完整流程：先搜索热门关键词，再进行51个词根趋势分析')
     
     # 增强功能组
     enhanced_group = parser.add_argument_group('增强功能')
@@ -666,10 +668,10 @@ def main():
                     for i, word_data in enumerate(top_words, 1):
                         print(f"   {i}. {word_data['word']}: 平均兴趣度 {word_data['average_interest']:.1f}")
         
-        else:
-            # 默认：使用 fetch_rising_queries 获取关键词并进行需求挖掘
+        elif args.hotkeywords:
+            # 搜索热门关键词：使用 fetch_rising_queries 获取关键词并进行需求挖掘
             if not args.quiet:
-                print("🔥 未指定参数，使用 Rising Queries 获取热门关键词并进行需求挖掘...")
+                print("🔥 开始搜索热门关键词并进行需求挖掘...")
             
             try:
                 # 使用单例获取 TrendsCollector
@@ -802,6 +804,81 @@ def main():
                 if args.verbose:
                     import traceback
                     traceback.print_exc()
+        
+        elif args.all:
+            # 完整流程：先搜索热门关键词，再进行51个词根趋势分析
+            print("🚀 开始完整需求挖掘流程...")
+            print("📋 第一步：搜索热门关键词")
+            
+            # 第一步：搜索热门关键词（复用hotkeywords的逻辑）
+            hot_result = None
+            try:
+                from src.collectors.trends_singleton import get_trends_collector
+                trends_collector = get_trends_collector()
+                rising_queries = trends_collector.fetch_rising_queries()
+                
+                import pandas as pd
+                if isinstance(rising_queries, pd.DataFrame):
+                    trending_df = rising_queries.head(20)
+                    if 'query' not in trending_df.columns:
+                        if 'title' in trending_df.columns:
+                            trending_df = trending_df.rename(columns={'title': 'query'})
+                        elif len(trending_df.columns) > 0:
+                            trending_df = trending_df.rename(columns={trending_df.columns[0]: 'query'})
+                elif rising_queries and len(rising_queries) > 0:
+                    if isinstance(rising_queries[0], str):
+                        trending_df = pd.DataFrame([{'query': query} for query in rising_queries[:20]])
+                    elif isinstance(rising_queries[0], dict):
+                        trending_df = pd.DataFrame([{
+                            'query': item.get('query', item.get('keyword', str(item))),
+                            'value': item.get('value', item.get('interest', 0))
+                        } for item in rising_queries[:20]])
+                    else:
+                        trending_df = pd.DataFrame([{'query': str(query)} for query in rising_queries[:20]])
+                else:
+                    trending_df = pd.DataFrame(columns=['query'])
+
+                if trending_df is not None and not trending_df.empty:
+                    import tempfile
+                    if 'query' not in trending_df.columns and len(trending_df.columns) > 0:
+                        trending_df = trending_df.rename(columns={trending_df.columns[0]: 'query'})
+                    
+                    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, encoding='utf-8') as f:
+                        trending_df.to_csv(f.name, index=False)
+                        temp_file = f.name
+                    
+                    try:
+                        print(f"🔍 获取到 {len(trending_df)} 个热门关键词，开始分析...")
+                        manager.new_word_detection_available = False
+                        hot_result = manager.analyze_keywords(temp_file, args.output, enable_serp=False)
+                        print(f"✅ 第一步完成! 分析了 {hot_result['total_keywords']} 个热门关键词")
+                    finally:
+                        os.unlink(temp_file)
+                else:
+                    print("⚠️ 第一步失败：无法获取热门关键词")
+            except Exception as e:
+                print(f"❌ 第一步失败: {e}")
+            
+            # 第二步：51个词根趋势分析
+            print("\n📋 第二步：51个词根趋势分析")
+            root_result = None
+            try:
+                root_result = manager.analyze_root_words(args.output)
+                print(f"✅ 第二步完成! 分析了 {root_result.get('total_root_words', 0)} 个词根")
+            except Exception as e:
+                print(f"❌ 第二步失败: {e}")
+            
+            # 显示总结
+            print("\n🎉 完整流程完成!")
+            if hot_result:
+                print(f"🔥 热门关键词: {hot_result['total_keywords']} 个")
+            if root_result:
+                print(f"🌱 词根分析: {root_result.get('total_root_words', 0)} 个")
+        
+        else:
+            # 无参数时显示帮助信息
+            parser.print_help()
+            return
         
         print(f"\n📁 详细结果已保存到 {args.output} 目录")
         
