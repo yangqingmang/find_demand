@@ -380,6 +380,7 @@ def main():
     input_group.add_argument('--report', action='store_true', help='生成今日分析报告')
     input_group.add_argument('--hotkeywords', action='store_true', help='搜索热门关键词')
     input_group.add_argument('--all', action='store_true', help='完整流程：先搜索热门关键词，再进行51个词根趋势分析')
+    input_group.add_argument('--demand-validation', action='store_true', help='需求验证：对高机会关键词进行多平台需求分析')
     
     # 增强功能组
     enhanced_group = parser.add_argument_group('增强功能')
@@ -780,6 +781,7 @@ def main():
                                 print(f"   • 平均热度: {trending_df['value'].mean():.1f}")
                             
                             # 保存原始Rising Queries
+                            import os
                             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                             trending_output_file = os.path.join(args.output, f"rising_queries_raw_{timestamp}.csv")
                             os.makedirs(args.output, exist_ok=True)
@@ -788,6 +790,7 @@ def main():
                         
                     finally:
                         # 清理临时文件
+                        import os
                         os.unlink(temp_file)
                         
                 else:
@@ -859,12 +862,70 @@ def main():
             except Exception as e:
                 print(f"❌ 第一步失败: {e}")
             
-            # 第二步：51个词根趋势分析
-            print("\n📋 第二步：51个词根趋势分析")
+            # 第二步：多平台关键词发现
+            print("\n📋 第二步：多平台关键词发现")
+            try:
+                from src.demand_mining.tools.multi_platform_keyword_discovery import run_discovery
+                
+                print("🔍 正在进行多平台关键词发现...")
+                
+                # 使用热门关键词作为种子关键词进行发现
+                if hot_result and hot_result.get('total_keywords', 0) > 0:
+                    # 从热门关键词结果中提取种子关键词
+                    seed_keywords = ['AI tool', 'AI generator', 'machine learning', 'chatbot', 'automation']  # 默认种子
+                    print(f"🌱 使用种子关键词进行多平台发现: {', '.join(seed_keywords[:3])}...")
+                    
+                    # 运行关键词发现
+                    df, analysis, csv_path, json_path = run_discovery(
+                        input_keywords=seed_keywords,
+                        limit=20,
+                        output_dir=args.output,
+                        verbose=False
+                    )
+                    
+                    discovered_count = len(df) if df is not None else 0
+                    print(f"🔍 发现了 {discovered_count} 个新关键词，开始评分和意图分析...")
+                    
+                    # 对发现的关键词进行完整的需求挖掘分析
+                    if df is not None and len(df) > 0:
+                        # 取前50个关键词进行分析
+                        top_keywords = df.head(50)
+                        
+                        # 创建临时CSV文件用于分析
+                        import tempfile
+                        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, encoding='utf-8') as f:
+                            # 确保有keyword列
+                            if 'keyword' in top_keywords.columns:
+                                analysis_df = top_keywords[['keyword']].copy()
+                            else:
+                                # 如果没有keyword列，使用第一列
+                                analysis_df = pd.DataFrame({'keyword': top_keywords.iloc[:, 0]})
+                            
+                            analysis_df.to_csv(f.name, index=False)
+                            temp_file = f.name
+                        
+                        try:
+                            # 进行完整的需求挖掘分析
+                            manager.new_word_detection_available = False
+                            discovery_analysis_result = manager.analyze_keywords(temp_file, args.output, enable_serp=False)
+                            print(f"✅ 第二步完成! 发现并分析了 {discovery_analysis_result.get('total_keywords', discovered_count)} 个关键词")
+                        finally:
+                            import os
+                            os.unlink(temp_file)
+                    else:
+                        print(f"✅ 第二步完成! 发现了 {discovered_count} 个新关键词")
+                else:
+                    print("⚠️ 第二步跳过：无热门关键词数据")
+                    
+            except Exception as e:
+                print(f"❌ 第三步失败: {e}")
+            
+            # 第三步：51个词根趋势分析
+            print("\n📋 第三步：51个词根趋势分析")
             root_result = None
             try:
                 root_result = manager.analyze_root_words(args.output)
-                print(f"✅ 第二步完成! 分析了 {root_result.get('total_root_words', 0)} 个词根")
+                print(f"✅ 第三步完成! 分析了 {root_result.get('total_root_words', 0)} 个词根")
             except Exception as e:
                 print(f"❌ 第二步失败: {e}")
             
@@ -872,8 +933,128 @@ def main():
             print("\n🎉 完整流程完成!")
             if hot_result:
                 print(f"🔥 热门关键词: {hot_result['total_keywords']} 个")
+            print(f"🔍 多平台关键词发现: 已完成")
             if root_result:
                 print(f"🌱 词根分析: {root_result.get('total_root_words', 0)} 个")
+        
+        elif args.demand_validation:
+            # 需求验证：对高机会关键词进行多平台需求分析
+            print("🔍 开始需求验证流程...")
+            print("📋 第一步：获取高机会关键词")
+            
+            # 首先获取热门关键词并分析
+            try:
+                from src.collectors.trends_singleton import get_trends_collector
+                trends_collector = get_trends_collector()
+                rising_queries = trends_collector.fetch_rising_queries()
+                
+                import pandas as pd
+                if isinstance(rising_queries, pd.DataFrame):
+                    trending_df = rising_queries.head(20)
+                    if 'query' not in trending_df.columns:
+                        if 'title' in trending_df.columns:
+                            trending_df = trending_df.rename(columns={'title': 'query'})
+                        elif len(trending_df.columns) > 0:
+                            trending_df = trending_df.rename(columns={trending_df.columns[0]: 'query'})
+                elif rising_queries and len(rising_queries) > 0:
+                    if isinstance(rising_queries[0], str):
+                        trending_df = pd.DataFrame([{'query': query} for query in rising_queries[:20]])
+                    elif isinstance(rising_queries[0], dict):
+                        trending_df = pd.DataFrame([{
+                            'query': item.get('query', item.get('keyword', str(item))),
+                            'value': item.get('value', item.get('interest', 0))
+                        } for item in rising_queries[:20]])
+                    else:
+                        trending_df = pd.DataFrame([{'query': str(query)} for query in rising_queries[:20]])
+                else:
+                    trending_df = pd.DataFrame(columns=['query'])
+
+                if trending_df is not None and not trending_df.empty:
+                    import tempfile
+                    if 'query' not in trending_df.columns and len(trending_df.columns) > 0:
+                        trending_df = trending_df.rename(columns={trending_df.columns[0]: 'query'})
+                    
+                    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, encoding='utf-8') as f:
+                        trending_df.to_csv(f.name, index=False)
+                        temp_file = f.name
+                    
+                    try:
+                        print(f"🔍 获取到 {len(trending_df)} 个关键词，开始机会分析...")
+                        manager.new_word_detection_available = False
+                        keywords_result = manager.analyze_keywords(temp_file, args.output, enable_serp=False)
+                        
+                        print(f"✅ 第一步完成! 分析了 {keywords_result['total_keywords']} 个关键词")
+                        
+                        # 第二步：多平台需求验证
+                        print("\n📋 第二步：多平台需求验证")
+                        
+                        try:
+                            import asyncio
+                            import sys
+                            import os
+                            
+                            # 确保能够导入模块
+                            analyzer_path = os.path.join(os.path.dirname(__file__), 'src', 'demand_mining', 'analyzers')
+                            if analyzer_path not in sys.path:
+                                sys.path.insert(0, analyzer_path)
+                            
+                            from src.demand_mining.analyzers.multi_platform_demand_analyzer import MultiPlatformDemandAnalyzer
+                            
+                            # 创建多平台分析器
+                            demand_analyzer = MultiPlatformDemandAnalyzer()
+                            
+                            # 执行多平台需求分析
+                            demand_results = asyncio.run(demand_analyzer.analyze_high_opportunity_keywords(
+                                keywords_result.get('keywords', []),
+                                min_opportunity_score=60.0,  # 降低阈值以获取更多关键词
+                                max_keywords=3  # 限制分析数量避免请求过多
+                            ))
+                            
+                            # 保存需求验证结果
+                            demand_output_file = demand_analyzer.save_results(demand_results)
+                            
+                            print(f"✅ 第二步完成! 需求验证分析完成")
+                            print(f"📊 分析了 {demand_results.get('analyzed_keywords', 0)} 个高机会关键词")
+                            
+                            # 显示需求验证摘要
+                            summary = demand_results.get('summary', {})
+                            if summary:
+                                print(f"\n🎯 需求验证摘要:")
+                                print(f"   • 总搜索结果: {summary.get('total_search_results', 0)}")
+                                print(f"   • 发现痛点: {summary.get('total_pain_points_found', 0)} 个")
+                                print(f"   • 功能需求: {summary.get('total_feature_requests_found', 0)} 个")
+                                
+                                high_demand = summary.get('high_demand_keywords', [])
+                                if high_demand:
+                                    print(f"   • 高需求关键词: {', '.join(high_demand)}")
+                                
+                                top_opportunities = summary.get('top_opportunities', [])[:3]
+                                if top_opportunities:
+                                    print(f"\n🏆 Top 3 验证结果:")
+                                    for i, opp in enumerate(top_opportunities, 1):
+                                        print(f"   {i}. {opp['keyword']} - {opp['demand_level']} ({opp['pain_points_count']} 个痛点)")
+                            
+                            print(f"\n📁 需求验证结果已保存到: {demand_output_file}")
+                            
+                        except ImportError:
+                            print("⚠️ 多平台需求分析器未找到，请确保相关模块已安装")
+                        except Exception as e:
+                            print(f"❌ 需求验证失败: {e}")
+                            if args.verbose:
+                                import traceback
+                                traceback.print_exc()
+                        
+                    finally:
+                        os.unlink(temp_file)
+                        
+                else:
+                    print("❌ 无法获取关键词进行需求验证")
+                    
+            except Exception as e:
+                print(f"❌ 需求验证流程失败: {e}")
+                if args.verbose:
+                    import traceback
+                    traceback.print_exc()
         
         else:
             # 无参数时显示帮助信息
