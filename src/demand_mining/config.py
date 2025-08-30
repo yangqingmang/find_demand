@@ -98,30 +98,70 @@ API_CONFIG = {
     }
 }
 
-# 关键词分类配置
+# 关键词分类配置 (优化版本 - 加入垂直细分领域)
 KEYWORD_CATEGORIES = {
     'ai_tools': {
         'keywords': ['ai', 'artificial intelligence', 'machine learning', 'chatgpt', 'claude'],
         'priority': 'high',
-        'intent_bias': 'C'  # 偏向商业意图
+        'intent_bias': 'C',  # 偏向商业意图
+        'niche_score': 85    # 垂直细分评分
     },
     
     'tutorials': {
         'keywords': ['how to', 'tutorial', 'guide', 'learn'],
         'priority': 'medium',
-        'intent_bias': 'I'  # 偏向信息意图
+        'intent_bias': 'I',  # 偏向信息意图
+        'niche_score': 60
     },
     
     'products': {
         'keywords': ['buy', 'price', 'cost', 'purchase', 'deal'],
         'priority': 'high',
-        'intent_bias': 'E'  # 偏向交易意图
+        'intent_bias': 'E',  # 偏向交易意图
+        'niche_score': 70
     },
     
     'comparisons': {
         'keywords': ['vs', 'compare', 'best', 'top', 'review'],
         'priority': 'high',
-        'intent_bias': 'C'  # 偏向商业意图
+        'intent_bias': 'C',  # 偏向商业意图
+        'niche_score': 75
+    },
+    
+    # 新增垂直细分领域
+    'fintech': {
+        'keywords': ['blockchain', 'defi', 'crypto', 'nft', 'web3', 'dao'],
+        'priority': 'high',
+        'intent_bias': 'C',
+        'niche_score': 90    # 高垂直细分评分
+    },
+    
+    'healthtech': {
+        'keywords': ['telemedicine', 'digital health', 'wearable', 'biotech'],
+        'priority': 'high',
+        'intent_bias': 'C',
+        'niche_score': 88
+    },
+    
+    'edtech': {
+        'keywords': ['online learning', 'e-learning', 'mooc', 'lms'],
+        'priority': 'medium',
+        'intent_bias': 'I',
+        'niche_score': 82
+    },
+    
+    'saas_tools': {
+        'keywords': ['crm', 'erp', 'automation', 'workflow', 'api'],
+        'priority': 'high',
+        'intent_bias': 'C',
+        'niche_score': 85
+    },
+    
+    'emerging_tech': {
+        'keywords': ['quantum', 'ar', 'vr', 'iot', 'edge computing'],
+        'priority': 'high',
+        'intent_bias': 'I',
+        'niche_score': 95    # 最高垂直细分评分
     }
 }
 
@@ -135,14 +175,17 @@ INTENT_DESCRIPTIONS = {
     'L': '本地到店 - 用户寻找本地服务或实体店'
 }
 
-# 机会评分权重
+# 机会评分权重 (最终优化版本 - 加入新词、垂直细分和意图深度权重)
 OPPORTUNITY_WEIGHTS = {
-    'search_volume': 0.3,      # 搜索量权重
-    'competition': 0.2,        # 竞争度权重
-    'intent_confidence': 0.2,  # 意图置信度权重
-    'trend': 0.15,            # 趋势权重
-    'cpc': 0.1,               # 每次点击成本权重
-    'seasonality': 0.05       # 季节性权重
+    'search_volume': 0.20,      # 搜索量权重 (再次降低)
+    'competition': 0.12,        # 竞争度权重 (降低)
+    'intent_confidence': 0.12,  # 意图置信度权重 (降低)
+    'trend': 0.10,             # 趋势权重 (降低)
+    'new_word_bonus': 0.18,     # 新词权重 (保持高权重)
+    'intent_depth': 0.12,       # 用户意图深度权重 (新增 - 重要!)
+    'niche_vertical': 0.10,     # 垂直细分领域权重 (保持)
+    'cpc': 0.06,               # 每次点击成本权重 (降低)
+    'seasonality': 0.05        # 季节性权重 (保持)
 }
 
 def get_config() -> Dict[str, Any]:

@@ -22,6 +22,7 @@ class KeywordScore:
     commercial_score: float
     trend_score: float
     competition_score: float
+    intent_depth_score: float  # 新增意图深度评分
     total_score: float
     details: Dict[str, Any]
 
@@ -86,9 +87,12 @@ class KeywordScorer(BaseAnalyzer):
         trend_score = self._calculate_trend_score(keyword, **kwargs)
         competition_score = self._calculate_competition_score(keyword, **kwargs)
         
-        # 计算总分
+        # 计算意图深度评分
+        intent_depth_score = self._calculate_intent_depth_score(keyword)
+        
+        # 计算总分 (包含意图深度)
         total_score = self._calculate_total_score(
-            pray_score, commercial_score, trend_score, competition_score
+            pray_score, commercial_score, trend_score, competition_score, intent_depth_score
         )
         
         return KeywordScore(
@@ -97,12 +101,15 @@ class KeywordScorer(BaseAnalyzer):
             commercial_score=commercial_score,
             trend_score=trend_score,
             competition_score=competition_score,
+            intent_depth_score=intent_depth_score,
             total_score=total_score,
             details={
                 'length': len(keyword),
                 'word_count': len(keyword.split()),
                 'has_numbers': bool(re.search(r'\d', keyword)),
-                'has_special_chars': bool(re.search(r'[^\w\s]', keyword))
+                'has_special_chars': bool(re.search(r'[^\w\s]', keyword)),
+                'intent_type': self._get_intent_type(keyword),
+                'conversion_potential': self._get_conversion_potential(intent_depth_score)
             }
         )
     
@@ -246,6 +253,94 @@ class KeywordScorer(BaseAnalyzer):
         
         return min(score, 100)
     
+    def _calculate_new_word_score(self, keyword: str, **kwargs) -> float:
+        """计算新词评分"""
+        try:
+            # 检查是否有新词检测结果
+            new_word_data = kwargs.get('new_word_data', {})
+            if new_word_data:
+                return new_word_data.get('new_word_score', 0.0)
+            
+            # 基于关键词特征估算新词分数
+            score = 0.0
+            
+            # 新兴技术词汇
+            emerging_tech = ['ai', 'gpt', 'llm', 'blockchain', 'web3', 'defi', 'nft', 
+                           'metaverse', 'quantum', 'edge computing', 'iot', 'ar', 'vr']
+            if any(tech in keyword.lower() for tech in emerging_tech):
+                score += 30
+            
+            # 年份相关（2023, 2024等表示新趋势）
+            import re
+            if re.search(r'202[3-9]', keyword):
+                score += 20
+            
+            # 新词特征词汇
+            new_indicators = ['new', 'latest', 'emerging', 'trending', 'next-gen', 'future']
+            if any(indicator in keyword.lower() for indicator in new_indicators):
+                score += 25
+            
+            # 组合词（多个技术概念组合通常是新词）
+            word_count = len(keyword.split())
+            if word_count >= 3:
+                score += 15
+            
+            return min(score, 100.0)
+        except Exception as e:
+            logger.error(f"计算新词评分失败: {e}")
+            return 0.0
+    
+    def _calculate_niche_vertical_score(self, keyword: str) -> float:
+        """计算垂直细分领域评分"""
+        try:
+            score = 0.0
+            keyword_lower = keyword.lower()
+            
+            # 高价值垂直领域
+            high_value_verticals = {
+                'fintech': ['blockchain', 'defi', 'crypto', 'nft', 'web3', 'dao', 'trading', 'fintech'],
+                'healthtech': ['telemedicine', 'digital health', 'wearable', 'biotech', 'medtech'],
+                'edtech': ['online learning', 'e-learning', 'mooc', 'lms', 'edtech'],
+                'saas': ['crm', 'erp', 'automation', 'workflow', 'api', 'saas'],
+                'ai_tools': ['ai tool', 'gpt', 'chatbot', 'machine learning', 'neural network'],
+                'emerging_tech': ['quantum', 'ar', 'vr', 'iot', 'edge computing', '5g']
+            }
+            
+            # 检查垂直领域匹配
+            for vertical, keywords_list in high_value_verticals.items():
+                if any(kw in keyword_lower for kw in keywords_list):
+                    if vertical == 'emerging_tech':
+                        score += 40  # 新兴技术最高分
+                    elif vertical in ['fintech', 'ai_tools']:
+                        score += 35  # 金融科技和AI工具高分
+                    elif vertical in ['healthtech', 'saas']:
+                        score += 30  # 健康科技和SaaS中高分
+                    else:
+                        score += 25  # 其他垂直领域中等分
+                    break
+            
+            # 专业术语加分
+            professional_terms = ['api', 'sdk', 'framework', 'platform', 'solution', 'enterprise']
+            if any(term in keyword_lower for term in professional_terms):
+                score += 15
+            
+            # B2B相关加分
+            b2b_indicators = ['business', 'enterprise', 'corporate', 'professional', 'commercial']
+            if any(indicator in keyword_lower for indicator in b2b_indicators):
+                score += 10
+            
+            # 长尾关键词（通常竞争度较低）
+            word_count = len(keyword.split())
+            if word_count >= 4:
+                score += 15
+            elif word_count == 3:
+                score += 10
+            
+            return min(score, 100.0)
+        except Exception as e:
+            logger.error(f"计算垂直细分评分失败: {e}")
+            return 0.0
+    
     def _calculate_trend_score(self, keyword: str, **kwargs) -> float:
         """计算趋势评分"""
         trend_data = kwargs.get('trend_data', {})
@@ -282,21 +377,29 @@ class KeywordScorer(BaseAnalyzer):
         return competition_scores.get(competition_level, 50.0)
     
     def _calculate_total_score(self, pray: float, commercial: float, 
-                             trend: float, competition: float) -> float:
-        """计算总评分"""
-        # 权重配置
+                             trend: float, competition: float, **kwargs) -> float:
+        """计算总评分 (优化版本 - 加入新词和垂直细分权重)"""
+        # 获取新词和垂直细分评分
+        new_word_score = self._calculate_new_word_score(kwargs.get('keyword', ''), **kwargs)
+        niche_score = self._calculate_niche_vertical_score(kwargs.get('keyword', ''))
+        
+        # 权重配置 (与config.py保持一致)
         weights = {
-            'pray': 0.4,
-            'commercial': 0.3,
-            'trend': 0.2,
-            'competition': 0.1
+            'pray': 0.35,              # 降低PRAY权重
+            'commercial': 0.25,        # 降低商业权重
+            'trend': 0.12,            # 降低趋势权重
+            'competition': 0.08,       # 降低竞争权重
+            'new_word': 0.12,         # 新词权重
+            'niche_vertical': 0.08    # 垂直细分权重
         }
         
         total = (
             pray * weights['pray'] +
             commercial * weights['commercial'] +
             trend * weights['trend'] +
-            competition * weights['competition']
+            competition * weights['competition'] +
+            new_word_score * weights['new_word'] +
+            niche_score * weights['niche_vertical']
         )
         
         return min(max(total, 0), 100)
@@ -367,3 +470,91 @@ class KeywordScorer(BaseAnalyzer):
             return output.getvalue()
         else:
             return scores
+    
+    def _calculate_new_word_score(self, keyword: str, **kwargs) -> float:
+        """计算新词评分"""
+        try:
+            # 检查是否有新词检测结果
+            new_word_data = kwargs.get('new_word_data', {})
+            if new_word_data:
+                return new_word_data.get('new_word_score', 0.0)
+            
+            # 基于关键词特征估算新词分数
+            score = 0.0
+            
+            # 新兴技术词汇
+            emerging_tech = ['ai', 'gpt', 'llm', 'blockchain', 'web3', 'defi', 'nft', 
+                           'metaverse', 'quantum', 'edge computing', 'iot', 'ar', 'vr']
+            if any(tech in keyword.lower() for tech in emerging_tech):
+                score += 30
+            
+            # 年份相关（2023, 2024等表示新趋势）
+            import re
+            if re.search(r'202[3-9]', keyword):
+                score += 20
+            
+            # 新词特征词汇
+            new_indicators = ['new', 'latest', 'emerging', 'trending', 'next-gen', 'future']
+            if any(indicator in keyword.lower() for indicator in new_indicators):
+                score += 25
+            
+            # 组合词（多个技术概念组合通常是新词）
+            word_count = len(keyword.split())
+            if word_count >= 3:
+                score += 15
+            
+            return min(score, 100.0)
+        except Exception as e:
+            logger.error(f"计算新词评分失败: {e}")
+            return 0.0
+    
+    def _calculate_niche_vertical_score(self, keyword: str) -> float:
+        """计算垂直细分领域评分"""
+        try:
+            score = 0.0
+            keyword_lower = keyword.lower()
+            
+            # 高价值垂直领域
+            high_value_verticals = {
+                'fintech': ['blockchain', 'defi', 'crypto', 'nft', 'web3', 'dao', 'trading', 'fintech'],
+                'healthtech': ['telemedicine', 'digital health', 'wearable', 'biotech', 'medtech'],
+                'edtech': ['online learning', 'e-learning', 'mooc', 'lms', 'edtech'],
+                'saas': ['crm', 'erp', 'automation', 'workflow', 'api', 'saas'],
+                'ai_tools': ['ai tool', 'gpt', 'chatbot', 'machine learning', 'neural network'],
+                'emerging_tech': ['quantum', 'ar', 'vr', 'iot', 'edge computing', '5g']
+            }
+            
+            # 检查垂直领域匹配
+            for vertical, keywords_list in high_value_verticals.items():
+                if any(kw in keyword_lower for kw in keywords_list):
+                    if vertical == 'emerging_tech':
+                        score += 40  # 新兴技术最高分
+                    elif vertical in ['fintech', 'ai_tools']:
+                        score += 35  # 金融科技和AI工具高分
+                    elif vertical in ['healthtech', 'saas']:
+                        score += 30  # 健康科技和SaaS中高分
+                    else:
+                        score += 25  # 其他垂直领域中等分
+                    break
+            
+            # 专业术语加分
+            professional_terms = ['api', 'sdk', 'framework', 'platform', 'solution', 'enterprise']
+            if any(term in keyword_lower for term in professional_terms):
+                score += 15
+            
+            # B2B相关加分
+            b2b_indicators = ['business', 'enterprise', 'corporate', 'professional', 'commercial']
+            if any(indicator in keyword_lower for indicator in b2b_indicators):
+                score += 10
+            
+            # 长尾关键词（通常竞争度较低）
+            word_count = len(keyword.split())
+            if word_count >= 4:
+                score += 15
+            elif word_count == 3:
+                score += 10
+            
+            return min(score, 100.0)
+        except Exception as e:
+            logger.error(f"计算垂直细分评分失败: {e}")
+            return 0.0
