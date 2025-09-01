@@ -23,6 +23,7 @@ def get_reports_dir() -> str:
     except:
         pass
     return 'output/reports'
+
 from src.demand_mining.tools.multi_platform_keyword_discovery import MultiPlatformKeywordDiscovery
 from src.utils.enhanced_features import (
         monitor_competitors, predict_keyword_trends, generate_seo_audit,
@@ -34,6 +35,120 @@ from src.utils.logger import setup_logger
 
 # 添加src目录到Python路径
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+
+
+class CommandRegistry:
+    """命令注册器 - 让参数和执行函数的映射更直观"""
+    
+    def __init__(self):
+        self.commands = {}
+    
+    def register(self, param_name, description="", priority=0):
+        """注册命令装饰器"""
+        def decorator(func):
+            self.commands[param_name] = {
+                'handler': func,
+                'description': description,
+                'priority': priority,
+                'function_name': func.__name__
+            }
+            return func
+        return decorator
+    
+    def execute(self, args, manager):
+        """执行匹配的命令"""
+        sorted_commands = sorted(
+            self.commands.items(), 
+            key=lambda x: x[1]['priority'], 
+            reverse=True
+        )
+        
+        for param_name, command_info in sorted_commands:
+            param_value = getattr(args, param_name.replace('-', '_'), None)
+            
+            if param_value is not None and param_value is not False:
+                if not args.quiet:
+                    print(f"🎯 执行模式: {param_name}")
+                    print(f"📋 执行函数: {command_info['function_name']}")
+                    if command_info['description']:
+                        print(f"📝 功能描述: {command_info['description']}")
+                    print("")
+                
+                command_info['handler'](manager, args)
+                return True
+        
+        return False
+    
+    def list_commands(self):
+        """列出所有注册的命令"""
+        print("已注册的命令:")
+        for param_name, command_info in self.commands.items():
+            print(f"  --{param_name} -> {command_info['function_name']}() - {command_info['description']}")
+
+
+# 创建全局命令注册器
+command_registry = CommandRegistry()
+
+
+class CommandRegistry:
+    """命令注册器 - 让参数和执行函数的映射更直观"""
+    
+    def __init__(self):
+        self.commands = {}
+    
+    def register(self, param_name, description="", priority=0):
+        """注册命令装饰器
+        
+        Args:
+            param_name: 参数名称
+            description: 命令描述
+            priority: 优先级（数字越大优先级越高）
+        """
+        def decorator(func):
+            self.commands[param_name] = {
+                'handler': func,
+                'description': description,
+                'priority': priority,
+                'function_name': func.__name__
+            }
+            return func
+        return decorator
+    
+    def execute(self, args, manager):
+        """执行匹配的命令"""
+        # 按优先级排序
+        sorted_commands = sorted(
+            self.commands.items(), 
+            key=lambda x: x[1]['priority'], 
+            reverse=True
+        )
+        
+        for param_name, command_info in sorted_commands:
+            param_value = getattr(args, param_name.replace('-', '_'), None)
+            
+            if param_value is not None and param_value is not False:
+                if not args.quiet:
+                    print(f"🎯 执行模式: {param_name}")
+                    print(f"📋 执行函数: {command_info['function_name']}")
+                    if command_info['description']:
+                        print(f"📝 功能描述: {command_info['description']}")
+                    print("")
+                
+                # 执行对应的处理函数
+                command_info['handler'](manager, args)
+                return True
+        
+        return False
+    
+    def list_commands(self):
+        """列出所有注册的命令"""
+        print("已注册的命令:")
+        for param_name, command_info in self.commands.items():
+            print(f"  --{param_name} -> {command_info['function_name']}() - {command_info['description']}")
+
+
+# 创建全局命令注册器
+command_registry = CommandRegistry()
 
 
 class IntegratedDemandMiningManager:
@@ -257,7 +372,6 @@ class IntegratedDemandMiningManager:
                 'top_trending_words': []
             }
     
-    
     def generate_daily_report(self, date: str = None) -> str:
         """生成日报"""
         report_date = date or datetime.now().strftime("%Y-%m-%d")
@@ -309,13 +423,435 @@ def print_quiet_summary(result):
             print(f"   {i+1}. {kw['keyword']} (机会分数: {score}, 意图: {intent_desc})")
 
 
+@command_registry.register('input', '分析CSV文件中的关键词', priority=10)
+@command_registry.register('input', '分析CSV文件中的关键词', priority=10)
+def handle_input_file_analysis(manager, args):
+    """处理输入文件分析"""
+    if not args.quiet:
+        print("🚀 开始分析关键词文件...")
+        if args.serp:
+            print("🔍 已启用SERP分析功能")
+    
+    result = manager.analyze_keywords(args.input, args.output, enable_serp=args.serp)
+    
+    # 显示结果
+    if args.quiet:
+        print_quiet_summary(result)
+    else:
+        print(f"\n🎉 分析完成! 共分析 {result['total_keywords']} 个关键词")
+        print(f"📊 高机会关键词: {result['market_insights']['high_opportunity_count']} 个")
+        print(f"📈 平均机会分数: {result['market_insights']['avg_opportunity_score']}")
+        
+        # 显示新词检测摘要
+        if 'new_word_summary' in result and result['new_word_summary'].get('new_words_detected', 0) > 0:
+            summary = result['new_word_summary']
+            print(f"🔍 新词检测: 发现 {summary['new_words_detected']} 个新词 ({summary['new_word_percentage']}%)")
+            print(f"   高置信度新词: {summary['high_confidence_new_words']} 个")
+
+        # 显示SERP分析摘要
+        if 'serp_summary' in result and result['serp_summary'].get('serp_analysis_enabled', False):
+            serp_summary = result['serp_summary']
+            print(f"🔍 SERP分析: 分析了 {serp_summary['total_analyzed']} 个关键词")
+            print(f"   高置信度SERP: {serp_summary['high_confidence_serp']} 个")
+            print(f"   商业意图关键词: {serp_summary['commercial_intent_keywords']} 个")
+
+        # 显示Top 5关键词
+        top_keywords = result['market_insights']['top_opportunities'][:5]
+        if top_keywords:
+            print("\n🏆 Top 5 机会关键词:")
+            for i, kw in enumerate(top_keywords, 1):
+                intent_desc = kw['intent']['intent_description']
+                score = kw['opportunity_score']
+                new_word_info = ""
+                if 'new_word_detection' in kw and kw['new_word_detection']['is_new_word']:
+                    new_word_grade = kw['new_word_detection']['new_word_grade']
+                    new_word_info = f" [新词-{new_word_grade}级]"
+                print(f"   {i}. {kw['keyword']} (分数: {score}, 意图: {intent_desc}){new_word_info}")
+
+
+@command_registry.register('keywords', '分析指定的关键词列表', priority=9)
+@command_registry.register('keywords', '分析指定的关键词列表', priority=9)
+def handle_keywords_analysis(manager, args):
+    """处理直接输入关键词分析"""
+    if not args.quiet:
+        print("🚀 开始分析输入的关键词...")
+    
+    # 创建临时CSV文件
+    import pandas as pd
+    import tempfile
+    
+    temp_df = pd.DataFrame([{'query': kw} for kw in args.keywords])
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, encoding='utf-8') as f:
+        temp_df.to_csv(f.name, index=False)
+        temp_file = f.name
+    
+    try:
+        result = manager.analyze_keywords(temp_file, args.output, enable_serp=args.serp)
+        
+        # 显示结果
+        if args.quiet:
+            print_quiet_summary(result)
+        else:
+            print(f"\n🎉 分析完成! 共分析 {len(args.keywords)} 个关键词")
+            
+            # 显示每个关键词的结果
+            print("\n📋 关键词分析结果:")
+            for kw_result in result['keywords']:
+                keyword = kw_result['keyword']
+                score = kw_result['opportunity_score']
+                intent = kw_result['intent']['intent_description']
+                print(f"   • {keyword}: 机会分数 {score}, 意图: {intent}")
+    finally:
+        # 清理临时文件
+        os.unlink(temp_file)
+
+
+@command_registry.register('discover', '多平台关键词发现', priority=8)
+@command_registry.register('discover', '多平台关键词发现', priority=8)
+def handle_discover_mode(manager, args):
+    """处理多平台关键词发现"""
+    search_terms = args.discover if args.discover != ['default'] else ['AI tool', 'AI generator', 'AI assistant']
+    
+    if not args.quiet:
+        print("🔍 开始多平台关键词发现...")
+        print(f"📊 搜索词汇: {', '.join(search_terms)}")
+    
+    try:
+        # 创建发现工具
+        discoverer = MultiPlatformKeywordDiscovery()
+        
+        # 执行发现
+        df = discoverer.discover_all_platforms(search_terms)
+
+        if not df.empty:
+            # 分析趋势
+            analysis = discoverer.analyze_keyword_trends(df)
+            
+            # 保存结果
+            output_dir = os.path.join(args.output, 'multi_platform_discovery')
+            csv_path, json_path = discoverer.save_results(df, analysis, output_dir)
+            
+            if args.quiet:
+                # 静默模式显示
+                print(f"\n🎯 多平台关键词发现结果:")
+                print(f"   • 发现关键词: {analysis['total_keywords']} 个")
+                print(f"   • 平台分布: {analysis['platform_distribution']}")
+                
+                # 显示Top 3关键词
+                top_keywords = analysis['top_keywords_by_score'][:3]
+                if top_keywords:
+                    print("\n🏆 Top 3 热门关键词:")
+                    for i, kw in enumerate(top_keywords, 1):
+                        print(f"   {i}. {kw['keyword']} (评分: {kw['score']}, 来源: {kw['platform']})")
+            else:
+                # 详细模式显示
+                print(f"\n🎉 多平台关键词发现完成!")
+                print(f"📊 发现 {analysis['total_keywords']} 个关键词")
+                print(f"🌐 平台分布: {analysis['platform_distribution']}")
+                
+                print(f"\n🏆 热门关键词:")
+                for i, kw in enumerate(analysis['top_keywords_by_score'][:5], 1):
+                    print(f"  {i}. {kw['keyword']} (评分: {kw['score']}, 来源: {kw['platform']})")
+            
+            print(f"\n📁 结果已保存:")
+            print(f"  CSV: {csv_path}")
+            print(f"  JSON: {json_path}")
+            
+            # 询问是否要立即分析发现的关键词
+            if not args.quiet:
+                user_input = input("\n🤔 是否要立即分析这些关键词的意图和市场机会? (y/n): ")
+                if user_input.lower() in ['y', 'yes', '是']:
+                    print("🔄 开始分析发现的关键词...")
+                    result = manager.analyze_keywords(csv_path, args.output)
+                    print(f"✅ 关键词分析完成! 共分析 {result['total_keywords']} 个关键词")
+                    print(f"📊 高机会关键词: {result['market_insights']['high_opportunity_count']} 个")
+        else:
+            print("⚠️ 未发现任何关键词，请检查网络连接或调整搜索参数")
+            
+    except ImportError as e:
+        print(f"❌ 导入多平台发现工具失败: {e}")
+        print("请确保所有依赖已正确安装")
+    except Exception as e:
+        print(f"❌ 多平台关键词发现失败: {e}")
+        if args.verbose:
+            import traceback
+            traceback.print_exc()
+
+
+def handle_enhanced_features(args):
+    """处理增强功能"""
+    if args.monitor_competitors:
+        # 竞品监控
+        sites = args.sites or ['canva.com', 'midjourney.com', 'openai.com']
+        if not args.quiet:
+            print(f"🔍 开始监控 {len(sites)} 个竞品网站...")
+        
+        result = monitor_competitors(sites, args.output)
+        print(f"✅ 竞品监控完成: 分析了 {len(result['competitors'])} 个竞品")
+        
+        if not args.quiet:
+            print("\n📊 监控结果摘要:")
+            for comp in result['competitors'][:3]:
+                print(f"  • {comp['site']}: {comp['new_keywords_count']} 个新关键词")
+    
+    elif args.predict_trends:
+        # 趋势预测
+        if not args.quiet:
+            print(f"📈 开始预测未来 {args.timeframe} 的关键词趋势...")
+        
+        result = predict_keyword_trends(args.timeframe, args.output)
+        print(f"✅ 趋势预测完成: 预测了 {len(result['rising_keywords'])} 个上升关键词")
+        
+        if not args.quiet:
+            print("\n📈 趋势预测摘要:")
+            for kw in result['rising_keywords'][:3]:
+                print(f"  📈 {kw['keyword']}: {kw['predicted_growth']} (置信度: {kw['confidence']:.0%})")
+    
+    elif args.seo_audit:
+        # SEO审计
+        if not args.domain:
+            print("❌ 请指定要审计的域名 (--domain)")
+            return
+        
+        if not args.quiet:
+            print(f"🔍 开始SEO审计: {args.domain}")
+        
+        result = generate_seo_audit(args.domain, args.keywords)
+        print(f"✅ SEO审计完成: 发现 {len(result['keyword_opportunities'])} 个关键词机会")
+        
+        if not args.quiet:
+            print("\n🎯 SEO优化建议:")
+            for gap in result['content_gaps'][:3]:
+                print(f"  • {gap}")
+    
+    elif args.build_websites:
+        # 批量建站
+        if not args.quiet:
+            print(f"🏗️ 开始批量生成 {args.top_keywords} 个网站...")
+        
+        result = batch_build_websites(args.top_keywords, args.output)
+        print(f"✅ 批量建站完成: 成功构建 {result['successful_builds']} 个网站")
+        
+        if not args.quiet:
+            print("\n🌐 构建的网站:")
+            for site in result['websites'][:3]:
+                print(f"  • {site['keyword']}: {site['domain_suggestion']}")
+
+
+@command_registry.register('hotkeywords', '搜索热门关键词', priority=5)
+@command_registry.register('hotkeywords', '搜索热门关键词', priority=5)
+def handle_hot_keywords_analysis(manager, args):
+    """处理热门关键词分析"""
+    if not args.quiet:
+        print("🔥 开始搜索热门关键词并进行需求挖掘...")
+    
+    try:
+        # 使用单例获取 TrendsCollector
+        from src.collectors.trends_singleton import get_trends_collector
+        
+        # 获取 TrendsCollector 单例实例
+        trends_collector = get_trends_collector()
+        
+        # 使用 fetch_rising_queries 获取热门关键词
+        if not args.quiet:
+            print("🔍 正在获取 Rising Queries...")
+        
+        rising_queries = trends_collector.fetch_rising_queries()
+        
+        # 将 rising queries 转换为DataFrame格式
+        import pandas as pd
+        # 处理不同类型的 rising_queries 返回值
+        if isinstance(rising_queries, pd.DataFrame):
+            # 如果已经是DataFrame，直接使用
+            trending_df = rising_queries.head(20)  # 限制前20个
+            # 确保有query列
+            if 'query' not in trending_df.columns:
+                if 'title' in trending_df.columns:
+                    trending_df = trending_df.rename(columns={'title': 'query'})
+                elif len(trending_df.columns) > 0:
+                    trending_df = trending_df.rename(columns={trending_df.columns[0]: 'query'})
+        elif rising_queries and len(rising_queries) > 0:
+            # 如果返回的是字符串列表
+            if isinstance(rising_queries[0], str):
+                trending_df = pd.DataFrame([
+                    {'query': query}
+                    for query in rising_queries[:20]  # 限制前20个
+                ])
+            # 如果返回的是字典列表
+            elif isinstance(rising_queries[0], dict):
+                trending_df = pd.DataFrame([
+                    {
+                        'query': item.get('query', item.get('keyword', str(item))),
+                        'value': item.get('value', item.get('interest', 0))
+                    }
+                    for item in rising_queries[:20]  # 限制前20个
+                ])
+            else:
+                # 其他格式，尝试转换为字符串
+                trending_df = pd.DataFrame([
+                    {'query': str(query)}
+                    for query in rising_queries[:20]
+                ])
+        else:
+            trending_df = pd.DataFrame(columns=['query'])
+
+        if trending_df is not None and not trending_df.empty:
+            # 保存热门关键词到临时文件
+            import tempfile
+            from datetime import datetime
+            
+            # 确保DataFrame有正确的列名
+            if 'query' not in trending_df.columns and len(trending_df.columns) > 0:
+                # 如果没有query列，使用第一列作为关键词
+                trending_df = trending_df.rename(columns={trending_df.columns[0]: 'query'})
+            
+            # 创建临时文件进行需求挖掘分析
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, encoding='utf-8') as f:
+                trending_df.to_csv(f.name, index=False)
+                temp_file = f.name
+            
+            try:
+                if not args.quiet:
+                    print(f"🔍 获取到 {len(trending_df)} 个 Rising Queries，开始需求挖掘分析...")
+                
+                # 执行需求挖掘分析，禁用新词检测避免429错误
+                manager.new_word_detection_available = False
+                result = manager.analyze_keywords(temp_file, args.output, enable_serp=False)
+                
+                # 显示结果
+                if args.quiet:
+                    print_quiet_summary(result)
+                else:
+                    print(f"\n🎉 需求挖掘分析完成! 共分析 {result['total_keywords']} 个 Rising Queries")
+                    print(f"📊 高机会关键词: {result['market_insights']['high_opportunity_count']} 个")
+                    print(f"📈 平均机会分数: {result['market_insights']['avg_opportunity_score']}")
+                    
+                    # 显示新词检测摘要
+                    if 'new_word_summary' in result and result['new_word_summary'].get('new_words_detected', 0) > 0:
+                        summary = result['new_word_summary']
+                        print(f"🔍 新词检测: 发现 {summary['new_words_detected']} 个新词 ({summary['new_word_percentage']}%)")
+                        print(f"   高置信度新词: {summary['high_confidence_new_words']} 个")
+
+                    # 显示Top 5机会关键词
+                    top_keywords = result['market_insights']['top_opportunities'][:5]
+                    if top_keywords:
+                        print("\n🏆 Top 5 机会关键词:")
+                        for i, kw in enumerate(top_keywords, 1):
+                            intent_desc = kw['intent']['intent_description']
+                            score = kw['opportunity_score']
+                            new_word_info = ""
+                            if 'new_word_detection' in kw and kw['new_word_detection']['is_new_word']:
+                                new_word_grade = kw['new_word_detection']['new_word_grade']
+                                new_word_info = f" [新词-{new_word_grade}级]"
+                            print(f"   {i}. {kw['keyword']} (分数: {score}, 意图: {intent_desc}){new_word_info}")
+                    
+                    # 显示原始Rising Queries信息
+                    print(f"\n🔥 原始 Rising Queries 数据:")
+                    print(f"   • 数据来源: Google Trends Rising Queries")
+                    if 'value' in trending_df.columns:
+                        print(f"   • 平均热度: {trending_df['value'].mean():.1f}")
+                    
+                    # 保存原始Rising Queries
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    trending_output_file = os.path.join(args.output, f"rising_queries_raw_{timestamp}.csv")
+                    os.makedirs(args.output, exist_ok=True)
+                    trending_df.to_csv(trending_output_file, index=False, encoding='utf-8')
+                    print(f"📁 原始 Rising Queries 已保存到: {trending_output_file}")
+                
+            finally:
+                # 清理临时文件
+                os.unlink(temp_file)
+                
+        else:
+            # 当无法获取Rising Queries时，直接报告失败
+            print("❌ 无法获取 Rising Queries，可能的原因:")
+            print("💡 建议:")
+            print("   1. 检查网络连接")
+            print("   2. 稍后重试")
+            print("   3. 或使用 --input 参数指定关键词文件进行分析")
+            sys.exit(1)
+
+    except Exception as e:
+        print(f"❌ 获取 Rising Queries 或需求挖掘时出错: {e}")
+        if args.verbose:
+            import traceback
+            traceback.print_exc()
+
+
+def _handle_report_generation(manager, args):
+    """处理报告生成"""
+    if not args.quiet:
+        print("📊 生成今日分析报告...")
+    
+    report_path = manager.generate_daily_report()
+    print(f"✅ 报告已生成: {report_path}")
+
+
+@command_registry.register('use_root_words', '使用51个词根进行趋势分析', priority=6)
+@command_registry.register('use_root_words', '使用51个词根进行趋势分析', priority=6)
+def handle_root_words_analysis(manager, args):
+    """处理词根趋势分析"""
+    if not args.quiet:
+        print("🌱 开始使用51个词根进行趋势分析...")
+    
+    result = manager.analyze_root_words(args.output)
+    
+    # 显示结果
+    if args.quiet:
+        print_quiet_summary(result)
+    else:
+        print(f"\n🎉 词根趋势分析完成! 共分析 {result.get('total_root_words', 0)} 个词根")
+        print(f"📊 成功分析: {result.get('successful_analyses', 0)} 个")
+        print(f"📈 上升趋势词根: {len(result.get('top_trending_words', []))}")
+        
+        # 显示Top 5词根
+        top_words = result.get('top_trending_words', [])[:5]
+        if top_words:
+            print("\n🏆 Top 5 热门词根:")
+            for i, word_data in enumerate(top_words, 1):
+                print(f"   {i}. {word_data['word']}: 平均兴趣度 {word_data['average_interest']:.1f}")
+
+
+@command_registry.register('report', '生成今日分析报告', priority=7)
+def handle_report_generation(manager, args):
+    """处理报告生成"""
+    if not args.quiet:
+        print("📊 生成今日分析报告...")
+    report_path = manager.generate_daily_report()
+    print(f"✅ 报告已生成: {report_path}")
+
+
+@command_registry.register('monitor_competitors', '监控竞品关键词变化', priority=4)
+def handle_monitor_competitors(manager, args):
+    """处理竞品监控"""
+    return handle_enhanced_features(args)
+
+
+@command_registry.register('predict_trends', '预测关键词趋势', priority=3)
+def handle_predict_trends(manager, args):
+    """处理趋势预测"""
+    return handle_enhanced_features(args)
+
+
+@command_registry.register('seo_audit', '生成SEO优化建议', priority=2)
+def handle_seo_audit(manager, args):
+    """处理SEO审计"""
+    return handle_enhanced_features(args)
+
+
+@command_registry.register('build_websites', '批量生成网站', priority=1)
+def handle_build_websites(manager, args):
+    """处理网站构建"""
+    return handle_enhanced_features(args)
+
+
 def main():
-    """主函数 - 提供统一的执行入口"""
+    """主函数 - 提供统一的执行入口（重构版本）"""
     import os, sys, asyncio
     print("🔍 需求挖掘分析工具 v2.0")
     print("整合六大需求挖掘方法的智能分析系统")
     print("=" * 60)
-    
+
     # 解析命令行参数
     parser = argparse.ArgumentParser(
         description='需求挖掘分析工具 - 整合六大挖掘方法',
@@ -339,14 +875,8 @@ def main():
               # 分析单个关键词
               python main.py --keywords "ai generator" "ai converter"
               
-              # 分析单个关键词并启用SERP分析
-              python main.py --keywords "AI" --serp
-              
               # 多平台关键词发现
               python main.py --discover "AI image generator" "AI writing tool"
-              
-              # 使用默认搜索词进行多平台发现
-              python main.py --discover default
               
               # 生成分析报告
               python main.py --report
@@ -356,33 +886,19 @@ def main():
             
               # 静默模式分析
               python main.py --input data/keywords.csv --quiet
-            
-            🚀 增强功能示例:
-              # 监控竞品关键词变化
-              python main.py --monitor-competitors --sites canva.com midjourney.com
-            
-              # 预测关键词趋势
-              python main.py --predict-trends --timeframe 30d
-            
-              # SEO审计
-              python main.py --seo-audit --domain your-site.com --keywords "ai tool" "ai generator"
-            
-              # 批量生成网站
-              python main.py --build-websites --top-keywords 5
         """
     )
-    
-    # 输入方式选择 - 修改为非必需，支持默认词根分析
+
+    # 输入方式选择
     input_group = parser.add_mutually_exclusive_group(required=False)
     input_group.add_argument('--input', help='输入CSV文件路径')
     input_group.add_argument('--keywords', nargs='+', help='直接输入关键词（可以是多个）')
     input_group.add_argument('--discover', nargs='+', help='多平台关键词发现（可指定搜索词汇）')
     input_group.add_argument('--report', action='store_true', help='生成今日分析报告')
     input_group.add_argument('--hotkeywords', action='store_true', help='搜索热门关键词')
-    input_group.add_argument('--all', action='store_true', help='完整流程：先搜索热门关键词，再进行51个词根趋势分析')
-    input_group.add_argument('--demand-validation', action='store_true', help='需求验证：对高机会关键词进行多平台需求分析')
+    input_group.add_argument('--use-root-words', action='store_true', help='使用51个词根进行趋势分析')
     
-    # 增强功能组
+    # 增强功能组 - 合理使用 default 参数
     enhanced_group = parser.add_argument_group('增强功能')
     enhanced_group.add_argument('--monitor-competitors', action='store_true', help='监控竞品关键词变化')
     enhanced_group.add_argument('--sites', nargs='+', help='竞品网站列表')
@@ -393,16 +909,61 @@ def main():
     enhanced_group.add_argument('--build-websites', action='store_true', help='批量生成网站')
     enhanced_group.add_argument('--top-keywords', type=int, default=10, help='使用前N个关键词')
 
-    # 其他参数
+    # 其他参数 - 合理使用 default 参数
     parser.add_argument('--output', default=get_reports_dir(), help='输出目录')
     parser.add_argument('--config', help='配置文件路径')
     parser.add_argument('--quiet', '-q', action='store_true', help='静默模式，只显示最终结果')
     parser.add_argument('--verbose', '-v', action='store_true', help='详细模式，显示所有中间过程')
     parser.add_argument('--stats', action='store_true', help='显示管理器统计信息')
-    parser.add_argument('--use-root-words', action='store_true', help='使用51个词根进行趋势分析')
     parser.add_argument('--serp', action='store_true', help='启用SERP分析功能')
+    parser.add_argument('--list-commands', action='store_true', help='列出所有可用命令')
     
     args = parser.parse_args()
+    
+    # 统一参数验证和处理
+    if args.list_commands:
+        command_registry.list_commands()
+        return
+    
+    # 验证输出目录参数
+    if args.output and not os.path.exists(os.path.dirname(args.output)):
+        try:
+            os.makedirs(os.path.dirname(args.output), exist_ok=True)
+        except Exception as e:
+            print(f"❌ 无法创建输出目录: {e}")
+            sys.exit(1)
+    
+    # 验证配置文件参数
+    if args.config and not os.path.exists(args.config):
+        print(f"❌ 配置文件不存在: {args.config}")
+        sys.exit(1)
+    
+    # 验证输入文件参数
+    if args.input and not os.path.exists(args.input):
+        print(f"❌ 输入文件不存在: {args.input}")
+        sys.exit(1)
+    
+    # 验证关键词参数
+    if args.keywords and len(args.keywords) == 0:
+        print("❌ 关键词列表不能为空")
+        sys.exit(1)
+    
+    # 验证发现参数
+    if args.discover and len(args.discover) == 0:
+        print("❌ 发现搜索词列表不能为空")
+        sys.exit(1)
+    
+    # 验证增强功能参数
+    if args.monitor_competitors and not args.sites:
+        print("⚠️ 未指定竞品网站，将使用默认网站列表")
+    
+    if args.seo_audit and not args.domain:
+        print("❌ SEO审计需要指定域名 (--domain)")
+        sys.exit(1)
+    
+    if args.top_keywords <= 0:
+        print("❌ --top-keywords 必须是正整数")
+        sys.exit(1)
     
     # 显示分析参数
     if not args.quiet:
@@ -432,645 +993,9 @@ def main():
                     print(f"{manager_name}: {manager_stats}")
             return
         
-        if args.input:
-            # 分析关键词文件
-            if not args.quiet:
-                print("🚀 开始分析关键词文件...")
-                if args.serp:
-                    print("🔍 已启用SERP分析功能")
-            
-            result = manager.analyze_keywords(args.input, args.output, enable_serp=args.serp)
-            
-            # 显示结果
-            if args.quiet:
-                print_quiet_summary(result)
-            else:
-                print(f"\n🎉 分析完成! 共分析 {result['total_keywords']} 个关键词")
-                print(f"📊 高机会关键词: {result['market_insights']['high_opportunity_count']} 个")
-                print(f"📈 平均机会分数: {result['market_insights']['avg_opportunity_score']}")
-                
-                # 显示新词检测摘要
-                if 'new_word_summary' in result and result['new_word_summary'].get('new_words_detected', 0) > 0:
-                    summary = result['new_word_summary']
-                    print(f"🔍 新词检测: 发现 {summary['new_words_detected']} 个新词 ({summary['new_word_percentage']}%)")
-                    print(f"   高置信度新词: {summary['high_confidence_new_words']} 个")
-
-                # 显示SERP分析摘要
-                if 'serp_summary' in result and result['serp_summary'].get('serp_analysis_enabled', False):
-                    serp_summary = result['serp_summary']
-                    print(f"🔍 SERP分析: 分析了 {serp_summary['total_analyzed']} 个关键词")
-                    print(f"   高置信度SERP: {serp_summary['high_confidence_serp']} 个")
-                    print(f"   商业意图关键词: {serp_summary['commercial_intent_keywords']} 个")
-
-                # 显示Top 5关键词
-                top_keywords = result['market_insights']['top_opportunities'][:5]
-                if top_keywords:
-                    print("\n🏆 Top 5 机会关键词:")
-                    for i, kw in enumerate(top_keywords, 1):
-                        intent_desc = kw['intent']['intent_description']
-                        score = kw['opportunity_score']
-                        new_word_info = ""
-                        if 'new_word_detection' in kw and kw['new_word_detection']['is_new_word']:
-                            new_word_grade = kw['new_word_detection']['new_word_grade']
-                            new_word_info = f" [新词-{new_word_grade}级]"
-                        print(f"   {i}. {kw['keyword']} (分数: {score}, 意图: {intent_desc}){new_word_info}")
-        
-        elif args.keywords:
-            # 分析单个关键词
-            if not args.quiet:
-                print("🚀 开始分析输入的关键词...")
-            
-            # 创建临时CSV文件
-            import pandas as pd
-            import tempfile
-            
-            temp_df = pd.DataFrame([{'query': kw} for kw in args.keywords])
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, encoding='utf-8') as f:
-                temp_df.to_csv(f.name, index=False)
-                temp_file = f.name
-            
-            try:
-                result = manager.analyze_keywords(temp_file, args.output, enable_serp=args.serp)
-                
-                # 显示结果
-                if args.quiet:
-                    print_quiet_summary(result)
-                else:
-                    print(f"\n🎉 分析完成! 共分析 {len(args.keywords)} 个关键词")
-                    
-                    # 显示每个关键词的结果
-                    print("\n📋 关键词分析结果:")
-                    for kw_result in result['keywords']:
-                        keyword = kw_result['keyword']
-                        score = kw_result['opportunity_score']
-                        intent = kw_result['intent']['intent_description']
-                        print(f"   • {keyword}: 机会分数 {score}, 意图: {intent}")
-            finally:
-                # 清理临时文件
-                os.unlink(temp_file)
-        
-        elif args.discover:
-            # 多平台关键词发现
-            search_terms = args.discover if args.discover != ['default'] else ['AI tool', 'AI generator', 'AI assistant']
-            
-            if not args.quiet:
-                print("🔍 开始多平台关键词发现...")
-                print(f"📊 搜索词汇: {', '.join(search_terms)}")
-            
-            try:
-                # 导入多平台发现工具
-
-                
-                # 创建发现工具
-                discoverer = MultiPlatformKeywordDiscovery()
-                
-                # 执行发现
-                df = discoverer.discover_all_platforms(search_terms)
-
-
-                if not df.empty:
-                    # 分析趋势
-                    analysis = discoverer.analyze_keyword_trends(df)
-                    
-                    # 保存结果
-                    output_dir = os.path.join(args.output, 'multi_platform_discovery')
-                    csv_path, json_path = discoverer.save_results(df, analysis, output_dir)
-                    
-                    if args.quiet:
-                        # 静默模式显示
-                        print(f"\n🎯 多平台关键词发现结果:")
-                        print(f"   • 发现关键词: {analysis['total_keywords']} 个")
-                        print(f"   • 平台分布: {analysis['platform_distribution']}")
-                        
-                        # 显示Top 3关键词
-                        top_keywords = analysis['top_keywords_by_score'][:3]
-                        if top_keywords:
-                            print("\n🏆 Top 3 热门关键词:")
-                            for i, kw in enumerate(top_keywords, 1):
-                                print(f"   {i}. {kw['keyword']} (评分: {kw['score']}, 来源: {kw['platform']})")
-                    else:
-                        # 详细模式显示
-                        print(f"\n🎉 多平台关键词发现完成!")
-                        print(f"📊 发现 {analysis['total_keywords']} 个关键词")
-                        print(f"🌐 平台分布: {analysis['platform_distribution']}")
-                        
-                        print(f"\n🏆 热门关键词:")
-                        for i, kw in enumerate(analysis['top_keywords_by_score'][:5], 1):
-                            print(f"  {i}. {kw['keyword']} (评分: {kw['score']}, 来源: {kw['platform']})")
-                    
-                    print(f"\n📁 结果已保存:")
-                    print(f"  CSV: {csv_path}")
-                    print(f"  JSON: {json_path}")
-                    
-                    # 询问是否要立即分析发现的关键词
-                    if not args.quiet:
-                        user_input = input("\n🤔 是否要立即分析这些关键词的意图和市场机会? (y/n): ")
-                        if user_input.lower() in ['y', 'yes', '是']:
-                            print("🔄 开始分析发现的关键词...")
-                            result = manager.analyze_keywords(csv_path, args.output)
-                            print(f"✅ 关键词分析完成! 共分析 {result['total_keywords']} 个关键词")
-                            print(f"📊 高机会关键词: {result['market_insights']['high_opportunity_count']} 个")
-                else:
-                    print("⚠️ 未发现任何关键词，请检查网络连接或调整搜索参数")
-                    
-            except ImportError as e:
-                print(f"❌ 导入多平台发现工具失败: {e}")
-                print("请确保所有依赖已正确安装")
-            except Exception as e:
-                print(f"❌ 多平台关键词发现失败: {e}")
-                if args.verbose:
-                    import traceback
-                    traceback.print_exc()
-        
-        elif args.monitor_competitors:
-            # 竞品监控
-            sites = args.sites or ['canva.com', 'midjourney.com', 'openai.com']
-            if not args.quiet:
-                print(f"🔍 开始监控 {len(sites)} 个竞品网站...")
-            
-            result = monitor_competitors(sites, args.output)
-            print(f"✅ 竞品监控完成: 分析了 {len(result['competitors'])} 个竞品")
-            
-            if not args.quiet:
-                print("\n📊 监控结果摘要:")
-                for comp in result['competitors'][:3]:
-                    print(f"  • {comp['site']}: {comp['new_keywords_count']} 个新关键词")
-        
-        elif args.predict_trends:
-            # 趋势预测
-            if not args.quiet:
-                print(f"📈 开始预测未来 {args.timeframe} 的关键词趋势...")
-            
-            result = predict_keyword_trends(args.timeframe, args.output)
-            print(f"✅ 趋势预测完成: 预测了 {len(result['rising_keywords'])} 个上升关键词")
-            
-            if not args.quiet:
-                print("\n📈 趋势预测摘要:")
-                for kw in result['rising_keywords'][:3]:
-                    print(f"  📈 {kw['keyword']}: {kw['predicted_growth']} (置信度: {kw['confidence']:.0%})")
-        
-        elif args.seo_audit:
-            # SEO审计
-            if not args.domain:
-                print("❌ 请指定要审计的域名 (--domain)")
-                return
-            
-            if not args.quiet:
-                print(f"🔍 开始SEO审计: {args.domain}")
-            
-            result = generate_seo_audit(args.domain, args.keywords)
-            print(f"✅ SEO审计完成: 发现 {len(result['keyword_opportunities'])} 个关键词机会")
-            
-            if not args.quiet:
-                print("\n🎯 SEO优化建议:")
-                for gap in result['content_gaps'][:3]:
-                    print(f"  • {gap}")
-        
-        elif args.build_websites:
-            # 批量建站
-            if not args.quiet:
-                print(f"🏗️ 开始批量生成 {args.top_keywords} 个网站...")
-            
-            result = batch_build_websites(args.top_keywords, args.output)
-            print(f"✅ 批量建站完成: 成功构建 {result['successful_builds']} 个网站")
-            
-            if not args.quiet:
-                print("\n🌐 构建的网站:")
-                for site in result['websites'][:3]:
-                    print(f"  • {site['keyword']}: {site['domain_suggestion']}")
-
-        elif args.report:
-            # 生成分析报告
-            if not args.quiet:
-                print("📊 生成今日分析报告...")
-            
-            report_path = manager.generate_daily_report()
-            print(f"✅ 报告已生成: {report_path}")
-        
-        elif args.use_root_words:
-            # 使用51个词根进行趋势分析
-            if not args.quiet:
-                print("🌱 开始使用51个词根进行趋势分析...")
-            
-            result = manager.analyze_root_words(args.output)
-            
-            # 显示结果
-            if args.quiet:
-                print_quiet_summary(result)
-            else:
-                print(f"\n🎉 词根趋势分析完成! 共分析 {result.get('total_root_words', 0)} 个词根")
-                print(f"📊 成功分析: {result.get('successful_analyses', 0)} 个")
-                print(f"📈 上升趋势词根: {len(result.get('top_trending_words', []))}")
-                
-                # 显示Top 5词根
-                top_words = result.get('top_trending_words', [])[:5]
-                if top_words:
-                    print("\n🏆 Top 5 热门词根:")
-                    for i, word_data in enumerate(top_words, 1):
-                        print(f"   {i}. {word_data['word']}: 平均兴趣度 {word_data['average_interest']:.1f}")
-        
-        elif args.hotkeywords:
-            # 搜索热门关键词：使用 fetch_rising_queries 获取关键词并进行需求挖掘
-            if not args.quiet:
-                print("🔥 开始搜索热门关键词并进行需求挖掘...")
-            
-            try:
-                # 使用单例获取 TrendsCollector
-                from src.collectors.trends_singleton import get_trends_collector
-                
-                # 获取 TrendsCollector 单例实例
-                trends_collector = get_trends_collector()
-                
-                # 使用 fetch_rising_queries 获取热门关键词
-                if not args.quiet:
-                    print("🔍 正在获取 Rising Queries...")
-                
-                rising_queries = trends_collector.fetch_rising_queries()
-                
-                # 将 rising queries 转换为DataFrame格式
-                import pandas as pd
-                # 处理不同类型的 rising_queries 返回值
-                if isinstance(rising_queries, pd.DataFrame):
-                    # 如果已经是DataFrame，直接使用
-                    trending_df = rising_queries.head(20)  # 限制前20个
-                    # 确保有query列
-                    if 'query' not in trending_df.columns:
-                        if 'title' in trending_df.columns:
-                            trending_df = trending_df.rename(columns={'title': 'query'})
-                        elif len(trending_df.columns) > 0:
-                            trending_df = trending_df.rename(columns={trending_df.columns[0]: 'query'})
-                elif rising_queries and len(rising_queries) > 0:
-                    # 如果返回的是字符串列表
-                    if isinstance(rising_queries[0], str):
-                        trending_df = pd.DataFrame([
-                            {'query': query}
-                            for query in rising_queries[:20]  # 限制前20个
-                        ])
-                    # 如果返回的是字典列表
-                    elif isinstance(rising_queries[0], dict):
-                        trending_df = pd.DataFrame([
-                            {
-                                'query': item.get('query', item.get('keyword', str(item))),
-                                'value': item.get('value', item.get('interest', 0))
-                            }
-                            for item in rising_queries[:20]  # 限制前20个
-                        ])
-                    else:
-                        # 其他格式，尝试转换为字符串
-                        trending_df = pd.DataFrame([
-                            {'query': str(query)}
-                            for query in rising_queries[:20]
-                        ])
-                else:
-                    trending_df = pd.DataFrame(columns=['query'])
-
-                if trending_df is not None and not trending_df.empty:
-                    # 保存热门关键词到临时文件
-                    import tempfile
-                    from datetime import datetime
-                    
-                    # 确保DataFrame有正确的列名
-                    if 'query' not in trending_df.columns and len(trending_df.columns) > 0:
-                        # 如果没有query列，使用第一列作为关键词
-                        trending_df = trending_df.rename(columns={trending_df.columns[0]: 'query'})
-                    
-                    # 创建临时文件进行需求挖掘分析
-                    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, encoding='utf-8') as f:
-                        trending_df.to_csv(f.name, index=False)
-                        temp_file = f.name
-                    
-                    try:
-                        if not args.quiet:
-                            print(f"🔍 获取到 {len(trending_df)} 个 Rising Queries，开始需求挖掘分析...")
-                        
-                        # 执行需求挖掘分析，禁用新词检测避免429错误
-                        manager.new_word_detection_available = False
-                        result = manager.analyze_keywords(temp_file, args.output, enable_serp=False)
-                        
-                        # 显示结果
-                        if args.quiet:
-                            print_quiet_summary(result)
-                        else:
-                            print(f"\n🎉 需求挖掘分析完成! 共分析 {result['total_keywords']} 个 Rising Queries")
-                            print(f"📊 高机会关键词: {result['market_insights']['high_opportunity_count']} 个")
-                            print(f"📈 平均机会分数: {result['market_insights']['avg_opportunity_score']}")
-                            
-                            # 显示新词检测摘要
-                            if 'new_word_summary' in result and result['new_word_summary'].get('new_words_detected', 0) > 0:
-                                summary = result['new_word_summary']
-                                print(f"🔍 新词检测: 发现 {summary['new_words_detected']} 个新词 ({summary['new_word_percentage']}%)")
-                                print(f"   高置信度新词: {summary['high_confidence_new_words']} 个")
-
-                            # 显示Top 5机会关键词
-                            top_keywords = result['market_insights']['top_opportunities'][:5]
-                            if top_keywords:
-                                print("\n🏆 Top 5 机会关键词:")
-                                for i, kw in enumerate(top_keywords, 1):
-                                    intent_desc = kw['intent']['intent_description']
-                                    score = kw['opportunity_score']
-                                    new_word_info = ""
-                                    if 'new_word_detection' in kw and kw['new_word_detection']['is_new_word']:
-                                        new_word_grade = kw['new_word_detection']['new_word_grade']
-                                        new_word_info = f" [新词-{new_word_grade}级]"
-                                    print(f"   {i}. {kw['keyword']} (分数: {score}, 意图: {intent_desc}){new_word_info}")
-                            
-                            # 显示原始Rising Queries信息
-                            print(f"\n🔥 原始 Rising Queries 数据:")
-                            print(f"   • 数据来源: Google Trends Rising Queries")
-                            if 'value' in trending_df.columns:
-                                print(f"   • 平均热度: {trending_df['value'].mean():.1f}")
-                            
-                            # 保存原始Rising Queries
-                            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                            trending_output_file = os.path.join(args.output, f"rising_queries_raw_{timestamp}.csv")
-                            os.makedirs(args.output, exist_ok=True)
-                            trending_df.to_csv(trending_output_file, index=False, encoding='utf-8')
-                            print(f"📁 原始 Rising Queries 已保存到: {trending_output_file}")
-                        
-                    finally:
-                        # 清理临时文件
-                        os.unlink(temp_file)
-                        
-                else:
-                    # 当无法获取Rising Queries时，直接报告失败
-                    print("❌ 无法获取 Rising Queries，可能的原因:")
-                    print("💡 建议:")
-                    print("   1. 检查网络连接")
-                    print("   2. 稍后重试")
-                    print("   3. 或使用 --input 参数指定关键词文件进行分析")
-                    sys.exit(1)
-
-            except Exception as e:
-                print(f"❌ 获取 Rising Queries 或需求挖掘时出错: {e}")
-                if args.verbose:
-                    import traceback
-                    traceback.print_exc()
-        
-        elif args.all:
-            # 完整流程：先搜索热门关键词，再进行51个词根趋势分析
-            print("🚀 开始完整需求挖掘流程...")
-            print("📋 第一步：搜索热门关键词")
-            
-            # 第一步：搜索热门关键词（复用hotkeywords的逻辑）
-            hot_result = None
-            try:
-                from src.collectors.trends_singleton import get_trends_collector
-                trends_collector = get_trends_collector()
-                rising_queries = trends_collector.fetch_rising_queries()
-                
-                import pandas as pd
-                if isinstance(rising_queries, pd.DataFrame):
-                    trending_df = rising_queries.head(20)
-                    if 'query' not in trending_df.columns:
-                        if 'title' in trending_df.columns:
-                            trending_df = trending_df.rename(columns={'title': 'query'})
-                        elif len(trending_df.columns) > 0:
-                            trending_df = trending_df.rename(columns={trending_df.columns[0]: 'query'})
-                elif rising_queries and len(rising_queries) > 0:
-                    if isinstance(rising_queries[0], str):
-                        trending_df = pd.DataFrame([{'query': query} for query in rising_queries[:20]])
-                    elif isinstance(rising_queries[0], dict):
-                        trending_df = pd.DataFrame([{
-                            'query': item.get('query', item.get('keyword', str(item))),
-                            'value': item.get('value', item.get('interest', 0))
-                        } for item in rising_queries[:20]])
-                    else:
-                        trending_df = pd.DataFrame([{'query': str(query)} for query in rising_queries[:20]])
-                else:
-                    trending_df = pd.DataFrame(columns=['query'])
-
-                if trending_df is not None and not trending_df.empty:
-                    import tempfile
-                    if 'query' not in trending_df.columns and len(trending_df.columns) > 0:
-                        trending_df = trending_df.rename(columns={trending_df.columns[0]: 'query'})
-                    
-                    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, encoding='utf-8') as f:
-                        trending_df.to_csv(f.name, index=False)
-                        temp_file = f.name
-                    
-                    try:
-                        print(f"🔍 获取到 {len(trending_df)} 个热门关键词，开始分析...")
-                        manager.new_word_detection_available = False
-                        hot_result = manager.analyze_keywords(temp_file, args.output, enable_serp=False)
-                        print(f"✅ 第一步完成! 分析了 {hot_result['total_keywords']} 个热门关键词")
-                    finally:
-                        import os
-                        os.unlink(temp_file)
-                else:
-                    print("⚠️ 第一步失败：无法获取热门关键词")
-            except Exception as e:
-                print(f"❌ 第一步失败: {e}")
-            
-            # 第二步：多平台关键词发现
-            print("\n📋 第二步：多平台关键词发现")
-            try:
-                from src.demand_mining.tools.multi_platform_keyword_discovery import run_discovery
-                
-                print("🔍 正在进行多平台关键词发现...")
-                
-                # 使用热门关键词作为种子关键词进行发现
-                if hot_result and hot_result.get('total_keywords', 0) > 0:
-                    # 从热门关键词结果中提取有价值的关键词
-                    seed_keywords = []
-                    # 从热门关键词分析结果中提取关键词
-                    if hot_result.get('keywords'):
-                        # 提取热门关键词并进行初始过滤
-                        for kw_data in hot_result['keywords']:
-                            keyword = kw_data.get('keyword', '')
-                            if keyword and len(keyword) > 2 and (
-                                any(c.isalpha() for c in keyword) or  # 包含字母
-                                len([c for c in keyword if '\u4e00' <= c <= '\u9fff']) > 1  # 包含多个中文字符
-                            ):
-                                seed_keywords.append(keyword)
-
-                        # 限制种子关键词数量
-                        seed_keywords = seed_keywords[:15]
-
-                    # 去重并限制数量
-                    seed_keywords = list(dict.fromkeys(seed_keywords))[:15]  # 去重并限制为15个
-                    print(f"✅ 从热门关键词中提取到 {len(seed_keywords)} 个有价值的关键词")
-
-                    print(f"🌱 使用关键词进行多平台发现: {', '.join(seed_keywords[:3])}...")
-
-                    # 运行关键词发现
-                    df, analysis, csv_path, json_path = run_discovery(
-                        input_keywords=seed_keywords,
-                        limit=20,
-                        output_dir=args.output,
-                        verbose=False
-                    )
-                    
-                    discovered_count = len(df) if df is not None else 0
-                    print(f"🔍 发现了 {discovered_count} 个新关键词，开始评分和意图分析...")
-                    
-                    # 对发现的关键词进行完整的需求挖掘分析
-                    if df is not None and len(df) > 0:
-                        # 取前50个关键词进行分析
-                        top_keywords = df.head(50)
-                        
-                        # 创建临时CSV文件用于分析
-                        import tempfile
-                        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, encoding='utf-8') as f:
-                            # 确保有keyword列
-                            if 'keyword' in top_keywords.columns:
-                                analysis_df = top_keywords[['keyword']].copy()
-                            else:
-                                # 如果没有keyword列，使用第一列
-                                analysis_df = pd.DataFrame({'keyword': top_keywords.iloc[:, 0]})
-                            
-                            analysis_df.to_csv(f.name, index=False)
-                            temp_file = f.name
-                        
-                        try:
-                            # 进行完整的需求挖掘分析
-                            manager.new_word_detection_available = False
-                            discovery_analysis_result = manager.analyze_keywords(temp_file, args.output, enable_serp=False)
-                            print(f"✅ 第二步完成! 发现并分析了 {discovery_analysis_result.get('total_keywords', discovered_count)} 个关键词")
-                        finally:
-                            os.unlink(temp_file)
-                    else:
-                        print(f"✅ 第二步完成! 发现了 {discovered_count} 个新关键词")
-                else:
-                    print("⚠️ 第二步跳过：无热门关键词数据")
-                    
-            except Exception as e:
-                print(f"❌ 第三步失败: {e}")
-            
-            # 第三步：51个词根趋势分析
-            print("\n📋 第三步：51个词根趋势分析")
-            root_result = None
-            try:
-                root_result = manager.analyze_root_words(args.output)
-                print(f"✅ 第三步完成! 分析了 {root_result.get('total_root_words', 0)} 个词根")
-            except Exception as e:
-                print(f"❌ 第二步失败: {e}")
-            
-            # 显示总结
-            print("\n🎉 完整流程完成!")
-            if hot_result:
-                print(f"🔥 热门关键词: {hot_result['total_keywords']} 个")
-            print(f"🔍 多平台关键词发现: 已完成")
-            if root_result:
-                print(f"🌱 词根分析: {root_result.get('total_root_words', 0)} 个")
-        
-        elif args.demand_validation:
-            # 需求验证：对高机会关键词进行多平台需求分析
-            print("🔍 开始需求验证流程...")
-            print("📋 第一步：获取高机会关键词")
-            
-            # 首先获取热门关键词并分析
-            try:
-                from src.collectors.trends_singleton import get_trends_collector
-                trends_collector = get_trends_collector()
-                rising_queries = trends_collector.fetch_rising_queries()
-                
-                import pandas as pd
-                if isinstance(rising_queries, pd.DataFrame):
-                    trending_df = rising_queries.head(20)
-                    if 'query' not in trending_df.columns:
-                        if 'title' in trending_df.columns:
-                            trending_df = trending_df.rename(columns={'title': 'query'})
-                        elif len(trending_df.columns) > 0:
-                            trending_df = trending_df.rename(columns={trending_df.columns[0]: 'query'})
-                elif rising_queries and len(rising_queries) > 0:
-                    if isinstance(rising_queries[0], str):
-                        trending_df = pd.DataFrame([{'query': query} for query in rising_queries[:20]])
-                    elif isinstance(rising_queries[0], dict):
-                        trending_df = pd.DataFrame([{
-                            'query': item.get('query', item.get('keyword', str(item))),
-                            'value': item.get('value', item.get('interest', 0))
-                        } for item in rising_queries[:20]])
-                    else:
-                        trending_df = pd.DataFrame([{'query': str(query)} for query in rising_queries[:20]])
-                else:
-                    trending_df = pd.DataFrame(columns=['query'])
-
-                if trending_df is not None and not trending_df.empty:
-                    import tempfile
-                    if 'query' not in trending_df.columns and len(trending_df.columns) > 0:
-                        trending_df = trending_df.rename(columns={trending_df.columns[0]: 'query'})
-                    
-                    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, encoding='utf-8') as f:
-                        trending_df.to_csv(f.name, index=False)
-                        temp_file = f.name
-                    
-                    try:
-                        print(f"🔍 获取到 {len(trending_df)} 个关键词，开始机会分析...")
-                        manager.new_word_detection_available = False
-                        keywords_result = manager.analyze_keywords(temp_file, args.output, enable_serp=False)
-                        
-                        print(f"✅ 第一步完成! 分析了 {keywords_result['total_keywords']} 个关键词")
-                        
-                        # 第二步：多平台需求验证
-                        print("\n📋 第二步：多平台需求验证")
-                        
-                        try:
-
-                            # 确保能够导入模块
-                            analyzer_path = os.path.join(os.path.dirname(__file__), 'src', 'demand_mining', 'analyzers')
-                            if analyzer_path not in sys.path:
-                                sys.path.insert(0, analyzer_path)
-                            
-                            from src.demand_mining.analyzers.multi_platform_demand_analyzer import MultiPlatformDemandAnalyzer
-                            
-                            # 创建多平台分析器
-                            demand_analyzer = MultiPlatformDemandAnalyzer()
-                            
-                            # 执行多平台需求分析
-                            demand_results = asyncio.run(demand_analyzer.analyze_high_opportunity_keywords(
-                                keywords_result.get('keywords', []),
-                                min_opportunity_score=60.0,  # 降低阈值以获取更多关键词
-                                max_keywords=3  # 限制分析数量避免请求过多
-                            ))
-                            
-                            # 保存需求验证结果
-                            demand_output_file = demand_analyzer.save_results(demand_results)
-                            
-                            print(f"✅ 第二步完成! 需求验证分析完成")
-                            print(f"📊 分析了 {demand_results.get('analyzed_keywords', 0)} 个高机会关键词")
-                            
-                            # 显示需求验证摘要
-                            summary = demand_results.get('summary', {})
-                            if summary:
-                                print(f"\n🎯 需求验证摘要:")
-                                print(f"   • 总搜索结果: {summary.get('total_search_results', 0)}")
-                                print(f"   • 发现痛点: {summary.get('total_pain_points_found', 0)} 个")
-                                print(f"   • 功能需求: {summary.get('total_feature_requests_found', 0)} 个")
-                                
-                                high_demand = summary.get('high_demand_keywords', [])
-                                if high_demand:
-                                    print(f"   • 高需求关键词: {', '.join(high_demand)}")
-                                
-                                top_opportunities = summary.get('top_opportunities', [])[:3]
-                                if top_opportunities:
-                                    print(f"\n🏆 Top 3 验证结果:")
-                                    for i, opp in enumerate(top_opportunities, 1):
-                                        print(f"   {i}. {opp['keyword']} - {opp['demand_level']} ({opp['pain_points_count']} 个痛点)")
-                            
-                            print(f"\n📁 需求验证结果已保存到: {demand_output_file}")
-                            
-                        except ImportError:
-                            print("⚠️ 多平台需求分析器未找到，请确保相关模块已安装")
-                        except Exception as e:
-                            print(f"❌ 需求验证失败: {e}")
-                            if args.verbose:
-                                import traceback
-                                traceback.print_exc()
-                        
-                    finally:
-                        os.unlink(temp_file)
-                        
-                else:
-                    print("❌ 无法获取关键词进行需求验证")
-                    
-            except Exception as e:
-                print(f"❌ 需求验证流程失败: {e}")
-                if args.verbose:
-                    import traceback
-                    traceback.print_exc()
-        
-        else:
-            # 无参数时显示帮助信息
+        # 使用命令注册器执行对应的处理函数
+        if not command_registry.execute(args, manager):
+            print("❓ 未指定有效的执行模式")
             parser.print_help()
             return
         
@@ -1078,7 +1003,6 @@ def main():
         
     except KeyboardInterrupt:
         print("\n⚠️ 分析被用户中断")
-        import sys
         sys.exit(1)
     except Exception as e:
         print(f"❌ 分析过程中出现错误: {str(e)}")
