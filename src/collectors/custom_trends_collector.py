@@ -110,8 +110,9 @@ class TrendsAPIClient:
                 # 特殊处理429错误
                 if response.status_code == 429:
                     if attempt < self.retries:
-                        wait_time = 20 + (attempt * 10) + random.uniform(5, 15)
+                        wait_time = 2 + (attempt * 10) + random.uniform(5, 15)
                         logger.warning(f"遇到429错误，等待{wait_time:.1f}秒后重试...")
+                        logger.warning(f"请求 url 地址: {url}")
                         time.sleep(wait_time)
                         continue
                     else:
