@@ -10,7 +10,7 @@ import sys
 import os
 import json
 from datetime import datetime
-from typing import Dict, List, Any
+from typing import Dict, Any
 
 def get_reports_dir() -> str:
     """从配置文件获取报告输出目录"""
@@ -311,7 +311,7 @@ def print_quiet_summary(result):
 
 def main():
     """主函数 - 提供统一的执行入口"""
-    
+    import os, sys, asyncio
     print("🔍 需求挖掘分析工具 v2.0")
     print("整合六大需求挖掘方法的智能分析系统")
     print("=" * 60)
@@ -781,7 +781,6 @@ def main():
                                 print(f"   • 平均热度: {trending_df['value'].mean():.1f}")
                             
                             # 保存原始Rising Queries
-                            import os
                             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                             trending_output_file = os.path.join(args.output, f"rising_queries_raw_{timestamp}.csv")
                             os.makedirs(args.output, exist_ok=True)
@@ -790,7 +789,6 @@ def main():
                         
                     finally:
                         # 清理临时文件
-                        import os
                         os.unlink(temp_file)
                         
                 else:
@@ -801,7 +799,7 @@ def main():
                     print("   2. 稍后重试")
                     print("   3. 或使用 --input 参数指定关键词文件进行分析")
                     sys.exit(1)
-                    
+
             except Exception as e:
                 print(f"❌ 获取 Rising Queries 或需求挖掘时出错: {e}")
                 if args.verbose:
@@ -872,10 +870,28 @@ def main():
                 
                 # 使用热门关键词作为种子关键词进行发现
                 if hot_result and hot_result.get('total_keywords', 0) > 0:
-                    # 从热门关键词结果中提取种子关键词
-                    seed_keywords = ['AI tool', 'AI generator', 'machine learning', 'chatbot', 'automation']  # 默认种子
-                    print(f"🌱 使用种子关键词进行多平台发现: {', '.join(seed_keywords[:3])}...")
-                    
+                    # 从热门关键词结果中提取有价值的关键词
+                    seed_keywords = []
+                    # 从热门关键词分析结果中提取关键词
+                    if hot_result.get('keywords'):
+                        # 提取热门关键词并进行初始过滤
+                        for kw_data in hot_result['keywords']:
+                            keyword = kw_data.get('keyword', '')
+                            if keyword and len(keyword) > 2 and (
+                                any(c.isalpha() for c in keyword) or  # 包含字母
+                                len([c for c in keyword if '\u4e00' <= c <= '\u9fff']) > 1  # 包含多个中文字符
+                            ):
+                                seed_keywords.append(keyword)
+
+                        # 限制种子关键词数量
+                        seed_keywords = seed_keywords[:15]
+
+                    # 去重并限制数量
+                    seed_keywords = list(dict.fromkeys(seed_keywords))[:15]  # 去重并限制为15个
+                    print(f"✅ 从热门关键词中提取到 {len(seed_keywords)} 个有价值的关键词")
+
+                    print(f"🌱 使用关键词进行多平台发现: {', '.join(seed_keywords[:3])}...")
+
                     # 运行关键词发现
                     df, analysis, csv_path, json_path = run_discovery(
                         input_keywords=seed_keywords,
@@ -911,7 +927,6 @@ def main():
                             discovery_analysis_result = manager.analyze_keywords(temp_file, args.output, enable_serp=False)
                             print(f"✅ 第二步完成! 发现并分析了 {discovery_analysis_result.get('total_keywords', discovered_count)} 个关键词")
                         finally:
-                            import os
                             os.unlink(temp_file)
                     else:
                         print(f"✅ 第二步完成! 发现了 {discovered_count} 个新关键词")
@@ -990,10 +1005,7 @@ def main():
                         print("\n📋 第二步：多平台需求验证")
                         
                         try:
-                            import asyncio
-                            import sys
-                            import os
-                            
+
                             # 确保能够导入模块
                             analyzer_path = os.path.join(os.path.dirname(__file__), 'src', 'demand_mining', 'analyzers')
                             if analyzer_path not in sys.path:
