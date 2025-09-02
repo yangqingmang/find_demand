@@ -73,8 +73,8 @@ class RootWordManager:
     
     def _get_core_roots(self) -> List[str]:
         """
-        获取51个核心词根
-        基于网络收集的高价值AI工具词根
+        获取核心词根
+        整合原有词根 + 51词根文件中的高价值词根
         """
         return [
             # 生成类 (Generator)
@@ -88,30 +88,39 @@ class RootWordManager:
             
             # 分析类 (Analyzer)
             'analyzer', 'detector', 'scanner', 'checker', 'validator',
-            'tester', 'inspector', 'examiner',
+            'tester', 'inspector', 'examiner', 'evaluator', 'verifier',
+            'comparator',
             
             # 处理类 (Processor)
             'processor', 'compressor', 'resizer', 'cropper', 'splitter',
-            'merger', 'combiner', 'joiner',
+            'merger', 'combiner', 'joiner', 'interpreter',
             
             # 提取类 (Extractor)
             'extractor', 'parser', 'scraper', 'harvester', 'collector',
+            'cataloger',
             
             # 管理类 (Manager)
             'manager', 'organizer', 'sorter', 'scheduler', 'planner',
-            'tracker', 'monitor',
+            'tracker', 'monitor', 'dashboard',
             
             # 计算类 (Calculator)
             'calculator', 'counter', 'estimator', 'predictor', 'simulator',
             
             # 搜索类 (Finder)
             'finder', 'searcher', 'explorer', 'browser', 'locator',
+            'navigator',
             
             # 传输类 (Transfer)
             'downloader', 'uploader', 'exporter', 'importer', 'syncer',
             
             # 清理类 (Cleaner)
-            'cleaner', 'remover', 'eraser', 'deleter', 'purifier'
+            'cleaner', 'remover', 'eraser', 'deleter', 'purifier',
+            
+            # 展示类 (Viewer) - 新增类别
+            'viewer', 'recorder', 'template', 'sample',
+            
+            # 交互类 (Interactive) - 新增类别  
+            'assistant', 'notifier', 'responder'
         ]
     
     def _get_ai_prefixes(self) -> List[str]:
@@ -125,40 +134,43 @@ class RootWordManager:
     def _get_tool_categories(self) -> Dict[str, List[str]]:
         """
         获取工具类型分类
-        按照应用场景和功能分类
+        按照应用场景和功能分类 (已整合51词根)
         """
         return {
             'content_creation': [
                 'generator', 'maker', 'creator', 'builder', 'writer',
-                'designer', 'composer', 'producer'
+                'designer', 'composer', 'producer', 'template', 'sample'
             ],
             'data_processing': [
                 'converter', 'transformer', 'processor', 'analyzer',
-                'parser', 'extractor', 'compressor'
+                'parser', 'extractor', 'compressor', 'interpreter', 'cataloger'
             ],
             'media_editing': [
                 'editor', 'enhancer', 'optimizer', 'resizer', 'cropper',
-                'filter', 'modifier', 'improver'
+                'filter', 'modifier', 'improver', 'recorder'
             ],
             'quality_assurance': [
                 'checker', 'validator', 'tester', 'detector', 'scanner',
-                'inspector', 'examiner', 'verifier'
+                'inspector', 'examiner', 'verifier', 'evaluator', 'comparator'
             ],
             'productivity': [
                 'manager', 'organizer', 'scheduler', 'planner', 'tracker',
-                'monitor', 'calculator', 'counter'
+                'monitor', 'calculator', 'counter', 'dashboard', 'assistant'
             ],
             'search_discovery': [
                 'finder', 'searcher', 'explorer', 'browser', 'locator',
-                'discoverer', 'hunter'
+                'discoverer', 'hunter', 'navigator'
             ],
             'file_management': [
                 'downloader', 'uploader', 'exporter', 'importer', 'syncer',
-                'backup', 'archiver', 'migrator'
+                'backup', 'archiver', 'migrator', 'viewer'
             ],
             'maintenance': [
                 'cleaner', 'remover', 'eraser', 'deleter', 'purifier',
                 'optimizer', 'fixer', 'repairer'
+            ],
+            'communication': [  # 新增类别
+                'notifier', 'responder', 'assistant'
             ]
         }
     
