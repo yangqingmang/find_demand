@@ -14,6 +14,7 @@ project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(o
 sys.path.insert(0, project_root)
 
 from .base_manager import BaseManager
+from ..root_word_trends_analyzer import RootWordTrendsAnalyzer
 
 
 class TrendManager(BaseManager):
@@ -23,6 +24,8 @@ class TrendManager(BaseManager):
         super().__init__(config_path)
         self._trend_analyzer = None
         self._root_manager = None
+        # 集成现有的 RootWordTrendsAnalyzer
+        self.root_analyzer = RootWordTrendsAnalyzer()
         print("📈 趋势管理器初始化完成")
     
     @property
@@ -304,3 +307,187 @@ class TrendManager(BaseManager):
         
         print(f"📋 趋势报告已生成: {report_path}")
         return report_path
+    
+    def batch_trends_analysis(self, keywords: List[str], batch_size: int = 5) -> Dict[str, Any]:
+        """
+        批量关键词趋势分析和稳定性评估
+        
+        Args:
+            keywords: 要分析的关键词列表
+            batch_size: 批处理大小，默认5个关键词一批
+            
+        Returns:
+            包含趋势分析结果和稳定性评分的字典
+        """
+        print(f"🔍 开始批量趋势分析，关键词数量: {len(keywords)}, 批处理大小: {batch_size}")
+        
+        results = {
+            'total_keywords': len(keywords),
+            'batch_size': batch_size,
+            'keyword_results': {},
+            'summary': {
+                'successful': 0,
+                'failed': 0,
+                'stability_scores': {}
+            }
+        }
+        
+        # 分批处理关键词
+        for i in range(0, len(keywords), batch_size):
+            batch_keywords = keywords[i:i + batch_size]
+            batch_num = i // batch_size + 1
+            
+            print(f"📊 处理第 {batch_num} 批关键词: {batch_keywords}")
+            
+            try:
+                # 使用现有的 RootWordTrendsAnalyzer 进行分析
+                batch_results = self._analyze_keyword_batch(batch_keywords)
+                
+                # 合并批次结果
+                for keyword, result in batch_results.items():
+                    results['keyword_results'][keyword] = result
+                    
+                    if result.get('success', False):
+                        results['summary']['successful'] += 1
+                        # 计算稳定性评分
+                        stability_score = self._calculate_stability_score(result)
+                        results['summary']['stability_scores'][keyword] = stability_score
+                    else:
+                        results['summary']['failed'] += 1
+                        
+            except Exception as e:
+                print(f"❌ 批次 {batch_num} 处理失败: {e}")
+                for keyword in batch_keywords:
+                    results['keyword_results'][keyword] = {
+                        'success': False,
+                        'error': str(e),
+                        'keyword': keyword
+                    }
+                    results['summary']['failed'] += 1
+        
+        # 生成汇总统计
+        results['summary']['success_rate'] = (
+            results['summary']['successful'] / len(keywords) * 100 
+            if len(keywords) > 0 else 0
+        )
+        
+        print(f"✅ 批量趋势分析完成，成功率: {results['summary']['success_rate']:.1f}%")
+        return results
+    
+    def analyze_keyword_trends(self, keywords: List[str]) -> Dict[str, Any]:
+        """
+        分析任意关键词的趋势（扩展支持非root word）
+        
+        Args:
+            keywords: 要分析的关键词列表
+            
+        Returns:
+            趋势分析结果
+        """
+        print(f"🔍 分析关键词趋势: {keywords}")
+        
+        results = {}
+        for keyword in keywords:
+            try:
+                # 复用现有的趋势分析逻辑，扩展支持任意关键词
+                trend_result = self.root_analyzer.analyze_single_root_word(keyword)
+                
+                if trend_result and trend_result.get('status') == 'success':
+                    # 处理趋势数据
+                    results[keyword] = {
+                        'success': True,
+                        'keyword': keyword,
+                        'trend_data': trend_result.get('data', {}),
+                        'analysis_timestamp': trend_result.get('timestamp', datetime.now().isoformat())
+                    }
+                else:
+                    results[keyword] = {
+                        'success': False,
+                        'keyword': keyword,
+                        'error': trend_result.get('error', 'No trend data available')
+                    }
+                    
+            except Exception as e:
+                print(f"❌ 分析关键词 '{keyword}' 趋势失败: {e}")
+                results[keyword] = {
+                    'success': False,
+                    'keyword': keyword,
+                    'error': str(e)
+                }
+        
+        return results
+    
+    def _analyze_keyword_batch(self, keywords: List[str]) -> Dict[str, Any]:
+        """分析一批关键词"""
+        batch_results = {}
+        
+        for keyword in keywords:
+            try:
+                # 使用现有分析器获取趋势数据
+                trend_result = self.root_analyzer.analyze_single_root_word(keyword)
+                
+                if trend_result and trend_result.get('status') == 'success':
+                    batch_results[keyword] = {
+                        'success': True,
+                        'keyword': keyword,
+                        'trend_data': trend_result.get('data', {}),
+                        'analysis_timestamp': trend_result.get('timestamp', datetime.now().isoformat())
+                    }
+                else:
+                    batch_results[keyword] = {
+                        'success': False,
+                        'keyword': keyword,
+                        'error': trend_result.get('error', 'No trend data available')
+                    }
+                    
+            except Exception as e:
+                print(f"❌ 分析关键词 '{keyword}' 失败: {e}")
+                batch_results[keyword] = {
+                    'success': False,
+                    'keyword': keyword,
+                    'error': str(e)
+                }
+        
+        return batch_results
+    
+    def _calculate_stability_score(self, result: Dict[str, Any]) -> float:
+        """
+        计算趋势稳定性评分
+        
+        Args:
+            result: 趋势分析结果
+            
+        Returns:
+            稳定性评分 (0-100)
+        """
+        try:
+            trend_data = result.get('trend_data', {})
+            
+            if not trend_data:
+                return 0.0
+            
+            # 基于趋势方向和兴趣度计算稳定性评分
+            trend_direction = trend_data.get('trend_direction', 'stable')
+            average_interest = trend_data.get('average_interest', 0)
+            peak_interest = trend_data.get('peak_interest', 0)
+            related_queries_count = len(trend_data.get('related_queries', []))
+            
+            # 基础分数：基于平均兴趣度
+            base_score = min(average_interest * 2, 50)  # 最高50分
+            
+            # 趋势方向加分
+            direction_bonus = {
+                'rising': 30,
+                'stable': 20,
+                'declining': 10
+            }.get(trend_direction, 15)
+            
+            # 数据丰富度加分
+            data_richness_bonus = min(related_queries_count * 2, 20)  # 最高20分
+            
+            total_score = base_score + direction_bonus + data_richness_bonus
+            return min(total_score, 100.0)
+            
+        except Exception as e:
+            print(f"❌ 计算稳定性评分失败: {e}")
+            return 0.0
