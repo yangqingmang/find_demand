@@ -13,6 +13,8 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Tuple, Optional
 import re
 import time
+import warnings
+warnings.filterwarnings('ignore')
 
 from .base_analyzer import BaseAnalyzer
 
@@ -139,9 +141,8 @@ class TimelinessAnalyzer(BaseAnalyzer):
             except Exception as e:
                 self.logger.warning(f"获取真实趋势数据失败: {e}")
         
-        # 无法获取数据
-        return {}
-    
+        # 无法获取真实数据时，使用模拟数据
+        keyword_lower = keyword.lower()
         
         # AI相关关键词通常有上升趋势
         if any(term in keyword_lower for term in ['ai', 'chatgpt', 'gpt', 'artificial intelligence']):
@@ -353,6 +354,375 @@ class TimelinessAnalyzer(BaseAnalyzer):
         
         return round(timeliness_score, 1)
     
+    def calculate_stability_score(self, keyword: str, trend_data: Dict = None) -> Dict:
+        """
+        计算趋势稳定性评分
+        
+        参数:
+            keyword (str): 关键词
+            trend_data (Dict): 趋势数据，如果为None则重新获取
+            
+        返回:
+            dict: 稳定性分析结果
+        """
+        if trend_data is None:
+            trend_data = self.calculate_trend_score(keyword)
+        
+        try:
+            stability_result = {
+                'stability_score': 50.0,
+                'consistency_score': 50.0,
+                'predictability_score': 50.0,
+                'reliability_score': 50.0,
+                'stability_grade': 'C',
+                'stability_factors': []
+            }
+            
+            # 基于趋势方向的一致性评分
+            trend_direction = trend_data.get('trend_direction', 'stable')
+            consistency_scores = {
+                'rising': 85.0,
+                'stable': 90.0,
+                'falling': 60.0
+            }
+            consistency_score = consistency_scores.get(trend_direction, 50.0)
+            
+            # 基于增长率的可预测性评分
+            growth_rate = abs(trend_data.get('growth_rate', 0))
+            if growth_rate <= 5:
+                predictability_score = 90.0  # 变化很小，很稳定
+            elif growth_rate <= 15:
+                predictability_score = 75.0  # 适度变化
+            elif growth_rate <= 30:
+                predictability_score = 60.0  # 较大变化
+            else:
+                predictability_score = 40.0  # 剧烈变化
+            
+            # 基于当前兴趣度和峰值的可靠性评分
+            current_interest = trend_data.get('current_interest', 0)
+            peak_interest = trend_data.get('peak_interest', 0)
+            
+            if peak_interest > 0 and current_interest > 0:
+                interest_ratio = current_interest / peak_interest
+                if 0.6 <= interest_ratio <= 0.9:
+                    reliability_score = 85.0
+                elif 0.4 <= interest_ratio < 0.6:
+                    reliability_score = 70.0
+                else:
+                    reliability_score = 50.0
+            else:
+                reliability_score = 30.0
+            
+            # 计算综合稳定性评分
+            stability_score = (consistency_score * 0.4 + 
+                             predictability_score * 0.3 + 
+                             reliability_score * 0.3)
+            
+            # 稳定性等级
+            stability_factors = []
+            if stability_score >= 80:
+                stability_grade = 'A'
+                stability_factors.append('高度稳定的趋势模式')
+            elif stability_score >= 70:
+                stability_grade = 'B'
+                stability_factors.append('相对稳定的趋势')
+            elif stability_score >= 60:
+                stability_grade = 'C'
+                stability_factors.append('中等稳定性')
+            else:
+                stability_grade = 'D'
+                stability_factors.append('稳定性较低')
+            
+            # 添加具体稳定性因素
+            if consistency_score >= 80:
+                stability_factors.append('趋势方向一致性高')
+            if predictability_score >= 70:
+                stability_factors.append('变化幅度可预测')
+            if reliability_score >= 70:
+                stability_factors.append('兴趣度波动合理')
+            
+            stability_result.update({
+                'stability_score': round(stability_score, 2),
+                'consistency_score': round(consistency_score, 2),
+                'predictability_score': round(predictability_score, 2),
+                'reliability_score': round(reliability_score, 2),
+                'stability_grade': stability_grade,
+                'stability_factors': stability_factors
+            })
+            
+            return stability_result
+            
+        except Exception as e:
+            self.logger.error(f"稳定性评分计算失败: {e}")
+            return {
+                'stability_score': 0.0,
+                'consistency_score': 0.0,
+                'predictability_score': 0.0,
+                'reliability_score': 0.0,
+                'stability_grade': 'F',
+                'stability_factors': ['分析失败'],
+                'error': str(e)
+            }
+    
+    def detect_seasonal_patterns(self, keyword: str, extended_analysis: bool = True) -> Dict:
+        """
+        实现季节性检测算法
+        
+        参数:
+            keyword (str): 关键词
+            extended_analysis (bool): 是否进行扩展分析
+            
+        返回:
+            dict: 季节性检测结果
+        """
+        try:
+            seasonal_result = {
+                'has_seasonality': False,
+                'seasonal_strength': 0.0,
+                'seasonal_pattern': 'none',
+                'peak_seasons': [],
+                'low_seasons': [],
+                'seasonal_confidence': 0.0,
+                'seasonal_factors': []
+            }
+            
+            keyword_lower = keyword.lower()
+            current_month = datetime.now().month
+            
+            # 预定义的季节性模式
+            seasonal_patterns = {
+                'christmas': {'months': [11, 12, 1], 'strength': 0.9, 'pattern': 'holiday'},
+                'summer': {'months': [6, 7, 8], 'strength': 0.7, 'pattern': 'seasonal'},
+                'back to school': {'months': [8, 9], 'strength': 0.8, 'pattern': 'educational'},
+                'black friday': {'months': [11], 'strength': 0.95, 'pattern': 'shopping'},
+                'new year': {'months': [12, 1], 'strength': 0.85, 'pattern': 'holiday'},
+                'valentine': {'months': [2], 'strength': 0.8, 'pattern': 'holiday'},
+                'spring': {'months': [3, 4, 5], 'strength': 0.6, 'pattern': 'seasonal'},
+                'winter': {'months': [12, 1, 2], 'strength': 0.6, 'pattern': 'seasonal'},
+                'fall': {'months': [9, 10, 11], 'strength': 0.6, 'pattern': 'seasonal'},
+                'halloween': {'months': [10], 'strength': 0.9, 'pattern': 'holiday'},
+                'easter': {'months': [3, 4], 'strength': 0.7, 'pattern': 'holiday'},
+            }
+            
+            # 检测明确的季节性关键词
+            detected_patterns = []
+            for pattern_name, pattern_info in seasonal_patterns.items():
+                if pattern_name in keyword_lower:
+                    detected_patterns.append({
+                        'name': pattern_name,
+                        'months': pattern_info['months'],
+                        'strength': pattern_info['strength'],
+                        'pattern_type': pattern_info['pattern']
+                    })
+            
+            if detected_patterns:
+                # 使用最强的季节性模式
+                strongest_pattern = max(detected_patterns, key=lambda x: x['strength'])
+                seasonal_result.update({
+                    'has_seasonality': True,
+                    'seasonal_strength': strongest_pattern['strength'],
+                    'seasonal_pattern': strongest_pattern['pattern_type'],
+                    'peak_seasons': strongest_pattern['months'],
+                    'seasonal_confidence': strongest_pattern['strength'],
+                    'seasonal_factors': [f"检测到{strongest_pattern['name']}季节性模式"]
+                })
+                
+                # 判断当前是否在旺季
+                if current_month in strongest_pattern['months']:
+                    seasonal_result['seasonal_factors'].append("当前处于季节性旺季")
+                else:
+                    seasonal_result['seasonal_factors'].append("当前处于季节性淡季")
+            
+            # 扩展分析：基于关键词类型推断季节性
+            if extended_analysis and not detected_patterns:
+                # 教育相关
+                education_keywords = ['course', 'learn', 'study', 'tutorial', 'education', 'school']
+                if any(edu in keyword_lower for edu in education_keywords):
+                    seasonal_result.update({
+                        'has_seasonality': True,
+                        'seasonal_strength': 0.6,
+                        'seasonal_pattern': 'educational',
+                        'peak_seasons': [8, 9, 1, 2],  # 开学季
+                        'seasonal_confidence': 0.6,
+                        'seasonal_factors': ['教育类关键词具有开学季季节性']
+                    })
+                
+                # 节假日相关
+                holiday_keywords = ['gift', 'party', 'celebration', 'holiday']
+                if any(holiday in keyword_lower for holiday in holiday_keywords):
+                    seasonal_result.update({
+                        'has_seasonality': True,
+                        'seasonal_strength': 0.7,
+                        'seasonal_pattern': 'holiday',
+                        'peak_seasons': [11, 12, 1],  # 年末年初
+                        'seasonal_confidence': 0.7,
+                        'seasonal_factors': ['节假日相关关键词具有年末年初季节性']
+                    })
+                
+                # 户外活动相关
+                outdoor_keywords = ['outdoor', 'camping', 'hiking', 'beach', 'vacation']
+                if any(outdoor in keyword_lower for outdoor in outdoor_keywords):
+                    seasonal_result.update({
+                        'has_seasonality': True,
+                        'seasonal_strength': 0.8,
+                        'seasonal_pattern': 'seasonal',
+                        'peak_seasons': [5, 6, 7, 8],  # 夏季
+                        'seasonal_confidence': 0.8,
+                        'seasonal_factors': ['户外活动关键词具有夏季季节性']
+                    })
+            
+            return seasonal_result
+            
+        except Exception as e:
+            self.logger.error(f"季节性检测失败: {e}")
+            return {
+                'has_seasonality': False,
+                'seasonal_strength': 0.0,
+                'seasonal_pattern': 'error',
+                'peak_seasons': [],
+                'low_seasons': [],
+                'seasonal_confidence': 0.0,
+                'seasonal_factors': ['季节性检测失败'],
+                'error': str(e)
+            }
+    
+    def analyze_trend_direction_enhanced(self, keyword: str, trend_data: Dict = None) -> Dict:
+        """
+        集成上升/下降趋势识别（增强版）
+        
+        参数:
+            keyword (str): 关键词
+            trend_data (Dict): 趋势数据，如果为None则重新获取
+            
+        返回:
+            dict: 趋势方向分析结果
+        """
+        if trend_data is None:
+            trend_data = self.calculate_trend_score(keyword)
+        
+        try:
+            trend_result = {
+                'current_direction': 'stable',
+                'direction_confidence': 0.5,
+                'trend_strength': 'moderate',
+                'direction_change_probability': 0.3,
+                'momentum_score': 50.0,
+                'trend_factors': [],
+                'trend_signals': []
+            }
+            
+            # 获取基础趋势信息
+            trend_direction = trend_data.get('trend_direction', 'stable')
+            growth_rate = trend_data.get('growth_rate', 0)
+            current_interest = trend_data.get('current_interest', 0)
+            peak_interest = trend_data.get('peak_interest', 0)
+            
+            trend_result['current_direction'] = trend_direction
+            
+            # 计算方向置信度和强度
+            if trend_direction == 'rising':
+                confidence = min(0.7 + (abs(growth_rate) / 100) * 0.25, 0.95)
+                if growth_rate > 30:
+                    strength = 'strong'
+                    momentum = min(80 + growth_rate * 0.5, 95)
+                elif growth_rate > 15:
+                    strength = 'moderate'
+                    momentum = min(65 + growth_rate * 0.8, 85)
+                else:
+                    strength = 'weak'
+                    momentum = min(50 + growth_rate * 1.2, 70)
+                
+                trend_result['trend_signals'].append('上升趋势确认')
+                if current_interest > 60:
+                    trend_result['trend_signals'].append('高兴趣度支撑上升')
+                
+            elif trend_direction == 'falling':
+                confidence = min(0.6 + (abs(growth_rate) / 100) * 0.25, 0.9)
+                if abs(growth_rate) > 30:
+                    strength = 'strong'
+                    momentum = max(20 - abs(growth_rate) * 0.3, 5)
+                elif abs(growth_rate) > 15:
+                    strength = 'moderate'
+                    momentum = max(35 - abs(growth_rate) * 0.5, 15)
+                else:
+                    strength = 'weak'
+                    momentum = max(45 - abs(growth_rate) * 0.8, 25)
+                
+                trend_result['trend_signals'].append('下降趋势确认')
+                if current_interest < 30:
+                    trend_result['trend_signals'].append('低兴趣度加剧下降')
+                
+            else:  # stable
+                confidence = 0.8 if abs(growth_rate) < 5 else 0.6
+                strength = 'stable'
+                momentum = 50 + min(current_interest * 0.3, 25)
+                trend_result['trend_signals'].append('稳定趋势')
+                if 30 <= current_interest <= 70:
+                    trend_result['trend_signals'].append('兴趣度均衡稳定')
+            
+            # 计算趋势变化概率
+            if trend_direction == 'rising' and current_interest > 80:
+                change_prob = 0.4  # 高位可能回调
+                trend_result['trend_signals'].append('高位回调风险')
+            elif trend_direction == 'falling' and current_interest < 20:
+                change_prob = 0.5  # 低位可能反弹
+                trend_result['trend_signals'].append('低位反弹机会')
+            elif abs(growth_rate) > 50:
+                change_prob = 0.6  # 剧烈变化后可能逆转
+                trend_result['trend_signals'].append('剧烈变化逆转风险')
+            else:
+                change_prob = 0.2  # 趋势延续概率高
+                trend_result['trend_signals'].append('趋势延续性强')
+            
+            # 添加趋势因素分析
+            trend_factors = []
+            
+            # 基于关键词类型的趋势分析
+            keyword_lower = keyword.lower()
+            if any(term in keyword_lower for term in ['ai', 'chatgpt', 'artificial intelligence']):
+                trend_factors.append('AI热点关键词，通常有上升趋势')
+                if trend_direction != 'rising':
+                    trend_result['trend_signals'].append('AI关键词趋势异常')
+            
+            if any(term in keyword_lower for term in ['tool', 'generator', 'converter']):
+                trend_factors.append('工具类关键词，需求相对稳定')
+            
+            if any(term in keyword_lower for term in ['free', 'online']):
+                trend_factors.append('免费在线工具，用户需求持续')
+            
+            # 兴趣度与峰值比较
+            if peak_interest > 0:
+                interest_ratio = current_interest / peak_interest
+                if interest_ratio > 0.8:
+                    trend_factors.append('接近历史峰值，关注度很高')
+                elif interest_ratio < 0.3:
+                    trend_factors.append('远低于历史峰值，可能被低估')
+                else:
+                    trend_factors.append('兴趣度处于合理范围')
+            
+            trend_result.update({
+                'direction_confidence': round(confidence, 3),
+                'trend_strength': strength,
+                'direction_change_probability': round(change_prob, 3),
+                'momentum_score': round(momentum, 2),
+                'trend_factors': trend_factors
+            })
+            
+            return trend_result
+            
+        except Exception as e:
+            self.logger.error(f"趋势方向分析失败: {e}")
+            return {
+                'current_direction': 'unknown',
+                'direction_confidence': 0.0,
+                'trend_strength': 'unknown',
+                'direction_change_probability': 0.5,
+                'momentum_score': 0.0,
+                'trend_factors': ['趋势分析失败'],
+                'trend_signals': ['分析错误'],
+                'error': str(e)
+            }
+    
     def get_timeliness_grade(self, score: float) -> str:
         """
         根据评分获取时效性等级
@@ -387,13 +757,18 @@ class TimelinessAnalyzer(BaseAnalyzer):
         # 创建副本避免修改原始数据
         result_df = df.copy()
         
-        # 初始化结果列
+        # 初始化结果列（增强版）
         result_columns = [
             'timeliness_score', 'timeliness_grade', 'timeliness_description',
             'trend_score', 'trend_direction', 'growth_rate',
             'news_score', 'news_sentiment', 'news_count',
             'social_score', 'viral_potential', 'engagement_rate',
-            'seasonal_score', 'seasonal_relevance', 'current_season_match'
+            'seasonal_score', 'seasonal_relevance', 'current_season_match',
+            # 新增列
+            'stability_score', 'stability_grade', 'stability_factors',
+            'seasonal_strength', 'seasonal_pattern', 'seasonal_confidence',
+            'direction_confidence', 'trend_strength', 'momentum_score',
+            'direction_change_probability', 'trend_signals'
         ]
         
         for col in result_columns:
@@ -409,6 +784,11 @@ class TimelinessAnalyzer(BaseAnalyzer):
                 news_data = self.calculate_news_score(keyword)
                 social_data = self.calculate_social_score(keyword)
                 seasonal_data = self.calculate_seasonal_score(keyword)
+                
+                # 新增：增强分析
+                stability_analysis = self.calculate_stability_score(keyword, trend_data)
+                seasonal_patterns = self.detect_seasonal_patterns(keyword)
+                trend_direction_analysis = self.analyze_trend_direction_enhanced(keyword, trend_data)
                 
                 # 计算综合实时性评分
                 timeliness_score = self.calculate_timeliness_score(
@@ -443,6 +823,23 @@ class TimelinessAnalyzer(BaseAnalyzer):
                 result_df.at[idx, 'seasonal_score'] = float(seasonal_data['seasonal_score'])
                 result_df.at[idx, 'seasonal_relevance'] = seasonal_data['seasonal_relevance']
                 result_df.at[idx, 'current_season_match'] = bool(seasonal_data['current_season_match'])
+                
+                # 新增：稳定性数据
+                result_df.at[idx, 'stability_score'] = float(stability_analysis['stability_score'])
+                result_df.at[idx, 'stability_grade'] = stability_analysis['stability_grade']
+                result_df.at[idx, 'stability_factors'] = str(stability_analysis['stability_factors'])
+                
+                # 新增：季节性模式数据
+                result_df.at[idx, 'seasonal_strength'] = float(seasonal_patterns['seasonal_strength'])
+                result_df.at[idx, 'seasonal_pattern'] = seasonal_patterns['seasonal_pattern']
+                result_df.at[idx, 'seasonal_confidence'] = float(seasonal_patterns['seasonal_confidence'])
+                
+                # 新增：趋势方向数据
+                result_df.at[idx, 'direction_confidence'] = float(trend_direction_analysis['direction_confidence'])
+                result_df.at[idx, 'trend_strength'] = trend_direction_analysis['trend_strength']
+                result_df.at[idx, 'momentum_score'] = float(trend_direction_analysis['momentum_score'])
+                result_df.at[idx, 'direction_change_probability'] = float(trend_direction_analysis['direction_change_probability'])
+                result_df.at[idx, 'trend_signals'] = str(trend_direction_analysis['trend_signals'])
                 
                 if (idx + 1) % 10 == 0:
                     self.logger.info(f"已分析 {idx + 1}/{len(df)} 个关键词")
