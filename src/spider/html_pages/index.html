@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>哥飞小课堂 - SEO文章合集</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #3498db;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .article-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .article-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+        .article-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            text-decoration: none;
+            color: inherit;
+        }
+        .article-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        .article-date {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        .article-preview {
+            color: #555;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+        .search-box {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .search-input {
+            padding: 12px 20px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            width: 300px;
+            max-width: 100%;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .search-input:focus {
+            border-color: #3498db;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎓 哥飞小课堂 - SEO文章合集</h1>
+        <p>哥飞在「哥飞的朋友们」微信群里的SEO优化干货分享</p>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number">51</div>
+                <div class="stat-label">篇文章</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">2024</div>
+                <div class="stat-label">年度精选</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">离线可读</div>
+            </div>
+        </div>
+        
+        <div class="search-box">
+            <input type="text" class="search-input" placeholder="搜索文章标题..." id="searchInput">
+        </div>
+    </div>
+
+    <div class="article-grid" id="articleGrid">
+        <a href="20240102_蜘蛛池是什么？如何利用？.html" class="article-card">
+            <div class="article-title">蜘蛛池是什么？如何利用？</div>
+            <div class="article-date">📅 2024-01-02</div>
+            <div class="article-preview">聊聊蜘蛛池的概念和正确使用方法，以及如何借鉴蜘蛛池的思路来优化SEO...</div>
+        </a>
+
+        <a href="20240119_分享一个错过的机会.html" class="article-card">
+            <div class="article-title">分享一个错过的机会</div>
+            <div class="article-date">📅 2024-01-19</div>
+            <div class="article-preview">分享一个错过的SEO机会，从中学习如何把握时机...</div>
+        </a>
+
+        <a href="20240220_如何覆盖更多关键词？.html" class="article-card">
+            <div class="article-title">如何覆盖更多关键词？</div>
+            <div class="article-date">📅 2024-02-20</div>
+            <div class="article-preview">探讨如何通过合理的策略覆盖更多相关关键词，提升网站流量...</div>
+        </a>
+
+        <a href="20240227_为什么新词可以快速拿到结果？.html" class="article-card">
+            <div class="article-title">为什么新词可以快速拿到结果？</div>
+            <div class="article-date">📅 2024-02-27</div>
+            <div class="article-preview">分析新兴关键词的SEO优势和快速排名的原理...</div>
+        </a>
+
+        <a href="20240304_Google 的高权重域名是什么，如何利用？.html" class="article-card">
+            <div class="article-title">Google 的高权重域名是什么，如何利用？</div>
+            <div class="article-date">📅 2024-03-04</div>
+            <div class="article-preview">了解Google高权重域名的特点和合理利用方法...</div>
+        </a>
+
+        <a href="20240416_同一个页面，不要同时有大词和小词.html" class="article-card">
+            <div class="article-title">同一个页面，不要同时有大词和小词</div>
+            <div class="article-date">📅 2024-04-16</div>
+            <div class="article-preview">SEO优化中关键词布局的重要原则和实践方法...</div>
+        </a>
+
+        <a href="20240421_做有人会搜索相关关键词的页面.html" class="article-card">
+            <div class="article-title">做有人会搜索相关关键词的页面</div>
+            <div class="article-date">📅 2024-04-21</div>
+            <div class="article-preview">如何选择和创建真正有搜索需求的关键词页面...</div>
+        </a>
+
+        <a href="20240509_一个关键词一个页面原则.html" class="article-card">
+            <div class="article-title">一个关键词一个页面原则</div>
+            <div class="article-date">📅 2024-05-09</div>
+            <div class="article-preview">SEO的核心原则之一：一个关键词对应一个页面的策略...</div>
+        </a>
+
+        <a href="20240514_为什么说谷歌的最小排序粒度是网页，而不是网站？.html" class="article-card">
+            <div class="article-title">为什么说谷歌的最小排序粒度是网页，而不是网站？</div>
+            <div class="article-date">📅 2024-05-14</div>
+            <div class="article-preview">深入理解Google搜索排名的基本单位和机制...</div>
+        </a>
+
+        <a href="20240515_如何查看 checkout.stripe.com 导入流量的 100 名外的网站？.html" class="article-card">
+            <div class="article-title">如何查看 checkout.stripe.com 导入流量的 100 名外的网站？</div>
+            <div class="article-date">📅 2024-05-15</div>
+            <div class="article-preview">分析竞争对手流量来源的实用技巧和工具...</div>
+        </a>
+
+        <!-- 更多文章卡片... -->
+        <div class="article-card" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+            <div class="article-title">📚 更多文章</div>
+            <div class="article-preview">
+                本合集包含51篇SEO优化文章，涵盖关键词研究、内容策略、技术SEO、流量分析等各个方面。
+                <br><br>
+                每篇文章都是独立的HTML文件，可以离线阅读。文件按日期命名，方便查找和管理。
+                <br><br>
+                <strong>文章来源：</strong> <a href="https://www.lummstudio.com" target="_blank">路漫漫 - LummStudio</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>📖 本合集由 LummStudio Spider 爬取生成</p>
+        <p>🕒 爬取时间: 2025-09-03 14:45:00</p>
+        <p>🔗 原始网站: <a href="https://www.lummstudio.com/docs/seo/miniclass" target="_blank">哥飞小课堂</a></p>
+    </div>
+
+    <script>
+        // 简单的搜索功能
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const articles = document.querySelectorAll('.article-card');
+            
+            articles.forEach(article => {
+                const title = article.querySelector('.article-title');
+                if (title) {
+                    const titleText = title.textContent.toLowerCase();
+                    if (titleText.includes(searchTerm)) {
+                        article.style.display = 'block';
+                    } else {
+                        article.style.display = 'none';
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
