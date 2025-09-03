@@ -123,7 +123,34 @@ class CompetitorAnalyzer(BaseAnalyzer):
         """分析SERP竞争情况"""
         if self.serp_analyzer:
             try:
-                serp_data = self.serp_analyzer.search_google(keyword, num_results=10)
+                # 使用增强的SERP结构分析
+                serp_result = self.serp_analyzer.analyze_serp_structure(keyword)
+                if serp_result and 'competitors' in serp_result:
+                    # 从增强分析结果中提取竞争对手信息
+                    competitors = []
+                    for comp in serp_result['competitors'][:10]:
+                        competitors.append({
+                            'domain': comp['domain'],
+                            'url': comp['url'],
+                            'title': comp['title'],
+                            'position': comp['position'],
+                            'domain_authority': comp['domain_authority'],
+                            'competitor_type': comp['competitor_type']
+                        })
+                    
+                    # 计算竞争评分（基于增强分析的难度评分）
+                    competition_score = min(100, serp_result['difficulty_score'] * 100)
+                    
+                    return {
+                        'keyword': keyword,
+                        'competitors': competitors,
+                        'competition_score': competition_score,
+                        'competition_level': serp_result['competition_level'],
+                        'serp_features': serp_result['structure']
+                    }
+                
+                # 如果增强分析失败，回退到原有逻辑
+                serp_data = self.serp_analyzer._get_search_results(keyword) if hasattr(self.serp_analyzer, '_get_search_results') else None
                 if serp_data and 'items' in serp_data:
                     competitors = []
                     for i, item in enumerate(serp_data['items'][:10]):

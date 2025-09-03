@@ -73,6 +73,15 @@ class SerpAnalyzer:
         # 创建缓存目录
         if self.cache_enabled:
             os.makedirs(self.cache_dir, exist_ok=True)
+        
+        # 域名权重数据库（用于竞争对手分析）
+        self.domain_authority_db = {
+            'google.com': 100, 'youtube.com': 100, 'facebook.com': 96,
+            'wikipedia.org': 95, 'twitter.com': 94, 'instagram.com': 93,
+            'linkedin.com': 92, 'reddit.com': 91, 'amazon.com': 96,
+            'microsoft.com': 95, 'apple.com': 94, 'github.com': 85,
+            'stackoverflow.com': 87, 'medium.com': 82, 'quora.com': 80
+        }
     
     def analyze_keyword_serp(self, keyword: str) -> Dict:
         """
@@ -256,6 +265,323 @@ class SerpAnalyzer:
         secondary_intent = sorted_intents[1][0] if len(sorted_intents) > 1 and sorted_intents[1][1] > 0.1 else None
         
         return main_intent, min(confidence, 1.0), secondary_intent
+    
+    def analyze_serp_structure(self, keyword: str) -> Dict:
+        """
+        分析SERP结构和竞争情况
+        
+        Args:
+            keyword: 要分析的关键词
+            
+        Returns:
+            Dict: SERP结构分析结果
+        """
+        try:
+            # 获取搜索结果
+            search_result = self._get_search_results(keyword)
+            if not search_result:
+                return self._create_empty_structure_analysis(keyword)
+            
+            # 分析SERP结构
+            structure_info = self._extract_serp_structure(search_result)
+            
+            # 分析竞争对手
+            competitors = self._analyze_competitors_basic(search_result)
+            
+            # 计算竞争难度
+            difficulty_score = self._calculate_basic_difficulty(structure_info, competitors)
+            
+            return {
+                'keyword': keyword,
+                'structure': structure_info,
+                'competitors': competitors,
+                'difficulty_score': difficulty_score,
+                'competition_level': self._get_competition_level(difficulty_score),
+                'analysis_time': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            print(f"SERP结构分析失败 {keyword}: {e}")
+            return self._create_empty_structure_analysis(keyword)
+    
+    def _get_search_results(self, keyword: str) -> Optional[Dict]:
+        """获取搜索结果（带缓存）"""
+        # 检查缓存
+        if self.cache_enabled:
+            cached_result = self._get_cached_result(keyword)
+            if cached_result:
+                return cached_result
+        
+        # 获取新的搜索结果
+        if self.serp_api_key:
+            result = self._search_with_serpapi(keyword)
+        else:
+            result = self._search_with_google_api(keyword)
+        
+        # 缓存结果
+        if result and self.cache_enabled:
+            self._cache_result(keyword, result)
+        
+        return result
+    
+    def _extract_serp_structure(self, search_result: Dict) -> Dict:
+        """提取SERP结构信息"""
+        structure = {
+            'total_results': 0,
+            'organic_count': 0,
+            'ads_count': 0,
+            'shopping_count': 0,
+            'images_count': 0,
+            'videos_count': 0,
+            'news_count': 0,
+            'has_featured_snippet': False,
+            'has_knowledge_panel': False,
+            'has_local_results': False,
+            'competition_density': 0.0
+        }
+        
+        if 'organic_results' in search_result:
+            # SERP API格式
+            structure['organic_count'] = len(search_result.get('organic_results', []))
+            structure['ads_count'] = len(search_result.get('ads', []))
+            structure['shopping_count'] = len(search_result.get('shopping_results', []))
+            structure['images_count'] = len(search_result.get('images_results', []))
+            structure['videos_count'] = len(search_result.get('video_results', []))
+            structure['news_count'] = len(search_result.get('news_results', []))
+            structure['has_featured_snippet'] = bool(search_result.get('answer_box'))
+            structure['has_knowledge_panel'] = bool(search_result.get('knowledge_graph'))
+            structure['has_local_results'] = bool(search_result.get('local_results'))
+            
+        elif 'items' in search_result:
+            # Google Custom Search API格式
+            items = search_result.get('items', [])
+            search_info = search_result.get('searchInformation', {})
+            
+            structure['organic_count'] = len(items)
+            structure['total_results'] = int(search_info.get('totalResults', 0))
+        
+        # 计算竞争密度
+        total_elements = (structure['organic_count'] + structure['ads_count'] + 
+                         structure['shopping_count'])
+        if total_elements > 0:
+            non_organic = structure['ads_count'] + structure['shopping_count']
+            structure['competition_density'] = non_organic / total_elements
+        
+        return structure
+    
+    def _analyze_competitors_basic(self, search_result: Dict) -> List[Dict]:
+        """基础竞争对手分析"""
+        competitors = []
+        
+        organic_results = search_result.get('organic_results', search_result.get('items', []))
+        
+        for i, result in enumerate(organic_results[:10]):
+            try:
+                url = result.get('link', '')
+                if not url:
+                    continue
+                
+                domain = urlparse(url).netloc.lower()
+                title = result.get('title', '')
+                
+                # 识别竞争对手类型
+                competitor_type = self._identify_competitor_type(url, domain)
+                
+                # 获取域名权重
+                domain_authority = self._get_domain_authority(domain)
+                
+                # 评估页面权重
+                page_authority = self._estimate_page_authority_basic(domain, url, title)
+                
+                competitor = {
+                    'position': i + 1,
+                    'url': url,
+                    'domain': domain,
+                    'title': title,
+                    'competitor_type': competitor_type,
+                    'domain_authority': domain_authority,
+                    'page_authority': page_authority
+                }
+                
+                competitors.append(competitor)
+                
+            except Exception as e:
+                print(f"分析竞争对手失败: {e}")
+                continue
+        
+        return competitors
+    
+    def _identify_competitor_type(self, url: str, domain: str) -> str:
+        """识别竞争对手类型"""
+        parsed_url = urlparse(url)
+        
+        # 检查是否为子域名
+        domain_parts = domain.split('.')
+        if len(domain_parts) > 2:
+            subdomain = domain_parts[0]
+            if subdomain in ['www', 'blog', 'shop', 'store', 'news', 'support']:
+                return 'subdomain'
+        
+        # 检查URL路径深度
+        path = parsed_url.path.strip('/')
+        if not path:
+            return 'domain'
+        
+        path_segments = path.split('/')
+        if len(path_segments) <= 2:
+            return 'domain'
+        else:
+            return 'inner_page'
+    
+    def _get_domain_authority(self, domain: str) -> int:
+        """获取域名权重"""
+        # 首先检查内置数据库
+        if domain in self.domain_authority_db:
+            return self.domain_authority_db[domain]
+        
+        # 基于域名特征估算权重
+        score = 30  # 基础分数
+        
+        # 顶级域名加分
+        if domain.endswith('.edu'):
+            score += 20
+        elif domain.endswith('.gov'):
+            score += 25
+        elif domain.endswith('.org'):
+            score += 10
+        
+        # 知名网站模式识别
+        if any(pattern in domain for pattern in ['wiki', 'news', 'blog']):
+            score += 15
+        
+        # 域名长度影响
+        if len(domain) < 10:
+            score += 5
+        elif len(domain) > 20:
+            score -= 5
+        
+        return min(max(score, 1), 100)
+    
+    def _estimate_page_authority_basic(self, domain: str, url: str, title: str) -> int:
+        """基础页面权重估算"""
+        domain_authority = self._get_domain_authority(domain)
+        
+        # 基于域名权重和URL结构估算页面权重
+        page_authority = domain_authority
+        
+        # URL深度影响
+        parsed_url = urlparse(url)
+        path_depth = len(parsed_url.path.strip('/').split('/')) if parsed_url.path.strip('/') else 0
+        
+        if path_depth == 0:
+            page_authority += 10  # 首页权重高
+        elif path_depth > 3:
+            page_authority -= 10  # 深层页面权重低
+        
+        # 标题质量影响
+        if title and 30 <= len(title) <= 60:
+            page_authority += 5
+        
+        return min(max(page_authority, 1), 100)
+    
+    def _calculate_basic_difficulty(self, structure: Dict, competitors: List[Dict]) -> float:
+        """计算基础竞争难度"""
+        if not competitors:
+            return 0.0
+        
+        difficulty = 0.0
+        
+        # SERP复杂度影响 (30%)
+        complexity = 0.0
+        if structure.get('ads_count', 0) > 0:
+            complexity += 0.2
+        if structure.get('shopping_count', 0) > 0:
+            complexity += 0.15
+        if structure.get('has_featured_snippet'):
+            complexity += 0.2
+        if structure.get('has_knowledge_panel'):
+            complexity += 0.15
+        
+        difficulty += complexity * 0.3
+        
+        # 顶级竞争对手权重影响 (50%)
+        top_competitors = competitors[:5]
+        avg_domain_authority = sum(comp['domain_authority'] for comp in top_competitors) / len(top_competitors)
+        difficulty += (avg_domain_authority / 100) * 0.5
+        
+        # 竞争对手类型影响 (20%)
+        domain_competitors = sum(1 for comp in top_competitors if comp['competitor_type'] == 'domain')
+        if domain_competitors >= 3:
+            difficulty += 0.2
+        elif domain_competitors >= 1:
+            difficulty += 0.1
+        
+        return min(difficulty, 1.0)
+    
+    def _get_competition_level(self, difficulty_score: float) -> str:
+        """获取竞争级别"""
+        if difficulty_score >= 0.8:
+            return "极高"
+        elif difficulty_score >= 0.6:
+            return "高"
+        elif difficulty_score >= 0.4:
+            return "中等"
+        elif difficulty_score >= 0.2:
+            return "低"
+        else:
+            return "极低"
+    
+    def _create_empty_structure_analysis(self, keyword: str) -> Dict:
+        """创建空的结构分析结果"""
+        return {
+            'keyword': keyword,
+            'structure': {
+                'total_results': 0,
+                'organic_count': 0,
+                'ads_count': 0,
+                'competition_density': 0.0
+            },
+            'competitors': [],
+            'difficulty_score': 0.0,
+            'competition_level': "未知",
+            'analysis_time': datetime.now().isoformat()
+        }
+    
+    def _get_cached_result(self, keyword: str) -> Optional[Dict]:
+        """获取缓存的搜索结果"""
+        cache_key = hashlib.md5(keyword.encode()).hexdigest()
+        cache_file = os.path.join(self.cache_dir, f"{cache_key}.json")
+        
+        if os.path.exists(cache_file):
+            try:
+                with open(cache_file, 'r', encoding='utf-8') as f:
+                    cached_data = json.load(f)
+                
+                # 检查缓存是否过期
+                cache_time = datetime.fromisoformat(cached_data.get('timestamp', ''))
+                if datetime.now() - cache_time < timedelta(seconds=self.cache_duration):
+                    return cached_data.get('data')
+            except Exception as e:
+                print(f"读取缓存失败: {e}")
+        
+        return None
+    
+    def _cache_result(self, keyword: str, result: Dict):
+        """缓存搜索结果"""
+        cache_key = hashlib.md5(keyword.encode()).hexdigest()
+        cache_file = os.path.join(self.cache_dir, f"{cache_key}.json")
+        
+        try:
+            cache_data = {
+                'keyword': keyword,
+                'timestamp': datetime.now().isoformat(),
+                'data': result
+            }
+            
+            with open(cache_file, 'w', encoding='utf-8') as f:
+                json.dump(cache_data, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"缓存结果失败: {e}")
 
 if __name__ == "__main__":
     # 测试 SERP 分析器

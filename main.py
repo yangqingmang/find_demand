@@ -154,13 +154,22 @@ class IntegratedDemandMiningManager:
                 keyword = row.get('query', row.get('keyword', ''))
                 if keyword:
                     print(f"  分析关键词 {i+1}/{total_keywords}: {keyword}")
-                    serp_result = serp_analyzer.analyze_keyword_serp(keyword)
+                    
+                    # 使用增强的SERP结构分析
+                    serp_structure = serp_analyzer.analyze_serp_structure(keyword)
+                    serp_intent = serp_analyzer.analyze_keyword_serp(keyword)
+                    
                     serp_results.append({
                         'keyword': keyword,
-                        'serp_features': serp_result.get('serp_features', {}),
-                        'serp_intent': serp_result.get('intent', 'I'),
-                        'serp_confidence': serp_result.get('confidence', 0.0),
-                        'serp_secondary_intent': serp_result.get('secondary_intent', None)
+                        'serp_features': serp_intent.get('serp_features', {}),
+                        'serp_intent': serp_intent.get('intent', 'I'),
+                        'serp_confidence': serp_intent.get('confidence', 0.0),
+                        'serp_secondary_intent': serp_intent.get('secondary_intent', None),
+                        # 新增的增强分析结果
+                        'competition_level': serp_structure.get('competition_level', '未知'),
+                        'difficulty_score': serp_structure.get('difficulty_score', 0.0),
+                        'competitors': serp_structure.get('competitors', [])[:5],  # 只保留前5个竞争对手
+                        'serp_structure': serp_structure.get('structure', {})
                     })
             
             # 将SERP分析结果合并到原结果中
@@ -172,7 +181,12 @@ class IntegratedDemandMiningManager:
                             'features': serp_data['serp_features'],
                             'intent': serp_data['serp_intent'],
                             'confidence': serp_data['serp_confidence'],
-                            'secondary_intent': serp_data['serp_secondary_intent']
+                            'secondary_intent': serp_data['serp_secondary_intent'],
+                            # 新增的增强分析结果
+                            'competition_level': serp_data['competition_level'],
+                            'difficulty_score': serp_data['difficulty_score'],
+                            'top_competitors': serp_data['competitors'],
+                            'serp_structure': serp_data['serp_structure']
                         }
                         
                         # 如果SERP分析置信度高，可以调整机会分数
@@ -185,12 +199,17 @@ class IntegratedDemandMiningManager:
             # 生成SERP分析摘要
             high_confidence_serp = len([r for r in serp_results if r['serp_confidence'] > 0.8])
             commercial_intent = len([r for r in serp_results if r['serp_intent'] in ['C', 'T']])
+            high_competition = len([r for r in serp_results if r['competition_level'] in ['极高', '高']])
+            low_competition = len([r for r in serp_results if r['competition_level'] in ['极低', '低']])
             
             result['serp_summary'] = {
                 'total_analyzed': len(serp_results),
                 'high_confidence_serp': high_confidence_serp,
                 'commercial_intent_keywords': commercial_intent,
-                'serp_analysis_enabled': True
+                'high_competition_keywords': high_competition,
+                'low_competition_keywords': low_competition,
+                'serp_analysis_enabled': True,
+                'enhanced_analysis_enabled': True  # 标记已启用增强分析
             }
             
             return result
