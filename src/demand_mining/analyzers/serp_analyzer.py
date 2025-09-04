@@ -45,6 +45,13 @@ except ImportError:
     
     config = DefaultConfig()
 
+# 导入SERP数据结构化解析器
+try:
+    from src.demand_mining.core.serp_parser import SerpParser
+except ImportError:
+    SerpParser = None
+    print("警告: SERP数据结构化解析器不可用")
+
 class SerpAnalyzer:
     """SERP分析类，用于分析搜索引擎结果页面"""
     
@@ -53,6 +60,9 @@ class SerpAnalyzer:
         # 验证配置
         if hasattr(config, 'validate'):
             config.validate()
+        
+        # 初始化SERP数据结构化解析器
+        self.serp_parser = SerpParser() if SerpParser else None
         
         # API配置
         self.api_key = config.GOOGLE_API_KEY
@@ -582,6 +592,52 @@ class SerpAnalyzer:
                 json.dump(cache_data, f, ensure_ascii=False, indent=2)
         except Exception as e:
             print(f"缓存结果失败: {e}")
+    
+    def analyze_serp_detailed(self, keyword: str) -> Dict:
+        """
+        使用结构化解析器进行详细SERP分析
+        
+        Args:
+            keyword: 要分析的关键词
+            
+        Returns:
+            Dict: 包含基础分析和结构化分析的完整结果
+        """
+        result = {
+            'keyword': keyword,
+            'basic_analysis': self.analyze_keyword_serp(keyword),
+            'structured_analysis': None,
+            'competitors': []
+        }
+        
+        try:
+            if self.serp_parser:
+                search_data = self._get_search_results(keyword)
+                if search_data:
+                    serp_structure = self.serp_parser.parse_serp_structure(search_data, keyword)
+                    result['structured_analysis'] = {
+                        'difficulty_score': serp_structure.difficulty_score,
+                        'opportunity_score': serp_structure.opportunity_score,
+                        'total_results': serp_structure.total_results,
+                        'organic_count': len(serp_structure.organic_results),
+                        'paid_count': len(serp_structure.paid_results),
+                        'competition_metrics': serp_structure.competition_metrics
+                    }
+                    
+                    competitors = self.serp_parser.extract_competitor_info(serp_structure.organic_results)
+                    result['competitors'] = [
+                        {
+                            'domain': comp.domain,
+                            'position': comp.position,
+                            'domain_authority': comp.domain_authority,
+                            'competitor_type': comp.competitor_type
+                        }
+                        for comp in competitors[:5]  # 只返回前5个
+                    ]
+        except Exception as e:
+            print(f"详细SERP分析失败: {e}")
+        
+        return result
 
 if __name__ == "__main__":
     # 测试 SERP 分析器
