@@ -120,12 +120,31 @@ class NewWordDetector(BaseAnalyzer):
         
         if self.trends_collector:
             try:
+                # 添加延迟避免429错误 - 新词检测器请求间隔控制
+                import time
+                time.sleep(2)  # 新词检测器专用延迟
+                
                 # 只获取12个月数据，从中提取其他时间段的数据
                 data_12m = self.trends_collector.get_trends_data([keyword], timeframe='today 12-m')
                 
                 # 如果12个月数据获取失败，尝试获取3个月数据
                 if data_12m.empty:
+                    # 添加额外延迟避免连续请求
+                    time.sleep(1)
                     data_12m = self.trends_collector.get_trends_data([keyword], timeframe='today 3-m')
+                    
+                    # 如果3个月数据也失败，返回默认值并缓存
+                    if data_12m.empty:
+                        self.logger.warning(f"无法获取关键词 '{keyword}' 的趋势数据，使用默认值")
+                        default_result = {
+                            'avg_12m': 0.0, 'max_12m': 0.0,
+                            'avg_90d': 0.0, 'max_90d': 0.0,
+                            'avg_30d': 0.0, 'max_30d': 0.0,
+                            'avg_7d': 0.0, 'max_7d': 0.0,
+                            'recent_trend': []
+                        }
+                        self._trends_cache[cache_key] = default_result
+                        return default_result
                 
                 # 从12个月数据中计算其他时间段
                 data_90d = data_12m.tail(90) if len(data_12m) >= 90 else data_12m

@@ -96,7 +96,11 @@ class TrendsAPIClient:
             s.proxies.update(self.proxies)
         
         # 在每个请求前添加固定延迟，避免并发请求
-        time.sleep(1)
+        # 增强延迟机制：基础延迟 + 随机延迟避免请求冲突
+        base_delay = 2.0  # 基础延迟增加到2秒
+        random_delay = random.uniform(0.5, 1.5)  # 随机延迟0.5-1.5秒
+        total_delay = base_delay + random_delay
+        time.sleep(total_delay)
         
         for attempt in range(self.retries + 1):
             try:
@@ -108,16 +112,21 @@ class TrendsAPIClient:
                 # 使用GoogleTrendsSession的make_request方法，支持代理
                 response = self.trends_session.make_request(method.upper(), url, timeout=self.timeout, **kwargs)
                 
-                # 特殊处理429错误
+                # 特殊处理429错误 - 增强等待时间
                 if response.status_code == 429:
                     if attempt < self.retries:
-                        wait_time = 2 + (attempt * 10) + random.uniform(5, 15)
+                        # 增加更长的等待时间避免频繁触发429
+                        base_wait = 15 + (attempt * 20)  # 基础等待时间增加
+                        random_wait = random.uniform(10, 25)  # 随机等待时间增加
+                        wait_time = base_wait + random_wait
                         logger.warning(f"遇到429错误，等待{wait_time:.1f}秒后重试...")
                         logger.warning(f"请求 url 地址: {url}")
+                        logger.warning(f"这是第{attempt + 1}次重试，将使用更长的等待时间")
                         time.sleep(wait_time)
                         continue
                     else:
                         logger.error("多次遇到429错误，请求失败")
+                        logger.error("建议：1) 减少并发请求 2) 增加请求间隔 3) 检查代理设置")
                         return {}
                 
                 response.raise_for_status()

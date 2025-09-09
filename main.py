@@ -7,6 +7,7 @@
 
 import sys
 import os
+import time
 
 # 添加src目录到Python路径
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
@@ -46,6 +47,11 @@ def main():
             return
         
         elif handle_keywords_analysis(manager, args):
+            # 如果同时指定了predict-trends，在关键词分析完成后执行趋势预测
+            if args.predict_trends:
+                print("\n📈 关键词分析完成，现在执行趋势预测...")
+                time.sleep(3)  # 添加间隔避免API冲突
+                handle_enhanced_features(manager, args)
             return
         
         elif handle_discover_analysis(manager, args):
