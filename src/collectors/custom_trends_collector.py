@@ -16,7 +16,8 @@ import hashlib
 
 logger = logging.getLogger(__name__)
 
-from .google_trends_session import GoogleTrendsSession
+from .google_trends_session import GoogleTrendsSession, get_global_session
+from .request_rate_limiter import wait_for_next_request, get_rate_limiter_stats
 
 # 类型变量定义
 T = TypeVar('T')
@@ -88,19 +89,16 @@ class TrendsAPIClient:
                 logger.debug(f"使用缓存数据: {url}")
                 return self._cache[cache_key]
         
+        # 使用全局请求频率控制器
+        logger.debug(f"📊 请求前统计: {get_rate_limiter_stats()}")
+        wait_for_next_request()
+        
         # 直接发送请求，无锁
         s = self.session
         s.headers.update({'accept-language': self.hl})
         
         if self.proxies:
             s.proxies.update(self.proxies)
-        
-        # 在每个请求前添加固定延迟，避免并发请求
-        # 增强延迟机制：基础延迟 + 随机延迟避免请求冲突
-        base_delay = 2.0  # 基础延迟增加到2秒
-        random_delay = random.uniform(0.5, 1.5)  # 随机延迟0.5-1.5秒
-        total_delay = base_delay + random_delay
-        time.sleep(total_delay)
         
         for attempt in range(self.retries + 1):
             try:
@@ -112,21 +110,39 @@ class TrendsAPIClient:
                 # 使用GoogleTrendsSession的make_request方法，支持代理
                 response = self.trends_session.make_request(method.upper(), url, timeout=self.timeout, **kwargs)
                 
-                # 特殊处理429错误 - 增强等待时间
+                # 特殊处理429错误 - 增强等待时间并重置Session
                 if response.status_code == 429:
                     if attempt < self.retries:
-                        # 增加更长的等待时间避免频繁触发429
-                        base_wait = 15 + (attempt * 20)  # 基础等待时间增加
-                        random_wait = random.uniform(10, 25)  # 随机等待时间增加
+                        logger.warning(f"⚠️ 遇到429错误，第{attempt + 1}次重试")
+                        logger.warning(f"🔗 请求URL: {url}")
+                        
+                        # 重置Session和频率控制器
+                        try:
+                            from .google_trends_session import reset_global_session
+                            from .request_rate_limiter import reset_global_rate_limiter
+                            
+                            logger.info("🔄 重置Session和频率控制器...")
+                            reset_global_session()
+                            reset_global_rate_limiter()
+                            
+                            # 重新获取Session
+                            self.trends_session = get_global_session()
+                            self.session = self.trends_session.get_session()
+                            
+                        except Exception as reset_error:
+                            logger.error(f"❌ 重置Session失败: {reset_error}")
+                        
+                        # 增加更长的等待时间
+                        base_wait = 30 + (attempt * 30)  # 基础等待时间增加到30秒
+                        random_wait = random.uniform(15, 30)  # 随机等待时间15-30秒
                         wait_time = base_wait + random_wait
-                        logger.warning(f"遇到429错误，等待{wait_time:.1f}秒后重试...")
-                        logger.warning(f"请求 url 地址: {url}")
-                        logger.warning(f"这是第{attempt + 1}次重试，将使用更长的等待时间")
+                        
+                        logger.warning(f"⏳ 等待{wait_time:.1f}秒后重试...")
                         time.sleep(wait_time)
                         continue
                     else:
-                        logger.error("多次遇到429错误，请求失败")
-                        logger.error("建议：1) 减少并发请求 2) 增加请求间隔 3) 检查代理设置")
+                        logger.error("❌ 多次遇到429错误，请求失败")
+                        logger.error("💡 建议：1) 减少并发请求 2) 增加请求间隔 3) 检查代理设置 4) 稍后再试")
                         return {}
                 
                 response.raise_for_status()

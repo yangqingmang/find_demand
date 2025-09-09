@@ -5,15 +5,17 @@
 避免创建多个TrendsCollector实例导致的429错误
 """
 
+import threading
 from typing import Optional
 from .trends_collector import TrendsCollector
 
 # 全局变量存储单例实例
 _trends_collector_instance: Optional[TrendsCollector] = None
+_lock = threading.Lock()
 
 def get_trends_collector() -> TrendsCollector:
     """
-    获取趋势收集器单例实例
+    获取趋势收集器单例实例（线程安全）
     
     返回:
         TrendsCollector: 趋势收集器实例
@@ -23,10 +25,12 @@ def get_trends_collector() -> TrendsCollector:
     import logging
     logger = logging.getLogger(__name__)
     
+    # 双重检查锁定模式
     if _trends_collector_instance is None:
-        # 简单单例模式，无锁
-        _trends_collector_instance = TrendsCollector()
-        logger.info("🆕 创建新的TrendsCollector实例")
+        with _lock:
+            if _trends_collector_instance is None:
+                _trends_collector_instance = TrendsCollector()
+                logger.info("🆕 创建新的TrendsCollector实例")
     else:
         logger.info("♻️ 复用现有的TrendsCollector实例")
     

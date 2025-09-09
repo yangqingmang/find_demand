@@ -6,6 +6,7 @@ import requests
 import json
 import os
 import logging
+import threading
 from typing import Dict, Optional
 
 # 导入代理管理器
@@ -104,17 +105,42 @@ class GoogleTrendsSession:
         try:
             logger.info("🔧 正在初始化Google Trends会话...")
             
-            # 添加延迟避免429错误
+            # 添加更长的延迟避免429错误
             import time
-            time.sleep(2)
+            time.sleep(5)
+            
+            # 更新headers，模拟真实浏览器
+            self.session.headers.update({
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'DNT': '1',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1',
+                'Sec-Fetch-Dest': 'document',
+                'Sec-Fetch-Mode': 'navigate',
+                'Sec-Fetch-Site': 'none',
+                'Sec-Fetch-User': '?1',
+                'Cache-Control': 'max-age=0'
+            })
             
             # 先访问主页获取cookies
             main_page_url = 'https://trends.google.com/'
             response = self.session.get(main_page_url, timeout=self.timeout)
             
             if response.status_code == 200:
-                self.initialized = True
-                logger.info("✅ Google Trends会话初始化成功")
+                # 再访问一个trends页面，确保session完全建立
+                time.sleep(3)
+                trends_page_url = 'https://trends.google.com/trends/explore?q=test'
+                trends_response = self.session.get(trends_page_url, timeout=self.timeout)
+                
+                if trends_response.status_code == 200:
+                    self.initialized = True
+                    logger.info("✅ Google Trends会话初始化成功")
+                else:
+                    logger.warning(f"⚠️ Trends页面访问失败，状态码: {trends_response.status_code}")
+                    self.initialized = False
             elif response.status_code == 429:
                 logger.error("❌ 遇到429错误，会话初始化失败")
                 self.initialized = False
@@ -209,18 +235,26 @@ class GoogleTrendsSession:
 
 # 全局session实例
 _global_session = None
+_session_lock = threading.Lock()
 
 def get_global_session() -> GoogleTrendsSession:
-    """获取全局session实例"""
+    """获取全局session实例（线程安全）"""
     global _global_session
+    
+    # 双重检查锁定模式
     if _global_session is None:
-        _global_session = GoogleTrendsSession()
+        with _session_lock:
+            if _global_session is None:
+                _global_session = GoogleTrendsSession()
+                logger.info("Session初始化成功")
     return _global_session
 
 def reset_global_session() -> None:
-    """重置全局session"""
+    """重置全局session（线程安全）"""
     global _global_session
-    if _global_session:
-        _global_session.reset_session()
-    else:
-        _global_session = GoogleTrendsSession()
+    
+    with _session_lock:
+        if _global_session:
+            _global_session.close()
+            _global_session = GoogleTrendsSession()
+            logger.info("全局Session已重置")
