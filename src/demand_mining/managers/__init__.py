@@ -8,10 +8,12 @@ from .base_manager import BaseManager
 from .keyword_manager import KeywordManager
 from .discovery_manager import DiscoveryManager
 from .trend_manager import TrendManager
+from .task_manager import TaskManager
 
 __all__ = [
     'BaseManager',
     'KeywordManager', 
     'DiscoveryManager',
-    'TrendManager'
+    'TrendManager',
+    'TaskManager'
 ]
