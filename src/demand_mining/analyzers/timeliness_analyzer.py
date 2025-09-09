@@ -116,28 +116,34 @@ class TimelinessAnalyzer(BaseAnalyzer):
                 # 使用真实的Google Trends数据
                 trend_data = self.trends_collector.get_trends_data([keyword], timeframe=timeframe)
                 
-                if trend_data and keyword in trend_data:
+                # 检查trend_data是否为DataFrame且包含关键词列
+                if isinstance(trend_data, pd.DataFrame) and not trend_data.empty and keyword in trend_data.columns:
+                    values = trend_data[keyword].dropna().values
+                elif trend_data and isinstance(trend_data, dict) and keyword in trend_data:
                     values = trend_data[keyword]['values']
-                    if len(values) >= 2:
-                        # 计算趋势变化
-                        recent_avg = np.mean(values[-3:])  # 最近3个数据点
-                        earlier_avg = np.mean(values[:3])  # 最早3个数据点
-                        
-                        if earlier_avg > 0:
-                            growth_rate = (recent_avg - earlier_avg) / earlier_avg * 100
-                        else:
-                            growth_rate = 0
-                        
-                        # 计算趋势评分
-                        trend_score = min(100, max(0, 50 + growth_rate))
-                        
-                        return {
-                            'trend_score': round(trend_score, 1),
-                            'growth_rate': round(growth_rate, 2),
-                            'current_interest': round(recent_avg, 1),
-                            'peak_interest': max(values),
-                            'trend_direction': 'rising' if growth_rate > 10 else 'falling' if growth_rate < -10 else 'stable'
-                        }
+                else:
+                    values = []
+                
+                if len(values) >= 2:
+                    # 计算趋势变化
+                    recent_avg = np.mean(values[-3:])  # 最近3个数据点
+                    earlier_avg = np.mean(values[:3])  # 最早3个数据点
+                    
+                    if earlier_avg > 0:
+                        growth_rate = (recent_avg - earlier_avg) / earlier_avg * 100
+                    else:
+                        growth_rate = 0
+                    
+                    # 计算趋势评分
+                    trend_score = min(100, max(0, 50 + growth_rate))
+                    
+                    return {
+                        'trend_score': round(trend_score, 1),
+                        'growth_rate': round(growth_rate, 2),
+                        'current_interest': round(recent_avg, 1),
+                        'peak_interest': max(values),
+                        'trend_direction': 'rising' if growth_rate > 10 else 'falling' if growth_rate < -10 else 'stable'
+                    }
             except Exception as e:
                 self.logger.warning(f"获取真实趋势数据失败: {e}")
         

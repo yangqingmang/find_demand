@@ -234,14 +234,54 @@ class CustomTrendsCollector(TrendsAPIClient):
         self.geo = geo
         self.gprop = gprop
         
+        # 标准化时间格式
+        normalized_timeframe = self._normalize_timeframe(timeframe)
+        
         # 构建比较数据结构
-        comparisonItem = [{'keyword': kw, 'geo': geo, 'time': timeframe} for kw in kw_list]
+        comparisonItem = [{'keyword': kw, 'geo': geo, 'time': normalized_timeframe} for kw in kw_list]
         
         return {
             'comparisonItem': comparisonItem,
             'category': cat,
             'property': gprop
         }
+    
+    def _normalize_timeframe(self, timeframe: str) -> str:
+        """标准化时间格式为Google Trends API接受的格式"""
+        # 移除空格并转换为小写
+        timeframe = timeframe.strip().lower()
+        
+        # 时间格式映射表
+        timeframe_mapping = {
+            '1d': 'now 1-d',
+            '7d': 'now 7-d', 
+            '30d': 'today 1-m',
+            '90d': 'today 3-m',
+            '12m': 'today 12-m',
+            '5y': 'today 5-y',
+            # 保持原有格式
+            'now 1-d': 'now 1-d',
+            'now 7-d': 'now 7-d',
+            'today 1-m': 'today 1-m',
+            'today 3-m': 'today 3-m', 
+            'today 12-m': 'today 12-m',
+            'today 5-y': 'today 5-y',
+            'all': 'all'
+        }
+        
+        # 如果在映射表中找到，使用映射值
+        if timeframe in timeframe_mapping:
+            normalized = timeframe_mapping[timeframe]
+            logger.debug(f"时间格式标准化: {timeframe} -> {normalized}")
+            return normalized
+        
+        # 如果已经是标准格式，直接返回
+        if timeframe.startswith(('now ', 'today ')) or timeframe == 'all':
+            return timeframe
+        
+        # 默认返回原格式，但记录警告
+        logger.warning(f"未识别的时间格式: {timeframe}，使用原格式")
+        return timeframe
     
     def _get_token_response(self) -> JsonDict:
         """获取token响应"""

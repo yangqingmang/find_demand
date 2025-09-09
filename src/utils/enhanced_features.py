@@ -44,34 +44,147 @@ def monitor_competitors(sites: List[str], output_dir: str = None) -> Dict[str, A
     
     return results
 
-def predict_keyword_trends(timeframe: str = "30d", output_dir: str = None) -> Dict[str, Any]:
-    """预测关键词趋势"""
+def predict_keyword_trends(timeframe: str = "30d", output_dir: str = None, keywords: List[str] = None, use_real_data: bool = True) -> Dict[str, Any]:
+    """预测关键词趋势
+    
+    Args:
+        timeframe: 预测时间范围
+        output_dir: 输出目录
+        keywords: 要分析的关键词列表，如果为None则使用默认关键词
+        use_real_data: 是否使用真实数据进行预测，False时返回演示数据
+    
+    Returns:
+        趋势预测结果
+    """
     print(f"📈 开始预测未来 {timeframe} 的关键词趋势...")
     
-    # 基于历史数据和当前趋势进行预测
-    predictions = {
-        'prediction_date': datetime.now().isoformat(),
-        'timeframe': timeframe,
-        'rising_keywords': [
-            {'keyword': 'AI video generator', 'predicted_growth': '+150%', 'confidence': 0.85},
-            {'keyword': 'AI code assistant', 'predicted_growth': '+120%', 'confidence': 0.78},
-            {'keyword': 'AI image upscaler', 'predicted_growth': '+90%', 'confidence': 0.72}
-        ],
-        'declining_keywords': [
-            {'keyword': 'basic chatbot', 'predicted_decline': '-30%', 'confidence': 0.65},
-            {'keyword': 'simple ai writer', 'predicted_decline': '-20%', 'confidence': 0.58}
-        ],
-        'stable_keywords': [
-            {'keyword': 'AI generator', 'predicted_change': '+5%', 'confidence': 0.90},
-            {'keyword': 'AI assistant', 'predicted_change': '+10%', 'confidence': 0.88}
-        ]
-    }
+    if not use_real_data:
+        # 返回演示数据（原有逻辑）
+        print("⚠️ 使用演示数据模式，非真实预测结果")
+        predictions = {
+            'prediction_date': datetime.now().isoformat(),
+            'timeframe': timeframe,
+            'data_source': 'demo_data',
+            'rising_keywords': [
+                {'keyword': 'AI video generator', 'predicted_growth': '+150%', 'confidence': 0.85},
+                {'keyword': 'AI code assistant', 'predicted_growth': '+120%', 'confidence': 0.78},
+                {'keyword': 'AI image upscaler', 'predicted_growth': '+90%', 'confidence': 0.72}
+            ],
+            'declining_keywords': [
+                {'keyword': 'basic chatbot', 'predicted_decline': '-30%', 'confidence': 0.65},
+                {'keyword': 'simple ai writer', 'predicted_decline': '-20%', 'confidence': 0.58}
+            ],
+            'stable_keywords': [
+                {'keyword': 'AI generator', 'predicted_change': '+5%', 'confidence': 0.90},
+                {'keyword': 'AI assistant', 'predicted_change': '+10%', 'confidence': 0.88}
+            ]
+        }
+    else:
+        # 使用真实数据进行预测
+        print("✅ 使用真实Google Trends数据进行预测")
+        predictions = _predict_with_real_data(keywords, timeframe)
     
     # 保存预测结果
     if output_dir:
         _save_trend_predictions(predictions, output_dir)
     
     return predictions
+
+def _predict_with_real_data(keywords: List[str] = None, timeframe: str = "30d") -> Dict[str, Any]:
+    """使用真实Google Trends数据进行趋势预测"""
+    try:
+        # 导入必要的模块
+        import sys
+        import os
+        import pandas as pd
+        
+        # 添加项目根目录到路径
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.dirname(os.path.dirname(current_dir))
+        if project_root not in sys.path:
+            sys.path.insert(0, project_root)
+        
+        from src.demand_mining.managers.trend_manager import TrendManager
+        from src.demand_mining.analyzers.timeliness_analyzer import TimelinessAnalyzer
+        
+        # 如果没有提供关键词，使用默认的AI相关关键词
+        if not keywords:
+            keywords = [
+                'ai tools', 'chatgpt', 'claude ai', 'gemini ai', 
+                'ai generator', 'ai assistant', 'machine learning',
+                'artificial intelligence', 'ai image generator', 'ai code assistant'
+            ]
+        
+        print(f"🔍 分析 {len(keywords)} 个关键词的真实趋势数据...")
+        
+        # 使用实时性分析器获取真实趋势数据
+        analyzer = TimelinessAnalyzer()
+        df = pd.DataFrame({'query': keywords})
+        
+        # 执行实时性分析
+        result_df = analyzer.analyze_timeliness(df)
+        
+        # 基于分析结果进行预测分类
+        predictions = {
+            'prediction_date': datetime.now().isoformat(),
+            'timeframe': timeframe,
+            'data_source': 'google_trends_real_data',
+            'analysis_method': 'timeliness_based_prediction',
+            'total_keywords_analyzed': len(keywords),
+            'rising_keywords': [],
+            'stable_keywords': [],
+            'declining_keywords': []
+        }
+        
+        for _, row in result_df.iterrows():
+            keyword_data = {
+                'keyword': row['query'],
+                'timeliness_score': float(row.get('timeliness_score', 0)),
+                'trend_direction': row.get('trend_direction', 'stable'),
+                'growth_rate': f"{row.get('growth_rate', 0):+.1f}%",
+                'confidence': min(0.95, max(0.3, float(row.get('timeliness_score', 50)) / 100)),
+                'current_interest': float(row.get('current_interest', 0)),
+                'peak_interest': float(row.get('peak_interest', 0))
+            }
+            
+            # 根据趋势方向分类
+            if row.get('trend_direction') == 'rising':
+                predictions['rising_keywords'].append(keyword_data)
+            elif row.get('trend_direction') == 'falling':
+                predictions['declining_keywords'].append(keyword_data)
+            else:
+                predictions['stable_keywords'].append(keyword_data)
+        
+        # 按置信度排序
+        predictions['rising_keywords'].sort(key=lambda x: x['confidence'], reverse=True)
+        predictions['declining_keywords'].sort(key=lambda x: x['confidence'], reverse=True)
+        predictions['stable_keywords'].sort(key=lambda x: x['confidence'], reverse=True)
+        
+        print(f"✅ 预测完成: {len(predictions['rising_keywords'])} 上升, {len(predictions['stable_keywords'])} 稳定, {len(predictions['declining_keywords'])} 下降")
+        
+        return predictions
+        
+    except Exception as e:
+        print(f"❌ 真实数据预测失败: {e}")
+        print("🔄 回退到演示数据模式")
+        
+        # 回退到演示数据
+        return {
+            'prediction_date': datetime.now().isoformat(),
+            'timeframe': timeframe,
+            'data_source': 'demo_data_fallback',
+            'error': str(e),
+            'rising_keywords': [
+                {'keyword': 'AI video generator', 'predicted_growth': '+150%', 'confidence': 0.85},
+                {'keyword': 'AI code assistant', 'predicted_growth': '+120%', 'confidence': 0.78}
+            ],
+            'declining_keywords': [
+                {'keyword': 'basic chatbot', 'predicted_decline': '-30%', 'confidence': 0.65}
+            ],
+            'stable_keywords': [
+                {'keyword': 'AI generator', 'predicted_change': '+5%', 'confidence': 0.90}
+            ]
+        }
 
 def generate_seo_audit(domain: str, keywords: List[str] = None) -> Dict[str, Any]:
     """生成SEO优化建议"""

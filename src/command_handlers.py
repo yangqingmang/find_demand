@@ -225,13 +225,50 @@ def handle_enhanced_features(manager, args):
         if not args.quiet:
             print(f"📈 开始预测未来 {args.timeframe} 的关键词趋势...")
         
-        result = predict_keyword_trends(args.timeframe, args.output)
-        print(f"✅ 趋势预测完成: 预测了 {len(result['rising_keywords'])} 个上升关键词")
+        # 获取关键词列表（如果有的话）
+        keywords_for_prediction = getattr(args, 'keywords', None)
+        
+        result = predict_keyword_trends(
+            timeframe=args.timeframe, 
+            output_dir=args.output,
+            keywords=keywords_for_prediction,
+            use_real_data=True  # 默认使用真实数据
+        )
+        
+        # 显示结果
+        data_source = result.get('data_source', 'unknown')
+        if data_source == 'google_trends_real_data':
+            print(f"✅ 真实数据趋势预测完成: {len(result['rising_keywords'])} 上升, {len(result['stable_keywords'])} 稳定, {len(result['declining_keywords'])} 下降")
+        else:
+            print(f"✅ 趋势预测完成: 预测了 {len(result['rising_keywords'])} 个上升关键词 (数据源: {data_source})")
         
         if not args.quiet:
             print("\n📈 趋势预测摘要:")
-            for kw in result['rising_keywords'][:3]:
-                print(f"  📈 {kw['keyword']}: {kw['predicted_growth']} (置信度: {kw['confidence']:.0%})")
+            
+            # 显示上升关键词
+            if result['rising_keywords']:
+                print("\n🔥 上升趋势关键词:")
+                for kw in result['rising_keywords'][:3]:
+                    growth = kw.get('predicted_growth', kw.get('growth_rate', 'N/A'))
+                    confidence = kw.get('confidence', 0)
+                    print(f"  📈 {kw['keyword']}: {growth} (置信度: {confidence:.0%})")
+            
+            # 显示稳定关键词
+            if result['stable_keywords']:
+                print("\n📊 稳定趋势关键词:")
+                for kw in result['stable_keywords'][:2]:
+                    growth = kw.get('predicted_change', kw.get('growth_rate', 'N/A'))
+                    confidence = kw.get('confidence', 0)
+                    print(f"  📊 {kw['keyword']}: {growth} (置信度: {confidence:.0%})")
+            
+            # 显示下降关键词
+            if result['declining_keywords']:
+                print("\n📉 下降趋势关键词:")
+                for kw in result['declining_keywords'][:2]:
+                    decline = kw.get('predicted_decline', kw.get('growth_rate', 'N/A'))
+                    confidence = kw.get('confidence', 0)
+                    print(f"  📉 {kw['keyword']}: {decline} (置信度: {confidence:.0%})")
+        
         return True
     
     # SEO审计
