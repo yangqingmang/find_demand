@@ -10,7 +10,7 @@ import sys
 import os
 import json
 from datetime import datetime
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 def get_reports_dir() -> str:
     """从配置文件获取报告输出目录"""
@@ -309,6 +309,229 @@ class IntegratedDemandMiningManager:
             'discovery_manager': self.discovery_manager.get_discovery_stats(),
             'trend_manager': self.trend_manager.get_stats(),
         }
+    
+    def expand_keywords_comprehensive(self, seed_keywords: List[str], 
+                                    output_dir: str = None,
+                                    max_expanded: int = 200,
+                                    max_longtails: int = 100) -> Dict[str, Any]:
+        """
+        增强关键词扩展：集成Google自动完成、Trends相关搜索和语义相似词发现
+        
+        Args:
+            seed_keywords: 种子关键词列表
+            output_dir: 输出目录
+            max_expanded: 最大扩展关键词数量
+            max_longtails: 最大长尾关键词数量
+            
+        Returns:
+            扩展结果字典
+        """
+        try:
+            from src.demand_mining.tools.keyword_extractor import KeywordExtractor
+            from src.demand_mining.tools.longtail_generator import LongtailGenerator
+            import pandas as pd
+            import os
+            from datetime import datetime
+            
+            print(f"🚀 开始增强关键词扩展...")
+            print(f"🌱 种子关键词: {', '.join(seed_keywords)}")
+            
+            # 初始化工具
+            extractor = KeywordExtractor()
+            longtail_gen = LongtailGenerator()
+            
+            # 1. 使用KeywordExtractor扩展关键词
+            print("🔍 第一阶段：基础关键词扩展...")
+            expanded_results = []
+            
+            for seed in seed_keywords:
+                print(f"   正在扩展: {seed}")
+                
+                # Google自动完成扩展
+                autocomplete_kws = extractor.get_google_autocomplete_suggestions(seed)
+                
+                # 相关搜索词扩展
+                related_kws = extractor.get_related_search_terms(seed)
+                
+                # 语义相似词扩展
+                semantic_kws = extractor.expand_seed_keywords([seed], max_per_seed=20)
+                
+                # 合并结果
+                all_expanded = set()
+                all_expanded.update(autocomplete_kws)
+                all_expanded.update(related_kws)
+                if seed in semantic_kws:
+                    all_expanded.update(semantic_kws[seed])
+                
+                # 过滤和评分
+                for kw in all_expanded:
+                    if len(kw) > 3 and len(kw) < 100:
+                        difficulty = extractor.analyze_keyword_difficulty(kw)
+                        expanded_results.append({
+                            'seed_keyword': seed,
+                            'expanded_keyword': kw,
+                            'source': 'mixed',
+                            'difficulty': difficulty,
+                            'word_count': len(kw.split()),
+                            'length': len(kw)
+                        })
+            
+            # 去重并限制数量
+            unique_expanded = {}
+            for item in expanded_results:
+                kw = item['expanded_keyword']
+                if kw not in unique_expanded:
+                    unique_expanded[kw] = item
+            
+            expanded_list = list(unique_expanded.values())[:max_expanded]
+            
+            print(f"✅ 第一阶段完成，扩展了 {len(expanded_list)} 个关键词")
+            
+            # 2. 使用LongtailGenerator生成长尾关键词
+            print("🔗 第二阶段：长尾关键词生成...")
+            
+            longtail_results = longtail_gen.generate_comprehensive_longtails(
+                seed_keywords, 
+                max_total=max_longtails
+            )
+            
+            longtail_list = [item['keyword'] for item in longtail_results['all_longtails']]
+            
+            print(f"✅ 第二阶段完成，生成了 {len(longtail_list)} 个长尾关键词")
+            
+            # 3. 合并所有结果
+            all_keywords = set(seed_keywords)
+            all_keywords.update([item['expanded_keyword'] for item in expanded_list])
+            all_keywords.update(longtail_list)
+            
+            # 4. 生成输出文件
+            output_files = {}
+            if output_dir:
+                os.makedirs(output_dir, exist_ok=True)
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                
+                # 扩展关键词CSV
+                expanded_df = pd.DataFrame(expanded_list)
+                expanded_file = os.path.join(output_dir, f"expanded_keywords_{timestamp}.csv")
+                expanded_df.to_csv(expanded_file, index=False, encoding='utf-8-sig')
+                output_files['expanded_keywords'] = expanded_file
+                
+                # 长尾关键词CSV
+                longtail_df = pd.DataFrame(longtail_results['all_longtails'])
+                longtail_file = os.path.join(output_dir, f"longtail_keywords_{timestamp}.csv")
+                longtail_df.to_csv(longtail_file, index=False, encoding='utf-8-sig')
+                output_files['longtail_keywords'] = longtail_file
+                
+                # 所有关键词合并文件
+                all_kw_df = pd.DataFrame({
+                    'keyword': list(all_keywords),
+                    'type': ['seed' if kw in seed_keywords else 
+                            'longtail' if kw in longtail_list else 'expanded' 
+                            for kw in all_keywords]
+                })
+                all_file = os.path.join(output_dir, f"all_keywords_{timestamp}.csv")
+                all_kw_df.to_csv(all_file, index=False, encoding='utf-8-sig')
+                output_files['all_keywords'] = all_file
+                
+                # 生成摘要报告
+                summary_file = os.path.join(output_dir, f"expansion_summary_{timestamp}.txt")
+                with open(summary_file, 'w', encoding='utf-8') as f:
+                    # 写入报告头部
+                    report_content = f"""# 关键词扩展摘要报告
+
+生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+## 扩展统计
+- 种子关键词数量: {len(seed_keywords)}
+- 扩展关键词数量: {len(expanded_list)}
+- 长尾关键词数量: {len(longtail_list)}
+- 总关键词数量: {len(all_keywords)}
+- 扩展倍数: {len(all_keywords) / len(seed_keywords):.1f}x
+
+## 种子关键词
+"""
+                    f.write(report_content)
+                    
+                    # 写入种子关键词
+                    for i, kw in enumerate(seed_keywords, 1):
+                        f.write(f"{i}. {kw}\
+")
+                    
+                    # 写入扩展关键词
+                    f.write("\
+## Top 10 扩展关键词\
+")
+                    for i, item in enumerate(expanded_list[:10], 1):
+                        f.write(f"{i}. {item['expanded_keyword']} (来源: {item['seed_keyword']})\
+")
+                    
+                    # 写入长尾关键词
+                    f.write("\
+## Top 10 长尾关键词\
+")
+                    for i, item in enumerate(longtail_results['all_longtails'][:10], 1):
+                        f.write(f"{i}. {item['keyword']} (评分: {item['score']:.1f})\")")
+                    f.write(f"- 长尾关键词数量: {len(longtail_list)}")
+                    f.write(f"- 总关键词数量: {len(all_keywords)}")
+                    f.write(f"- 扩展倍数: {len(all_keywords) / len(seed_keywords):.1f}x")
+                    
+                    f.write("## 种子关键词")
+                    for i, kw in enumerate(seed_keywords, 1):
+                        f.write(f"{i}. {kw}")
+                    
+                    f.write("## Top 10 扩展关键词")
+                    for i, item in enumerate(expanded_list[:10], 1):
+                        f.write(f"{i}. {item['expanded_keyword']} (来源: {item['seed_keyword']})")
+                    
+                    f.write("## Top 10 长尾关键词")
+                    for i, item in enumerate(longtail_results['all_longtails'][:10], 1):
+                        f.write(f"{i}. {item['keyword']} (评分: {item['score']:.1f})")
+                
+                output_files['summary_report'] = summary_file
+            
+            # 5. 构建返回结果
+            result = {
+                'success': True,
+                'seed_keywords': seed_keywords,
+                'expanded_keywords': [item['expanded_keyword'] for item in expanded_list],
+                'longtail_keywords': longtail_list,
+                'all_keywords': list(all_keywords),
+                'summary': {
+                    'seed_count': len(seed_keywords),
+                    'expanded_count': len(expanded_list),
+                    'longtail_count': len(longtail_list),
+                    'total_count': len(all_keywords),
+                    'expansion_ratio': len(all_keywords) / len(seed_keywords) if seed_keywords else 0,
+                    'avg_longtail_score': longtail_results['statistics']['avg_score'],
+                    'high_score_longtails': longtail_results['statistics']['high_score_count']
+                },
+                'longtail_statistics': longtail_results['statistics'],
+                'output_files': output_files
+            }
+            
+            print(f"🎉 关键词扩展完成!")
+            print(f"📊 最终统计: {len(seed_keywords)} → {len(all_keywords)} 关键词 ({len(all_keywords) / len(seed_keywords):.1f}x)")
+            
+            return result
+            
+        except Exception as e:
+            error_msg = f"关键词扩展失败: {str(e)}"
+            print(f"❌ {error_msg}")
+            return {
+                'success': False,
+                'error': error_msg,
+                'seed_keywords': seed_keywords,
+                'expanded_keywords': [],
+                'longtail_keywords': [],
+                'all_keywords': seed_keywords,
+                'summary': {
+                    'seed_count': len(seed_keywords),
+                    'expanded_count': 0,
+                    'longtail_count': 0,
+                    'total_count': len(seed_keywords),
+                    'expansion_ratio': 1.0
+                }
+            }
 
 
 def print_quiet_summary(result):
@@ -394,6 +617,7 @@ def setup_argument_parser():
     input_group.add_argument('--hotkeywords', action='store_true', help='搜索热门关键词')
     input_group.add_argument('--all', action='store_true', help='完整流程：先搜索热门关键词，再进行51个词根趋势分析')
     input_group.add_argument('--demand-validation', action='store_true', help='需求验证：对高机会关键词进行多平台需求分析')
+    input_group.add_argument('--expand', nargs='+', help='增强关键词扩展：使用Google自动完成、Trends相关搜索和语义相似词扩展')
     
     # 增强功能组
     enhanced_group = parser.add_argument_group('增强功能')
@@ -1195,6 +1419,52 @@ def main():
         
         elif handle_all_workflow(manager, args):
             return
+        
+        elif args.expand:
+            # 增强关键词扩展
+            if not args.quiet:
+                print("🚀 开始增强关键词扩展...")
+                print(f"🌱 种子关键词: {', '.join(args.expand)}")
+            
+            result = manager.expand_keywords_comprehensive(
+                args.expand, 
+                output_dir=args.output,
+                max_expanded=200,
+                max_longtails=100
+            )
+            
+            if 'error' in result:
+                print(f"❌ 关键词扩展失败: {result['error']}")
+            else:
+                if args.quiet:
+                    print(f"🎯 关键词扩展结果:")
+                    print(f"   • 种子关键词: {result['summary']['seed_count']}")
+                    print(f"   • 扩展关键词: {result['summary']['expanded_count']}")
+                    print(f"   • 长尾关键词: {result['summary']['longtail_count']}")
+                    print(f"   • 总关键词数: {result['summary']['total_count']}")
+                    print(f"   • 扩展倍数: {result['summary']['expansion_ratio']:.1f}x")
+                    
+                    # 显示Top 5扩展关键词
+                    if result['expanded_keywords']:
+                        print(f"🏆 Top 5 扩展关键词:")
+                        for i, kw in enumerate(result['expanded_keywords'][:5], 1):
+                            print(f"   {i}. {kw}")
+                    
+                    # 显示Top 5长尾关键词
+                    if result['longtail_keywords']:
+                        print(f"🔗 Top 5 长尾关键词:")
+                        for i, kw in enumerate(result['longtail_keywords'][:5], 1):
+                            print(f"   {i}. {kw}")
+                else:
+                    print(f"🎉 增强关键词扩展完成!")
+                    print(f"📊 扩展统计:")
+                    for key, value in result['summary'].items():
+                        print(f"   {key}: {value}")
+                    
+                    if 'output_files' in result:
+                        print(f"📁 结果文件:")
+                        for file_type, file_path in result['output_files'].items():
+                            print(f"   {file_type}: {file_path}")
         
         elif args.demand_validation:
             handle_demand_validation(manager, args)
