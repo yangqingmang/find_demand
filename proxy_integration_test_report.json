@@ -1,0 +1,52 @@
+{
+  "timestamp": "2025-09-09 11:26:20",
+  "test_results": {
+    "proxy_manager": {
+      "status": "passed",
+      "details": [
+        "✅ 代理管理器创建成功",
+        "✅ 代理添加功能正常",
+        "✅ 代理统计获取成功: 1 个代理",
+        "✅ 单例模式工作正常",
+        "✅ HTTP请求功能正常"
+      ]
+    },
+    "google_trends_session": {
+      "status": "passed",
+      "details": [
+        "✅ GoogleTrendsSession创建成功",
+        "✅ 会话初始化成功",
+        "✅ 全局会话获取成功",
+        "✅ 代理管理器集成成功"
+      ]
+    },
+    "serp_analyzer": {
+      "status": "passed",
+      "details": [
+        "✅ SerpAnalyzer创建成功",
+        "✅ 代理管理器集成成功",
+        "✅ 代理配置属性存在: False",
+        "✅ SerpAnalyzer基本功能检查通过"
+      ]
+    },
+    "http_client": {
+      "status": "passed",
+      "details": [
+        "✅ HTTP客户端创建成功",
+        "✅ GET请求功能正常",
+        "✅ JSON请求功能正常",
+        "✅ 全局客户端获取成功",
+        "✅ 便捷函数工作正常"
+      ]
+    },
+    "config_loader": {
+      "status": "passed",
+      "details": [
+        "✅ 配置加载器初始化成功",
+        "✅ 代理配置加载成功，启用状态: False",
+        "✅ 配置验证通过",
+        "✅ 域名配置获取成功: 3 项配置"
+      ]
+    }
+  }
+}

@@ -105,7 +105,8 @@ class TrendsAPIClient:
                     delay = random.uniform(5, 10) + (attempt * 3)
                     time.sleep(delay)
                 
-                response = s.get(url, timeout=self.timeout, **kwargs) if method.lower() == 'get' else s.post(url, timeout=self.timeout, **kwargs)
+                # 使用GoogleTrendsSession的make_request方法，支持代理
+                response = self.trends_session.make_request(method.upper(), url, timeout=self.timeout, **kwargs)
                 
                 # 特殊处理429错误
                 if response.status_code == 429:

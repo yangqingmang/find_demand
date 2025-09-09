@@ -48,7 +48,15 @@ class ConfigData:
     SERP_API_KEY: str = ""
     AHREFS_API_KEY: str = ""
     PRODUCTHUNT_API_TOKEN: str = ""
-    PRODUCTHUNT_API_TOKEN: str = ""
+    
+    # 代理配置
+    PROXY_ENABLED: bool = True
+    PROXY_MAX_REQUESTS_PER_MINUTE: int = 10
+    PROXY_REQUEST_DELAY_MIN: float = 1.0
+    PROXY_REQUEST_DELAY_MAX: float = 3.0
+    PROXY_MAX_RETRIES: int = 3
+    PROXY_TIMEOUT: int = 10
+    PROXY_LIST: str = ""  # JSON格式的代理列表或文件路径
     
     # 部署 API 配置
     VERCEL_API_TOKEN: str = ""

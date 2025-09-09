@@ -1,0 +1,145 @@
+# 代理配置文件
+# 用于配置HTTP请求的代理设置
+
+proxy_settings:
+  # 是否启用代理
+  enabled: true
+  
+  # 频率控制
+  rate_limiting:
+    max_requests_per_minute: 10
+    request_delay:
+      min: 1.0  # 最小延迟(秒)
+      max: 3.0  # 最大延迟(秒)
+  
+  # 重试设置
+  retry_settings:
+    max_retries: 3
+    timeout: 10  # 请求超时时间(秒)
+    backoff_factor: 1.5  # 重试退避因子
+  
+  # 代理池配置
+  proxy_pool:
+    # 代理列表 - 在生产环境中应该从加密配置或环境变量中加载
+    proxies: []
+      # 示例代理配置格式:
+      # - host: "proxy1.example.com"
+      #   port: 8080
+      #   username: "user1"
+      #   password: "pass1"
+      #   protocol: "http"
+      # - host: "proxy2.example.com"
+      #   port: 3128
+      #   protocol: "http"
+    
+    # 代理健康检查
+    health_check:
+      enabled: true
+      test_url: "http://httpbin.org/ip"
+      check_interval: 300  # 检查间隔(秒)
+      min_success_rate: 0.7  # 最小成功率
+    
+    # 代理选择策略
+    selection_strategy: "best"  # best, random, round_robin
+  
+  # User-Agent轮换
+  user_agent:
+    enabled: true
+    rotation: true
+    custom_agents: []
+      # 自定义User-Agent列表
+      # - "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+      # - "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+  
+  # 特定域名配置
+  domain_specific:
+    "trends.google.com":
+      max_requests_per_minute: 5
+      request_delay:
+        min: 2.0
+        max: 5.0
+      use_proxy: true
+    
+    "www.googleapis.com":
+      max_requests_per_minute: 15
+      request_delay:
+        min: 0.5
+        max: 2.0
+      use_proxy: true
+    
+    "serpapi.com":
+      max_requests_per_minute: 20
+      request_delay:
+        min: 0.5
+        max: 1.5
+      use_proxy: false  # SERP API通常不需要代理
+  
+  # 日志配置
+  logging:
+    enabled: true
+    level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+    log_requests: false  # 是否记录所有请求
+    log_proxy_stats: true  # 是否记录代理统计
+
+# 环境特定配置
+environments:
+  development:
+    proxy_settings:
+      enabled: false  # 开发环境默认不使用代理
+      logging:
+        level: "DEBUG"
+        log_requests: true
+  
+  production:
+    proxy_settings:
+      enabled: true
+      rate_limiting:
+        max_requests_per_minute: 5  # 生产环境更保守的频率
+      logging:
+        level: "WARNING"
+        log_requests: false
+  
+  testing:
+    proxy_settings:
+      enabled: false
+      retry_settings:
+        max_retries: 1  # 测试环境快速失败
+      logging:
+        level: "ERROR"
+
+# 安全配置
+security:
+  # 代理认证信息应该存储在加密配置中
+  encrypt_proxy_credentials: true
+  
+  # 代理轮换策略
+  proxy_rotation:
+    enabled: true
+    rotation_interval: 100  # 每100个请求轮换一次代理
+  
+  # IP白名单/黑名单
+  ip_filtering:
+    enabled: false
+    whitelist: []
+    blacklist: []
+
+# 监控和统计
+monitoring:
+  enabled: true
+  
+  # 统计收集
+  stats_collection:
+    enabled: true
+    collection_interval: 60  # 统计收集间隔(秒)
+    retention_days: 7  # 统计数据保留天数
+  
+  # 告警配置
+  alerts:
+    enabled: true
+    proxy_failure_threshold: 0.5  # 代理失败率告警阈值
+    request_failure_threshold: 0.3  # 请求失败率告警阈值
+    
+  # 性能监控
+  performance:
+    track_response_times: true
+    slow_request_threshold: 10.0  # 慢请求阈值(秒)

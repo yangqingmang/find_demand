@@ -52,10 +52,17 @@ except ImportError:
     SerpParser = None
     print("警告: SERP数据结构化解析器不可用")
 
+# 导入代理管理器
+try:
+    from src.demand_mining.core.proxy_manager import get_proxy_manager
+except ImportError:
+    get_proxy_manager = None
+    print("警告: 代理管理器不可用，将使用直接请求")
+
 class SerpAnalyzer:
     """SERP分析类，用于分析搜索引擎结果页面"""
     
-    def __init__(self):
+    def __init__(self, use_proxy: bool = True):
         """初始化SERP分析器"""
         # 验证配置
         if hasattr(config, 'validate'):
@@ -74,6 +81,17 @@ class SerpAnalyzer:
         # 请求配置
         self.request_delay = getattr(config, 'SERP_REQUEST_DELAY', 1)
         self.max_retries = getattr(config, 'SERP_MAX_RETRIES', 3)
+        
+        # 代理配置
+        self.use_proxy = use_proxy
+        self.proxy_manager = None
+        if self.use_proxy and get_proxy_manager:
+            try:
+                self.proxy_manager = get_proxy_manager()
+                print("✅ SERP分析器：代理管理器已启用")
+            except Exception as e:
+                print(f"⚠️ SERP分析器：代理管理器初始化失败: {e}，将使用直接请求")
+                self.use_proxy = False
         
         # 缓存配置
         self.cache_enabled = getattr(config, 'SERP_CACHE_ENABLED', True)
@@ -140,12 +158,30 @@ class SerpAnalyzer:
         """使用 SERP API 搜索"""
         params = {
             'api_key': self.serp_api_key,
-            'engine': 'google',
             'q': query,
+            'engine': 'google',
             'num': 10
         }
         
         try:
+            # 如果启用代理管理器，使用代理发送请求
+            if self.use_proxy and self.proxy_manager:
+                try:
+                    response = self.proxy_manager.make_request(
+                        self.serp_api_url, 
+                        method='GET', 
+                        params=params, 
+                        timeout=30
+                    )
+                    if response:
+                        response.raise_for_status()
+                        return response.json()
+                    else:
+                        print("⚠️ 代理请求失败，尝试直接请求")
+                except Exception as e:
+                    print(f"⚠️ 代理请求异常: {e}，尝试直接请求")
+            
+            # 直接请求（无代理或代理失败时的回退方案）
             response = requests.get(self.serp_api_url, params=params, timeout=30)
             response.raise_for_status()
             return response.json()
@@ -163,6 +199,24 @@ class SerpAnalyzer:
         }
         
         try:
+            # 如果启用代理管理器，使用代理发送请求
+            if self.use_proxy and self.proxy_manager:
+                try:
+                    response = self.proxy_manager.make_request(
+                        self.base_url, 
+                        method='GET', 
+                        params=params, 
+                        timeout=30
+                    )
+                    if response:
+                        response.raise_for_status()
+                        return response.json()
+                    else:
+                        print("⚠️ 代理请求失败，尝试直接请求")
+                except Exception as e:
+                    print(f"⚠️ 代理请求异常: {e}，尝试直接请求")
+            
+            # 直接请求（无代理或代理失败时的回退方案）
             response = requests.get(self.base_url, params=params, timeout=30)
             response.raise_for_status()
             return response.json()

@@ -6,18 +6,37 @@ import requests
 import json
 import os
 import logging
-from typing import Dict
+from typing import Dict, Optional
+
+# 导入代理管理器
+try:
+    from ..demand_mining.core.proxy_manager import get_proxy_manager
+except ImportError:
+    # 如果导入失败，使用None
+    get_proxy_manager = None
+    logging.warning("代理管理器不可用，将使用直接请求")
 
 logger = logging.getLogger(__name__)
 
 class GoogleTrendsSession:
     """Google Trends Session 管理类"""
     
-    def __init__(self, timeout: tuple = (20, 30)):
+    def __init__(self, timeout: tuple = (20, 30), use_proxy: bool = True):
         self.timeout = timeout
         self.session = None
         self.headers = self._load_headers()
         self.initialized = False
+        self.use_proxy = use_proxy
+        self.proxy_manager = None
+        
+        # 初始化代理管理器
+        if self.use_proxy and get_proxy_manager:
+            try:
+                self.proxy_manager = get_proxy_manager()
+                logger.info("✅ 代理管理器已启用")
+            except Exception as e:
+                logger.warning(f"⚠️ 代理管理器初始化失败: {e}，将使用直接请求")
+                self.use_proxy = False
         
     @staticmethod
     def _load_headers() -> Dict[str, str]:
@@ -112,11 +131,35 @@ class GoogleTrendsSession:
     
     def make_request(self, method: str, url: str, **kwargs) -> requests.Response:
         """发送请求的统一接口"""
-        session = self.get_session()
-        
         # 检查会话是否已成功初始化
         if not self.initialized:
             raise Exception("Google Trends会话初始化失败，无法发送请求。请检查网络连接或稍后重试。")
+        
+        # 如果启用代理管理器，使用代理发送请求
+        if self.use_proxy and self.proxy_manager:
+            try:
+                # 合并headers
+                if 'headers' not in kwargs:
+                    kwargs['headers'] = {}
+                kwargs['headers'].update(self.headers)
+                
+                # 设置默认超时
+                if 'timeout' not in kwargs:
+                    kwargs['timeout'] = self.timeout
+                
+                # 使用代理管理器发送请求
+                response = self.proxy_manager.make_request(url, method, **kwargs)
+                if response:
+                    return response
+                else:
+                    logger.warning("⚠️ 代理请求失败，尝试直接请求")
+                    # 如果代理请求失败，回退到直接请求
+                    
+            except Exception as e:
+                logger.warning(f"⚠️ 代理请求异常: {e}，尝试直接请求")
+        
+        # 直接请求（无代理或代理失败时的回退方案）
+        session = self.get_session()
         
         # 设置默认超时
         if 'timeout' not in kwargs:
