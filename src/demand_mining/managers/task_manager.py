@@ -93,7 +93,11 @@ class TaskManager(BaseManager):
                 'business_value': 0.3
             },
             'auto_generation_time': '09:00',
-            'task_expiry_days': 7
+            'task_expiry_days': 7,
+            'max_high_priority_tasks': 5,
+            'priority_keywords': ['ai', 'tool', 'generator', 'converter', 'calculator'],
+            'load_balance_enabled': True,
+            'dynamic_priority_adjustment': True
         })
         
         # 初始化数据库
@@ -148,6 +152,15 @@ class TaskManager(BaseManager):
             return self.update_task(**kwargs)
         elif action == 'get_task_stats':
             return self.get_task_statistics()
+        elif action == 'adjust_priorities':
+            return self.adjust_task_priorities(**kwargs)
+        elif action == 'mark_overdue':
+            overdue_count = self.mark_overdue_tasks()
+            return {'success': True, 'overdue_count': overdue_count}
+        elif action == 'get_daily_report':
+            target_date = kwargs.get('target_date')
+            report = self.get_daily_task_report(target_date)
+            return {'success': True, 'report': report}
         else:
             raise ValueError(f"不支持的操作: {action}")
     
@@ -251,16 +264,205 @@ class TaskManager(BaseManager):
         weights = self.task_config['priority_weights']
         
         for keyword_data in keywords:
-            # 计算综合评分
-            score = (
+            # 计算基础综合评分
+            base_score = (
                 keyword_data.get('trends_score', 0) * weights['trends_score'] +
                 keyword_data.get('serp_score', 0) * weights['serp_score'] +
                 keyword_data.get('business_value', 0) * weights['business_value']
             )
-            keyword_data['priority_score'] = score
+            
+            # 应用时效性调整
+            timeliness_factor = self._calculate_timeliness_factor(keyword_data)
+            
+            # 应用负载均衡调整
+            load_balance_factor = self._calculate_load_balance_factor(keyword_data)
+            
+            # 应用自定义规则调整
+            custom_factor = self._apply_custom_priority_rules(keyword_data)
+            
+            # 计算最终优先级评分
+            final_score = base_score * timeliness_factor * load_balance_factor * custom_factor
+            keyword_data['priority_score'] = final_score
+            keyword_data['base_score'] = base_score
+            keyword_data['timeliness_factor'] = timeliness_factor
+            keyword_data['load_balance_factor'] = load_balance_factor
+            keyword_data['custom_factor'] = custom_factor
         
         # 按评分降序排序
         return sorted(keywords, key=lambda x: x['priority_score'], reverse=True)
+    
+    def _calculate_timeliness_factor(self, keyword_data: Dict[str, Any]) -> float:
+        """计算时效性调整因子"""
+        # 基于趋势变化率和搜索量波动性计算时效性
+        trends_score = keyword_data.get('trends_score', 0.5)
+        search_volume = keyword_data.get('search_volume', 0)
+        
+        # 高趋势分数的关键词具有更高的时效性
+        trend_urgency = min(trends_score * 1.2, 1.0)
+        
+        # 搜索量越高，时效性越重要
+        volume_urgency = min(search_volume / 100000, 1.0) if search_volume > 0 else 0.5
+        
+        # 综合时效性因子 (0.8-1.3范围)
+        timeliness_factor = 0.8 + (trend_urgency + volume_urgency) * 0.25
+        
+        return min(timeliness_factor, 1.3)
+    
+    def _calculate_load_balance_factor(self, keyword_data: Dict[str, Any]) -> float:
+        """计算负载均衡调整因子"""
+        keyword = keyword_data['keyword']
+        
+        # 检查该关键词相关的待处理任务数量
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.execute(
+                'SELECT COUNT(*) FROM tasks WHERE keyword = ? AND status IN ("pending", "in_progress")',
+                (keyword,)
+            )
+            pending_tasks = cursor.fetchone()[0]
+            
+            # 检查今日总任务负载
+            today = datetime.now().strftime('%Y-%m-%d')
+            cursor = conn.execute(
+                'SELECT COUNT(*) FROM tasks WHERE DATE(created_at) = ? AND status IN ("pending", "in_progress")',
+                (today,)
+            )
+            daily_load = cursor.fetchone()[0]
+        
+        # 如果该关键词已有太多待处理任务，降低优先级
+        keyword_load_factor = max(0.5, 1.0 - (pending_tasks * 0.2))
+        
+        # 如果今日任务负载过高，适当降低新任务优先级
+        daily_limit = self.task_config.get('daily_task_limit', 20)
+        daily_load_factor = max(0.7, 1.0 - (daily_load / daily_limit * 0.3))
+        
+        return keyword_load_factor * daily_load_factor
+    
+    def _apply_custom_priority_rules(self, keyword_data: Dict[str, Any]) -> float:
+        """应用自定义优先级规则"""
+        custom_factor = 1.0
+        keyword = keyword_data['keyword']
+        competition = keyword_data.get('competition', 0.5)
+        business_value = keyword_data.get('business_value', 0.5)
+        
+        # 规则1: AI工具类关键词优先级提升
+        ai_keywords = ['ai', 'artificial intelligence', 'machine learning', 'generator', 'tool']
+        if any(ai_word in keyword.lower() for ai_word in ai_keywords):
+            custom_factor *= 1.15
+        
+        # 规则2: 低竞争高价值关键词优先级大幅提升
+        if competition < 0.4 and business_value > 0.7:
+            custom_factor *= 1.25
+        
+        # 规则3: 高竞争关键词优先级适当降低
+        if competition > 0.8:
+            custom_factor *= 0.85
+        
+        # 规则4: 长尾关键词(3个词以上)优先级提升
+        if len(keyword.split()) >= 3:
+            custom_factor *= 1.1
+        
+        # 规则5: 商业价值极高的关键词优先级提升
+        if business_value > 0.9:
+            custom_factor *= 1.2
+        
+        # 规则6: 基于关键词类型的优先级调整
+        priority_keywords = self.task_config.get('priority_keywords', [])
+        if any(priority_word in keyword.lower() for priority_word in priority_keywords):
+            custom_factor *= 1.3
+        
+        return custom_factor
+    
+    def adjust_task_priorities(self, rebalance: bool = True) -> Dict[str, Any]:
+        """动态调整现有任务的优先级"""
+        print("🔄 开始动态调整任务优先级...")
+        
+        adjusted_count = 0
+        
+        with sqlite3.connect(self.db_path) as conn:
+            # 获取所有待处理任务
+            cursor = conn.execute(
+                'SELECT id, keyword, task_type, priority, score FROM tasks WHERE status IN ("pending", "in_progress")'
+            )
+            tasks = cursor.fetchall()
+            
+            for task_id, keyword, task_type, current_priority, current_score in tasks:
+                # 重新计算关键词数据（这里使用模拟数据，实际应从数据库获取）
+                keyword_data = self._get_keyword_data_for_adjustment(keyword)
+                
+                if keyword_data:
+                    # 重新计算优先级评分
+                    prioritized_data = self._prioritize_keywords([keyword_data])[0]
+                    new_score = prioritized_data['priority_score']
+                    
+                    # 根据新评分确定新优先级
+                    if new_score >= 0.8:
+                        new_priority = TaskPriority.HIGH.value
+                    elif new_score >= 0.6:
+                        new_priority = TaskPriority.MEDIUM.value
+                    else:
+                        new_priority = TaskPriority.LOW.value
+                    
+                    # 如果优先级或评分发生变化，更新任务
+                    if new_priority != current_priority or abs(new_score - current_score) > 0.1:
+                        conn.execute(
+                            'UPDATE tasks SET priority = ?, score = ? WHERE id = ?',
+                            (new_priority, new_score, task_id)
+                        )
+                        adjusted_count += 1
+        
+        # 如果启用负载均衡，重新分配任务到不同时间段
+        if rebalance:
+            self._rebalance_task_schedule()
+        
+        print(f"✅ 已调整 {adjusted_count} 个任务的优先级")
+        
+        return {
+            'success': True,
+            'adjusted_count': adjusted_count,
+            'rebalanced': rebalance
+        }
+    
+    def _get_keyword_data_for_adjustment(self, keyword: str) -> Optional[Dict[str, Any]]:
+        """获取关键词数据用于优先级调整（模拟实现）"""
+        # 实际实现中应该从关键词分析结果数据库获取最新数据
+        # 这里返回模拟数据
+        import random
+        
+        return {
+            'keyword': keyword,
+            'trends_score': random.uniform(0.3, 0.9),
+            'serp_score': random.uniform(0.2, 0.8),
+            'business_value': random.uniform(0.4, 0.9),
+            'search_volume': random.randint(10000, 100000),
+            'competition': random.uniform(0.2, 0.9)
+        }
+    
+    def _rebalance_task_schedule(self):
+        """重新平衡任务调度"""
+        with sqlite3.connect(self.db_path) as conn:
+            # 获取高优先级任务数量
+            cursor = conn.execute(
+                'SELECT COUNT(*) FROM tasks WHERE priority = "high" AND status IN ("pending", "in_progress")'
+            )
+            high_priority_count = cursor.fetchone()[0]
+            
+            # 如果高优先级任务过多，将部分调整为中优先级
+            max_high_priority = self.task_config.get('max_high_priority_tasks', 5)
+            if high_priority_count > max_high_priority:
+                excess_count = high_priority_count - max_high_priority
+                
+                # 选择评分较低的高优先级任务降级
+                cursor = conn.execute(
+                    'SELECT id FROM tasks WHERE priority = "high" AND status IN ("pending", "in_progress") ORDER BY score ASC LIMIT ?',
+                    (excess_count,)
+                )
+                task_ids = [row[0] for row in cursor.fetchall()]
+                
+                for task_id in task_ids:
+                    conn.execute(
+                        'UPDATE tasks SET priority = "medium" WHERE id = ?',
+                        (task_id,)
+                    )
     
     def _generate_tasks_for_keyword(self, keyword_data: Dict[str, Any], target_date: datetime) -> List[Task]:
         """为单个关键词生成相关任务"""
