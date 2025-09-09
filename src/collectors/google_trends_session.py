@@ -32,8 +32,26 @@ class GoogleTrendsSession:
         # 初始化代理管理器
         if self.use_proxy and get_proxy_manager:
             try:
-                self.proxy_manager = get_proxy_manager()
-                logger.info("✅ 代理管理器已启用")
+                # 检查代理配置是否启用
+                import sys
+                import os
+                project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+                if project_root not in sys.path:
+                    sys.path.insert(0, project_root)
+                
+                from config.proxy_config_loader import get_proxy_config
+                proxy_config = get_proxy_config()
+                
+                if not proxy_config.enabled:
+                    logger.info("ℹ️ 代理在当前环境中被禁用，使用直接请求")
+                    self.use_proxy = False
+                elif not proxy_config.proxies:
+                    logger.warning("⚠️ 代理列表为空，使用直接请求")
+                    self.use_proxy = False
+                else:
+                    self.proxy_manager = get_proxy_manager()
+                    logger.info(f"✅ 代理管理器已启用，加载了 {len(proxy_config.proxies)} 个代理")
+                    
             except Exception as e:
                 logger.warning(f"⚠️ 代理管理器初始化失败: {e}，将使用直接请求")
                 self.use_proxy = False

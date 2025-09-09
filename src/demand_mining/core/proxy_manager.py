@@ -265,10 +265,18 @@ class ProxyManager:
         
         # 选择代理
         proxy = None
-        if use_proxy and self.proxies:
+        if use_proxy:
+            if not self.proxies:
+                logger.warning(f"⚠️ 代理列表为空，无法使用代理发送请求: {url}")
+                return None
+            
             proxy = self.get_best_proxy() or self.get_random_proxy()
             if proxy:
                 request_kwargs['proxies'] = proxy.to_dict()
+                logger.debug(f"🔄 使用代理: {proxy.proxy_url}")
+            else:
+                logger.warning(f"⚠️ 没有可用的代理，无法发送请求: {url}")
+                return None
         
         # 发起请求
         for attempt in range(self.max_retries + 1):
@@ -376,7 +384,27 @@ class ProxyManagerSingleton:
     def get_instance(cls) -> ProxyManager:
         """获取单例实例"""
         if not cls._instance:
-            cls._instance = ProxyManager()
+            # 从配置文件加载代理设置
+            try:
+                import sys
+                import os
+                # 添加项目根目录到路径
+                project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+                if project_root not in sys.path:
+                    sys.path.insert(0, project_root)
+                from config.proxy_config_loader import get_proxy_config
+                config = get_proxy_config()
+                cls._instance = ProxyManager(
+                    proxies=config.proxies,
+                    max_requests_per_minute=config.max_requests_per_minute,
+                    request_delay=(config.request_delay_min, config.request_delay_max),
+                    max_retries=config.max_retries,
+                    timeout=config.timeout
+                )
+                logger.info(f"✅ 代理管理器已从配置文件初始化，加载了 {len(config.proxies)} 个代理")
+            except Exception as e:
+                logger.warning(f"⚠️ 从配置文件加载代理设置失败: {e}，使用默认设置")
+                cls._instance = ProxyManager()
         return cls._instance
 
 

@@ -491,17 +491,14 @@ def handle_all_workflow(manager, args):
                 # 执行多平台关键词发现
                 discovery_tool = MultiPlatformKeywordDiscovery()
                 
-                all_discovered_keywords = []
-                for keyword in seed_keywords:
-                    if not args.quiet:
-                        print(f"🔍 正在发现与 '{keyword}' 相关的关键词...")
-                    
-                    discovered = discovery_tool.discover_keywords(
-                        keyword,
-                        platforms=['baidu', 'google', 'bing'],
-                        max_keywords_per_platform=20
-                    )
-                    all_discovered_keywords.extend(discovered)
+                if not args.quiet:
+                    print(f"🔍 正在发现与 {len(seed_keywords)} 个关键词相关的关键词...")
+                
+                # 使用 discover_all_platforms 方法
+                df = discovery_tool.discover_all_platforms(seed_keywords)
+                
+                # 从DataFrame中提取关键词列表
+                all_discovered_keywords = df['keyword'].tolist() if not df.empty else []
                 
                 # 去重并保存发现的关键词
                 unique_keywords = list(set(all_discovered_keywords))
