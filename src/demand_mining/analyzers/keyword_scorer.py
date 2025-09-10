@@ -415,6 +415,239 @@ class KeywordScorer(BaseAnalyzer):
             logger.error(f"计算垂直细分评分失败: {e}")
             return 0.0
     
+    def _calculate_search_volume_potential(self, keyword: str, **kwargs) -> float:
+        """计算搜索量潜力评分 - 多维度评分模型组件"""
+        try:
+            # 获取搜索量数据
+            search_volume = kwargs.get('search_volume', 0)
+            related_keywords = kwargs.get('related_keywords', [])
+            trend_data = kwargs.get('trend_data', {})
+            
+            score = 50.0  # 基础分数
+            
+            # 基于实际搜索量评分
+            if search_volume > 0:
+                if search_volume >= 50000:
+                    score = 95.0
+                elif search_volume >= 10000:
+                    score = 85.0 + (search_volume - 10000) / 40000 * 10
+                elif search_volume >= 1000:
+                    score = 70.0 + (search_volume - 1000) / 9000 * 15
+                elif search_volume >= 100:
+                    score = 55.0 + (search_volume - 100) / 900 * 15
+                else:
+                    score = 40.0 + search_volume / 100 * 15
+            else:
+                # 基于关键词特征估算搜索潜力
+                score = self._estimate_search_potential_by_features(keyword)
+            
+            # 相关关键词数量加分（表示话题热度）
+            if related_keywords:
+                related_bonus = min(len(related_keywords) * 2, 20)
+                score += related_bonus
+            
+            # 趋势数据加分
+            if trend_data:
+                trend_direction = trend_data.get('direction', 'stable')
+                if trend_direction == 'rising':
+                    score += 15
+                elif trend_direction == 'stable':
+                    score += 5
+                elif trend_direction == 'falling':
+                    score -= 10
+            
+            # 关键词类型调整
+            if self._is_evergreen_keyword(keyword):
+                score += 10  # 常青关键词搜索稳定
+            
+            if self._is_seasonal_keyword(keyword):
+                score += 5   # 季节性关键词有周期性搜索高峰
+            
+            return min(max(score, 0), 100)
+        except Exception as e:
+            logger.error(f"计算搜索量潜力失败: {e}")
+            return 50.0
+    
+    def _estimate_search_potential_by_features(self, keyword: str) -> float:
+        """基于关键词特征估算搜索潜力"""
+        score = 50.0
+        keyword_lower = keyword.lower()
+        
+        # 热门话题关键词
+        hot_topics = ['ai', 'artificial intelligence', 'machine learning', 'blockchain', 
+                     'cryptocurrency', 'nft', 'metaverse', 'web3', 'chatgpt']
+        if any(topic in keyword_lower for topic in hot_topics):
+            score += 20
+        
+        # 工具类关键词（通常搜索量较高）
+        tool_indicators = ['tool', 'generator', 'converter', 'calculator', 'editor', 'maker']
+        if any(indicator in keyword_lower for indicator in tool_indicators):
+            score += 15
+        
+        # 教程类关键词
+        tutorial_indicators = ['how to', 'tutorial', 'guide', 'learn', 'course']
+        if any(indicator in keyword_lower for indicator in tutorial_indicators):
+            score += 10
+        
+        # 比较类关键词
+        comparison_indicators = ['vs', 'versus', 'compare', 'best', 'top', 'review']
+        if any(indicator in keyword_lower for indicator in comparison_indicators):
+            score += 12
+        
+        # 长度调整
+        word_count = len(keyword.split())
+        if word_count == 2:
+            score += 5  # 双词组合通常搜索量适中
+        elif word_count >= 4:
+            score -= 5  # 长尾词搜索量相对较低
+        
+        return score
+    
+    def _is_evergreen_keyword(self, keyword: str) -> bool:
+        """判断是否为常青关键词"""
+        evergreen_indicators = ['how to', 'what is', 'tutorial', 'guide', 'tips', 
+                               'best practices', 'basics', 'fundamentals']
+        return any(indicator in keyword.lower() for indicator in evergreen_indicators)
+    
+    def _is_seasonal_keyword(self, keyword: str) -> bool:
+        """判断是否为季节性关键词"""
+        seasonal_indicators = ['christmas', 'halloween', 'valentine', 'summer', 'winter', 
+                              'holiday', 'new year', 'black friday', 'cyber monday']
+        return any(indicator in keyword.lower() for indicator in seasonal_indicators)
+    
+    def _calculate_commercial_value_enhanced(self, keyword: str, **kwargs) -> float:
+        """计算增强商业价值评分 - 多维度评分模型组件"""
+        try:
+            # 基础商业价值评分
+            base_score = self._calculate_commercial_score(keyword)
+            
+            # 获取额外数据
+            cpc = kwargs.get('cpc', 0)
+            competition_level = kwargs.get('competition', 'medium')
+            conversion_data = kwargs.get('conversion_data', {})
+            
+            # CPC价值评分
+            cpc_score = 0
+            if cpc > 0:
+                if cpc >= 10.0:
+                    cpc_score = 30
+                elif cpc >= 5.0:
+                    cpc_score = 25
+                elif cpc >= 2.0:
+                    cpc_score = 20
+                elif cpc >= 1.0:
+                    cpc_score = 15
+                elif cpc >= 0.5:
+                    cpc_score = 10
+                else:
+                    cpc_score = 5
+            
+            # 竞争度调整（高竞争通常意味着高商业价值）
+            competition_bonus = {
+                'low': 5,
+                'medium': 10,
+                'high': 15,
+                '低': 5,
+                '中': 10,
+                '高': 15
+            }.get(competition_level, 10)
+            
+            # 转化潜力评分
+            conversion_score = 0
+            if conversion_data:
+                conversion_rate = conversion_data.get('estimated_rate', 0)
+                if conversion_rate > 0.05:  # 5%以上转化率
+                    conversion_score = 20
+                elif conversion_rate > 0.02:  # 2%以上转化率
+                    conversion_score = 15
+                elif conversion_rate > 0.01:  # 1%以上转化率
+                    conversion_score = 10
+            
+            # 行业价值评分
+            industry_score = self._calculate_industry_value(keyword)
+            
+            # 综合商业价值
+            total_commercial_value = (
+                base_score * 0.4 +           # 基础商业评分 40%
+                cpc_score * 0.25 +           # CPC价值 25%
+                competition_bonus * 0.15 +   # 竞争度调整 15%
+                conversion_score * 0.1 +     # 转化潜力 10%
+                industry_score * 0.1         # 行业价值 10%
+            )
+            
+            return min(max(total_commercial_value, 0), 100)
+        except Exception as e:
+            logger.error(f"计算增强商业价值失败: {e}")
+            return self._calculate_commercial_score(keyword)
+    
+    def _calculate_industry_value(self, keyword: str) -> float:
+        """计算行业价值评分"""
+        keyword_lower = keyword.lower()
+        
+        # 高价值行业
+        high_value_industries = {
+            'finance': ['finance', 'investment', 'trading', 'banking', 'insurance', 'loan'],
+            'healthcare': ['health', 'medical', 'doctor', 'hospital', 'medicine', 'therapy'],
+            'technology': ['software', 'app', 'tech', 'digital', 'online', 'cloud'],
+            'education': ['education', 'course', 'training', 'learning', 'school', 'university'],
+            'real_estate': ['real estate', 'property', 'house', 'apartment', 'rent', 'buy home'],
+            'legal': ['lawyer', 'legal', 'law', 'attorney', 'court', 'legal advice']
+        }
+        
+        for industry, keywords_list in high_value_industries.items():
+            if any(kw in keyword_lower for kw in keywords_list):
+                if industry in ['finance', 'legal', 'real_estate']:
+                    return 25  # 最高价值行业
+                elif industry in ['healthcare', 'technology']:
+                    return 20  # 高价值行业
+                else:
+                    return 15  # 中等价值行业
+        
+        return 10  # 默认行业价值
+    
+    def _apply_multidimensional_adjustments(self, score: float, keyword: str) -> float:
+        """应用多维度评分模型的特殊调整"""
+        try:
+            adjusted_score = score
+            keyword_lower = keyword.lower()
+            
+            # AI和新兴技术关键词加分
+            emerging_tech_terms = ['ai', 'artificial intelligence', 'machine learning', 'deep learning',
+                                 'blockchain', 'web3', 'metaverse', 'nft', 'defi', 'quantum']
+            if any(term in keyword_lower for term in emerging_tech_terms):
+                adjusted_score += 5
+            
+            # 工具类关键词加分（实用性高）
+            tool_terms = ['tool', 'generator', 'converter', 'calculator', 'editor', 'maker', 'builder']
+            if any(term in keyword_lower for term in tool_terms):
+                adjusted_score += 3
+            
+            # 过度竞争关键词减分
+            highly_competitive_terms = ['free', 'download', 'online', 'best', 'top']
+            competitive_count = sum(1 for term in highly_competitive_terms if term in keyword_lower)
+            if competitive_count >= 2:
+                adjusted_score -= 5
+            elif competitive_count == 1:
+                adjusted_score -= 2
+            
+            # 品牌关键词减分（难以排名）
+            brand_terms = ['google', 'microsoft', 'apple', 'amazon', 'facebook', 'openai', 'chatgpt']
+            if any(brand in keyword_lower for brand in brand_terms):
+                adjusted_score -= 8
+            
+            # 长尾关键词加分（竞争相对较小）
+            word_count = len(keyword.split())
+            if word_count >= 4:
+                adjusted_score += 4
+            elif word_count == 3:
+                adjusted_score += 2
+            
+            # 确保分数在合理范围内
+            return min(max(adjusted_score, 0), 100)
+        except Exception as e:
+            logger.debug(f"多维度调整失败: {e}")
+            return score
+    
     def _calculate_trend_score(self, keyword: str, **kwargs) -> float:
         """计算趋势评分"""
         trend_data = kwargs.get('trend_data', {})
@@ -633,6 +866,78 @@ class KeywordScorer(BaseAnalyzer):
         
         return min(max(total, 0), 100)
     
+    def calculate_multidimensional_score(self, keyword: str, **kwargs) -> KeywordScore:
+        """计算多维度评分模型 - 3.1节第二个待办任务实现
+        
+        权重配置：
+        - 趋势稳定性 (25%)
+        - SERP竞争度 (30%)
+        - 搜索量潜力 (25%)
+        - 商业价值 (20%)
+        """
+        if not keyword or not keyword.strip():
+            return self._create_default_score(keyword)
+        
+        keyword = keyword.strip().lower()
+        
+        # 计算各维度评分
+        trend_stability_score = self._calculate_trend_stability_score(keyword, **kwargs)
+        serp_competition_score = self._calculate_serp_competition_score(keyword, **kwargs)
+        search_volume_potential = self._calculate_search_volume_potential(keyword, **kwargs)
+        commercial_value = self._calculate_commercial_value_enhanced(keyword, **kwargs)
+        
+        # 多维度评分权重（按照待办任务要求）
+        multidimensional_weights = {
+            'trend_stability': 0.25,    # 趋势稳定性 25%
+            'serp_competition': 0.30,   # SERP竞争度 30%
+            'search_potential': 0.25,   # 搜索量潜力 25%
+            'commercial_value': 0.20    # 商业价值 20%
+        }
+        
+        # 计算多维度总分
+        multidimensional_total = (
+            trend_stability_score * multidimensional_weights['trend_stability'] +
+            serp_competition_score * multidimensional_weights['serp_competition'] +
+            search_volume_potential * multidimensional_weights['search_potential'] +
+            commercial_value * multidimensional_weights['commercial_value']
+        )
+        
+        # 应用关键词特征调整
+        multidimensional_total = self._apply_multidimensional_adjustments(multidimensional_total, keyword)
+        
+        # 为了兼容现有结构，也计算传统评分
+        pray_score = self._calculate_pray_score(keyword, **kwargs)
+        trend_score = self._calculate_trend_score(keyword, **kwargs)
+        competition_score = self._calculate_competition_score(keyword, **kwargs)
+        intent_depth_score = self._calculate_intent_depth_score(keyword, **kwargs)
+        
+        return KeywordScore(
+            keyword=keyword,
+            pray_score=pray_score,
+            commercial_score=commercial_value,
+            trend_score=trend_score,
+            trend_stability_score=trend_stability_score,
+            competition_score=competition_score,
+            serp_competition_score=serp_competition_score,
+            intent_depth_score=intent_depth_score,
+            total_score=multidimensional_total,
+            details={
+                'multidimensional_model': True,
+                'weights_used': multidimensional_weights,
+                'search_volume_potential': search_volume_potential,
+                'commercial_value_enhanced': commercial_value,
+                'scoring_method': 'multidimensional_v1',
+                'length': len(keyword),
+                'word_count': len(keyword.split()),
+                'has_numbers': bool(re.search(r'\d', keyword)),
+                'has_special_chars': bool(re.search(r'[^\w\s]', keyword)),
+                'intent_type': self._get_intent_type(keyword),
+                'conversion_potential': self._get_conversion_potential(intent_depth_score),
+                'trend_stability_data': kwargs.get('trend_stability_data', {}),
+                'serp_data': kwargs.get('serp_data', {})
+            }
+        )
+    
     def _get_dynamic_weights(self, keyword: str) -> Dict[str, float]:
         """获取动态权重（根据关键词特征调整）"""
         # 基础权重
@@ -792,6 +1097,71 @@ class KeywordScorer(BaseAnalyzer):
         
         scores = self.score_keywords(keywords, **kwargs)
         return [score for score in scores if score.total_score >= min_score]
+    
+    def score_keywords_multidimensional(self, keywords: List[str], **kwargs) -> List[KeywordScore]:
+        """使用多维度评分模型批量评分关键词
+        
+        这是3.1节第二个待办任务的主要接口方法
+        权重配置：趋势稳定性(25%)、SERP竞争度(30%)、搜索量潜力(25%)、商业价值(20%)
+        """
+        if not keywords:
+            return []
+        
+        results = []
+        for keyword in keywords:
+            try:
+                score = self.calculate_multidimensional_score(keyword, **kwargs)
+                results.append(score)
+            except Exception as e:
+                logger.error(f"多维度评分关键词 '{keyword}' 失败: {e}")
+                results.append(self._create_default_score(keyword))
+        
+        # 按总分排序
+        return sorted(results, key=lambda x: x.total_score, reverse=True)
+    
+    def get_multidimensional_report(self, keywords: List[str], **kwargs) -> Dict[str, Any]:
+        """生成多维度评分报告"""
+        if not keywords:
+            return {'error': '没有提供关键词'}
+        
+        scores = self.score_keywords_multidimensional(keywords, **kwargs)
+        
+        # 统计信息
+        total_keywords = len(scores)
+        avg_score = sum(s.total_score for s in scores) / total_keywords if total_keywords > 0 else 0
+        high_potential = [s for s in scores if s.total_score >= 80]
+        medium_potential = [s for s in scores if 60 <= s.total_score < 80]
+        low_potential = [s for s in scores if s.total_score < 60]
+        
+        # 各维度平均分
+        avg_trend_stability = sum(s.trend_stability_score for s in scores) / total_keywords if total_keywords > 0 else 0
+        avg_serp_competition = sum(s.serp_competition_score for s in scores) / total_keywords if total_keywords > 0 else 0
+        avg_commercial_value = sum(s.commercial_score for s in scores) / total_keywords if total_keywords > 0 else 0
+        
+        return {
+            'summary': {
+                'total_keywords': total_keywords,
+                'average_score': round(avg_score, 2),
+                'high_potential_count': len(high_potential),
+                'medium_potential_count': len(medium_potential),
+                'low_potential_count': len(low_potential)
+            },
+            'dimension_averages': {
+                'trend_stability': round(avg_trend_stability, 2),
+                'serp_competition': round(avg_serp_competition, 2),
+                'commercial_value': round(avg_commercial_value, 2),
+                'search_potential': round(sum(s.details.get('search_volume_potential', 50) for s in scores) / total_keywords, 2) if total_keywords > 0 else 0
+            },
+            'top_keywords': scores[:10],  # 前10个高分关键词
+            'high_potential': high_potential,
+            'scoring_method': 'multidimensional_v1',
+            'weights_used': {
+                'trend_stability': 0.25,
+                'serp_competition': 0.30,
+                'search_potential': 0.25,
+                'commercial_value': 0.20
+            }
+        }
     
     def export_scores(self, scores: List[KeywordScore], format: str = 'dict') -> Any:
         """导出评分结果"""
