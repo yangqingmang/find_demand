@@ -50,13 +50,27 @@ class KeywordExtractor:
             'design': ['generator', 'creator', 'assistant', 'optimizer', 'enhancer']
         }
         
-        # 扩展修饰词库
-        self.expansion_modifiers = [
-            'best', 'top', 'free', 'online', 'how to', 'what is', 'guide', 
-            'tutorial', 'review', 'comparison', 'vs', 'alternative', 'tool',
+        # 长尾词扩展修饰词库（优化为低竞争、高意图的词汇）
+        self.long_tail_modifiers = [
+            'how to use', 'step by step guide', 'tutorial for beginners',
+            'free alternative to', 'open source version of', 'simple way to create',
+            'easy method for', 'complete guide to', 'beginner friendly',
+            'without coding', 'for small business', 'budget friendly',
+            'quick tutorial on', 'detailed review of', 'comparison between',
+            'pros and cons of', 'getting started with', 'tips for using',
+            'common mistakes with', 'troubleshooting guide for'
+        ]
+        
+        # 保留原有修饰词作为备用（标记为高竞争）
+        self.high_competition_modifiers = [
+            'best', 'top', 'review', 'vs', 'comparison'
+        ]
+        
+        # 中等竞争修饰词
+        self.medium_competition_modifiers = [
+            'free', 'online', 'guide', 'tutorial', 'alternative', 'tool',
             'software', 'app', 'platform', 'service', 'solution', 'api',
-            'open source', 'premium', 'professional', 'advanced', 'simple',
-            'easy', 'fast', 'powerful', 'smart', 'intelligent', 'automated'
+            'open source', 'simple', 'easy'
         ]
     
     def get_google_autocomplete_suggestions(self, keyword: str, language: str = 'en', 
@@ -161,8 +175,13 @@ class KeywordExtractor:
                         related_terms.append(f"{keyword} {tool}")
                         related_terms.append(f"{tool} {keyword}")
         
-        # 基于修饰词生成相关词
-        for modifier in self.expansion_modifiers[:max_terms]:
+        # 优先使用长尾修饰词生成相关词
+        for modifier in self.long_tail_modifiers[:max_terms//2]:
+            if modifier not in keyword_lower:
+                related_terms.append(f"{modifier} {keyword}")
+        
+        # 补充中等竞争修饰词
+        for modifier in self.medium_competition_modifiers[:max_terms//3]:
             if modifier not in keyword_lower:
                 related_terms.append(f"{modifier} {keyword}")
         
@@ -193,14 +212,20 @@ class KeywordExtractor:
                             expanded.add(f"{seed} {tool}")
                             expanded.add(f"{tool} for {seed}")
             
-            # 2. 基于修饰词扩展
-            for modifier in self.expansion_modifiers:
+            # 2. 优先基于长尾修饰词扩展
+            for modifier in self.long_tail_modifiers:
                 if modifier not in seed_lower:
                     expanded.add(f"{modifier} {seed}")
-                    if modifier in ['how to', 'what is']:
-                        expanded.add(f"{modifier} use {seed}")
+                    # 特殊处理教程类修饰词
+                    if 'tutorial' in modifier or 'guide' in modifier:
+                        expanded.add(f"{modifier} {seed} for beginners")
             
-            # 3. 基于词汇变形扩展
+            # 3. 补充中等竞争修饰词
+            for modifier in self.medium_competition_modifiers[:5]:  # 限制数量
+                if modifier not in seed_lower:
+                    expanded.add(f"{modifier} {seed}")
+            
+            # 4. 基于词汇变形扩展
             if 'generator' in seed_lower:
                 expanded.add(seed.replace('generator', 'creator'))
                 expanded.add(seed.replace('generator', 'maker'))
@@ -208,16 +233,74 @@ class KeywordExtractor:
                 expanded.add(seed.replace('creator', 'generator'))
                 expanded.add(seed.replace('creator', 'maker'))
             
-            # 过滤和限制数量
+            # 过滤和限制数量（优先长尾词）
             filtered_expanded = []
             for kw in expanded:
-                if len(kw) > 5 and len(kw) < 100:
+                if self._is_long_tail_keyword(kw):
                     filtered_expanded.append(kw)
+            
+            # 如果长尾词不够，补充中等长度的关键词
+            if len(filtered_expanded) < max_per_seed:
+                for kw in expanded:
+                    if not self._is_long_tail_keyword(kw) and len(kw) > 10 and len(kw) < 100:
+                        filtered_expanded.append(kw)
+                        if len(filtered_expanded) >= max_per_seed:
+                            break
             
             expanded_keywords[seed] = filtered_expanded[:max_per_seed]
             logger.info(f"✅ 语义扩展 {seed}: {len(expanded_keywords[seed])} 个关键词")
         
         return expanded_keywords
+    
+    def _is_long_tail_keyword(self, keyword: str) -> bool:
+        """
+        判断是否为长尾关键词
+        
+        Args:
+            keyword: 关键词
+            
+        Returns:
+            是否为长尾关键词
+        """
+        words = keyword.split()
+        # 长尾词标准：3个以上词汇且总长度15个字符以上
+        return len(words) >= 3 and len(keyword) >= 15
+    
+    def calculate_long_tail_score(self, keyword: str) -> float:
+        """
+        计算长尾词评分（长尾词获得更高分数）
+        
+        Args:
+            keyword: 关键词
+            
+        Returns:
+            评分倍数
+        """
+        word_count = len(keyword.split())
+        keyword_lower = keyword.lower()
+        
+        base_score = 1.0
+        
+        # 基于词数的评分加权
+        if word_count >= 5:
+            base_score *= 2.5  # 5+词汇获得最高加权
+        elif word_count >= 4:
+            base_score *= 2.0  # 4词汇获得高加权
+        elif word_count >= 3:
+            base_score *= 1.5  # 3词汇获得中等加权
+        
+        # 基于意图明确性的加权
+        high_intent_phrases = ['how to', 'step by step', 'tutorial', 'guide', 'without']
+        if any(phrase in keyword_lower for phrase in high_intent_phrases):
+            base_score *= 1.3
+        
+        # 基于竞争度的调整
+        if any(comp in keyword_lower for comp in self.high_competition_modifiers):
+            base_score *= 0.7  # 高竞争词降低评分
+        elif any(comp in keyword_lower for comp in self.medium_competition_modifiers):
+            base_score *= 0.9  # 中等竞争词略微降低评分
+        
+        return base_score
     
     def analyze_keyword_difficulty(self, keyword: str) -> str:
         """

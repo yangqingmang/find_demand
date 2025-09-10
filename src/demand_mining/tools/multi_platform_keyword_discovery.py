@@ -352,7 +352,11 @@ class MultiPlatformKeywordDiscovery:
             for match in matches:
                 # 清理和标准化关键词
                 keyword = re.sub(r'[^\w\s-]', '', match).strip()
-                if len(keyword) > 5 and len(keyword) < 100:
+                # 优先长尾关键词：3个以上词汇且15个字符以上
+                if self._is_long_tail_keyword(keyword):
+                    keywords.append(keyword)
+                elif len(keyword) > 10 and len(keyword) < 100 and len(keyword.split()) >= 2:
+                    # 次优选择：中等长度的关键词
                     keywords.append(keyword)
         
         # 提取常见的AI工具相关词汇
@@ -367,6 +371,55 @@ class MultiPlatformKeywordDiscovery:
                 keywords.append(term)
         
         return list(set(keywords))  # 去重
+    
+    def _is_long_tail_keyword(self, keyword: str) -> bool:
+        """
+        判断是否为长尾关键词
+        
+        Args:
+            keyword: 关键词
+            
+        Returns:
+            是否为长尾关键词
+        """
+        words = keyword.split()
+        # 长尾词标准：3个以上词汇且总长度15个字符以上
+        return len(words) >= 3 and len(keyword) >= 15
+    
+    def _calculate_long_tail_score(self, keyword: str) -> float:
+        """
+        计算长尾词评分加权
+        
+        Args:
+            keyword: 关键词
+            
+        Returns:
+            评分倍数
+        """
+        word_count = len(keyword.split())
+        keyword_lower = keyword.lower()
+        
+        base_score = 1.0
+        
+        # 基于词数的评分加权
+        if word_count >= 5:
+            base_score *= 3.0  # 5+词汇获得最高加权
+        elif word_count >= 4:
+            base_score *= 2.5  # 4词汇获得高加权
+        elif word_count >= 3:
+            base_score *= 2.0  # 3词汇获得中等加权
+        
+        # 基于意图明确性的加权
+        high_intent_phrases = ['how to', 'step by step', 'tutorial', 'guide', 'without', 'for beginners']
+        if any(phrase in keyword_lower for phrase in high_intent_phrases):
+            base_score *= 1.5
+        
+        # 基于竞争度的调整
+        high_competition_words = ['best', 'top', 'review', 'vs', 'comparison']
+        if any(comp in keyword_lower for comp in high_competition_words):
+            base_score *= 0.6  # 高竞争词降低评分
+        
+        return base_score
     
     def discover_all_platforms(self, search_terms: List[str]) -> pd.DataFrame:
         """从所有平台发现关键词"""
@@ -405,9 +458,15 @@ class MultiPlatformKeywordDiscovery:
         df = pd.DataFrame(all_keywords)
         
         if not df.empty:
-            # 去重和排序
+            # 去重
             df = df.drop_duplicates(subset=['keyword'])
-            df = df.sort_values('score', ascending=False)
+            
+            # 添加长尾词评分加权
+            df['long_tail_score'] = df['keyword'].apply(self._calculate_long_tail_score)
+            df['weighted_score'] = df['score'] * df['long_tail_score']
+            
+            # 按加权评分排序（长尾词优先）
+            df = df.sort_values('weighted_score', ascending=False)
             
             # 添加发现时间
             df['discovered_at'] = datetime.now().isoformat()

@@ -59,14 +59,18 @@ class KeywordAnalyzer(BaseAnalyzer):
         results = {}
         
         for keyword in keywords:
-            results[keyword] = {
-                'length': len(keyword),
-                'word_count': len(keyword.split()),
-                'language': self._detect_language(keyword),
-                'keyword_type': self._classify_keyword_type(keyword),
-                'difficulty_estimate': self._estimate_difficulty(keyword),
-                'features': self._extract_features(keyword)
-            }
+            # 基础分析
+            basic_analysis = {'length': len(keyword), 'word_count': len(keyword.split()),
+                              'language': self._detect_language(keyword),
+                              'keyword_type': self._classify_keyword_type(keyword),
+                              'difficulty_estimate': self._estimate_difficulty(keyword),
+                              'features': self._extract_features(keyword),
+                              'long_tail_score': self._calculate_long_tail_score(keyword),
+                              'is_long_tail': len(keyword.split()) >= 3 and len(keyword) >= 15}
+            
+            # 添加长尾词评分
+
+            results[keyword] = basic_analysis
         
         return results
     
@@ -106,23 +110,71 @@ class KeywordAnalyzer(BaseAnalyzer):
         return 'general'
     
     def _estimate_difficulty(self, keyword: str) -> str:
-        """估算关键词难度"""
-        # 基于关键词特征估算难度
+        """估算关键词难度（优化长尾词评估）"""
         word_count = len(keyword.split())
+        keyword_lower = keyword.lower()
         
-        # 长尾关键词通常难度较低
-        if word_count >= 4:
-            return 'easy'
+        # 基于词数的基础难度
+        if word_count >= 5:
+            base_difficulty = 'very_easy'
+        elif word_count >= 4:
+            base_difficulty = 'easy'
         elif word_count == 3:
-            return 'medium'
+            base_difficulty = 'medium'
         else:
-            # 短关键词通常难度较高
-            return 'hard'
+            base_difficulty = 'hard'
+        
+        # 基于竞争词汇调整难度
+        high_competition_words = ['best', 'top', 'review', 'vs', 'comparison']
+        medium_competition_words = ['free', 'online', 'tool', 'software']
+        low_competition_words = ['tutorial', 'guide', 'how to', 'step by step', 'beginner']
+        
+        if any(word in keyword_lower for word in high_competition_words):
+            # 高竞争词提升难度
+            if base_difficulty == 'very_easy':
+                return 'easy'
+            elif base_difficulty == 'easy':
+                return 'medium'
+            elif base_difficulty == 'medium':
+                return 'hard'
+            else:
+                return 'very_hard'
+        elif any(word in keyword_lower for word in low_competition_words):
+            # 低竞争词降低难度
+            if base_difficulty == 'hard':
+                return 'medium'
+            elif base_difficulty == 'medium':
+                return 'easy'
+            else:
+                return base_difficulty
+        
+        return base_difficulty
     
     def _extract_features(self, keyword: str) -> List[str]:
-        """提取关键词特征"""
+        """提取关键词特征（增强长尾词识别）"""
         features = []
         keyword_lower = keyword.lower()
+        word_count = len(keyword.split())
+        
+        # 长尾词特征
+        if word_count >= 5:
+            features.append('very_long_tail')
+        elif word_count >= 4:
+            features.append('long_tail')
+        elif word_count >= 3:
+            features.append('medium_tail')
+        else:
+            features.append('short_tail')
+        
+        # 意图明确性特征
+        high_intent_phrases = ['how to', 'step by step', 'tutorial', 'guide', 'without']
+        if any(phrase in keyword_lower for phrase in high_intent_phrases):
+            features.append('high_intent')
+        
+        # 竞争度特征
+        high_competition_words = ['best', 'top', 'review', 'vs', 'comparison']
+        if any(word in keyword_lower for word in high_competition_words):
+            features.append('high_competition')
         
         # AI相关
         if 'ai' in keyword_lower:
@@ -147,3 +199,38 @@ class KeywordAnalyzer(BaseAnalyzer):
             features.append('brand_related')
         
         return features
+    
+    def _calculate_long_tail_score(self, keyword: str) -> float:
+        """
+        计算长尾词评分
+        
+        Args:
+            keyword: 关键词
+            
+        Returns:
+            长尾词评分
+        """
+        word_count = len(keyword.split())
+        keyword_lower = keyword.lower()
+        
+        base_score = 1.0
+        
+        # 基于词数的评分加权
+        if word_count >= 5:
+            base_score *= 3.0
+        elif word_count >= 4:
+            base_score *= 2.5
+        elif word_count >= 3:
+            base_score *= 2.0
+        
+        # 基于意图明确性的加权
+        high_intent_phrases = ['how to', 'step by step', 'tutorial', 'guide', 'without']
+        if any(phrase in keyword_lower for phrase in high_intent_phrases):
+            base_score *= 1.5
+        
+        # 基于竞争度的调整
+        high_competition_words = ['best', 'top', 'review', 'vs', 'comparison']
+        if any(comp in keyword_lower for comp in high_competition_words):
+            base_score *= 0.7
+        
+        return round(base_score, 2)
