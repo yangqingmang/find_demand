@@ -86,8 +86,9 @@ def setup_argument_parser():
     input_group.add_argument('--keywords', nargs='+', help='直接输入关键词（可以是多个）')
     input_group.add_argument('--discover', nargs='+', help='多平台关键词发现（可指定搜索词汇）')
     input_group.add_argument('--report', action='store_true', help='生成今日分析报告')
-    input_group.add_argument('--hotkeywords', action='store_true', help='搜索热门关键词')
-    input_group.add_argument('--all', action='store_true', help='完整流程：先搜索热门关键词，再进行51个词根趋势分析')
+    input_group.add_argument('--hotkeywords', action='store_true', help='搜索热门关键词 (Google Trends)')
+    input_group.add_argument('--trending-keywords', action='store_true', help='获取TrendingKeywords.net热门关键词')
+    input_group.add_argument('--all', action='store_true', help='完整流程：整合多数据源搜索热门关键词，再进行多平台发现')
     input_group.add_argument('--demand-validation', action='store_true', help='需求验证：对高机会关键词进行多平台需求分析')
     input_group.add_argument('--expand', nargs='+', help='增强关键词扩展：使用Google自动完成、Trends相关搜索和语义相似词扩展')
     

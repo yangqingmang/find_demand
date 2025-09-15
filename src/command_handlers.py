@@ -453,46 +453,102 @@ def handle_all_workflow(manager, args):
     
     if not args.quiet:
         print("🚀 开始完整的关键词分析工作流程...")
-        print("   第一步: 搜索热门关键词")
+        print("   第一步: 搜索热门关键词 (Google Trends + TrendingKeywords.net)")
         print("   第二步: 基于热门关键词进行多平台发现")
     
     try:
-        # 第一步：获取热门关键词
-        from src.collectors.trends_singleton import get_trends_collector
-        trends_collector = get_trends_collector()
+        # 第一步：获取热门关键词 - 整合多个数据源
+        all_trending_keywords = []
         
+        # 1.1 获取 Google Trends Rising Queries
         if not args.quiet:
-            print("🔍 正在获取 Rising Queries...")
+            print("🔍 正在获取 Google Trends Rising Queries...")
         
-        rising_queries = trends_collector.fetch_rising_queries()
-        
-        # 处理获取到的热门关键词
-        if isinstance(rising_queries, pd.DataFrame):
-            trending_df = rising_queries.head(20)
-            if 'query' not in trending_df.columns:
-                if 'title' in trending_df.columns:
-                    trending_df = trending_df.rename(columns={'title': 'query'})
-                elif len(trending_df.columns) > 0:
-                    trending_df = trending_df.rename(columns={trending_df.columns[0]: 'query'})
-        elif rising_queries and len(rising_queries) > 0:
-            if isinstance(rising_queries[0], str):
-                trending_df = pd.DataFrame([
-                    {'query': query}
-                    for query in rising_queries[:20]
-                ])
-            elif isinstance(rising_queries[0], dict):
-                trending_df = pd.DataFrame([
-                    {
-                        'query': item.get('query', item.get('keyword', str(item))),
-                        'value': item.get('value', item.get('interest', 0))
-                    }
-                    for item in rising_queries[:20]
-                ])
+        try:
+            from src.collectors.trends_singleton import get_trends_collector
+            trends_collector = get_trends_collector()
+            rising_queries = trends_collector.fetch_rising_queries()
+            
+            # 处理 Google Trends 数据
+            if isinstance(rising_queries, pd.DataFrame):
+                trending_df = rising_queries.head(15)  # 减少到15个为TrendingKeywords留空间
+                if 'query' not in trending_df.columns:
+                    if 'title' in trending_df.columns:
+                        trending_df = trending_df.rename(columns={'title': 'query'})
+                    elif len(trending_df.columns) > 0:
+                        trending_df = trending_df.rename(columns={trending_df.columns[0]: 'query'})
+            elif rising_queries and len(rising_queries) > 0:
+                if isinstance(rising_queries[0], str):
+                    trending_df = pd.DataFrame([
+                        {'query': query, 'source': 'Google Trends'}
+                        for query in rising_queries[:15]
+                    ])
+                elif isinstance(rising_queries[0], dict):
+                    trending_df = pd.DataFrame([
+                        {
+                            'query': item.get('query', item.get('keyword', str(item))),
+                            'value': item.get('value', item.get('interest', 0)),
+                            'source': 'Google Trends'
+                        }
+                        for item in rising_queries[:15]
+                    ])
+                else:
+                    trending_df = pd.DataFrame([
+                        {'query': str(query), 'source': 'Google Trends'}
+                        for query in rising_queries[:15]
+                    ])
             else:
-                trending_df = pd.DataFrame([
-                    {'query': str(query)}
-                    for query in rising_queries[:20]
-                ])
+                trending_df = pd.DataFrame(columns=['query', 'source'])
+            
+            if not trending_df.empty:
+                all_trending_keywords.append(trending_df)
+                if not args.quiet:
+                    print(f"✅ Google Trends: 获取到 {len(trending_df)} 个关键词")
+            
+        except Exception as e:
+            if not args.quiet:
+                print(f"⚠️ Google Trends 获取失败: {e}")
+        
+        # 1.2 获取 TrendingKeywords.net 数据
+        if not args.quiet:
+            print("🔍 正在获取 TrendingKeywords.net 数据...")
+        
+        try:
+            from src.collectors.trending_keywords_collector import TrendingKeywordsCollector
+            
+            tk_collector = TrendingKeywordsCollector()
+            tk_df = tk_collector.get_trending_keywords_for_analysis(max_keywords=15)
+            
+            if not tk_df.empty:
+                # 添加数据源标识
+                tk_df['source'] = 'TrendingKeywords.net'
+                all_trending_keywords.append(tk_df)
+                if not args.quiet:
+                    print(f"✅ TrendingKeywords.net: 获取到 {len(tk_df)} 个关键词")
+            
+        except Exception as e:
+            if not args.quiet:
+                print(f"⚠️ TrendingKeywords.net 获取失败: {e}")
+        
+        # 合并所有数据源
+        if all_trending_keywords:
+            trending_df = pd.concat(all_trending_keywords, ignore_index=True)
+            
+            # 去重，保留第一个出现的
+            trending_df = trending_df.drop_duplicates(subset=['query'], keep='first')
+            
+            # 限制总数量
+            trending_df = trending_df.head(25)
+            
+            if not args.quiet:
+                print(f"🎯 合并后总计: {len(trending_df)} 个关键词")
+                
+                # 显示数据源分布
+                if 'source' in trending_df.columns:
+                    source_counts = trending_df['source'].value_counts()
+                    print("📊 数据源分布:")
+                    for source, count in source_counts.items():
+                        print(f"   • {source}: {count} 个")
         else:
             trending_df = pd.DataFrame(columns=['query'])
         

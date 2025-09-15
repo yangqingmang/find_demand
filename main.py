@@ -93,6 +93,73 @@ def main():
         elif handle_hot_keywords(manager, args):
             return
         
+        elif args.trending_keywords:
+            # TrendingKeywords.net 热门关键词获取和分析
+            if not args.quiet:
+                print("🔥 开始获取 TrendingKeywords.net 热门关键词...")
+            
+            try:
+                from src.collectors.trending_keywords_collector import TrendingKeywordsCollector
+                import tempfile
+                
+                # 创建收集器
+                tk_collector = TrendingKeywordsCollector()
+                
+                # 获取关键词
+                tk_df = tk_collector.get_trending_keywords_for_analysis(max_keywords=30)
+                
+                if not tk_df.empty:
+                    # 保存到临时文件进行分析
+                    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, encoding='utf-8') as f:
+                        tk_df.to_csv(f.name, index=False)
+                        temp_file = f.name
+                    
+                    try:
+                        if not args.quiet:
+                            print(f"🔍 获取到 {len(tk_df)} 个关键词，开始需求挖掘分析...")
+                        
+                        # 执行需求挖掘分析
+                        manager.new_word_detection_available = False
+                        result = manager.analyze_keywords(temp_file, args.output, enable_serp=False)
+                        
+                        # 显示结果
+                        if args.quiet:
+                            print_quiet_summary(result)
+                        else:
+                            print(f"\n🎉 TrendingKeywords.net 分析完成! 共分析 {result['total_keywords']} 个关键词")
+                            print(f"📊 高机会关键词: {result['market_insights']['high_opportunity_count']} 个")
+                            print(f"📈 平均机会分数: {result['market_insights']['avg_opportunity_score']}")
+                            
+                            # 显示Top 5机会关键词
+                            top_keywords = result['market_insights']['top_opportunities'][:5]
+                            if top_keywords:
+                                print("\n🏆 Top 5 机会关键词:")
+                                for i, kw in enumerate(top_keywords, 1):
+                                    intent_desc = kw['intent']['intent_description']
+                                    score = kw['opportunity_score']
+                                    print(f"   {i}. {kw['keyword']} (分数: {score}, 意图: {intent_desc})")
+                        
+                        # 保存原始数据
+                        from datetime import datetime
+                        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                        raw_output_file = os.path.join(args.output, f"trending_keywords_raw_{timestamp}.csv")
+                        os.makedirs(args.output, exist_ok=True)
+                        tk_df.to_csv(raw_output_file, index=False, encoding='utf-8')
+                        print(f"📁 原始数据已保存到: {raw_output_file}")
+                        
+                    finally:
+                        # 清理临时文件
+                        os.unlink(temp_file)
+                else:
+                    print("❌ 未获取到 TrendingKeywords.net 数据")
+                    
+            except Exception as e:
+                print(f"❌ TrendingKeywords.net 分析失败: {e}")
+                if args.verbose:
+                    import traceback
+                    traceback.print_exc()
+            return
+        
         elif handle_all_workflow(manager, args):
             return
         
