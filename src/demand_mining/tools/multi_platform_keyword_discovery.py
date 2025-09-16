@@ -458,20 +458,24 @@ class MultiPlatformKeywordDiscovery:
         df = pd.DataFrame(all_keywords)
         
         if not df.empty:
-            # 去重
-            df = df.drop_duplicates(subset=['keyword'])
+            # 清洗与标准化，仅保留短词
+            try:
+                from src.pipeline.cleaning.cleaner import clean_terms
+                cleaned = clean_terms(df['keyword'].astype(str).tolist()) if 'keyword' in df.columns else []
+                df = pd.DataFrame({'keyword': cleaned})
+            except Exception:
+                pass
             
-            # 添加长尾词评分加权
-            df['long_tail_score'] = df['keyword'].apply(self._calculate_long_tail_score)
-            df['weighted_score'] = df['score'] * df['long_tail_score']
-            
-            # 按加权评分排序（长尾词优先）
-            df = df.sort_values('weighted_score', ascending=False)
-            
-            # 添加发现时间
-            df['discovered_at'] = datetime.now().isoformat()
-            
-            print(f"✅ 发现 {len(df)} 个关键词")
+            if not df.empty:
+                df = df.drop_duplicates(subset=['keyword'])
+                df['score'] = 0 if 'score' not in df.columns else df['score']
+                df['long_tail_score'] = df['keyword'].apply(self._calculate_long_tail_score)
+                df['weighted_score'] = df['score'] * df['long_tail_score']
+                df = df.sort_values('weighted_score', ascending=False)
+                df['discovered_at'] = datetime.now().isoformat()
+                print(f"✅ 发现 {len(df)} 个关键词")
+            else:
+                print("⚠️ 清洗后无有效关键词")
         else:
             print("⚠️ 未发现任何关键词")
         

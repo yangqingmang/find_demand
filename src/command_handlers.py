@@ -372,6 +372,13 @@ def handle_hot_keywords(manager, args):
                 trending_df = trending_df.rename(columns={trending_df.columns[0]: 'query'})
             
             # 创建临时文件进行需求挖掘分析
+            try:
+                from src.pipeline.cleaning.cleaner import clean_terms
+                if 'query' in trending_df.columns:
+                    cleaned = clean_terms(trending_df['query'].astype(str).tolist())
+                    trending_df = pd.DataFrame({'query': cleaned})
+            except Exception:
+                pass
             with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, encoding='utf-8') as f:
                 trending_df.to_csv(f.name, index=False)
                 temp_file = f.name
@@ -558,6 +565,13 @@ def handle_all_workflow(manager, args):
                 trending_df = trending_df.rename(columns={trending_df.columns[0]: 'query'})
             
             # 第一步：对热门关键词进行需求挖掘
+            try:
+                from src.pipeline.cleaning.cleaner import clean_terms
+                if 'query' in trending_df.columns:
+                    cleaned = clean_terms(trending_df['query'].astype(str).tolist())
+                    trending_df = pd.DataFrame({'query': cleaned})
+            except Exception:
+                pass
             with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, encoding='utf-8') as f:
                 trending_df.to_csv(f.name, index=False)
                 temp_file = f.name

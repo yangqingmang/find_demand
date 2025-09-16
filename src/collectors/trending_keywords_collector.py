@@ -347,7 +347,14 @@ class TrendingKeywordsCollector:
         if 'query' not in df.columns and 'keyword' in df.columns:
             df['query'] = df['keyword']
         
-        return df
+        try:
+            from src.pipeline.cleaning.cleaner import clean_terms
+            cleaned = clean_terms(df['query'].astype(str).tolist())
+            if not cleaned:
+                return pd.DataFrame(columns=['query'])
+            return pd.DataFrame({'query': cleaned})
+        except Exception:
+            return df[['query']].copy()
     
     def save_results(self, df: pd.DataFrame, output_dir: str) -> str:
         """
