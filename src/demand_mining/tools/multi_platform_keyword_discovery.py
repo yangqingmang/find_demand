@@ -66,12 +66,10 @@ class MultiPlatformKeywordDiscovery:
             'programming', 'webdev', 'entrepreneur', 'SaaS', 'startups'
         ]
         
-        # 关键词提取模式
+        # 关键词提取模式（用于论坛/新闻原始文本）
         self.keyword_patterns = [
-            r'\b(?:how to|what is|best|top|vs|compare|review|tutorial|guide)\b[^.!?]*',
-            r'\b(?:AI|artificial intelligence|machine learning|deep learning|neural network)\b[^.!?]*',
-            r'\b(?:tool|software|app|platform|service|solution)\b[^.!?]*',
-            r'\b(?:free|open source|alternative|competitor)\b[^.!?]*'
+            r'\b(?:ai|artificial intelligence|machine learning|deep learning|neural network)\b',
+            r'\b(?:tool|software|app|platform|service|solution)\b'
         ]
     
     def discover_reddit_keywords(self, subreddit: str, limit: int = 100) -> List[Dict]:
@@ -342,35 +340,50 @@ class MultiPlatformKeywordDiscovery:
         return keywords
     
     def _extract_keywords_from_text(self, text: str) -> List[str]:
-        """从文本中提取关键词"""
+        """从文本中提取关键词（论坛/新闻名词短语抽取 + 模式词）"""
         keywords = []
         text = text.lower()
-        
-        # 使用正则表达式提取关键词
+        try:
+            import nltk
+            from nltk import pos_tag, word_tokenize, RegexpParser
+            try:
+                nltk.data.find('tokenizers/punkt')
+            except LookupError:
+                nltk.download('punkt', quiet=True)
+            try:
+                nltk.data.find('taggers/averaged_perceptron_tagger')
+            except LookupError:
+                nltk.download('averaged_perceptron_tagger', quiet=True)
+            tokens = word_tokenize(text)
+            tagged = pos_tag(tokens)
+            grammar = r"NP: {<JJ>*<NN|NNS|NNP|NNPS>+}"
+            cp = RegexpParser(grammar)
+            tree = cp.parse(tagged)
+            nps = []
+            for subtree in tree.subtrees(filter=lambda t: t.label() == 'NP'):
+                phrase = ' '.join(w for w, t in subtree.leaves())
+                nps.append(phrase)
+            for np in nps:
+                np_clean = re.sub(r'[^a-z0-9\s-]', ' ', np).strip()
+                if 3 <= len(np_clean) <= 40 and 1 <= len(np_clean.split()) <= 3:
+                    keywords.append(np_clean)
+        except Exception:
+            pass
         for pattern in self.keyword_patterns:
             matches = re.findall(pattern, text, re.IGNORECASE)
             for match in matches:
-                # 清理和标准化关键词
-                keyword = re.sub(r'[^\w\s-]', '', match).strip()
-                # 优先长尾关键词：3个以上词汇且15个字符以上
-                if self._is_long_tail_keyword(keyword):
+                keyword = re.sub(r'[^a-z0-9\s-]', ' ', match).strip()
+                if 3 <= len(keyword) <= 40 and 1 <= len(keyword.split()) <= 3:
                     keywords.append(keyword)
-                elif len(keyword) > 10 and len(keyword) < 100 and len(keyword.split()) >= 2:
-                    # 次优选择：中等长度的关键词
-                    keywords.append(keyword)
-        
-        # 提取常见的AI工具相关词汇
-        ai_terms = [
+        base = [
             'ai tool', 'ai generator', 'ai writer', 'ai assistant', 'ai chatbot',
             'machine learning', 'deep learning', 'neural network', 'gpt',
             'artificial intelligence', 'automation', 'nlp', 'computer vision'
         ]
-        
-        for term in ai_terms:
-            if term in text:
+        for term in base:
+            if term in text and 3 <= len(term) <= 40:
                 keywords.append(term)
-        
-        return list(set(keywords))  # 去重
+        return list(set(keywords))
     
     def _is_long_tail_keyword(self, keyword: str) -> bool:
         """
@@ -467,7 +480,63 @@ class MultiPlatformKeywordDiscovery:
                 pass
             
             if not df.empty:
-                df = df.drop_duplicates(subset=['keyword'])
+                # 相似去重（SimHash + SBERT聚类）
+                try:
+                    from datasketch import MinHash, MinHashLSH
+                    from sklearn.cluster import AgglomerativeClustering
+                    from sentence_transformers import SentenceTransformer
+                    import numpy as np
+                    
+                    texts = df['keyword'].tolist()
+                    # SimHash/MinHash 近似去重
+                    def shingles(s, k=3):
+                        s = s.replace(' ', '_')
+                        return {s[i:i+k] for i in range(max(len(s)-k+1, 1))}
+                    signatures = []
+                    mhashes = []
+                    for t in texts:
+                        mh = MinHash(num_perm=64)
+                        for sh in shingles(t):
+                            mh.update(sh.encode('utf-8'))
+                        mhashes.append(mh)
+                        signatures.append(mh)
+                    lsh = MinHashLSH(threshold=0.85, num_perm=64)
+                    for idx, mh in enumerate(mhashes):
+                        lsh.insert(str(idx), mh)
+                    keep_idx = []
+                    seen = set()
+                    for i, mh in enumerate(mhashes):
+                        if i in seen:
+                            continue
+                        near = lsh.query(mh)
+                        grp = sorted(int(x) for x in near)
+                        for j in grp:
+                            seen.add(j)
+                        keep_idx.append(grp[0])
+                    df = df.iloc[keep_idx].reset_index(drop=True)
+                    
+                    # 语义聚类
+                    model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+                    emb = model.encode(df['keyword'].tolist(), normalize_embeddings=True)
+                    if len(df) >= 5:
+                        clustering = AgglomerativeClustering(n_clusters=None, distance_threshold=0.18, affinity='cosine', linkage='average')
+                        labels = clustering.fit_predict(emb)
+                        df['cluster_id'] = labels
+                        # 代表词选择：簇中心最近
+                        reps = []
+                        for c in sorted(set(labels)):
+                            idxs = np.where(labels == c)[0]
+                            sub = emb[idxs]
+                            center = sub.mean(axis=0, keepdims=True)
+                            sims = (sub @ center.T).ravel()
+                            rep = idxs[int(np.argmax(sims))]
+                            reps.append(rep)
+                        df = df.iloc[sorted(set(reps))].reset_index(drop=True)
+                    else:
+                        df['cluster_id'] = 0
+                except Exception:
+                    pass
+                
                 df['score'] = 0 if 'score' not in df.columns else df['score']
                 df['long_tail_score'] = df['keyword'].apply(self._calculate_long_tail_score)
                 df['weighted_score'] = df['score'] * df['long_tail_score']
