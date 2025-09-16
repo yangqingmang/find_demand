@@ -13,7 +13,6 @@ import time
 import random
 from typing import List, Dict, Optional
 import logging
-from urllib.parse import urljoin, urlparse
 
 
 class TrendingKeywordsCollector:
@@ -215,166 +214,17 @@ class TrendingKeywordsCollector:
             clean_line = re.sub(r'\d+k?/Month', '', clean_line).strip()
             
             # 验证是否为有效的关键词
-            if (clean_line and 
-                len(clean_line) > 1 and 
-                len(clean_line) < 100 and
-                not clean_line.startswith('http') and
-                not re.match(r'^\d+
-    
-    def _extract_search_volume(self, container) -> int:
-        """提取搜索量数值"""
-        volume_text = self._extract_volume_text(container)
-        if volume_text:
-            # 提取数字
-            match = re.search(r'(\d+(?:\.\d+)?)k?', volume_text, re.IGNORECASE)
-            if match:
-                num = float(match.group(1))
-                # 如果包含k，乘以1000
-                if 'k' in volume_text.lower():
-                    num *= 1000
-                return int(num)
-        return 0
-    
-    def _extract_volume_text(self, container) -> Optional[str]:
-        """提取搜索量文本"""
-        text = container.get_text()
-        # 查找搜索量模式
-        match = re.search(r'\d+k?/Month', text, re.IGNORECASE)
-        return match.group(0) if match else None
-    
-    def _extract_description(self, container) -> Optional[str]:
-        """提取描述信息"""
-        # 根据调试结果，描述通常是第三行文本
-        full_text = container.get_text()
-        lines = [line.strip() for line in full_text.split('\n') if line.strip()]
-        
-        # 查找描述行（通常是较长的文本，不包含搜索量）
-        for line in lines:
-            # 跳过关键词名称、搜索量、链接文本
-            if (re.search(r'\d+k?/Month', line, re.IGNORECASE) or
-                'Last 90 days' in line or
-                'Detail' == line.strip() or
-                len(line) < 20):
-                continue
-            
-            # 找到描述文本
-            if len(line) > 20 and len(line) < 500:
-                # 清理描述文本
-                desc = re.sub(r'\d+k?/Month', '', line).strip()
-                if desc:
-                    return desc
-        
-        # 备用方案：查找特定元素
-        desc_selectors = [
-            '.description', '.desc', '.summary',
-            'p', '.content', '.detail'
-        ]
-        
-        for selector in desc_selectors:
-            element = container.select_one(selector)
-            if element:
-                desc = element.get_text().strip()
-                # 过滤掉搜索量信息
-                desc = re.sub(r'\d+k?/Month', '', desc).strip()
-                if desc and len(desc) > 10:
-                    return desc
-        
-        return None
-    
-    def _extract_category(self, container) -> Optional[str]:
-        """提取类别信息"""
-        # 查找类别标签
-        cat_selectors = [
-            '.category', '.tag', '.label',
-            '.badge', '.chip'
-        ]
-        
-        for selector in cat_selectors:
-            element = container.select_one(selector)
-            if element:
-                return element.get_text().strip()
-        
-        return None
-    
-    def get_trending_keywords_for_analysis(self, max_keywords: int = 50) -> pd.DataFrame:
-        """
-        获取用于分析的热门关键词
-        
-        Args:
-            max_keywords: 最大关键词数量
-            
-        Returns:
-            格式化的关键词DataFrame
-        """
-        # 获取原始数据
-        df = self.fetch_trending_keywords(max_pages=3)
-        
-        if df.empty:
-            return pd.DataFrame(columns=['query'])
-        
-        # 按搜索量排序
-        if 'search_volume' in df.columns:
-            df = df.sort_values('search_volume', ascending=False)
-        
-        # 限制数量
-        df = df.head(max_keywords)
-        
-        # 确保有query列用于后续分析
-        if 'query' not in df.columns and 'keyword' in df.columns:
-            df['query'] = df['keyword']
-        
-        return df
-    
-    def save_results(self, df: pd.DataFrame, output_dir: str) -> str:
-        """
-        保存结果到文件
-        
-        Args:
-            df: 关键词DataFrame
-            output_dir: 输出目录
-            
-        Returns:
-            保存的文件路径
-        """
-        import os
-        from datetime import datetime
-        
-        os.makedirs(output_dir, exist_ok=True)
-        
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"trending_keywords_{timestamp}.csv"
-        filepath = os.path.join(output_dir, filename)
-        
-        df.to_csv(filepath, index=False, encoding='utf-8')
-        
-        self.logger.info(f"结果已保存到: {filepath}")
-        return filepath
-
-
-def main():
-    """测试函数"""
-    collector = TrendingKeywordsCollector()
-    
-    print("🔍 开始获取 TrendingKeywords.net 数据...")
-    df = collector.fetch_trending_keywords(max_pages=2)
-    
-    if not df.empty:
-        print(f"✅ 成功获取 {len(df)} 个关键词")
-        print("\n📊 样本数据:")
-        print(df.head().to_string())
-        
-        # 保存结果
-        output_file = collector.save_results(df, "output")
-        print(f"\n📁 结果已保存到: {output_file}")
-    else:
-        print("❌ 未获取到数据")
-
-
-if __name__ == "__main__":
-    main(), clean_line) and
-                'Last 90 days' not in clean_line and
-                'Detail' != clean_line):
-                return clean_line
+            if not clean_line:
+                return None
+            if len(clean_line) <= 1 or len(clean_line) >= 100:
+                return None
+            if clean_line.startswith('http'):
+                return None
+            if re.match(r'^\d+$', clean_line):
+                return None
+            if 'Last 90 days' in clean_line or clean_line == 'Detail':
+                return None
+            return clean_line
         
         # 备用方案：尝试其他选择器
         selectors = [
