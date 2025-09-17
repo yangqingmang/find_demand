@@ -569,6 +569,11 @@ def handle_all_workflow(manager, args):
                 from src.pipeline.cleaning.cleaner import clean_terms
                 if 'query' in trending_df.columns:
                     cleaned = clean_terms(trending_df['query'].astype(str).tolist())
+                    if not cleaned:
+                        if not args.quiet:
+                            print("⚠️ 清洗后的热门关键词为空，已终止完整流程。")
+                        print("💡 请稍后重试，或使用 --input 指定本地关键词文件。")
+                        return True
                     trending_df = pd.DataFrame({'query': cleaned})
             except Exception:
                 pass
@@ -581,8 +586,12 @@ def handle_all_workflow(manager, args):
                     print(f"🔍 第一步: 对 {len(trending_df)} 个热门关键词进行需求挖掘...")
                 
                 # 执行需求挖掘分析
-                manager.new_word_detection_available = False
-                hot_result = manager.analyze_keywords(temp_file, args.output, enable_serp=False)
+                original_new_word_flag = getattr(manager, 'new_word_detection_available', True)
+                try:
+                    manager.new_word_detection_available = False
+                    hot_result = manager.analyze_keywords(temp_file, args.output, enable_serp=False)
+                finally:
+                    manager.new_word_detection_available = original_new_word_flag
                 
                 if not args.quiet:
                     print(f"✅ 第一步完成! 分析了 {hot_result['total_keywords']} 个热门关键词")
@@ -604,13 +613,26 @@ def handle_all_workflow(manager, args):
                 # 使用 discover_all_platforms 方法
                 df = discovery_tool.discover_all_platforms(seed_keywords)
                 
-                # 从DataFrame中提取关键词列表
-                all_discovered_keywords = df['keyword'].tolist() if not df.empty else []
-                
-                # 去重并保存发现的关键词
-                unique_keywords = list(set(all_discovered_keywords))
-                
+                unique_keywords = []
+                prioritized_df = None
+                if not df.empty and 'keyword' in df.columns:
+                    keyword_series = df['keyword'].dropna().astype(str)
+                    if 'score' in df.columns:
+                        prioritized_df = df[['keyword', 'score']].dropna(subset=['keyword'])
+                        prioritized_df = prioritized_df.sort_values('score', ascending=False)
+                        prioritized_df = prioritized_df.drop_duplicates(subset=['keyword'], keep='first')
+                    else:
+                        counts = keyword_series.value_counts().reset_index()
+                        counts.columns = ['keyword', 'score']
+                        prioritized_df = counts
+                    prioritized_df['score'] = prioritized_df['score'].fillna(0)
+                    prioritized_df['keyword'] = prioritized_df['keyword'].astype(str)
+                    max_keywords = 150
+                    unique_keywords = prioritized_df['keyword'].head(max_keywords).tolist()
+
                 if unique_keywords:
+                    if not args.quiet and prioritized_df is not None and len(prioritized_df) > len(unique_keywords):
+                        print(f"⚖️ 已按得分筛选前 {len(unique_keywords)} 个关键词用于最终分析")
                     # 创建发现关键词的CSV文件
                     discovered_df = pd.DataFrame([
                         {'keyword': kw} for kw in unique_keywords
