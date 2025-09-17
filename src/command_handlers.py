@@ -10,7 +10,7 @@ import sys
 import tempfile
 import pandas as pd
 from datetime import datetime
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 # 添加src目录到Python路径
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
@@ -463,6 +463,10 @@ def handle_all_workflow(manager, args):
         print("   第一步: 搜索热门关键词 (Google Trends + TrendingKeywords.net)")
         print("   第二步: 基于热门关键词进行多平台发现")
     
+    max_seed_keywords = max(1, getattr(args, 'max_seed_keywords', 10))
+    max_discovered_keywords = max(10, getattr(args, 'max_discovered_keywords', 150))
+    hot_result = None
+
     try:
         # 第一步：获取热门关键词 - 整合多个数据源
         all_trending_keywords = []
@@ -565,18 +569,22 @@ def handle_all_workflow(manager, args):
                 trending_df = trending_df.rename(columns={trending_df.columns[0]: 'query'})
             
             # 第一步：对热门关键词进行需求挖掘
+            cleaned_terms = None
             try:
                 from src.pipeline.cleaning.cleaner import clean_terms
                 if 'query' in trending_df.columns:
-                    cleaned = clean_terms(trending_df['query'].astype(str).tolist())
-                    if not cleaned:
-                        if not args.quiet:
-                            print("⚠️ 清洗后的热门关键词为空，已终止完整流程。")
-                        print("💡 请稍后重试，或使用 --input 指定本地关键词文件。")
-                        return True
-                    trending_df = pd.DataFrame({'query': cleaned})
-            except Exception:
-                pass
+                    cleaned_terms = clean_terms(trending_df['query'].astype(str).tolist())
+            except Exception as exc:
+                if not args.quiet:
+                    print(f"⚠️ 清洗热门关键词时出现异常: {exc}")
+                cleaned_terms = trending_df['query'].dropna().astype(str).tolist() if 'query' in trending_df.columns else []
+            if cleaned_terms is not None:
+                if not cleaned_terms:
+                    if not args.quiet:
+                        print("⚠️ 清洗后的热门关键词为空，已终止完整流程。")
+                    print("💡 请稍后重试，或使用 --input 指定本地关键词文件。")
+                    return True
+                trending_df = pd.DataFrame({'query': cleaned_terms})
             with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False, encoding='utf-8') as f:
                 trending_df.to_csv(f.name, index=False)
                 temp_file = f.name
@@ -601,12 +609,33 @@ def handle_all_workflow(manager, args):
                 if not args.quiet:
                     print("\n🌐 第二步: 基于热门关键词进行多平台关键词发现...")
                 
-                # 获取前10个热门关键词作为种子
-                seed_keywords = trending_df['query'].head(10).tolist()
-                
+                # 选取机会分最高的关键词作为种子
+                seed_keywords: List[str] = []
+                if isinstance(hot_result, dict) and hot_result.get('keywords'):
+                    sorted_keywords = sorted(
+                        (kw for kw in hot_result['keywords'] if kw.get('keyword')),
+                        key=lambda kw: kw.get('opportunity_score', 0),
+                        reverse=True
+                    )
+                    seed_keywords = [kw['keyword'] for kw in sorted_keywords[:max_seed_keywords]]
+
+                if len(seed_keywords) < max_seed_keywords and 'query' in trending_df.columns:
+                    fallback_candidates: List[str] = [
+                        kw for kw in trending_df['query'].tolist()
+                        if kw and kw not in seed_keywords
+                    ]
+                    seed_keywords.extend(fallback_candidates[:max_seed_keywords - len(seed_keywords)])
+
+                seed_keywords = [kw for kw in seed_keywords if kw][:max_seed_keywords]
+                if not seed_keywords:
+                    if not args.quiet:
+                        print("⚠️ 未找到有效的种子关键词，跳过多平台关键词发现。")
+                        print("💡 建议检查第一步结果，或使用 --input 指定本地关键词文件。")
+                    return True
+
                 # 执行多平台关键词发现
                 discovery_tool = MultiPlatformKeywordDiscovery()
-                
+
                 if not args.quiet:
                     print(f"🔍 正在发现与 {len(seed_keywords)} 个关键词相关的关键词...")
                 
@@ -627,12 +656,11 @@ def handle_all_workflow(manager, args):
                         prioritized_df = counts
                     prioritized_df['score'] = prioritized_df['score'].fillna(0)
                     prioritized_df['keyword'] = prioritized_df['keyword'].astype(str)
-                    max_keywords = 150
-                    unique_keywords = prioritized_df['keyword'].head(max_keywords).tolist()
+                    unique_keywords = prioritized_df['keyword'].head(max_discovered_keywords).tolist()
 
                 if unique_keywords:
                     if not args.quiet and prioritized_df is not None and len(prioritized_df) > len(unique_keywords):
-                        print(f"⚖️ 已按得分筛选前 {len(unique_keywords)} 个关键词用于最终分析")
+                        print(f"⚖️ 已按得分筛选前 {len(unique_keywords)} 个关键词用于最终分析 (上限 {max_discovered_keywords})")
                     # 创建发现关键词的CSV文件
                     discovered_df = pd.DataFrame([
                         {'keyword': kw} for kw in unique_keywords
@@ -689,12 +717,13 @@ def handle_all_workflow(manager, args):
                 os.unlink(temp_file)
         
         else:
-            print("❌ 无法获取热门关键词，工作流程终止")
-            print("💡 建议:")
-            print("   1. 检查网络连接")
-            print("   2. 稍后重试")
-            print("   3. 或使用其他参数进行分析")
-            sys.exit(1)
+            if not args.quiet:
+                print("❌ 无法获取热门关键词，工作流程终止")
+                print("💡 建议:")
+                print("   1. 检查网络连接")
+                print("   2. 稍后重试")
+                print("   3. 或使用其他参数进行分析")
+            return True
     
     except Exception as e:
         print(f"❌ 完整工作流程执行时出错: {e}")

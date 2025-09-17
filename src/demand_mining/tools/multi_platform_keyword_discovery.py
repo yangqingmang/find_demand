@@ -8,6 +8,7 @@
 import requests
 import json
 import time
+import random
 import re
 from datetime import datetime
 from typing import Dict, List, Any
@@ -29,6 +30,10 @@ class MultiPlatformKeywordDiscovery:
         self.session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
         })
+
+        self.request_timeout = 10
+        self.max_retries = 3
+        self.retry_backoff = (1, 3)
         
         # 加载配置
         self.config = get_config()
@@ -58,7 +63,27 @@ class MultiPlatformKeywordDiscovery:
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             }
-        
+
+        # 请求控制参数
+        self._retry_enabled = True
+
+    def _request_with_retry(self, method: str, url: str, **kwargs) -> requests.Response:
+        """对外部请求增加超时与重试机制"""
+        kwargs.setdefault('timeout', self.request_timeout)
+        attempt = 0
+        while True:
+            attempt += 1
+            try:
+                request_func = getattr(self.session, method)
+                response = request_func(url, **kwargs)
+                response.raise_for_status()
+                return response
+            except requests.RequestException as exc:
+                if not self._retry_enabled or attempt >= self.max_retries:
+                    raise
+                sleep_for = random.uniform(*self.retry_backoff)
+                time.sleep(sleep_for)
+
         # AI相关subreddit列表
         self.ai_subreddits = [
             'artificial', 'MachineLearning', 'deeplearning', 'ChatGPT',
@@ -81,9 +106,8 @@ class MultiPlatformKeywordDiscovery:
         try:
             # 获取热门帖子
             url = f"https://www.reddit.com/r/{subreddit}/hot.json?limit={limit}"
-            response = self.session.get(url)
-            response.raise_for_status()
-            
+            response = self._request_with_retry('get', url)
+
             data = response.json()
             posts = data.get('data', {}).get('children', [])
             
@@ -135,9 +159,8 @@ class MultiPlatformKeywordDiscovery:
                 'hitsPerPage': 100
             }
             
-            response = self.session.get(url, params=params)
-            response.raise_for_status()
-            
+            response = self._request_with_retry('get', url, params=params)
+
             data = response.json()
             hits = data.get('hits', [])
             
@@ -181,9 +204,8 @@ class MultiPlatformKeywordDiscovery:
                 'q': search_term
             }
             
-            response = self.session.get(url, params=params)
-            response.raise_for_status()
-            
+            response = self._request_with_retry('get', url, params=params)
+
             # 解析响应 (JSONP格式)
             content = response.text
             if content.startswith('window.google.ac.h('):
@@ -224,9 +246,8 @@ class MultiPlatformKeywordDiscovery:
                 'q': search_term
             }
             
-            response = self.session.get(url, params=params)
-            response.raise_for_status()
-            
+            response = self._request_with_retry('get', url, params=params)
+
             data = response.json()
             suggestions = data[1] if len(data) > 1 else []
             
@@ -288,7 +309,8 @@ class MultiPlatformKeywordDiscovery:
                 "first": 50
             }
             
-            response = self.session.post(
+            response = self._request_with_retry(
+                'post',
                 self.platforms['producthunt']['base_url'],
                 headers=self.ph_headers,
                 json={
@@ -296,8 +318,7 @@ class MultiPlatformKeywordDiscovery:
                     'variables': variables
                 }
             )
-            response.raise_for_status()
-            
+
             data = response.json()
             
             if 'data' in data and 'posts' in data['data']:
