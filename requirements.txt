@@ -62,3 +62,7 @@ pytest-cov>=2.12.0
 # 部署工具
 # 注意：Vercel CLI 需要通过 npm install -g vercel 安装
 # 注意：Node.js 和 npm 是 Vercel 部署的前置要求
+
+datasketch>=1.5.0
+scikit-learn>=1.0.0
+sentence-transformers>=2.2.0
