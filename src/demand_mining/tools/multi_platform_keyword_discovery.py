@@ -67,6 +67,19 @@ class MultiPlatformKeywordDiscovery:
         # 请求控制参数
         self._retry_enabled = True
 
+        # AI相关subreddit列表
+        self.ai_subreddits = [
+            'artificial', 'MachineLearning', 'deeplearning', 'ChatGPT',
+            'OpenAI', 'artificial_intelligence', 'singularity', 'Futurology',
+            'programming', 'webdev', 'entrepreneur', 'SaaS', 'startups'
+        ]
+        
+        # 关键词提取模式（用于论坛/新闻原始文本）
+        self.keyword_patterns = [
+            r'\b(?:ai|artificial intelligence|machine learning|deep learning|neural network)\b',
+            r'\b(?:tool|software|app|platform|service|solution)\b'
+        ]
+
     def _request_with_retry(self, method: str, url: str, **kwargs) -> requests.Response:
         """对外部请求增加超时与重试机制"""
         kwargs.setdefault('timeout', self.request_timeout)
@@ -84,19 +97,6 @@ class MultiPlatformKeywordDiscovery:
                 sleep_for = random.uniform(*self.retry_backoff)
                 time.sleep(sleep_for)
 
-        # AI相关subreddit列表
-        self.ai_subreddits = [
-            'artificial', 'MachineLearning', 'deeplearning', 'ChatGPT',
-            'OpenAI', 'artificial_intelligence', 'singularity', 'Futurology',
-            'programming', 'webdev', 'entrepreneur', 'SaaS', 'startups'
-        ]
-        
-        # 关键词提取模式（用于论坛/新闻原始文本）
-        self.keyword_patterns = [
-            r'\b(?:ai|artificial intelligence|machine learning|deep learning|neural network)\b',
-            r'\b(?:tool|software|app|platform|service|solution)\b'
-        ]
-    
     def discover_reddit_keywords(self, subreddit: str, limit: int = 100) -> List[Dict]:
         """从Reddit发现关键词"""
         print(f"🔍 正在分析 Reddit r/{subreddit}...")

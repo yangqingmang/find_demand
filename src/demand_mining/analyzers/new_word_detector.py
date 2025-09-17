@@ -293,42 +293,44 @@ class NewWordDetector(BaseAnalyzer):
         for i in range(0, len(keywords), batch_size):
             batch_keywords = keywords[i:i + batch_size]
             batch_indices = data.index[i:i + batch_size]
-            
+
             for j, keyword in enumerate(batch_keywords):
                 idx = batch_indices[j]
                 row = data.loc[idx]
-                
+
                 # 获取历史数据
                 historical_data = self.get_historical_data(keyword)
-                
+
                 # 计算新词得分
                 score = self.calculate_new_word_score(historical_data)
-                
+
                 # 获取新词等级
                 grade = self.get_new_word_grade(score)
-                
-                # 添加结果
-            result = {
-                'keyword': keyword,
-                'new_word_score': score,
-                'new_word_grade': grade,
-                'is_new_word': score >= 60,  # 添加is_new_word字段
-                'confidence_level': 'high' if score >= 80 else 'medium' if score >= 60 else 'low',  # 添加confidence_level字段
-                'grade_description': self.new_word_grades[grade]['description'],
-                'avg_12m': historical_data.get('avg_12m', 0),
-                'avg_90d': historical_data.get('avg_90d', 0),
-                'avg_30d': historical_data.get('avg_30d', 0),
-                'avg_7d': historical_data.get('avg_7d', 0),
-                'recent_trend': historical_data.get('recent_trend', [])
-            }
-            
-            results.append(result)
-            
-            # 批次间添加短暂间隔，避免429错误
+
+                result = {
+                    'keyword': keyword,
+                    'new_word_score': score,
+                    'new_word_grade': grade,
+                    'is_new_word': score >= 60,
+                    'confidence_level': 'high' if score >= 80 else 'medium' if score >= 60 else 'low',
+                    'grade_description': self.new_word_grades[grade]['description'],
+                    'avg_12m': historical_data.get('avg_12m', 0),
+                    'avg_90d': historical_data.get('avg_90d', 0),
+                    'avg_30d': historical_data.get('avg_30d', 0),
+                    'avg_7d': historical_data.get('avg_7d', 0),
+                    'recent_trend': historical_data.get('recent_trend', [])
+                }
+
+                results.append(result)
+
+                if j < len(batch_keywords) - 1:
+                    import time
+                    time.sleep(0.2)
+
             if i + batch_size < len(keywords):
                 import time
                 time.sleep(0.3)
-        
+
         # 转换为DataFrame
         new_word_df = pd.DataFrame(results)
         
