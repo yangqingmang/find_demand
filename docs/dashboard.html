@@ -1,0 +1,591 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>需求洞察仪表盘</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <style>
+        :root {
+            color-scheme: light dark;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            padding: 24px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.25rem;
+        }
+        h2 {
+            font-size: 1.25rem;
+            margin: 0 0 0.75rem;
+        }
+        a {
+            color: #38bdf8;
+        }
+        .layout {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(56, 189, 248, 0.15);
+            color: #bae6fd;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+        }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .card {
+            background: rgba(148, 163, 184, 0.08);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 16px;
+            padding: 18px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.25);
+        }
+        .card h3 {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+        .card .value {
+            margin-top: 10px;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+        .card small {
+            display: block;
+            margin-top: 10px;
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+        .section {
+            margin-bottom: 32px;
+        }
+        .section-content {
+            display: grid;
+            gap: 16px;
+        }
+        canvas {
+            width: 100% !important;
+            background: rgba(15, 23, 42, 0.35);
+            border-radius: 14px;
+            padding: 16px;
+        }
+        .flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .flex > .card {
+            flex: 1 1 280px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(148, 163, 184, 0.08);
+            border-radius: 18px;
+            overflow: hidden;
+        }
+        thead {
+            background: rgba(148, 163, 184, 0.12);
+        }
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        tbody tr:nth-child(even) {
+            background: rgba(148, 163, 184, 0.05);
+        }
+        tbody tr + tr {
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
+        }
+        .list {
+            margin: 0;
+            padding-left: 18px;
+            display: grid;
+            gap: 8px;
+        }
+        .muted {
+            color: #94a3b8;
+        }
+        .error {
+            background: rgba(248, 113, 113, 0.2);
+            border: 1px solid rgba(248, 113, 113, 0.35);
+            color: #fecaca;
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        button.refresh {
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            color: #e0f2fe;
+            padding: 8px 16px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        button.refresh:hover {
+            background: rgba(56, 189, 248, 0.25);
+        }
+        @media (max-width: 720px) {
+            body {
+                padding: 16px;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <div class="header">
+            <div>
+                <h1>需求洞察仪表盘</h1>
+                <div id="lastUpdated" class="muted">加载中...</div>
+            </div>
+            <div class="actions">
+                <button class="refresh" type="button" onclick="loadDashboard()">刷新数据</button>
+            </div>
+        </div>
+        <div id="error" class="error" style="display:none;"></div>
+        <div class="cards" id="summaryCards"></div>
+
+        <section class="section" id="historySection">
+            <h2>趋势概览</h2>
+            <div class="section-content">
+                <canvas id="avgScoreChart" height="140"></canvas>
+                <canvas id="highCountChart" height="140"></canvas>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Top 关键词 (机会分)</h2>
+            <div class="section-content">
+                <canvas id="topKeywordsChart" height="240"></canvas>
+                <div class="card">
+                    <h3>Top 15 关键词详情</h3>
+                    <small>包含搜索量、竞争度与意图信息</small>
+                    <div style="overflow-x:auto; margin-top:12px;">
+                        <table id="topKeywordsTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>关键词</th>
+                                    <th>机会分</th>
+                                    <th>搜索量</th>
+                                    <th>竞争度</th>
+                                    <th>意图</th>
+                                    <th>置信度</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>意图分布与新词</h2>
+            <div class="section-content flex">
+                <div class="card">
+                    <h3>搜寻意图分布</h3>
+                    <canvas id="intentChart" height="180"></canvas>
+                </div>
+                <div class="card">
+                    <h3>新词侦测</h3>
+                    <div id="newWordSummary" class="muted"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>阶段摘要</h2>
+            <div class="section-content flex">
+                <div class="card">
+                    <h3>机会段位</h3>
+                    <div id="segmentSummary"></div>
+                </div>
+                <div class="card">
+                    <h3>最新发现关键词</h3>
+                    <div id="discoveredKeywords" class="muted"></div>
+                </div>
+                <div class="card">
+                    <h3>执行建议</h3>
+                    <ul id="recommendations" class="list"></ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>数据来源</h2>
+            <div class="card">
+                <div id="sourceFiles" class="muted"></div>
+                <small>提示：请使用 <code>python -m http.server</code> 在仓库根目录启动本地服务，以避免浏览器阻止本地文件读取。</small>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        let avgScoreChart;
+        let highCountChart;
+        let topKeywordsChart;
+        let intentChart;
+
+        function cleanupCharts() {
+            [avgScoreChart, highCountChart, topKeywordsChart, intentChart].forEach(chart => {
+                if (chart) {
+                    chart.destroy();
+                }
+            });
+        }
+
+        function formatNumber(value) {
+            if (value === null || value === undefined) return '—';
+            if (typeof value !== 'number') return value;
+            if (value >= 10000) {
+                return (value / 1000).toFixed(1) + 'k';
+            }
+            return value.toLocaleString();
+        }
+
+        function truncateLabel(text, maxLength = 50) {
+            return text.length > maxLength ? text.slice(0, maxLength - 1) + '…' : text;
+        }
+
+        async function loadDashboard() {
+            const errorEl = document.getElementById('error');
+            errorEl.style.display = 'none';
+            errorEl.textContent = '';
+
+            try {
+                const response = await fetch('../output/reports/dashboard_data.json?_=' + Date.now());
+                if (!response.ok) {
+                    throw new Error('无法读取 dashboard_data.json，请确认已运行数据汇总脚本。');
+                }
+                const data = await response.json();
+                if (!data || !data.last_updated) {
+                    throw new Error(data.message || 'dashboard_data.json 内容为空。');
+                }
+                renderDashboard(data);
+            } catch (err) {
+                console.error(err);
+                errorEl.style.display = 'block';
+                errorEl.textContent = err.message;
+            }
+        }
+
+        function renderDashboard(data) {
+            cleanupCharts();
+
+            const lastUpdatedEl = document.getElementById('lastUpdated');
+            const updated = new Date(data.last_updated);
+            lastUpdatedEl.textContent = `最新更新时间：${updated.toLocaleString()}`;
+
+            renderSummaryCards(data);
+            renderHistoryCharts(data.history || []);
+            renderTopKeywords(data.top_keywords || []);
+            renderIntentChart(data.intent_summary || {});
+            renderNewWordSummary(data.new_word_summary || {});
+            renderSegmentSummary(data.opportunity_segments || {});
+            renderRecommendations(data.recommendations || []);
+            renderDiscoveredKeywords(data.discovered_keywords || []);
+            renderSourceFiles(data.source_files || {});
+        }
+
+                function renderSummaryCards(data) {
+            const container = document.getElementById('summaryCards');
+            const summary = data.summary || {};
+            container.innerHTML = '';
+
+            const avgScoreValue = typeof summary.avg_opportunity_score === 'number'
+                ? summary.avg_opportunity_score.toFixed(2)
+                : formatNumber(summary.avg_opportunity_score);
+
+            const cards = [
+                { title: '关键词总量', value: formatNumber(summary.total_keywords) },
+                { title: '平均机会分', value: avgScoreValue },
+                { title: '高机会', value: formatNumber(summary.high_opportunity_count) },
+                { title: '中机会', value: formatNumber(summary.medium_opportunity_count) },
+                { title: '低机会', value: formatNumber(summary.low_opportunity_count) }
+            ];
+
+            cards.forEach(card => {
+                const el = document.createElement('div');
+                el.className = 'card';
+                el.innerHTML = `<h3>${card.title}</h3><div class="value">${card.value}</div>`;
+                container.appendChild(el);
+            });
+        }
+
+        function renderHistoryCharts(history) {
+            if (!history.length) {
+                document.getElementById('historySection').style.display = 'none';
+                return;
+            }
+            document.getElementById('historySection').style.display = '';
+
+            const labels = history.map(item => new Date(item.analysis_time).toLocaleString());
+            const avgScores = history.map(item => item.avg_opportunity_score || 0);
+            const highCounts = history.map(item => item.high_opportunity_count || 0);
+
+            const ctxScore = document.getElementById('avgScoreChart').getContext('2d');
+            avgScoreChart = new Chart(ctxScore, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: '平均机会分',
+                        data: avgScores,
+                        borderColor: '#38bdf8',
+                        backgroundColor: 'rgba(56, 189, 248, 0.25)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.35,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#94a3b8', maxTicksLimit: 6 }
+                        },
+                        y: {
+                            ticks: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+
+            const ctxHigh = document.getElementById('highCountChart').getContext('2d');
+            highCountChart = new Chart(ctxHigh, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: '高机会关键词数量',
+                        data: highCounts,
+                        borderRadius: 8,
+                        backgroundColor: 'rgba(129, 140, 248, 0.75)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#94a3b8', maxTicksLimit: 6 }
+                        },
+                        y: {
+                            ticks: { color: '#94a3b8' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTopKeywords(topKeywords) {
+            const labels = topKeywords.map(item => truncateLabel(item.keyword, 40));
+            const scores = topKeywords.map(item => item.opportunity_score || 0);
+
+            const ctx = document.getElementById('topKeywordsChart').getContext('2d');
+            topKeywordsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: '机会分',
+                        data: scores,
+                        backgroundColor: 'rgba(45, 212, 191, 0.75)',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#94a3b8' }
+                        },
+                        y: {
+                            ticks: { color: '#94a3b8', autoSkip: false }
+                        }
+                    }
+                }
+            });
+
+            const tbody = document.querySelector('#topKeywordsTable tbody');
+            tbody.innerHTML = '';
+            topKeywords.forEach((item, index) => {
+                const scoreDisplay = typeof item.opportunity_score === 'number'
+                    ? item.opportunity_score.toFixed(2)
+                    : formatNumber(item.opportunity_score);
+                const competitionDisplay = item.competition !== undefined && item.competition !== null
+                    ? item.competition
+                    : '—';
+                const intentDisplay = item.primary_intent || '—';
+                const confidenceDisplay = typeof item.confidence === 'number'
+                    ? (item.confidence * 100).toFixed(0) + '%'
+                    : '—';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${item.keyword}</td>
+                    <td>${scoreDisplay}</td>
+                    <td>${formatNumber(item.search_volume)}</td>
+                    <td>${competitionDisplay}</td>
+                    <td>${intentDisplay}</td>
+                    <td>${confidenceDisplay}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function renderIntentChart(summary) {
+            const labels = Object.keys(summary.intent_distribution || {});
+            const data = Object.values(summary.intent_distribution || {});
+
+            const ctx = document.getElementById('intentChart').getContext('2d');
+            intentChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels,
+                    datasets: [{
+                        data,
+                        backgroundColor: [
+                            'rgba(248, 113, 113, 0.85)',
+                            'rgba(129, 140, 248, 0.85)',
+                            'rgba(96, 165, 250, 0.85)',
+                            'rgba(52, 211, 153, 0.85)',
+                            'rgba(249, 168, 212, 0.85)'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#cbd5f5' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderNewWordSummary(summary) {
+            const container = document.getElementById('newWordSummary');
+            if (!summary || !summary.total_analyzed) {
+                container.textContent = '暂无新词分析数据。';
+                return;
+            }
+            container.innerHTML = `
+                <p>总计分析：<strong>${formatNumber(summary.total_analyzed)}</strong> 个关键词</p>
+                <p>发现新词：<strong>${formatNumber(summary.new_words_detected)}</strong></p>
+                <p>高置信新词：<strong>${formatNumber(summary.high_confidence_new_words)}</strong></p>
+                <p>新词占比：<strong>${summary.new_word_percentage ?? 0}%</strong></p>
+            `;
+        }
+
+        function renderSegmentSummary(segments) {
+            const container = document.getElementById('segmentSummary');
+            const keys = Object.keys(segments);
+            if (!keys.length) {
+                container.textContent = '暂无机会段位统计。';
+                return;
+            }
+            container.innerHTML = keys.map(bucket => {
+                const data = segments[bucket];
+                const samples = (data.sample || []).map(item => `<li>${item.keyword} <span class="muted">(${item.score})</span></li>`).join('');
+                return `
+                    <div style="margin-bottom:16px;">
+                        <strong>${bucket.toUpperCase()}</strong>
+                        <p class="muted">数量：${formatNumber(data.count)}</p>
+                        ${samples ? `<ul class="list">${samples}</ul>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderRecommendations(recommendations) {
+            const container = document.getElementById('recommendations');
+            container.innerHTML = '';
+            if (!recommendations.length) {
+                container.innerHTML = '<li class="muted">暂无建议</li>';
+                return;
+            }
+            recommendations.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                container.appendChild(li);
+            });
+        }
+
+        function renderDiscoveredKeywords(keywords) {
+            const container = document.getElementById('discoveredKeywords');
+            if (!keywords.length) {
+                container.textContent = '暂无最新发现。';
+                return;
+            }
+            const list = keywords.slice(0, 20).map(keyword => `<li>${keyword}</li>`).join('');
+            container.innerHTML = `<ul class="list">${list}</ul>`;
+        }
+
+        function renderSourceFiles(files) {
+            const container = document.getElementById('sourceFiles');
+            const items = [];
+            if (files.analysis) {
+                items.push(`<div>分析结果：<code>${files.analysis}</code></div>`);
+            }
+            if (files.discovered_keywords) {
+                items.push(`<div>发现关键词列表：<code>${files.discovered_keywords}</code></div>`);
+            }
+            container.innerHTML = items.join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadDashboard);
+    </script>
+</body>
+</html>
+
+

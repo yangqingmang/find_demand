@@ -18,7 +18,7 @@ from src.demand_mining_manager import IntegratedDemandMiningManager
 from src.command_handlers import (
     handle_stats_display, handle_input_file_analysis, handle_keywords_analysis,
     handle_discover_analysis, handle_enhanced_features, handle_hot_keywords,
-    handle_all_workflow, handle_demand_validation
+    handle_all_workflow, handle_demand_validation, refresh_dashboard_data
 )
 
 
@@ -44,6 +44,7 @@ def main():
             return
         
         if handle_input_file_analysis(manager, args):
+            refresh_dashboard_data(args.output)
             return
         
         elif handle_keywords_analysis(manager, args):
@@ -52,6 +53,7 @@ def main():
                 print("\n📈 关键词分析完成，现在执行趋势预测...")
                 time.sleep(3)  # 添加间隔避免API冲突
                 handle_enhanced_features(manager, args)
+            refresh_dashboard_data(args.output)
             return
         
         elif handle_discover_analysis(manager, args):
@@ -89,6 +91,7 @@ def main():
                     print("\n🏆 Top 5 热门词根:")
                     for i, word_data in enumerate(top_words, 1):
                         print(f"   {i}. {word_data['word']}: 平均兴趣度 {word_data['average_interest']:.1f}")
+            refresh_dashboard_data(args.output)
         
         elif handle_hot_keywords(manager, args):
             return
@@ -161,6 +164,7 @@ def main():
             return
         
         elif handle_all_workflow(manager, args):
+            refresh_dashboard_data(args.output)
             return
         
         elif args.expand:

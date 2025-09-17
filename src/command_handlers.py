@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 命令处理器模块
@@ -8,6 +8,8 @@
 import os
 import sys
 import tempfile
+import json
+from pathlib import Path
 import pandas as pd
 from datetime import datetime
 from typing import Dict, Any, List
@@ -15,7 +17,7 @@ from typing import Dict, Any, List
 # 添加src目录到Python路径
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
 
-from src.cli_parser import print_quiet_summary
+from src.cli_parser import print_quiet_summary, get_reports_dir
 from src.utils.enhanced_features import (
     monitor_competitors, predict_keyword_trends, generate_seo_audit,
     batch_build_websites
@@ -852,3 +854,26 @@ def handle_demand_validation(manager, args):
         if args.verbose:
             import traceback
             traceback.print_exc()
+
+def refresh_dashboard_data(output_dir: str, history_size: int = 20) -> None:
+    """Refresh aggregated dashboard data after primary workflows finish."""
+    try:
+        from src.utils.dashboard_data_builder import generate_dashboard_payload
+        from src.utils.file_utils import ensure_directory_exists
+
+        target_dir = Path(output_dir or get_reports_dir()).resolve()
+        ensure_directory_exists(str(target_dir))
+
+        payload = generate_dashboard_payload(target_dir, history_size=history_size)
+        dashboard_path = target_dir / "dashboard_data.json"
+        with dashboard_path.open("w", encoding="utf-8") as f:
+            json.dump(payload, f, ensure_ascii=False, indent=2)
+
+        if payload.get("last_updated"):
+            print(f"[Dashboard] 数据已刷新: {dashboard_path}")
+        else:
+            print("[Dashboard] 仪表盘已更新，但尚未检测到有效的分析结果。")
+    except Exception as exc:
+        print(f"[Dashboard] 刷新仪表盘数据失败: {exc}")
+
+
