@@ -10,6 +10,7 @@ import sys
 import tempfile
 import json
 from pathlib import Path
+import re
 import pandas as pd
 from datetime import datetime
 from typing import Dict, Any, List
@@ -40,6 +41,47 @@ def handle_stats_display(manager, args):
         return True
     return False
 
+
+
+STOPWORD_PATTERNS = [
+    r'\b(news|weather|today|tomorrow|yesterday)\b',
+    r'\b(login|signup|account|app|download|logo|price|stock|settlement|marketplace)\b',
+    r'\b(live stream|live score|highlights|match result|match results|score)\b',
+    r'\b(facebook|instagram|tiktok|youtube|twitter|google|bing|reddit)\b',
+]
+
+
+def _filter_trending_keywords(df):
+    """对热门候选词做基础去噪过滤"""
+    if df is None or df.empty:
+        return df
+
+    if 'query' not in df.columns:
+        return df
+
+    filtered = df.copy()
+    filtered['query'] = filtered['query'].astype(str)
+    filtered['query_lower'] = filtered['query'].str.lower().str.strip()
+
+    initial_count = len(filtered)
+
+    # 过滤过短或非字母数字的词
+    filtered = filtered[filtered['query_lower'].str.len() >= 3]
+    filtered = filtered[~filtered['query_lower'].str.match(r'^[\d\W_]+$')]
+
+    # 常见品牌/泛词去噪
+    for pattern in STOPWORD_PATTERNS:
+        filtered = filtered[~filtered['query_lower'].str.contains(pattern, regex=True)]
+
+    # 去重
+    filtered = filtered.drop_duplicates(subset=['query_lower']).reset_index(drop=True)
+    filtered = filtered.drop(columns=['query_lower'])
+
+    removed = initial_count - len(filtered)
+    if removed > 0:
+        print(f'[Filter] 已过滤 {removed} 条低质量热门词')
+
+    return filtered
 
 def handle_input_file_analysis(manager, args):
     """处理关键词文件分析"""
@@ -552,6 +594,11 @@ def handle_all_workflow(manager, args):
             
             # 限制总数量
             trending_df = trending_df.head(25)
+            filtered_trending = _filter_trending_keywords(trending_df)
+            if not filtered_trending.empty:
+                trending_df = filtered_trending
+            else:
+                print("[Filter] 热门关键词过滤后为空，继续使用未过滤结果")
             
             if not args.quiet:
                 print(f"🎯 合并后总计: {len(trending_df)} 个关键词")
