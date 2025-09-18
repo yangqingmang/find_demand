@@ -3,7 +3,6 @@
 """竞争对手分析器 - 用于分析关键词的竞争对手情况和竞争强度"""
 
 import pandas as pd
-import numpy as np
 from typing import Dict, List, Optional
 from urllib.parse import urlparse
 from .base_analyzer import BaseAnalyzer
@@ -107,129 +106,49 @@ class CompetitorAnalyzer(BaseAnalyzer):
     
     def _get_mock_competitors(self, category: str) -> List[Dict]:
         """根据类别获取模拟竞争对手"""
-        competitors_map = {
-            'ai': [{'rank': 1, 'domain': 'openai.com', 'authority': 85},
-                   {'rank': 2, 'domain': 'github.com', 'authority': 95}],
-            'tool': [{'rank': 1, 'domain': 'canva.com', 'authority': 82},
-                     {'rank': 2, 'domain': 'github.com', 'authority': 95}],
-            'tutorial': [{'rank': 1, 'domain': 'youtube.com', 'authority': 98},
-                         {'rank': 2, 'domain': 'medium.com', 'authority': 88}],
-            'general': [{'rank': 1, 'domain': 'wikipedia.org', 'authority': 96},
-                        {'rank': 2, 'domain': 'reddit.com', 'authority': 92}]
-        }
-        return competitors_map.get(category, competitors_map['general'])
+        raise RuntimeError("竞争对手数据源未配置，无法提供模拟数据")
     
     def analyze_serp_competition(self, keyword: str) -> Dict:
         """分析SERP竞争情况"""
-        if self.serp_analyzer:
-            try:
-                # 使用增强的SERP结构分析
-                serp_result = self.serp_analyzer.analyze_serp_structure(keyword)
-                if serp_result and 'competitors' in serp_result:
-                    # 从增强分析结果中提取竞争对手信息
-                    competitors = []
-                    for comp in serp_result['competitors'][:10]:
-                        competitors.append({
-                            'domain': comp['domain'],
-                            'url': comp['url'],
-                            'title': comp['title'],
-                            'position': comp['position'],
-                            'domain_authority': comp['domain_authority'],
-                            'competitor_type': comp['competitor_type']
-                        })
-                    
-                    # 计算竞争评分（基于增强分析的难度评分）
-                    competition_score = min(100, serp_result['difficulty_score'] * 100)
-                    
-                    return {
-                        'keyword': keyword,
-                        'competitors': competitors,
-                        'competition_score': competition_score,
-                        'competition_level': serp_result['competition_level'],
-                        'serp_features': serp_result['structure']
-                    }
-                
-                # 如果增强分析失败，回退到原有逻辑
-                serp_data = self.serp_analyzer._get_search_results(keyword) if hasattr(self.serp_analyzer, '_get_search_results') else None
-                if serp_data and 'items' in serp_data:
-                    competitors = []
-                    for i, item in enumerate(serp_data['items'][:10]):
-                        domain = urlparse(item['link']).netloc
-                        competitors.append({
-                            'rank': i + 1, 'domain': domain,
-                            'authority': self.get_domain_authority(domain)
-                        })
-                    
-                    avg_authority = np.mean([c['authority'] for c in competitors])
-                    score = min(100, avg_authority * 0.8 + len(competitors) * 2)
-                    
-                    return {
-                        'serp_score': round(score, 1),
-                        'avg_domain_authority': round(avg_authority, 1),
-                        'total_results': len(competitors),
-                        'top_competitors': competitors[:5]
-                    }
-            except Exception as e:
-                self.logger.warning(f"SERP分析失败: {e}")
-        
-        # 模拟数据
-        category = self._get_keyword_category(keyword)
-        score_ranges = {'ai': (70, 95), 'tool': (50, 75), 'tutorial': (40, 70), 'commercial': (60, 85), 'general': (30, 60)}
-        score = np.random.uniform(*score_ranges[category])
-        competitors = self._get_mock_competitors(category)
-        
+        if not self.serp_analyzer:
+            raise RuntimeError("SERP 分析器未启用，无法执行竞争对手分析")
+
+        try:
+            serp_result = self.serp_analyzer.analyze_serp_structure(keyword)
+        except Exception as exc:
+            raise RuntimeError(f"获取关键词 '{keyword}' 的 SERP 结构失败: {exc}") from exc
+
+        if not serp_result or 'competitors' not in serp_result:
+            raise RuntimeError(f"SERP 分析未返回竞争对手信息: {keyword}")
+
+        competitors = []
+        for comp in serp_result['competitors'][:10]:
+            competitors.append({
+                'domain': comp['domain'],
+                'url': comp['url'],
+                'title': comp['title'],
+                'position': comp['position'],
+                'domain_authority': comp['domain_authority'],
+                'competitor_type': comp['competitor_type']
+            })
+
+        competition_score = min(100, serp_result['difficulty_score'] * 100)
+
         return {
-            'serp_score': round(score, 1),
-            'avg_domain_authority': round(np.mean([c['authority'] for c in competitors]), 1),
-            'total_results': 10,
-            'top_competitors': competitors
+            'keyword': keyword,
+            'competitors': competitors,
+            'competition_score': competition_score,
+            'competition_level': serp_result['competition_level'],
+            'serp_features': serp_result['structure']
         }
     
     def analyze_content_competition(self, keyword: str) -> Dict:
         """分析内容竞争情况"""
-        category = self._get_keyword_category(keyword)
-        
-        config = {
-            'ai': {'score': 70, 'quality': 'high', 'depth': 'comprehensive'},
-            'tool': {'score': 60, 'quality': 'medium', 'depth': 'moderate'},
-            'tutorial': {'score': 65, 'quality': 'high', 'depth': 'detailed'},
-            'commercial': {'score': 75, 'quality': 'high', 'depth': 'comprehensive'},
-            'general': {'score': 50, 'quality': 'medium', 'depth': 'basic'}
-        }
-        
-        base_config = config.get(category, config['general'])
-        score = base_config['score'] + np.random.uniform(-10, 10)
-        
-        return {
-            'content_score': round(max(10, min(100, score)), 1),
-            'content_quality': base_config['quality'],
-            'content_depth': base_config['depth'],
-            'estimated_word_count': np.random.randint(800, 3000),
-            'multimedia_usage': np.random.choice(['low', 'medium', 'high'], p=[0.3, 0.5, 0.2])
-        }
+        raise RuntimeError("内容竞争分析需要接入真实内容质量数据，目前未实现")
     
     def analyze_backlink_competition(self, keyword: str) -> Dict:
         """分析反向链接竞争情况"""
-        category = self._get_keyword_category(keyword)
-        
-        config = {
-            'ai': {'score': (70, 95), 'backlinks': (1000, 10000), 'quality': 'high'},
-            'tool': {'score': (40, 70), 'backlinks': (100, 1000), 'quality': 'medium'},
-            'tutorial': {'score': (30, 60), 'backlinks': (50, 500), 'quality': 'medium'},
-            'commercial': {'score': (50, 80), 'backlinks': (200, 2000), 'quality': 'high'},
-            'general': {'score': (20, 50), 'backlinks': (10, 200), 'quality': 'low'}
-        }
-        
-        base_config = config.get(category, config['general'])
-        score = np.random.uniform(*base_config['score'])
-        backlinks = np.random.randint(*base_config['backlinks'])
-        
-        return {
-            'backlink_score': round(score, 1),
-            'avg_backlinks': backlinks,
-            'link_quality': base_config['quality'],
-            'referring_domains': np.random.randint(backlinks // 10, backlinks // 5)
-        }
+        raise RuntimeError("反向链接竞争分析需要接入真实外链数据，目前未实现")
     
     def _get_competition_level(self, score: float) -> str:
         """根据评分获取竞争等级"""
@@ -249,34 +168,15 @@ class CompetitorAnalyzer(BaseAnalyzer):
     
     def analyze_competitor_gaps(self, keyword: str, competitors: List[Dict]) -> Dict:
         """分析竞争对手的内容空白和机会"""
-        category = self._get_keyword_category(keyword)
-        
-        gaps_config = {
-            'tutorial': {'gaps': ['缺少视频教程', '缺少实际案例'], 'score': 20},
-            'tool': {'gaps': ['缺少在线工具', '缺少API接口'], 'score': 25},
-            'ai': {'gaps': ['缺少最新AI动态', '缺少应用案例'], 'score': 30},
-            'general': {'gaps': ['内容深度不足', '用户体验待优化'], 'score': 15}
-        }
-        
-        config = gaps_config.get(category, gaps_config['general'])
-        opportunity_score = config['score'] + 15  # 基础分
-        
-        # 根据竞争对手数量调整
-        if len(competitors) < 5:
-            opportunity_score += 20
-        elif len(competitors) > 8:
-            opportunity_score -= 10
-        
-        return {
-            'content_gaps': config['gaps'],
-            'opportunity_score': max(0, min(100, opportunity_score))
-        }
+        raise RuntimeError("竞品内容差距分析需要真实竞品语料，目前未实现")
     
     def analyze_competitors(self, df: pd.DataFrame, keyword_col: str = 'query') -> pd.DataFrame:
         """分析DataFrame中关键词的竞争对手情况"""
         if not self.validate_input(df, [keyword_col]):
             return df
-        
+
+        raise RuntimeError("竞争对手分析功能需要接入真实 SERP/SEO 数据，目前未实现")
+
         self.log_analysis_start("竞争对手分析", f"，共 {len(df)} 个关键词")
         result_df = df.copy()
         

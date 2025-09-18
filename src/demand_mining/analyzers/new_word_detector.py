@@ -37,6 +37,11 @@ except ImportError:
             return f"{prefix}_{timestamp}.{extension}"
 
 
+class TrendsDataUnavailable(Exception):
+    """Raised when Google Trends data cannot be retrieved for new word detection."""
+    pass
+
+
 class NewWordDetector(BaseAnalyzer):
     """新词检测器，用于识别具有新词特征的关键词"""
     
@@ -264,7 +269,7 @@ class NewWordDetector(BaseAnalyzer):
         """获取关键字的历史趋势数据，并带有内存/磁盘缓存及重试退避。"""
         keyword = keyword.strip() if keyword else ''
         if not keyword:
-            return self._empty_trend_result()
+            raise ValueError('Keyword is empty for new word detection')
 
         cache_key = f"trends_{keyword.lower()}"
         now = datetime.utcnow()
@@ -282,7 +287,11 @@ class NewWordDetector(BaseAnalyzer):
             stale_disk_data = disk_data
 
         if not self.trends_collector:
-            return stale_disk_data if stale_disk_data is not None else self._empty_trend_result()
+            if stale_disk_data is not None:
+                self.logger.warning(f'使用缓存趋势数据作为 {keyword} 的回退 (缺少实时收集器)')
+                self._trends_cache[cache_key] = {'data': stale_disk_data, 'timestamp': now}
+                return stale_disk_data
+            raise TrendsDataUnavailable(f'无法获取 {keyword} 的趋势数据：TrendsCollector 不可用')
 
         data_12m = self._fetch_trends_dataframe(keyword, 'today 12-m')
         if data_12m.empty:
@@ -290,11 +299,12 @@ class NewWordDetector(BaseAnalyzer):
 
         if data_12m.empty:
             if stale_disk_data is not None:
-                self.logger.warning(f"使用缓存趋势数据作为 {keyword} 的回退")
+                self.logger.warning(f'使用缓存趋势数据作为 {keyword} 的回退 (实时数据为空)')
                 self._trends_cache[cache_key] = {'data': stale_disk_data, 'timestamp': now}
                 return stale_disk_data
-            self.logger.warning(f"无法获取 {keyword} 的趋势数据，使用默认值")
-            return self._empty_trend_result()
+            message = f'无法获取 {keyword} 的趋势数据：Trends 接口返回空结果'
+            self.logger.error(message)
+            raise TrendsDataUnavailable(message)
 
         result = self._summarize_trends(keyword, data_12m)
         self._store_cache(cache_key, keyword, result)

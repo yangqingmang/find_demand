@@ -196,105 +196,23 @@ class APIQuotaManager:
     
     def _serpapi_fallback(self, **kwargs) -> pd.DataFrame:
         """SERP API降级方案：使用静态SERP特征数据"""
-        print("📋 使用SERP API降级方案：静态SERP特征")
-        
-        # 模拟SERP特征数据
-        fallback_data = [
-            {
-                "keyword": kwargs.get("keyword", "default"),
-                "serp_features": {
-                    "ads_count": 3,
-                    "organic_results": 10,
-                    "featured_snippet": False,
-                    "people_also_ask": True,
-                    "related_searches": True
-                },
-                "intent": "I",  # 信息性意图
-                "confidence": 0.6
-            }
-        ]
-        
-        return pd.DataFrame(fallback_data)
+        raise RuntimeError("SERP API 配额耗尽且未配置降级数据源，无法提供静态数据")
     
     def _google_ads_fallback(self, **kwargs) -> pd.DataFrame:
         """Google Ads API降级方案：使用估算数据"""
-        print("📋 使用Google Ads API降级方案：估算搜索量")
-        
-        keywords = kwargs.get("keywords", ["default"])
-        fallback_data = []
-        
-        for keyword in keywords:
-            # 基于关键词长度和常见性估算搜索量
-            estimated_volume = max(100, 10000 - len(keyword) * 100)
-            estimated_cpc = round(0.5 + len(keyword) * 0.1, 2)
-            
-            fallback_data.append({
-                "keyword": keyword,
-                "avg_monthly_searches": estimated_volume,
-                "competition": "MEDIUM",
-                "cpc_low": estimated_cpc,
-                "cpc_high": estimated_cpc * 2,
-                "source": "estimated"
-            })
-        
-        return pd.DataFrame(fallback_data)
+        raise RuntimeError("Google Ads API 降级数据未配置，无法返回估算搜索量")
     
     def _producthunt_fallback(self, **kwargs) -> pd.DataFrame:
         """ProductHunt API降级方案：使用缓存或静态数据"""
-        print("📋 使用ProductHunt API降级方案：静态产品数据")
-        
-        # 常见AI工具产品数据
-        fallback_products = [
-            {"name": "ChatGPT", "category": "AI Assistant", "votes": 5000},
-            {"name": "Midjourney", "category": "AI Art", "votes": 4500},
-            {"name": "Notion AI", "category": "Productivity", "votes": 4000},
-            {"name": "Canva AI", "category": "Design", "votes": 3500},
-            {"name": "Grammarly", "category": "Writing", "votes": 3000},
-        ]
-        
-        return pd.DataFrame(fallback_products)
+        raise RuntimeError("ProductHunt API 降级数据未配置，无法提供静态产品列表")
     
     def _google_search_fallback(self, **kwargs) -> pd.DataFrame:
         """Google Custom Search API降级方案：使用预定义结果"""
-        print("📋 使用Google Search API降级方案：预定义搜索结果")
-        
-        query = kwargs.get("query", "AI tools")
-        fallback_results = [
-            {
-                "title": f"Best {query} - Complete Guide",
-                "link": "https://example.com/guide",
-                "snippet": f"Comprehensive guide to {query} and related tools."
-            },
-            {
-                "title": f"Top 10 {query} in 2024",
-                "link": "https://example.com/top10",
-                "snippet": f"Discover the most popular {query} this year."
-            }
-        ]
-        
-        return pd.DataFrame(fallback_results)
+        raise RuntimeError("Google Search API 降级数据未配置，无法提供预定义搜索结果")
     
     def _ahrefs_fallback(self, **kwargs) -> pd.DataFrame:
         """Ahrefs API降级方案：使用估算SEO数据"""
-        print("📋 使用Ahrefs API降级方案：估算SEO指标")
-        
-        keywords = kwargs.get("keywords", ["default"])
-        fallback_data = []
-        
-        for keyword in keywords:
-            # 估算SEO指标
-            estimated_difficulty = min(100, max(10, len(keyword) * 5))
-            estimated_volume = max(50, 5000 - len(keyword) * 50)
-            
-            fallback_data.append({
-                "keyword": keyword,
-                "keyword_difficulty": estimated_difficulty,
-                "search_volume": estimated_volume,
-                "cpc": round(0.3 + len(keyword) * 0.05, 2),
-                "source": "estimated"
-            })
-        
-        return pd.DataFrame(fallback_data)
+        raise RuntimeError("Ahrefs API 降级数据未配置，无法提供估算指标")
     
     def get_quota_status(self) -> Dict[str, Dict]:
         """获取所有API的配额状态"""

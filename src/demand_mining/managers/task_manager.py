@@ -215,49 +215,7 @@ class TaskManager(BaseManager):
     
     def _get_candidate_keywords(self) -> List[Dict[str, Any]]:
         """获取候选关键词（模拟数据）"""
-        # 实际实现中应该从关键词分析结果、趋势数据等获取
-        return [
-            {
-                'keyword': 'ai image generator',
-                'trends_score': 0.8,
-                'serp_score': 0.6,
-                'business_value': 0.9,
-                'search_volume': 50000,
-                'competition': 0.7
-            },
-            {
-                'keyword': 'cat coloring pages',
-                'trends_score': 0.7,
-                'serp_score': 0.4,
-                'business_value': 0.6,
-                'search_volume': 30000,
-                'competition': 0.3
-            },
-            {
-                'keyword': 'pdf converter',
-                'trends_score': 0.6,
-                'serp_score': 0.8,
-                'business_value': 0.8,
-                'search_volume': 80000,
-                'competition': 0.9
-            },
-            {
-                'keyword': 'weather forecast',
-                'trends_score': 0.9,
-                'serp_score': 0.9,
-                'business_value': 0.5,
-                'search_volume': 100000,
-                'competition': 0.95
-            },
-            {
-                'keyword': 'online calculator',
-                'trends_score': 0.5,
-                'serp_score': 0.3,
-                'business_value': 0.7,
-                'search_volume': 25000,
-                'competition': 0.4
-            }
-        ]
+        raise RuntimeError("每日任务生成需要真实关键词分析结果，请先接入数据源")
     
     def _prioritize_keywords(self, keywords: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """基于多维度评分对关键词进行优先级排序"""
@@ -425,17 +383,7 @@ class TaskManager(BaseManager):
     def _get_keyword_data_for_adjustment(self, keyword: str) -> Optional[Dict[str, Any]]:
         """获取关键词数据用于优先级调整（模拟实现）"""
         # 实际实现中应该从关键词分析结果数据库获取最新数据
-        # 这里返回模拟数据
-        import random
-        
-        return {
-            'keyword': keyword,
-            'trends_score': random.uniform(0.3, 0.9),
-            'serp_score': random.uniform(0.2, 0.8),
-            'business_value': random.uniform(0.4, 0.9),
-            'search_volume': random.randint(10000, 100000),
-            'competition': random.uniform(0.2, 0.9)
-        }
+        raise RuntimeError("任务优先级调整需要真实关键词评分数据，目前未接入数据源")
     
     def _rebalance_task_schedule(self):
         """重新平衡任务调度"""

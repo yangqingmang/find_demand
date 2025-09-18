@@ -29,6 +29,9 @@ class RootWordTrendsAnalyzer:
         except Exception as e:
             self.logger.error(f"TrendsCollector单例获取失败: {e}")
             self.trends_collector = None
+
+        if not self.trends_collector:
+            raise RuntimeError("无法初始化 Google Trends 收集器，请先配置有效的 Trends API/代理")
         
         # 使用新词检测器单例（已移除锁逻辑）
         try:
@@ -69,32 +72,26 @@ class RootWordTrendsAnalyzer:
         if timeframe is None:
             from src.utils.constants import GOOGLE_TRENDS_CONFIG
             timeframe = GOOGLE_TRENDS_CONFIG['default_timeframe'].replace('today ', '')
+        self.logger.info(f"正在分析词根: {root_word}")
+
         try:
-            self.logger.info(f"正在分析词根: {root_word}")
-            
-            # 获取趋势数据 - 传递单个字符串而不是列表
             trend_data = self.trends_collector.get_keyword_trends(root_word, timeframe=timeframe)
-            
-            if not trend_data:
-                self.logger.warning(f"未获取到 {root_word} 的趋势数据")
-                return {"root_word": root_word, "status": "no_data", "data": None}
-            
-            # 处理趋势数据
-            processed_data = self._process_trend_data(root_word, trend_data)
-            
-            # 添加延迟避免API限制 - 增加间隔时间避免429错误
-            time.sleep(3)
-            
-            return {
-                "root_word": root_word,
-                "status": "success",
-                "data": processed_data,
-                "timestamp": datetime.now().isoformat()
-            }
-            
-        except Exception as e:
-            self.logger.error(f"分析词根 {root_word} 时出错: {str(e)}")
-            return {"root_word": root_word, "status": "error", "error": str(e)}
+        except Exception as exc:
+            raise RuntimeError(f"获取词根 '{root_word}' 的趋势数据失败: {exc}") from exc
+
+        if not trend_data:
+            raise RuntimeError(f"未获取到词根 '{root_word}' 的趋势数据")
+
+        processed_data = self._process_trend_data(root_word, trend_data)
+
+        time.sleep(3)
+
+        return {
+            "root_word": root_word,
+            "status": "success",
+            "data": processed_data,
+            "timestamp": datetime.now().isoformat()
+        }
     
     def _process_trend_data(self, root_word: str, trend_data: Dict) -> Dict[str, Any]:
         """处理趋势数据"""
@@ -183,24 +180,13 @@ class RootWordTrendsAnalyzer:
                 except Exception as df_error:
                     self.logger.error(f"处理DataFrame时出错: {df_error}")
             
-            # 如果没有获取到任何数据，提供默认值
-            if not processed["related_queries"]:
-                processed["average_interest"] = 10  # 默认兴趣度
-                processed["peak_interest"] = 15
-                processed["trend_direction"] = "stable"
-        
         except Exception as e:
             self.logger.error(f"处理趋势数据时出错: {e}")
-            # 返回默认数据结构
-            processed = {
-                "keyword": root_word,
-                "trend_points": [],
-                "average_interest": 5,
-                "peak_interest": 10,
-                "trend_direction": "stable",
-                "related_queries": []
-            }
-        
+            raise RuntimeError(f"处理词根 '{root_word}' 的趋势数据失败: {e}")
+
+        if not processed["related_queries"] and processed["average_interest"] == 0:
+            raise RuntimeError(f"词根 '{root_word}' 的趋势数据内容为空")
+
         return processed
     
     def _detect_new_word_for_query(self, query: str) -> Dict[str, Any]:

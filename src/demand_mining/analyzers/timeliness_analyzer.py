@@ -67,15 +67,16 @@ class TimelinessAnalyzer(BaseAnalyzer):
             self.seasonal_weight /= total_weight
         
         # 初始化趋势收集器
-        self.trends_collector = None
         try:
             from src.collectors.trends_singleton import get_trends_collector
             self.trends_collector = get_trends_collector()
-        except:
-            pass
-        
+        except Exception as exc:
+            raise RuntimeError(
+                "无法获取 Google Trends 收集器单例，请先完成 Trends API/代理 的配置"
+            ) from exc
+
         if not self.trends_collector:
-            self.logger.warning("趋势收集器初始化失败")
+            raise RuntimeError("Google Trends 收集器未初始化，无法进行实时性分析")
         
         # 时效性等级定义
         self.timeliness_grades = {
@@ -111,74 +112,37 @@ class TimelinessAnalyzer(BaseAnalyzer):
         返回:
             dict: 趋势分析结果
         """
-        if self.trends_collector:
-            try:
-                # 使用真实的Google Trends数据
-                trend_data = self.trends_collector.get_trends_data([keyword], timeframe=timeframe)
-                
-                # 检查trend_data是否为DataFrame且包含关键词列
-                if isinstance(trend_data, pd.DataFrame) and not trend_data.empty and keyword in trend_data.columns:
-                    values = trend_data[keyword].dropna().values
-                elif trend_data and isinstance(trend_data, dict) and keyword in trend_data:
-                    values = trend_data[keyword]['values']
-                else:
-                    values = []
-                
-                if len(values) >= 2:
-                    # 计算趋势变化
-                    recent_avg = np.mean(values[-3:])  # 最近3个数据点
-                    earlier_avg = np.mean(values[:3])  # 最早3个数据点
-                    
-                    if earlier_avg > 0:
-                        growth_rate = (recent_avg - earlier_avg) / earlier_avg * 100
-                    else:
-                        growth_rate = 0
-                    
-                    # 计算趋势评分
-                    trend_score = min(100, max(0, 50 + growth_rate))
-                    
-                    return {
-                        'trend_score': round(trend_score, 1),
-                        'growth_rate': round(growth_rate, 2),
-                        'current_interest': round(recent_avg, 1),
-                        'peak_interest': max(values),
-                        'trend_direction': 'rising' if growth_rate > 10 else 'falling' if growth_rate < -10 else 'stable'
-                    }
-            except Exception as e:
-                self.logger.warning(f"获取真实趋势数据失败: {e}")
-        
-        # 无法获取真实数据时，使用模拟数据
-        keyword_lower = keyword.lower()
-        
-        # AI相关关键词通常有上升趋势
-        if any(term in keyword_lower for term in ['ai', 'chatgpt', 'gpt', 'artificial intelligence']):
-            base_score = 75
-            growth_rate = np.random.uniform(20, 50)
-            trend_direction = 'rising'
-        
-        # 工具类关键词稳定增长
-        elif any(term in keyword_lower for term in ['tool', 'generator', 'converter', 'editor']):
-            base_score = 65
-            growth_rate = np.random.uniform(5, 25)
-            trend_direction = 'rising'
-        
-        # 教程类关键词稳定
-        elif any(term in keyword_lower for term in ['how to', 'tutorial', 'guide', 'learn']):
-            base_score = 55
-            growth_rate = np.random.uniform(-5, 15)
-            trend_direction = 'stable'
-        
-        # 其他关键词
+        try:
+            trend_data = self.trends_collector.get_trends_data([keyword], timeframe=timeframe)
+        except Exception as exc:
+            raise RuntimeError(f"获取关键词 '{keyword}' 的 Google Trends 数据失败: {exc}") from exc
+
+        if not isinstance(trend_data, pd.DataFrame) or trend_data.empty:
+            raise RuntimeError(f"未获取到关键词 '{keyword}' 的 Google Trends 数据")
+
+        if keyword not in trend_data.columns:
+            raise RuntimeError(f"Google Trends 返回数据缺少关键词列: {keyword}")
+
+        values = trend_data[keyword].dropna()
+        if len(values) < 2:
+            raise RuntimeError(f"关键词 '{keyword}' 的有效趋势数据不足以计算增长率")
+
+        recent_avg = float(np.mean(values.tail(3)))
+        earlier_avg = float(np.mean(values.head(3)))
+
+        if earlier_avg == 0:
+            growth_rate = 0.0
         else:
-            base_score = 45
-            growth_rate = np.random.uniform(-15, 10)
-            trend_direction = 'stable' if growth_rate > -5 else 'falling'
-        
+            growth_rate = (recent_avg - earlier_avg) / earlier_avg * 100
+
+        trend_score = min(100.0, max(0.0, 50.0 + growth_rate))
+        trend_direction = 'rising' if growth_rate > 10 else 'falling' if growth_rate < -10 else 'stable'
+
         return {
-            'trend_score': base_score,
+            'trend_score': round(trend_score, 1),
             'growth_rate': round(growth_rate, 2),
-            'current_interest': round(base_score * 0.8, 1),
-            'peak_interest': round(base_score * 1.2, 1),
+            'current_interest': round(recent_avg, 1),
+            'peak_interest': float(values.max()),
             'trend_direction': trend_direction
         }
     
@@ -192,39 +156,7 @@ class TimelinessAnalyzer(BaseAnalyzer):
         返回:
             dict: 新闻热度分析结果
         """
-        # 新闻热度分析
-        keyword_lower = keyword.lower()
-        
-        # 热门科技关键词新闻热度高
-        if any(term in keyword_lower for term in ['ai', 'chatgpt', 'openai', 'google', 'microsoft']):
-            news_score = np.random.uniform(70, 95)
-            news_count = np.random.randint(50, 200)
-            sentiment = 'positive'
-        
-        # 工具类关键词中等热度
-        elif any(term in keyword_lower for term in ['tool', 'app', 'software', 'platform']):
-            news_score = np.random.uniform(40, 70)
-            news_count = np.random.randint(10, 50)
-            sentiment = 'neutral'
-        
-        # 教程类关键词低热度
-        elif any(term in keyword_lower for term in ['tutorial', 'guide', 'how to']):
-            news_score = np.random.uniform(20, 45)
-            news_count = np.random.randint(1, 15)
-            sentiment = 'neutral'
-        
-        # 其他关键词
-        else:
-            news_score = np.random.uniform(10, 40)
-            news_count = np.random.randint(0, 10)
-            sentiment = 'neutral'
-        
-        return {
-            'news_score': round(news_score, 1),
-            'news_count': news_count,
-            'sentiment': sentiment,
-            'recency': 'recent' if news_score > 60 else 'moderate' if news_score > 30 else 'old'
-        }
+        raise RuntimeError("新闻热度分析需要接入真实新闻数据源，目前未实现该能力")
     
     def calculate_social_score(self, keyword: str) -> Dict:
         """
@@ -236,39 +168,7 @@ class TimelinessAnalyzer(BaseAnalyzer):
         返回:
             dict: 社交媒体热度分析结果
         """
-        # 社交媒体热度分析
-        keyword_lower = keyword.lower()
-        
-        # 病毒式传播的关键词
-        if any(term in keyword_lower for term in ['viral', 'trending', 'meme', 'challenge']):
-            social_score = np.random.uniform(80, 100)
-            engagement_rate = np.random.uniform(8, 15)
-            platform_coverage = ['twitter', 'tiktok', 'instagram', 'youtube']
-        
-        # AI和科技关键词在社交媒体上活跃
-        elif any(term in keyword_lower for term in ['ai', 'chatgpt', 'tech', 'innovation']):
-            social_score = np.random.uniform(60, 85)
-            engagement_rate = np.random.uniform(5, 10)
-            platform_coverage = ['twitter', 'linkedin', 'reddit']
-        
-        # 工具类关键词中等活跃度
-        elif any(term in keyword_lower for term in ['tool', 'app', 'free']):
-            social_score = np.random.uniform(35, 65)
-            engagement_rate = np.random.uniform(2, 6)
-            platform_coverage = ['twitter', 'reddit']
-        
-        # 其他关键词
-        else:
-            social_score = np.random.uniform(15, 45)
-            engagement_rate = np.random.uniform(0.5, 3)
-            platform_coverage = ['twitter']
-        
-        return {
-            'social_score': round(social_score, 1),
-            'engagement_rate': round(engagement_rate, 2),
-            'platform_coverage': platform_coverage,
-            'viral_potential': 'high' if social_score > 75 else 'medium' if social_score > 45 else 'low'
-        }
+        raise RuntimeError("社交媒体热度分析需要接入真实社交平台数据，目前未实现该能力")
     
     def calculate_seasonal_score(self, keyword: str, current_month: int = None) -> Dict:
         """
@@ -281,61 +181,7 @@ class TimelinessAnalyzer(BaseAnalyzer):
         返回:
             dict: 季节性分析结果
         """
-        if current_month is None:
-            current_month = datetime.now().month
-        
-        keyword_lower = keyword.lower()
-        
-        # 季节性关键词模式
-        seasonal_patterns = {
-            'christmas': [11, 12, 1],  # 圣诞节相关
-            'summer': [6, 7, 8],       # 夏季相关
-            'back to school': [8, 9],   # 开学季
-            'black friday': [11],       # 黑色星期五
-            'new year': [12, 1],        # 新年相关
-            'valentine': [2],           # 情人节
-            'spring': [3, 4, 5],        # 春季
-            'winter': [12, 1, 2],       # 冬季
-            'fall': [9, 10, 11],        # 秋季
-        }
-        
-        seasonal_score = 50  # 基础分数
-        seasonal_relevance = 'none'
-        peak_months = []
-        
-        # 检查季节性模式
-        for pattern, months in seasonal_patterns.items():
-            if pattern in keyword_lower:
-                if current_month in months:
-                    seasonal_score = 90  # 当前是旺季
-                    seasonal_relevance = 'high'
-                else:
-                    seasonal_score = 30  # 当前是淡季
-                    seasonal_relevance = 'low'
-                peak_months = months
-                break
-        
-        # 检查节假日相关
-        holiday_keywords = ['holiday', 'festival', 'celebration', 'gift']
-        if any(holiday in keyword_lower for holiday in holiday_keywords):
-            # 节假日前后时间评分较高
-            if current_month in [11, 12, 1, 2]:  # 年末年初节假日多
-                seasonal_score = max(seasonal_score, 75)
-                seasonal_relevance = 'medium'
-        
-        # 教育相关关键词在开学季评分高
-        education_keywords = ['course', 'learn', 'study', 'tutorial', 'education']
-        if any(edu in keyword_lower for edu in education_keywords):
-            if current_month in [8, 9, 1, 2]:  # 开学季
-                seasonal_score = max(seasonal_score, 70)
-                seasonal_relevance = 'medium'
-        
-        return {
-            'seasonal_score': round(seasonal_score, 1),
-            'seasonal_relevance': seasonal_relevance,
-            'peak_months': peak_months,
-            'current_season_match': current_month in peak_months if peak_months else False
-        }
+        raise RuntimeError("季节性分析需要接入真实历史/季节性数据，目前未实现该能力")
     
     def calculate_timeliness_score(self, trend_data: Dict, news_data: Dict, 
                                  social_data: Dict, seasonal_data: Dict) -> float:
@@ -852,22 +698,7 @@ class TimelinessAnalyzer(BaseAnalyzer):
                     
             except Exception as e:
                 self.logger.error(f"分析关键词 '{keyword}' 时出错: {e}")
-                # 设置默认值
-                result_df.at[idx, 'timeliness_score'] = 50.0
-                result_df.at[idx, 'timeliness_grade'] = 'C'
-                result_df.at[idx, 'timeliness_description'] = '中等时效性'
-                result_df.at[idx, 'trend_score'] = 50.0
-                result_df.at[idx, 'trend_direction'] = 'stable'
-                result_df.at[idx, 'growth_rate'] = 0.0
-                result_df.at[idx, 'news_score'] = 50.0
-                result_df.at[idx, 'news_sentiment'] = 'neutral'
-                result_df.at[idx, 'news_count'] = 0
-                result_df.at[idx, 'social_score'] = 50.0
-                result_df.at[idx, 'viral_potential'] = 'low'
-                result_df.at[idx, 'engagement_rate'] = 0.0
-                result_df.at[idx, 'seasonal_score'] = 50.0
-                result_df.at[idx, 'seasonal_relevance'] = 'none'
-                result_df.at[idx, 'current_season_match'] = False
+                raise RuntimeError(f"分析关键词 '{keyword}' 的实时性失败: {e}") from e
         
         # 确保数值列的数据类型正确
         numeric_columns = ['timeliness_score', 'trend_score', 'growth_rate', 'news_score', 

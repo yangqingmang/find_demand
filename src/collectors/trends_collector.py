@@ -72,8 +72,9 @@ class TrendsCollector:
             pandas.DataFrame: 趋势数据
         """
         if not self.trends_collector:
-            self.logger.error("trends_collector 未初始化")
-            return pd.DataFrame()
+            error_msg = "Google Trends 会话未初始化，可能缺少必要的 API/代理 配置"
+            self.logger.error(error_msg)
+            raise RuntimeError(error_msg)
             
         try:
             # 确保keywords是列表格式
@@ -91,22 +92,23 @@ class TrendsCollector:
             
             # 获取兴趣度数据
             interest_over_time = self.trends_collector.interest_over_time()
-            
-            if not interest_over_time.empty:
-                # 移除 'isPartial' 列
-                if 'isPartial' in interest_over_time.columns:
-                    interest_over_time = interest_over_time.drop('isPartial', axis=1)
-                
-                self.logger.info(f"✅ 成功获取到 {len(interest_over_time)} 条趋势数据")
-                return interest_over_time
-            else:
-                self.logger.warning(f"⚠️ 未获取到关键词 {keywords} 的趋势数据")
-                return pd.DataFrame()
-                
+
+            if interest_over_time.empty:
+                warning_msg = f"未获取到关键词 {keywords} 的 Google Trends 数据"
+                self.logger.warning(warning_msg)
+                raise RuntimeError(warning_msg)
+
+            # 移除 'isPartial' 列
+            if 'isPartial' in interest_over_time.columns:
+                interest_over_time = interest_over_time.drop('isPartial', axis=1)
+
+            self.logger.info(f"✅ 成功获取到 {len(interest_over_time)} 条趋势数据")
+            return interest_over_time
+
         except Exception as e:
             self.logger.error(f"❌ 获取趋势数据失败: {e}")
             self.logger.error(f"   请求参数: keywords={keywords}, timeframe={timeframe}, geo={geo}")
-            return pd.DataFrame()
+            raise
 
     def _make_api_request(self, request_type, keyword=None, geo=None, timeframe=None, 
                          widget_token=None, widget_request=None):
@@ -201,11 +203,11 @@ class TrendsCollector:
 
                     if rising is not None and not rising.empty:
                         return rising
-                    elif top is not None and not top.empty:
+                    if top is not None and not top.empty:
                         top['growth'] = 0
                         return top
 
-                return pd.DataFrame(columns=['query', 'value', 'growth'])
+                raise RuntimeError(f"未获取到关键词 {keyword} 的 related queries 数据")
 
             except Exception as e:
                 if attempt < self.retries - 1:
@@ -214,8 +216,7 @@ class TrendsCollector:
                     time.sleep(wait_time)
                 else:
                     self.logger.error(f"多次尝试失败: {e}")
-                    return pd.DataFrame(columns=['query', 'value', 'growth'])
-        return None
+                    raise
 
     def _fetch_trending_via_api(self, geo=None, timeframe=None):
         """通过API获取热门关键词"""
@@ -325,24 +326,18 @@ class TrendsCollector:
                                     
                                     break
                     
-                    # 返回一些测试关键词
-                    test_data = pd.DataFrame({
-                        'query': ['AI tools', 'machine learning', 'python programming', 'data science', 'web development'],
-                        'value': [100, 85, 75, 90, 80],
-                        'growth': ['+50%', '+30%', '+20%', '+40%', '+25%']
-                    })
-                    return test_data
+                    raise RuntimeError("无法从 Google Trends 获取 related searches 数据，且没有可用的备选数据源")
                 except json.JSONDecodeError as e:
                     self.logger.error(f"JSON解析失败: {e}")
                     self.logger.error(f"尝试解析的内容: {content[:200]}")
-                    return pd.DataFrame(columns=['query', 'value', 'growth'])
+                    raise
             else:
                 self.logger.error(f"❌ 请求失败，状态码: {response.status_code}")
-                return pd.DataFrame(columns=['query', 'value', 'growth'])
-                
+                raise RuntimeError(f"Google Trends related searches 请求失败，状态码: {response.status_code}")
+
         except Exception as e:
             self.logger.error(f"API请求异常: {e}")
-            return pd.DataFrame(columns=['query', 'value', 'growth'])
+            raise
 
 
     def _parse_related_queries(self, data):
@@ -461,15 +456,15 @@ class TrendsCollector:
     def get_keyword_trends(self, keyword, timeframe='today 12-m', geo=''):
         """获取关键词趋势数据 - 为root_word_trends_analyzer提供的接口"""
         if not self.trends_collector:
-            self.logger.error("trends_collector 未初始化")
-            return {}
-            
+            error_msg = "Google Trends 会话未初始化，无法获取关键词趋势数据"
+            self.logger.error(error_msg)
+            raise RuntimeError(error_msg)
+
         try:
-            # 调用CustomTrendsCollector的get_keyword_trends方法
             return self.trends_collector.get_keyword_trends(keyword, timeframe, geo)
         except Exception as e:
             self.logger.error(f"获取关键词趋势失败: {e}")
-            return {}
+            raise
 
 
 def main():

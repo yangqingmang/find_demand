@@ -10,39 +10,7 @@ from typing import List, Dict, Any
 
 def monitor_competitors(sites: List[str], output_dir: str = None) -> Dict[str, Any]:
     """监控竞品关键词变化"""
-    print(f"🔍 开始监控 {len(sites)} 个竞品网站...")
-    
-    results = {
-        'monitoring_date': datetime.now().isoformat(),
-        'competitors': [],
-        'new_keywords': [],
-        'trending_keywords': [],
-        'recommendations': []
-    }
-    
-    for site in sites:
-        print(f"📊 分析竞品: {site}")
-        
-        # 这里可以集成实际的竞品分析API
-        # 竞品数据
-        competitor_data = {
-            'site': site,
-            'top_keywords': [
-                {'keyword': f'{site} ai tool', 'volume': 1000, 'difficulty': 0.6},
-                {'keyword': f'{site} alternative', 'volume': 800, 'difficulty': 0.4},
-                {'keyword': f'best {site} features', 'volume': 600, 'difficulty': 0.5}
-            ],
-            'new_keywords_count': 15,
-            'trending_keywords_count': 8
-        }
-        
-        results['competitors'].append(competitor_data)
-    
-    # 保存监控结果
-    if output_dir:
-        _save_competitor_monitoring_results(results, output_dir)
-    
-    return results
+    raise RuntimeError("竞品监控功能需要接入真实监控数据源，目前未实现")
 
 def predict_keyword_trends(timeframe: str = "30d", output_dir: str = None, keywords: List[str] = None, use_real_data: bool = True) -> Dict[str, Any]:
     """预测关键词趋势
@@ -59,35 +27,15 @@ def predict_keyword_trends(timeframe: str = "30d", output_dir: str = None, keywo
     print(f"📈 开始预测未来 {timeframe} 的关键词趋势...")
     
     if not use_real_data:
-        # 返回演示数据（原有逻辑）
-        print("⚠️ 使用演示数据模式，非真实预测结果")
-        predictions = {
-            'prediction_date': datetime.now().isoformat(),
-            'timeframe': timeframe,
-            'data_source': 'demo_data',
-            'rising_keywords': [
-                {'keyword': 'AI video generator', 'predicted_growth': '+150%', 'confidence': 0.85},
-                {'keyword': 'AI code assistant', 'predicted_growth': '+120%', 'confidence': 0.78},
-                {'keyword': 'AI image upscaler', 'predicted_growth': '+90%', 'confidence': 0.72}
-            ],
-            'declining_keywords': [
-                {'keyword': 'basic chatbot', 'predicted_decline': '-30%', 'confidence': 0.65},
-                {'keyword': 'simple ai writer', 'predicted_decline': '-20%', 'confidence': 0.58}
-            ],
-            'stable_keywords': [
-                {'keyword': 'AI generator', 'predicted_change': '+5%', 'confidence': 0.90},
-                {'keyword': 'AI assistant', 'predicted_change': '+10%', 'confidence': 0.88}
-            ]
-        }
-    else:
-        # 使用真实数据进行预测
-        print("✅ 使用真实Google Trends数据进行预测")
-        predictions = _predict_with_real_data(keywords, timeframe)
-    
+        raise RuntimeError("趋势预测不再支持演示数据模式，请先接入真实数据源")
+
+    print("✅ 使用真实Google Trends数据进行预测")
+    predictions = _predict_with_real_data(keywords, timeframe)
+
     # 保存预测结果
     if output_dir:
         _save_trend_predictions(predictions, output_dir)
-    
+
     return predictions
 
 def _predict_with_real_data(keywords: List[str] = None, timeframe: str = "30d") -> Dict[str, Any]:
@@ -161,120 +109,19 @@ def _predict_with_real_data(keywords: List[str] = None, timeframe: str = "30d") 
         predictions['stable_keywords'].sort(key=lambda x: x['confidence'], reverse=True)
         
         print(f"✅ 预测完成: {len(predictions['rising_keywords'])} 上升, {len(predictions['stable_keywords'])} 稳定, {len(predictions['declining_keywords'])} 下降")
-        
+
         return predictions
-        
+
     except Exception as e:
-        print(f"❌ 真实数据预测失败: {e}")
-        print("🔄 回退到演示数据模式")
-        
-        # 回退到演示数据
-        return {
-            'prediction_date': datetime.now().isoformat(),
-            'timeframe': timeframe,
-            'data_source': 'demo_data_fallback',
-            'error': str(e),
-            'rising_keywords': [
-                {'keyword': 'AI video generator', 'predicted_growth': '+150%', 'confidence': 0.85},
-                {'keyword': 'AI code assistant', 'predicted_growth': '+120%', 'confidence': 0.78}
-            ],
-            'declining_keywords': [
-                {'keyword': 'basic chatbot', 'predicted_decline': '-30%', 'confidence': 0.65}
-            ],
-            'stable_keywords': [
-                {'keyword': 'AI generator', 'predicted_change': '+5%', 'confidence': 0.90}
-            ]
-        }
+        raise RuntimeError(f"调用真实趋势预测失败: {e}") from e
 
 def generate_seo_audit(domain: str, keywords: List[str] = None) -> Dict[str, Any]:
     """生成SEO优化建议"""
-    print(f"🔍 开始SEO审计: {domain}")
-    
-    audit_results = {
-        'domain': domain,
-        'audit_date': datetime.now().isoformat(),
-        'keyword_opportunities': [],
-        'content_gaps': [],
-        'technical_recommendations': [],
-        'competitor_analysis': {}
-    }
-    
-    # 关键词机会分析
-    if keywords:
-        for keyword in keywords[:10]:  # 限制分析数量
-            opportunity = {
-                'keyword': keyword,
-                'current_ranking': 'Not ranking',
-                'difficulty': 0.6,
-                'opportunity_score': 75,
-                'recommended_actions': [
-                    f'创建针对"{keyword}"的专门页面',
-                    f'优化页面标题包含"{keyword}"',
-                    f'增加相关的内部链接'
-                ]
-            }
-            audit_results['keyword_opportunities'].append(opportunity)
-    
-    # 内容缺口分析
-    audit_results['content_gaps'] = [
-        '缺少AI工具比较页面',
-        '需要更多教程内容',
-        '缺少用户案例研究'
-    ]
-    
-    # 技术建议
-    audit_results['technical_recommendations'] = [
-        '优化页面加载速度',
-        '改善移动端体验',
-        '添加结构化数据',
-        '优化图片alt标签'
-    ]
-    
-    return audit_results
+    raise RuntimeError("SEO 审计功能需要接入真实站点/SEO 数据，目前未实现")
 
 def batch_build_websites(top_keywords: int = 10) -> Dict[str, Any]:
     """批量生成网站"""
-    print(f"🏗️ 开始批量生成 {top_keywords} 个高价值关键词的网站...")
-    
-    # 获取高价值关键词
-    # 这里应该从之前的分析结果中获取
-    high_value_keywords = [
-        'AI image generator',
-        'AI writing assistant', 
-        'AI code helper',
-        'AI video creator',
-        'AI design tool'
-    ][:top_keywords]
-    
-    build_results = {
-        'build_date': datetime.now().isoformat(),
-        'total_websites': len(high_value_keywords),
-        'successful_builds': 0,
-        'failed_builds': 0,
-        'websites': []
-    }
-    
-    for keyword in high_value_keywords:
-        try:
-            print(f"🔨 构建网站: {keyword}")
-            
-            # 这里可以集成实际的网站构建逻辑
-            website_info = {
-                'keyword': keyword,
-                'domain_suggestion': keyword.replace(' ', '-').lower() + '.com',
-                'status': 'success',
-                'pages_created': 5,
-                'estimated_build_time': '2 minutes'
-            }
-            
-            build_results['websites'].append(website_info)
-            build_results['successful_builds'] += 1
-            
-        except Exception as e:
-            print(f"❌ 构建失败 {keyword}: {e}")
-            build_results['failed_builds'] += 1
-    
-    return build_results
+    raise RuntimeError("批量建站功能需要接入真实建站流水线，目前未实现")
 
 def _scheduled_task(action: str, **kwargs):
     """执行定时任务"""

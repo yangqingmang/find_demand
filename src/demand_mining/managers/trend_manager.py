@@ -98,120 +98,41 @@ class TrendManager(BaseManager):
             return self._predict_trends(**kwargs)
         else:
             raise ValueError(f"不支持的分析类型: {analysis_type}")
-    
+
     def _analyze_root_trends(self, timeframe: str = None,
                            batch_size: int = 5, output_dir: str = None) -> Dict[str, Any]:
         """分析词根趋势"""
         if timeframe is None:
             from src.utils.constants import GOOGLE_TRENDS_CONFIG
             timeframe = GOOGLE_TRENDS_CONFIG['default_timeframe'].replace('today ', '')
-        
+
         print("🌱 开始分析51个词根的Google Trends趋势...")
-        
+
         if self.trend_analyzer is None:
-            return self._create_empty_trend_result()
-        
+            raise RuntimeError("趋势分析器不可用，请确认已正确初始化 Google Trends Collectors")
+
         try:
-            # 执行分析
             results = self.trend_analyzer.analyze_all_root_words(
-                timeframe=timeframe, 
+                timeframe=timeframe,
                 batch_size=batch_size
             )
-            
-            # 确保返回正确的结果格式
-            if results is None:
-                return self._create_empty_trend_result()
-                
-            return results
-            
-        except Exception as e:
-            import logging
-            logger = logging.getLogger(__name__)
-            logger.error(f"词根趋势分析失败: {e}")
-            return self._create_empty_trend_result()
+        except Exception as exc:
+            raise RuntimeError(f"词根趋势分析失败: {exc}") from exc
+
+        if not results or results.get('successful_analyses', 0) == 0:
+            raise RuntimeError("未成功获取任何词根趋势数据，请检查 Google Trends 配置")
+
+        return results
     
     def _analyze_keyword_trends(self, keywords: List[str],
                               timeframe: str = None, **kwargs) -> Dict[str, Any]:
         """分析关键词趋势"""
-        if timeframe is None:
-            from src.utils.constants import GOOGLE_TRENDS_CONFIG
-            timeframe = GOOGLE_TRENDS_CONFIG['default_timeframe'].replace('today ', '')
-        
-        print(f"📊 开始分析 {len(keywords)} 个关键词的趋势...")
-        
-        if self.trend_analyzer is None:
-            return {'error': '趋势分析器不可用'}
-        
-        try:
-            # 这里可以扩展为支持关键词趋势分析
-            # 使用数据
-            trend_results = []
-            for keyword in keywords:
-                trend_data = {
-                    'keyword': keyword,
-                    'trend_score': 75,  # 趋势分数
-                    'growth_rate': '+15%',
-                    'peak_interest': 85,
-                    'current_interest': 70,
-                    'trend_direction': 'rising'
-                }
-                trend_results.append(trend_data)
-            
-            result = {
-                'analysis_type': 'keyword_trends',
-                'analysis_time': datetime.now().isoformat(),
-                'total_keywords': len(keywords),
-                'timeframe': timeframe,
-                'keyword_trends': trend_results,
-                'summary': {
-                    'rising_keywords': [kw for kw in trend_results if kw['trend_direction'] == 'rising'],
-                    'declining_keywords': [kw for kw in trend_results if kw['trend_direction'] == 'declining'],
-                    'stable_keywords': [kw for kw in trend_results if kw['trend_direction'] == 'stable']
-                }
-            }
-            
-            return result
-            
-        except Exception as e:
-            print(f"❌ 关键词趋势分析失败: {e}")
-            return {'error': f'分析失败: {str(e)}'}
+        raise RuntimeError("关键词趋势分析需要接入真实趋势数据，目前未实现")
     
     def _predict_trends(self, timeframe: str = "30d", 
                        prediction_type: str = "keyword", **kwargs) -> Dict[str, Any]:
         """预测趋势"""
-        print(f"🔮 开始预测未来 {timeframe} 的趋势...")
-        
-        try:
-            # 基于历史数据和当前趋势进行预测
-            predictions = {
-                'prediction_date': datetime.now().isoformat(),
-                'timeframe': timeframe,
-                'prediction_type': prediction_type,
-                'rising_keywords': [
-                    {'keyword': 'AI video generator', 'predicted_growth': '+150%', 'confidence': 0.85},
-                    {'keyword': 'AI code assistant', 'predicted_growth': '+120%', 'confidence': 0.78},
-                    {'keyword': 'AI image upscaler', 'predicted_growth': '+90%', 'confidence': 0.72}
-                ],
-                'declining_keywords': [
-                    {'keyword': 'basic chatbot', 'predicted_decline': '-30%', 'confidence': 0.65},
-                    {'keyword': 'simple ai writer', 'predicted_decline': '-20%', 'confidence': 0.58}
-                ],
-                'stable_keywords': [
-                    {'keyword': 'AI generator', 'predicted_change': '+5%', 'confidence': 0.90},
-                    {'keyword': 'AI assistant', 'predicted_change': '+10%', 'confidence': 0.88}
-                ],
-                'emerging_trends': [
-                    'AI-powered video editing',
-                    'Multimodal AI assistants',
-                    'AI-generated music'
-                ]
-            }
-            
-            return predictions
-            
-        except Exception as e:
-            print(f"❌ 趋势预测失败: {e}")
-            return {'error': f'预测失败: {str(e)}'}
+        raise RuntimeError("趋势预测需要接入真实历史数据和模型，目前未实现")
     
     def get_root_word_stats(self) -> Dict[str, Any]:
         """获取词根统计信息"""
@@ -222,20 +143,7 @@ class TrendManager(BaseManager):
     
     def get_trending_root_words(self, limit: int = 10) -> List[Dict[str, Any]]:
         """获取热门词根"""
-        if self.trend_analyzer is None:
-            return []
-        
-        # 这里可以从最近的分析结果中获取热门词根
-        # 返回数据
-        trending_roots = [
-            {'word': 'generator', 'average_interest': 85.2, 'growth_rate': '+25%'},
-            {'word': 'converter', 'average_interest': 78.9, 'growth_rate': '+18%'},
-            {'word': 'detector', 'average_interest': 72.1, 'growth_rate': '+15%'},
-            {'word': 'optimizer', 'average_interest': 68.5, 'growth_rate': '+12%'},
-            {'word': 'analyzer', 'average_interest': 65.3, 'growth_rate': '+10%'}
-        ]
-        
-        return trending_roots[:limit]
+        raise RuntimeError("热门词根查询需要先完成真实趋势分析，目前未实现缓存读取")
     
     def _calculate_avg_interest(self, trending_words: List[Dict]) -> float:
         """计算平均兴趣度"""

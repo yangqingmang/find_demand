@@ -255,9 +255,14 @@ def handle_enhanced_features(manager, args):
         if not args.quiet:
             print(f"🔍 开始监控 {len(sites)} 个竞品网站...")
         
-        result = monitor_competitors(sites, args.output)
+        try:
+            result = monitor_competitors(sites, args.output)
+        except Exception as exc:
+            print(f"❌ 竞品监控失败: {exc}")
+            return True
+
         print(f"✅ 竞品监控完成: 分析了 {len(result['competitors'])} 个竞品")
-        
+
         if not args.quiet:
             print("\n📊 监控结果摘要:")
             for comp in result['competitors'][:3]:
@@ -272,12 +277,16 @@ def handle_enhanced_features(manager, args):
         # 获取关键词列表（如果有的话）
         keywords_for_prediction = getattr(args, 'keywords', None)
         
-        result = predict_keyword_trends(
-            timeframe=args.timeframe, 
-            output_dir=args.output,
-            keywords=keywords_for_prediction,
-            use_real_data=True  # 默认使用真实数据
-        )
+        try:
+            result = predict_keyword_trends(
+                timeframe=args.timeframe, 
+                output_dir=args.output,
+                keywords=keywords_for_prediction,
+                use_real_data=True
+            )
+        except Exception as exc:
+            print(f"❌ 趋势预测失败: {exc}")
+            return True
         
         # 显示结果
         data_source = result.get('data_source', 'unknown')
@@ -324,9 +333,14 @@ def handle_enhanced_features(manager, args):
         if not args.quiet:
             print(f"🔍 开始SEO审计: {args.domain}")
         
-        result = generate_seo_audit(args.domain, args.keywords)
+        try:
+            result = generate_seo_audit(args.domain, args.keywords)
+        except Exception as exc:
+            print(f"❌ SEO审计失败: {exc}")
+            return True
+
         print(f"✅ SEO审计完成: 发现 {len(result['keyword_opportunities'])} 个关键词机会")
-        
+
         if not args.quiet:
             print("\n🎯 SEO优化建议:")
             for gap in result['content_gaps'][:3]:
@@ -338,9 +352,14 @@ def handle_enhanced_features(manager, args):
         if not args.quiet:
             print(f"🏗️ 开始批量生成 {args.top_keywords} 个网站...")
         
-        result = batch_build_websites(args.top_keywords, args.output)
+        try:
+            result = batch_build_websites(args.top_keywords, args.output)
+        except Exception as exc:
+            print(f"❌ 批量建站失败: {exc}")
+            return True
+
         print(f"✅ 批量建站完成: 成功构建 {result['successful_builds']} 个网站")
-        
+
         if not args.quiet:
             print("\n🌐 构建的网站:")
             for site in result['websites'][:3]:
