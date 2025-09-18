@@ -8,9 +8,12 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 import requests
 import json
+import time
+import hashlib
+from pathlib import Path
 
 from .base_analyzer import BaseAnalyzer
 
@@ -63,6 +66,14 @@ class NewWordDetector(BaseAnalyzer):
             'high_growth_7d': high_growth_threshold_7d,
             'min_recent_volume': min_recent_volume
         }
+        self.cache_dir = Path('data/cache/new_word_trends')
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
+        self.memory_cache_ttl = timedelta(minutes=30)
+        self.disk_cache_ttl = timedelta(hours=12)
+        self.max_retries = 3
+        self.retry_backoff = 1.5
+        self.retry_delay_base = 0.8
+
         
         # 初始化趋势收集器 - 使用单例模式避免重复创建会话
         self.trends_collector = None
@@ -78,7 +89,7 @@ class NewWordDetector(BaseAnalyzer):
             self.logger.warning("趋势收集器初始化失败")
         
         # 添加请求缓存避免重复请求
-        self._trends_cache = {}
+        self._trends_cache = {}  # cache_key -> {'data': Dict, 'timestamp': datetime}
         
         # 新词等级定义
         self.new_word_grades = {
@@ -88,6 +99,152 @@ class NewWordDetector(BaseAnalyzer):
             'C': {'min_score': 60, 'description': '弱新词 - 缓慢增长'},
             'D': {'min_score': 0, 'description': '非新词 - 传统关键词'}
         }
+
+    def _empty_trend_result(self) -> Dict[str, Any]:
+        """Return a default trend payload with all expected keys."""
+        return {
+            'avg_12m': 0.0,
+            'max_12m': 0.0,
+            'avg_90d': 0.0,
+            'max_90d': 0.0,
+            'avg_30d': 0.0,
+            'max_30d': 0.0,
+            'avg_7d': 0.0,
+            'max_7d': 0.0,
+            'recent_trend': [],
+            'growth_rate_7d_vs_30d': 0.0,
+            'mom_growth': 0.0,
+            'yoy_growth': 0.0,
+            'z_score': 0.0,
+            'std_12m': 0.0,
+            'series_length': 0,
+            'series_12m': []
+        }
+
+    def _get_cache_file_path(self, keyword: str) -> Path:
+        digest = hashlib.md5(keyword.lower().encode('utf-8')).hexdigest()
+        return self.cache_dir / f"{digest}.json"
+
+    def _load_cache_from_disk(self, keyword: str) -> Tuple[Optional[Dict[str, Any]], Optional[datetime]]:
+        cache_file = self._get_cache_file_path(keyword)
+        if not cache_file.exists():
+            return None, None
+        try:
+            with cache_file.open('r', encoding='utf-8') as fh:
+                payload = json.load(fh)
+            timestamp_str = payload.get('timestamp')
+            timestamp = datetime.fromisoformat(timestamp_str) if timestamp_str else None
+            data = payload.get('data', {})
+            return data, timestamp
+        except Exception as exc:
+            self.logger.warning(f"读取新词检测缓存失败 ({keyword}): {exc}")
+            return None, None
+
+    def _store_cache(self, cache_key: str, keyword: str, data: Dict[str, Any]) -> None:
+        now = datetime.utcnow()
+        self._trends_cache[cache_key] = {'data': data, 'timestamp': now}
+        try:
+            payload = {'keyword': keyword, 'timestamp': now.isoformat(), 'data': data}
+            with self._get_cache_file_path(keyword).open('w', encoding='utf-8') as fh:
+                json.dump(payload, fh, ensure_ascii=False)
+        except Exception as exc:
+            self.logger.warning(f"写入新词检测缓存失败 ({keyword}): {exc}")
+
+    def _fetch_trends_dataframe(self, keyword: str, timeframe: str) -> pd.DataFrame:
+        if not self.trends_collector:
+            return pd.DataFrame()
+        last_exception: Optional[Exception] = None
+        for attempt in range(1, self.max_retries + 1):
+            try:
+                sleep_time = min(self.retry_delay_base * attempt, 3)
+                if sleep_time > 0:
+                    time.sleep(sleep_time)
+                df = self.trends_collector.get_trends_data([keyword], timeframe=timeframe)
+                if not df.empty:
+                    return df
+            except Exception as exc:
+                last_exception = exc
+                self.logger.warning(f"获取 {keyword} ({timeframe}) 趋势数据失败，第 {attempt} 次尝试: {exc}")
+            backoff = min(self.retry_backoff ** attempt, 5)
+            time.sleep(backoff)
+        if last_exception:
+            self.logger.warning(f"多次尝试后仍无法获取 {keyword} ({timeframe}) 数据: {last_exception}")
+        return pd.DataFrame()
+
+    @staticmethod
+    def _percent_change(current: float, previous: Optional[float]) -> float:
+        if previous is None or previous <= 0:
+            return 0.0
+        return float(round(((current - previous) / previous) * 100, 2))
+
+    def _summarize_trends(self, keyword: str, data_12m: pd.DataFrame) -> Dict[str, Any]:
+        result = self._empty_trend_result()
+        if data_12m.empty or keyword not in data_12m.columns:
+            return result
+
+    @staticmethod
+    def _score_growth_signal(value: Optional[float], positive_bands: List[Tuple[float, float]], negative_bands: Optional[List[Tuple[float, float]]] = None) -> float:
+        if value is None:
+            return 0.0
+        score = 0.0
+        for threshold, points in positive_bands:
+            if value >= threshold:
+                score = points
+                break
+        if negative_bands:
+            for threshold, penalty in negative_bands:
+                if value <= threshold:
+                    score -= penalty
+                    break
+        return max(score, 0.0)
+
+        series = data_12m[keyword].fillna(0).astype(float).values
+        if len(series) == 0:
+            return result
+        arr = np.nan_to_num(np.array(series, dtype=float), nan=0.0)
+        result['series_length'] = int(len(arr))
+        result['series_12m'] = arr.tolist()
+
+        def safe_avg(values: np.ndarray) -> float:
+            return float(np.mean(values)) if values.size > 0 else 0.0
+
+        def safe_max(values: np.ndarray) -> float:
+            return float(np.max(values)) if values.size > 0 else 0.0
+
+        arr_90 = arr[-90:] if arr.size >= 90 else arr
+        arr_30 = arr[-30:] if arr.size >= 30 else arr
+        arr_7 = arr[-7:] if arr.size >= 7 else arr
+        arr_prev_30 = arr[-60:-30] if arr.size >= 60 else np.array([])
+        arr_yoy_window = arr[-365:-335] if arr.size >= 365 else np.array([])
+
+        result['avg_12m'] = safe_avg(arr)
+        result['max_12m'] = safe_max(arr)
+        result['avg_90d'] = safe_avg(arr_90)
+        result['max_90d'] = safe_max(arr_90)
+        result['avg_30d'] = safe_avg(arr_30)
+        result['max_30d'] = safe_max(arr_30)
+        result['avg_7d'] = safe_avg(arr_7)
+        result['max_7d'] = safe_max(arr_7)
+        result['recent_trend'] = arr_7.tolist() if arr_7.size > 0 else arr.tolist()[-7:]
+
+        avg_30d = result['avg_30d']
+        avg_7d = result['avg_7d']
+        prev_30_avg = safe_avg(arr_prev_30) if arr_prev_30.size > 0 else None
+        yoy_avg = safe_avg(arr_yoy_window) if arr_yoy_window.size > 0 else None
+
+        result['growth_rate_7d_vs_30d'] = self._percent_change(avg_7d, avg_30d if avg_30d > 0 else None)
+        result['mom_growth'] = self._percent_change(avg_30d, prev_30_avg)
+        result['yoy_growth'] = self._percent_change(avg_30d, yoy_avg)
+
+        std_12m = float(np.std(arr)) if arr.size > 1 else 0.0
+        result['std_12m'] = std_12m
+        if std_12m > 0:
+            result['z_score'] = float(round((avg_7d - result['avg_12m']) / std_12m, 2))
+        else:
+            result['z_score'] = 0.0
+
+        return result
+
     
     def analyze(self, data, keyword_col='query', **kwargs):
         """
@@ -104,157 +261,114 @@ class NewWordDetector(BaseAnalyzer):
         return self.detect_new_words(data, keyword_col)
     
     def get_historical_data(self, keyword: str) -> Dict:
-        """
-        获取关键词的历史搜索数据
-        
-        参数:
-            keyword (str): 关键词
-            
-        返回:
-            dict: 包含不同时间段搜索数据的字典
-        """
-        # 检查缓存
-        cache_key = f"trends_{keyword}"
-        if cache_key in self._trends_cache:
-            return self._trends_cache[cache_key]
-        
-        if self.trends_collector:
-            try:
-                # 添加延迟避免429错误 - 新词检测器请求间隔控制
-                import time
-                time.sleep(2)  # 新词检测器专用延迟
-                
-                # 只获取12个月数据，从中提取其他时间段的数据
-                data_12m = self.trends_collector.get_trends_data([keyword], timeframe='today 12-m')
-                
-                # 如果12个月数据获取失败，尝试获取3个月数据
-                if data_12m.empty:
-                    # 添加额外延迟避免连续请求
-                    time.sleep(1)
-                    data_12m = self.trends_collector.get_trends_data([keyword], timeframe='today 3-m')
-                    
-                    # 如果3个月数据也失败，返回默认值并缓存
-                    if data_12m.empty:
-                        self.logger.warning(f"无法获取关键词 '{keyword}' 的趋势数据，使用默认值")
-                        default_result = {
-                            'avg_12m': 0.0, 'max_12m': 0.0,
-                            'avg_90d': 0.0, 'max_90d': 0.0,
-                            'avg_30d': 0.0, 'max_30d': 0.0,
-                            'avg_7d': 0.0, 'max_7d': 0.0,
-                            'recent_trend': []
-                        }
-                        self._trends_cache[cache_key] = default_result
-                        return default_result
-                
-                # 从12个月数据中计算其他时间段
-                data_90d = data_12m.tail(90) if len(data_12m) >= 90 else data_12m
-                data_30d = data_12m.tail(30) if len(data_12m) >= 30 else data_12m
-                data_7d = data_12m.tail(7) if len(data_12m) >= 7 else data_12m
-                
-                result = {}
-                
-                # 处理12个月数据
-                if not data_12m.empty and keyword in data_12m.columns:
-                    values_12m = data_12m[keyword].values
-                    result['avg_12m'] = float(np.mean(values_12m)) if len(values_12m) > 0 else 0.0
-                    result['max_12m'] = float(np.max(values_12m)) if len(values_12m) > 0 else 0.0
-                else:
-                    result['avg_12m'] = 0.0
-                    result['max_12m'] = 0.0
-                
-                # 处理90天数据
-                if not data_90d.empty and keyword in data_90d.columns:
-                    values_90d = data_90d[keyword].values
-                    result['avg_90d'] = float(np.mean(values_90d)) if len(values_90d) > 0 else 0.0
-                    result['max_90d'] = float(np.max(values_90d)) if len(values_90d) > 0 else 0.0
-                else:
-                    result['avg_90d'] = 0.0
-                    result['max_90d'] = 0.0
-                
-                # 处理30天数据
-                if not data_30d.empty and keyword in data_30d.columns:
-                    values_30d = data_30d[keyword].values
-                    result['avg_30d'] = float(np.mean(values_30d)) if len(values_30d) > 0 else 0.0
-                    result['max_30d'] = float(np.max(values_30d)) if len(values_30d) > 0 else 0.0
-                else:
-                    result['avg_30d'] = 0.0
-                    result['max_30d'] = 0.0
-                
-                # 处理7天数据
-                if not data_7d.empty and keyword in data_7d.columns:
-                    values_7d = data_7d[keyword].values
-                    result['avg_7d'] = float(np.mean(values_7d)) if len(values_7d) > 0 else 0.0
-                    result['max_7d'] = float(np.max(values_7d)) if len(values_7d) > 0 else 0.0
-                    result['recent_trend'] = values_7d[-3:].tolist() if len(values_7d) >= 3 else values_7d.tolist()
-                else:
-                    result['avg_7d'] = 0.0
-                    result['max_7d'] = 0.0
-                    result['recent_trend'] = []
-                
-                # 缓存结果
-                self._trends_cache[cache_key] = result
-                return result
-                
-            except Exception as e:
-                self.logger.warning(f"获取真实历史数据失败: {e}")
-        
-        # 无法获取数据时返回空结果
-        return {
-            'avg_12m': 0.0,
-            'max_12m': 0.0,
-            'avg_90d': 0.0,
-            'max_90d': 0.0,
-            'avg_30d': 0.0,
-            'max_30d': 0.0,
-            'avg_7d': 0.0,
-            'max_7d': 0.0,
-            'recent_trend': []
-        }
-    
+        """获取关键字的历史趋势数据，并带有内存/磁盘缓存及重试退避。"""
+        keyword = keyword.strip() if keyword else ''
+        if not keyword:
+            return self._empty_trend_result()
+
+        cache_key = f"trends_{keyword.lower()}"
+        now = datetime.utcnow()
+
+        cache_entry = self._trends_cache.get(cache_key)
+        if cache_entry and now - cache_entry['timestamp'] <= self.memory_cache_ttl:
+            return cache_entry['data']
+
+        disk_data, disk_timestamp = self._load_cache_from_disk(keyword)
+        stale_disk_data = None
+        if disk_data is not None:
+            if disk_timestamp and now - disk_timestamp <= self.disk_cache_ttl:
+                self._trends_cache[cache_key] = {'data': disk_data, 'timestamp': now}
+                return disk_data
+            stale_disk_data = disk_data
+
+        if not self.trends_collector:
+            return stale_disk_data if stale_disk_data is not None else self._empty_trend_result()
+
+        data_12m = self._fetch_trends_dataframe(keyword, 'today 12-m')
+        if data_12m.empty:
+            data_12m = self._fetch_trends_dataframe(keyword, 'today 3-m')
+
+        if data_12m.empty:
+            if stale_disk_data is not None:
+                self.logger.warning(f"使用缓存趋势数据作为 {keyword} 的回退")
+                self._trends_cache[cache_key] = {'data': stale_disk_data, 'timestamp': now}
+                return stale_disk_data
+            self.logger.warning(f"无法获取 {keyword} 的趋势数据，使用默认值")
+            return self._empty_trend_result()
+
+        result = self._summarize_trends(keyword, data_12m)
+        self._store_cache(cache_key, keyword, result)
+        return result
+
     def calculate_new_word_score(self, historical_data: Dict) -> float:
-        """
-        计算新词得分
-        
-        参数:
-            historical_data (dict): 历史搜索数据
-            
-        返回:
-            float: 新词得分 (0-100)
-        """
+        """计算新词得分"""
         score = 0.0
-        
-        # 获取数据
-        avg_12m = historical_data.get('avg_12m', 0)
-        avg_90d = historical_data.get('avg_90d', 0)
-        avg_30d = historical_data.get('avg_30d', 0)
-        avg_7d = historical_data.get('avg_7d', 0)
-        
-        # 1. 历史搜索量低 (40分)
+
+        avg_12m = float(historical_data.get('avg_12m', 0.0) or 0.0)
+        avg_90d = float(historical_data.get('avg_90d', 0.0) or 0.0)
+        avg_30d = float(historical_data.get('avg_30d', 0.0) or 0.0)
+        avg_7d = float(historical_data.get('avg_7d', 0.0) or 0.0)
+
+        short_term_growth = historical_data.get('growth_rate_7d_vs_30d', 0.0)
+        mom_growth = historical_data.get('mom_growth', 0.0)
+        yoy_growth = historical_data.get('yoy_growth', 0.0)
+        z_score_value = historical_data.get('z_score', 0.0)
+
+        # 低历史搜索量加分（最多20分）
+        low_volume_score = 0.0
         if avg_12m <= self.thresholds['low_volume_12m']:
-            score += 15
+            low_volume_score += 8
         if avg_90d <= self.thresholds['low_volume_90d']:
-            score += 15
+            low_volume_score += 7
         if avg_30d <= self.thresholds['low_volume_30d']:
-            score += 10
-        
-        # 2. 近期增长率高 (40分)
-        if avg_30d > 0 and avg_7d > avg_30d:
-            growth_rate = ((avg_7d - avg_30d) / avg_30d) * 100
-            if growth_rate >= self.thresholds['high_growth_7d']:
-                score += 40
-            elif growth_rate >= self.thresholds['high_growth_7d'] * 0.5:
-                score += 25
-            elif growth_rate >= self.thresholds['high_growth_7d'] * 0.25:
-                score += 15
-        
-        # 3. 最近搜索量达标 (20分)
-        if avg_7d >= self.thresholds['min_recent_volume']:
-            score += 20
-        elif avg_7d >= self.thresholds['min_recent_volume'] * 0.5:
-            score += 10
-        
-        return min(score, 100.0)
-    
+            low_volume_score += 5
+        score += min(low_volume_score, 20.0)
+
+        # 近期趋势加速（7天对比30天）
+        score += self._score_growth_signal(
+            short_term_growth,
+            [(300, 20.0), (200, 16.0), (120, 12.0), (60, 8.0), (30, 4.0)],
+            [(-20, 4.0), (-40, 8.0)]
+        )
+
+        # 环比（月度）增长
+        score += self._score_growth_signal(
+            mom_growth,
+            [(200, 15.0), (120, 12.0), (80, 9.0), (40, 6.0), (20, 3.0)],
+            [(-15, 3.0), (-30, 6.0)]
+        )
+
+        # 同比（去年同期）增长
+        score += self._score_growth_signal(
+            yoy_growth,
+            [(250, 15.0), (150, 12.0), (100, 9.0), (50, 6.0), (25, 3.0)],
+            [(-10, 3.0), (-25, 6.0)]
+        )
+
+        # Z 分数衡量异动强度
+        score += self._score_growth_signal(
+            z_score_value,
+            [(3.0, 15.0), (2.5, 13.0), (2.0, 11.0), (1.5, 8.0), (1.0, 5.0), (0.5, 2.0)],
+            [(-0.5, 2.0), (-1.0, 4.0)]
+        )
+
+        # 近期搜索量底线
+        volume_score = 0.0
+        min_recent = self.thresholds['min_recent_volume']
+        if avg_7d >= min_recent * 2:
+            volume_score = 15.0
+        elif avg_7d >= min_recent * 1.2:
+            volume_score = 12.0
+        elif avg_7d >= min_recent:
+            volume_score = 10.0
+        elif avg_7d >= min_recent * 0.75:
+            volume_score = 6.0
+        elif avg_7d >= min_recent * 0.5:
+            volume_score = 3.0
+        score += volume_score
+
+        score = max(0.0, min(score, 100.0))
+        return round(score, 2)
     def get_new_word_grade(self, score: float) -> str:
         """
         根据得分获取新词等级
@@ -318,7 +432,12 @@ class NewWordDetector(BaseAnalyzer):
                     'avg_90d': historical_data.get('avg_90d', 0),
                     'avg_30d': historical_data.get('avg_30d', 0),
                     'avg_7d': historical_data.get('avg_7d', 0),
-                    'recent_trend': historical_data.get('recent_trend', [])
+                    'recent_trend': historical_data.get('recent_trend', []),
+                    'growth_rate_7d_vs_30d': historical_data.get('growth_rate_7d_vs_30d', 0.0),
+                    'mom_growth': historical_data.get('mom_growth', 0.0),
+                    'yoy_growth': historical_data.get('yoy_growth', 0.0),
+                    'z_score': historical_data.get('z_score', 0.0),
+                    'std_12m': historical_data.get('std_12m', 0.0)
                 }
 
                 results.append(result)
