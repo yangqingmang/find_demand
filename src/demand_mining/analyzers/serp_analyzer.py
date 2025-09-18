@@ -235,12 +235,21 @@ class SerpAnalyzer:
             'has_news': False,
             'has_knowledge_panel': False,
             'has_featured_snippet': False,
-            'top_domains': []
+            'top_domains': [],
+            'ads_count': 0,
+            'purchase_intent_hits': 0,
+            'purchase_intent_ratio': 0.0,
+            'purchase_intent_terms': [],
+            'analyzed_results': 0,
+            'ads_reference_window': 4,
         }
-        
-        # 根据不同的API响应格式提取特征
+
+        purchase_terms = {'buy', 'price', 'cost', 'discount', 'deal', 'coupon', 'order', 'subscribe', 'quote', 'plan'}
+        matched_terms = set()
+        purchase_hits = 0
+        analyzed_results = 0
+
         if 'organic_results' in search_result:
-            # SERP API 格式
             organic_results = search_result.get('organic_results', [])
             features['total_results'] = len(organic_results)
             features['has_ads'] = bool(search_result.get('ads'))
@@ -250,30 +259,69 @@ class SerpAnalyzer:
             features['has_news'] = bool(search_result.get('news_results'))
             features['has_knowledge_panel'] = bool(search_result.get('knowledge_graph'))
             features['has_featured_snippet'] = bool(search_result.get('answer_box'))
-            
-            # 提取顶级域名
+
+            features['ads_count'] = len(search_result.get('ads') or []) + len(search_result.get('shopping_results') or [])
+
             domains = []
             for result in organic_results[:5]:
                 if 'link' in result:
                     domain = urlparse(result['link']).netloc
                     domains.append(domain)
             features['top_domains'] = domains
-            
+
+            for result in organic_results[:10]:
+                text_parts = [
+                    result.get('title', ''),
+                    result.get('snippet', ''),
+                    result.get('description', '')
+                ]
+                text = ' '.join(part for part in text_parts if part).strip().lower()
+                if not text:
+                    continue
+                analyzed_results += 1
+                matched = {term for term in purchase_terms if term in text}
+                if matched:
+                    purchase_hits += 1
+                    matched_terms.update(matched)
+
+            features['ads_reference_window'] = max(features['ads_count'], len(organic_results), 4)
+
         elif 'items' in search_result:
-            # Google Custom Search API 格式
             items = search_result.get('items', [])
             search_info = search_result.get('searchInformation', {})
-            
             features['total_results'] = int(search_info.get('totalResults', 0))
-            
-            # 提取顶级域名
+            features['ads_count'] = len(search_result.get('promotions') or [])
+
             domains = []
             for item in items[:5]:
                 if 'link' in item:
                     domain = urlparse(item['link']).netloc
                     domains.append(domain)
             features['top_domains'] = domains
-        
+
+            for item in items[:10]:
+                text_parts = [
+                    item.get('title', ''),
+                    item.get('snippet', ''),
+                    item.get('htmlSnippet', '')
+                ]
+                text = ' '.join(part for part in text_parts if part).strip().lower()
+                if not text:
+                    continue
+                analyzed_results += 1
+                matched = {term for term in purchase_terms if term in text}
+                if matched:
+                    purchase_hits += 1
+                    matched_terms.update(matched)
+
+            features['ads_reference_window'] = max(features['ads_count'], len(items), 4)
+
+        if analyzed_results:
+            features['purchase_intent_ratio'] = round(purchase_hits / analyzed_results, 4)
+        features['purchase_intent_hits'] = purchase_hits
+        features['purchase_intent_terms'] = sorted(matched_terms)
+        features['analyzed_results'] = analyzed_results
+
         return features
     
     def _analyze_serp_intent(self, features: Dict) -> Tuple[str, float, Optional[str]]:

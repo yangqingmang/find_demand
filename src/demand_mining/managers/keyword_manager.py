@@ -8,11 +8,12 @@ import os
 import sys
 import pandas as pd
 from datetime import datetime
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from src.demand_mining.analyzers.intent_analyzer_v2 import IntentAnalyzerV2 as IntentAnalyzer
 from src.demand_mining.analyzers.market_analyzer import MarketAnalyzer
 from src.demand_mining.analyzers.keyword_analyzer import KeywordAnalyzer
 from src.demand_mining.analyzers.comprehensive_analyzer import ComprehensiveAnalyzer
+from src.demand_mining.analyzers.serp_analyzer import SerpAnalyzer
 
 # 添加项目根目录到路径
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -32,6 +33,7 @@ class KeywordManager(BaseManager):
         self._market_analyzer = None
         self._keyword_analyzer = None
         self._comprehensive_analyzer = None
+        self._serp_analyzer = None
         
         print("🔍 关键词管理器初始化完成")
     
@@ -62,6 +64,31 @@ class KeywordManager(BaseManager):
         if self._comprehensive_analyzer is None:
             self._comprehensive_analyzer = ComprehensiveAnalyzer()
         return self._comprehensive_analyzer
+
+    @property
+    def serp_analyzer(self):
+        """延迟加载SERP分析器"""
+        if getattr(self, '_serp_analyzer', None) is False:
+            return None
+
+        if self._serp_analyzer is None:
+            demand_cfg = self.config.get('demand_mining', {})
+            use_serp = demand_cfg.get('use_serp_signals', self.config.get('intent_analysis', {}).get('enable_serp_analysis', False))
+            if not use_serp:
+                self._serp_analyzer = False
+                return None
+            try:
+                analyzer = SerpAnalyzer(use_proxy=self.config.get('serp', {}).get('use_proxy', True))
+                if not getattr(analyzer, 'serp_api_key', None) and not getattr(analyzer, 'api_key', None):
+                    print("⚠️ 未检测到SERP相关API Key，跳过SERP信号提取")
+                    self._serp_analyzer = False
+                    return None
+                self._serp_analyzer = analyzer
+            except Exception as exc:
+                print(f"⚠️ SERP分析器初始化失败: {exc}")
+                self._serp_analyzer = False
+        return self._serp_analyzer or None
+
     
     def analyze(self, input_source: str, analysis_type: str = 'file', 
                 output_dir: str = None, use_comprehensive: bool = False) -> Dict[str, Any]:
@@ -144,15 +171,19 @@ class KeywordManager(BaseManager):
             
             # 市场分析
             market_result = self._analyze_keyword_market(keyword)
-            
+            serp_signals = market_result.get('serp_signals')
+
             # 整合结果
             keyword_result = {
                 'keyword': keyword,
                 'intent': intent_result,
                 'market': market_result,
-                'opportunity_score': self._calculate_opportunity_score(intent_result, market_result)
+                'opportunity_score': self._calculate_opportunity_score(intent_result, market_result, serp_signals)
             }
-            
+
+            if serp_signals:
+                keyword_result['serp_signals'] = serp_signals
+
             results['keywords'].append(keyword_result)
         
         # 生成摘要
@@ -205,6 +236,33 @@ class KeywordManager(BaseManager):
             print(f"⚠️ 意图分析失败 ({keyword}): {e}")
             return self._get_default_intent_result()
     
+
+    def _gather_serp_signals(self, keyword: str) -> Dict[str, Any]:
+        """提取SERP信号"""
+        serp_analyzer = self.serp_analyzer
+        if not serp_analyzer:
+            return {}
+        try:
+            serp_result = serp_analyzer.analyze_keyword_serp(keyword)
+        except Exception as exc:
+            print(f"⚠️ SERP信号提取失败 ({keyword}): {exc}")
+            return {}
+
+        features = serp_result.get('serp_features', {}) or {}
+        if not features:
+            return {}
+
+        ads_reference = features.get('ads_reference_window', features.get('analyzed_results', 4))
+        ads_reference = max(ads_reference or 0, 1)
+
+        return {
+            'ads_count': features.get('ads_count', 0),
+            'analyzed_results': features.get('analyzed_results', 0),
+            'purchase_intent_hits': features.get('purchase_intent_hits', 0),
+            'purchase_intent_ratio': features.get('purchase_intent_ratio', 0.0),
+            'ads_reference_window': ads_reference,
+            'purchase_terms': features.get('purchase_intent_terms', []),
+        }
     def _analyze_keyword_market(self, keyword: str) -> Dict[str, Any]:
         """分析关键词市场数据"""
         try:
@@ -222,6 +280,7 @@ class KeywordManager(BaseManager):
             
             # 商业价值评估
             commercial_value = self._assess_commercial_value(keyword)
+            serp_signals = self._gather_serp_signals(keyword)
             
             # 整合评分
             base_data.update({
@@ -229,6 +288,9 @@ class KeywordManager(BaseManager):
                 'commercial_value': commercial_value,
                 'opportunity_indicators': self._get_opportunity_indicators(keyword)
             })
+
+            if serp_signals:
+                base_data['serp_signals'] = serp_signals
             
             return base_data
             
@@ -246,36 +308,52 @@ class KeywordManager(BaseManager):
             }
     
     @staticmethod
-    def _calculate_opportunity_score(intent_result: Dict, market_result: Dict) -> float:
+    def _calculate_opportunity_score(intent_result: Dict, market_result: Dict, serp_signals: Optional[Dict] = None) -> float:
         """计算综合机会分数"""
         try:
-            # 基础评分权重
+            serp_signals = serp_signals or market_result.get('serp_signals') or {}
             weights = {
-                'intent_confidence': 0.2,
-                'search_volume': 0.25,
-                'competition': 0.15,
-                'ai_bonus': 0.2,
-                'commercial_value': 0.2
+                'intent_confidence': 0.15,
+                'search_volume': 0.2,
+                'competition': 0.1,
+                'ai_bonus': 0.15,
+                'commercial_value': 0.25,
+                'serp_purchase_intent': 0.1,
+                'serp_ads_presence': 0.05
             }
-            
-            # 各项分数计算
+
             intent_score = intent_result.get('confidence', 0) * 100
             volume_score = min(market_result.get('search_volume', 0) / 1000, 1) * 100
             competition_score = (1 - market_result.get('competition', 1)) * 100
-            ai_bonus = market_result.get('ai_bonus', 0)
-            commercial_value = market_result.get('commercial_value', 0)
-            
-            # 加权计算总分
+
+            ai_bonus_raw = market_result.get('ai_bonus', 0)
+            commercial_value_raw = market_result.get('commercial_value', 0)
+            ai_bonus_score = min(ai_bonus_raw * 2, 100)
+            commercial_value_score = min(commercial_value_raw * 2, 100)
+
+            purchase_ratio = serp_signals.get('purchase_intent_ratio')
+            if purchase_ratio is None:
+                purchase_hits = serp_signals.get('purchase_intent_hits', 0)
+                analyzed_results = serp_signals.get('analyzed_results', 0)
+                purchase_ratio = (purchase_hits / analyzed_results) if analyzed_results else 0.0
+            serp_purchase_score = min(purchase_ratio * 100, 100)
+
+            ads_count = serp_signals.get('ads_count', 0)
+            ads_reference = max(serp_signals.get('ads_reference_window', 4), 1)
+            serp_ads_score = min((ads_count / ads_reference) * 100, 100) if ads_reference else 0.0
+
             total_score = (
                 intent_score * weights['intent_confidence'] +
                 volume_score * weights['search_volume'] +
                 competition_score * weights['competition'] +
-                ai_bonus * weights['ai_bonus'] +
-                commercial_value * weights['commercial_value']
+                ai_bonus_score * weights['ai_bonus'] +
+                commercial_value_score * weights['commercial_value'] +
+                serp_purchase_score * weights['serp_purchase_intent'] +
+                serp_ads_score * weights['serp_ads_presence']
             )
-            
+
             return round(min(total_score, 100), 2)
-            
+
         except Exception as e:
             print(f"⚠️ 机会分数计算失败: {e}")
             return 0.0
