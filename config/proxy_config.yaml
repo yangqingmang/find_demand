@@ -3,7 +3,7 @@
 
 proxy_settings:
   # 是否启用代理
-  enabled: true
+  enabled: false
   
   # 频率控制
   rate_limiting:
