@@ -6,6 +6,7 @@
 
 import os
 import sys
+import json
 import pandas as pd
 from datetime import datetime
 from typing import Dict, List, Any, Optional
@@ -38,21 +39,49 @@ class KeywordManager(BaseManager):
         print("🔍 关键词管理器初始化完成")
         default_weights = {
             'intent_confidence': 0.2,
-            'search_volume': 0.25,
+            'search_volume': 0.22,
             'competition': 0.15,
             'ai_bonus': 0.1,
-            'commercial_value': 0.2,
+            'commercial_value': 0.18,
             'serp_purchase_intent': 0.05,
             'serp_ads_presence': 0.05
         }
-        config_weights = {}
-        keyword_scoring = self.config.get('keyword_scoring', {}) if hasattr(self, 'config') and self.config else {}
-        if isinstance(keyword_scoring, dict):
-            config_weights = keyword_scoring.get('weights', {}) or {}
+
+        keyword_scoring_cfg = {}
+        if hasattr(self, 'config') and self.config:
+            attr = getattr(self.config, 'keyword_scoring', None)
+            if isinstance(attr, dict):
+                keyword_scoring_cfg = attr
+
         combined = default_weights.copy()
-        combined.update({k: float(v) for k, v in config_weights.items() if isinstance(v, (int, float))})
+        weights_cfg = keyword_scoring_cfg.get('weights', {}) if isinstance(keyword_scoring_cfg, dict) else {}
+        if isinstance(weights_cfg, dict):
+            combined.update({k: float(v) for k, v in weights_cfg.items() if isinstance(v, (int, float))})
+
+        env_weights = os.getenv('KEYWORD_SCORING_WEIGHTS')
+        if env_weights:
+            try:
+                env_data = json.loads(env_weights)
+                combined.update({k: float(v) for k, v in env_data.items()})
+            except Exception:
+                pass
+
         self.scoring_weights = combined
         self._normalize_scoring_weights()
+
+        default_cost_penalty = 0.15
+        if isinstance(keyword_scoring_cfg, dict):
+            try:
+                default_cost_penalty = float(keyword_scoring_cfg.get('cost_penalty', default_cost_penalty))
+            except Exception:
+                pass
+        env_cost_penalty = os.getenv('KEYWORD_SCORING_COST_PENALTY')
+        if env_cost_penalty:
+            try:
+                default_cost_penalty = float(env_cost_penalty)
+            except Exception:
+                pass
+        self.cost_penalty = max(0.0, min(default_cost_penalty, 1.0))
 
     
     @property
@@ -196,7 +225,8 @@ class KeywordManager(BaseManager):
                 'keyword': keyword,
                 'intent': intent_result,
                 'market': market_result,
-                'opportunity_score': self._calculate_opportunity_score(intent_result, market_result, serp_signals)
+                'opportunity_score': self._calculate_opportunity_score(intent_result, market_result, serp_signals),
+                'execution_cost': market_result.get('execution_cost', 0.0)
             }
 
             if serp_signals:
@@ -282,25 +312,27 @@ class KeywordManager(BaseManager):
             'purchase_terms': features.get('purchase_intent_terms', []),
         }
     def _analyze_keyword_market(self, keyword: str) -> Dict[str, Any]:
-        """分析关键词市场数据"""
+        """Analyze keyword market data"""
         try:
-            # 基础市场数据（实际可接入真实API）
+            market_data: Dict[str, Any] = {}
+            try:
+                market_data = self.market_analyzer.analyze_market_data([keyword]).get(keyword, {})
+            except Exception:
+                market_data = {}
+
             base_data = {
-                'search_volume': 1000,
-                'competition': 0.5,
-                'cpc': 2.0,
-                'trend': 'stable',
-                'seasonality': 'low'
+                'search_volume': market_data.get('search_volume', 1000),
+                'competition': market_data.get('competition', 0.5),
+                'cpc': market_data.get('cpc', 2.0),
+                'trend': market_data.get('trend', 'stable'),
+                'seasonality': market_data.get('seasonality', 'low'),
+                'execution_cost': market_data.get('execution_cost', 0.3)
             }
-            
-            # AI相关关键词加分
+
             ai_bonus = self._calculate_ai_bonus(keyword)
-            
-            # 商业价值评估
             commercial_value = self._assess_commercial_value(keyword)
             serp_signals = self._gather_serp_signals(keyword)
-            
-            # 整合评分
+
             base_data.update({
                 'ai_bonus': ai_bonus,
                 'commercial_value': commercial_value,
@@ -309,9 +341,9 @@ class KeywordManager(BaseManager):
 
             if serp_signals:
                 base_data['serp_signals'] = serp_signals
-            
+
             return base_data
-            
+
         except Exception as e:
             print(f"⚠️ 市场分析失败 ({keyword}): {e}")
             return {
@@ -322,19 +354,20 @@ class KeywordManager(BaseManager):
                 'seasonality': 'unknown',
                 'ai_bonus': 0,
                 'commercial_value': 0,
-                'opportunity_indicators': []
+                'opportunity_indicators': [],
+                'execution_cost': 0.5
             }
-    
-        def _normalize_scoring_weights(self):
-        """确保机会评分权重归一化"""
+
+    def _normalize_scoring_weights(self):
+        """Ensure opportunity scoring weights are normalized"""
         total = sum(self.scoring_weights.values()) if getattr(self, 'scoring_weights', None) else 0
         if not total:
             self.scoring_weights = {
                 'intent_confidence': 0.2,
-                'search_volume': 0.25,
+                'search_volume': 0.22,
                 'competition': 0.15,
                 'ai_bonus': 0.1,
-                'commercial_value': 0.2,
+                'commercial_value': 0.18,
                 'serp_purchase_intent': 0.05,
                 'serp_ads_presence': 0.05
             }
@@ -344,24 +377,26 @@ class KeywordManager(BaseManager):
         self.scoring_weights = {k: (v / total) for k, v in self.scoring_weights.items()}
 
     def _calculate_opportunity_score(self, intent_result: Dict, market_result: Dict, serp_signals: Optional[Dict] = None) -> float:
-        """计算综合机会分数"""
+        """Calculate overall opportunity score"""
         try:
             serp_signals = serp_signals or market_result.get('serp_signals') or {}
             weights = getattr(self, 'scoring_weights', None) or {
                 'intent_confidence': 0.2,
-                'search_volume': 0.25,
+                'search_volume': 0.22,
                 'competition': 0.15,
                 'ai_bonus': 0.1,
-                'commercial_value': 0.2,
+                'commercial_value': 0.18,
                 'serp_purchase_intent': 0.05,
                 'serp_ads_presence': 0.05
             }
 
             def _weight(key: str, default: float = 0.0) -> float:
-                return float(weights.get(key, default))
+                try:
+                    return float(weights.get(key, default))
+                except Exception:
+                    return default
 
             intent_score = intent_result.get('confidence', 0) * 100
-            # 增强搜索量影响：缩小归一化分母，鼓励中等搜索量关键词
             volume_score = min(market_result.get('search_volume', 0) / 800, 1) * 100
             competition_raw = market_result.get('competition', 1)
             competition_score = max(0.0, min(1 - competition_raw, 1)) * 100
@@ -392,6 +427,17 @@ class KeywordManager(BaseManager):
                 serp_ads_score * _weight('serp_ads_presence')
             )
 
+            execution_cost = market_result.get('execution_cost')
+            if execution_cost is None:
+                execution_cost = serp_signals.get('execution_cost')
+            cost_penalty_weight = getattr(self, 'cost_penalty', 0.15)
+            if execution_cost is not None and cost_penalty_weight:
+                try:
+                    normalized_cost = min(max(float(execution_cost), 0.0), 1.0)
+                except Exception:
+                    normalized_cost = 0.0
+                total_score -= normalized_cost * cost_penalty_weight * 100
+
             return round(max(0.0, min(total_score, 100.0)), 2)
 
         except Exception as e:
@@ -400,7 +446,7 @@ class KeywordManager(BaseManager):
 
     @staticmethod
     def _get_default_intent_result() -> Dict[str, Any]:
-        """获取默认意图分析结果"""
+        """Return a default intent analysis result"""
         return {
             'primary_intent': 'Unknown',
             'confidence': 0.0,
@@ -408,60 +454,46 @@ class KeywordManager(BaseManager):
             'intent_description': '分析失败',
             'website_recommendations': {}
         }
-    
+
     @staticmethod
     def _calculate_ai_bonus(keyword: str) -> float:
-        """计算AI相关关键词加分"""
+        """Calculate extra score for AI-related keywords"""
         keyword_lower = keyword.lower()
         ai_score = 0
-        
-        # AI前缀匹配
+
         ai_prefixes = ['ai', 'artificial intelligence', 'machine learning', 'deep learning']
-        for prefix in ai_prefixes:
-            if prefix in keyword_lower:
-                ai_score += 20
-                break
-        
-        # AI工具类型匹配
+        if any(prefix in keyword_lower for prefix in ai_prefixes):
+            ai_score += 20
+
         ai_tool_types = ['generator', 'detector', 'writer', 'assistant', 'chatbot', 'humanizer']
-        for tool_type in ai_tool_types:
-            if tool_type in keyword_lower:
-                ai_score += 15
-                break
+        if any(tool_type in keyword_lower for tool_type in ai_tool_types):
+            ai_score += 15
 
         brand_tokens = ['bypass', 'undetectable', 'deepseek', 'chatgpt', 'gpt', 'llm']
         if any(token in keyword_lower for token in brand_tokens):
             ai_score += 10
 
         return min(ai_score, 60)
-    
+
     @staticmethod
     def _assess_commercial_value(keyword: str) -> float:
-        """评估商业价值"""
+        """Estimate commercial value of a keyword"""
         keyword_lower = keyword.lower()
         commercial_score = 0
-        
-        # 高价值关键词类型
+
         high_value_types = [
             'generator', 'converter', 'editor', 'maker', 'creator',
             'optimizer', 'enhancer', 'analyzer', 'detector'
         ]
-        
-        for value_type in high_value_types:
-            if value_type in keyword_lower:
-                commercial_score += 25
-                break
-        
-        # 付费意愿强的领域
+        if any(value_type in keyword_lower for value_type in high_value_types):
+            commercial_score += 25
+
         high_payment_domains = [
             'business', 'marketing', 'seo', 'content', 'design',
             'video', 'image', 'writing', 'coding', 'academic'
         ]
-        
-        for domain in high_payment_domains:
-            if domain in keyword_lower:
-                commercial_score += 20
-                break
+        if any(domain in keyword_lower for domain in high_payment_domains):
+            commercial_score += 20
 
         monetization_terms = [
             'pricing', 'price', 'plan', 'plans', 'premium', 'pro', 'subscription',
@@ -472,7 +504,7 @@ class KeywordManager(BaseManager):
             commercial_score += 20
 
         return min(commercial_score, 60)
-    
+
     @staticmethod
     def _get_opportunity_indicators(keyword: str) -> List[str]:
         """获取机会指标"""
@@ -521,17 +553,29 @@ class KeywordManager(BaseManager):
 
     @staticmethod
     def _generate_market_insights(keywords: List[Dict]) -> Dict[str, Any]:
-        """生成市场洞察"""
+        """Generate market insight summary"""
         high_opportunity = [kw for kw in keywords if kw['opportunity_score'] >= 70]
         medium_opportunity = [kw for kw in keywords if 40 <= kw['opportunity_score'] < 70]
         low_opportunity = [kw for kw in keywords if kw['opportunity_score'] < 40]
+
+        avg_cost = 0.0
+        if keywords:
+            total_cost = sum((kw.get('execution_cost') or kw.get('market', {}).get('execution_cost', 0.0)) for kw in keywords)
+            avg_cost = round(total_cost / len(keywords), 2)
+
+        low_cost_keywords = [
+            kw for kw in keywords
+            if (kw.get('execution_cost') or kw.get('market', {}).get('execution_cost', 1.0)) <= 0.35
+        ]
 
         return {
             'high_opportunity_count': len(high_opportunity),
             'medium_opportunity_count': len(medium_opportunity),
             'low_opportunity_count': len(low_opportunity),
             'top_opportunities': sorted(keywords, key=lambda x: x['opportunity_score'], reverse=True)[:10],
-            'avg_opportunity_score': round(sum(kw['opportunity_score'] for kw in keywords) / len(keywords), 2) if keywords else 0
+            'avg_opportunity_score': round(sum(kw['opportunity_score'] for kw in keywords) / len(keywords), 2) if keywords else 0,
+            'avg_execution_cost': avg_cost,
+            'low_cost_candidates': low_cost_keywords[:5]
         }
 
     @staticmethod
