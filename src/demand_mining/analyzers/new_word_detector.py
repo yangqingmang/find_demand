@@ -397,39 +397,92 @@ class NewWordDetector(BaseAnalyzer):
     def detect_new_words(self, data: pd.DataFrame, keyword_col: str = 'query') -> pd.DataFrame:
         """
         检测新词
-        
+
         参数:
             data (pd.DataFrame): 包含关键词的数据
             keyword_col (str): 关键词列名
-            
+
         返回:
             pd.DataFrame: 添加了新词检测结果的数据
         """
-        if data.empty or keyword_col not in data.columns:
-            return data
-        
+        result_columns = [
+            'keyword', 'new_word_score', 'new_word_grade', 'is_new_word',
+            'confidence_level', 'grade_description', 'avg_12m', 'avg_90d',
+            'avg_30d', 'avg_7d', 'recent_trend', 'growth_rate_7d_vs_30d',
+            'growth_rate_7d', 'mom_growth', 'yoy_growth', 'z_score', 'std_12m',
+            'historical_pattern', 'explosion_index', 'detection_reasons'
+        ]
+
+        if data.empty:
+            return pd.DataFrame(columns=result_columns)
+
+        candidate_columns = []
+        for col in [keyword_col, 'query', 'keyword', 'keywords', '关键词', 'term']:
+            if col and col not in candidate_columns:
+                candidate_columns.append(col)
+
+        for candidate in candidate_columns:
+            if candidate in data.columns:
+                keyword_col = candidate
+                break
+        else:
+            raise ValueError(f"无法在数据中找到关键词列，期望列名之一: {candidate_columns}")
+
+        working_data = data.copy()
+        keywords_series = working_data[keyword_col].fillna('').astype(str)
+
         results = []
-        
-        # 批量处理关键词，每批最多3个，避免429错误
-        keywords = data[keyword_col].tolist()
         batch_size = 3
-        
-        for i in range(0, len(keywords), batch_size):
-            batch_keywords = keywords[i:i + batch_size]
-            batch_indices = data.index[i:i + batch_size]
 
-            for j, keyword in enumerate(batch_keywords):
-                idx = batch_indices[j]
-                row = data.loc[idx]
+        for i in range(0, len(keywords_series), batch_size):
+            batch_keywords = keywords_series.iloc[i:i + batch_size]
 
-                # 获取历史数据
-                historical_data = self.get_historical_data(keyword)
+            for j, (idx, raw_keyword) in enumerate(batch_keywords.items()):
+                keyword = raw_keyword.strip()
 
-                # 计算新词得分
+                if not keyword:
+                    results.append({
+                        'keyword': keyword,
+                        'new_word_score': 0.0,
+                        'new_word_grade': 'D',
+                        'is_new_word': False,
+                        'confidence_level': 'low',
+                        'grade_description': self.new_word_grades['D']['description'],
+                        'avg_12m': 0.0,
+                        'avg_90d': 0.0,
+                        'avg_30d': 0.0,
+                        'avg_7d': 0.0,
+                        'recent_trend': [],
+                        'growth_rate_7d_vs_30d': 0.0,
+                        'growth_rate_7d': 0.0,
+                        'mom_growth': 0.0,
+                        'yoy_growth': 0.0,
+                        'z_score': 0.0,
+                        'std_12m': 0.0,
+                        'historical_pattern': 'unknown',
+                        'explosion_index': 1.0,
+                        'detection_reasons': 'empty_keyword'
+                    })
+                    continue
+
+                detection_reasons = []
+                try:
+                    historical_data = self.get_historical_data(keyword)
+                except Exception as fetch_error:
+                    self.logger.warning(f"获取 {keyword} 趋势数据失败: {fetch_error}")
+                    historical_data = self._empty_trend_result()
+                    detection_reasons.append(str(fetch_error))
+
+                historical_data = historical_data or {}
                 score = self.calculate_new_word_score(historical_data)
-
-                # 获取新词等级
                 grade = self.get_new_word_grade(score)
+
+                growth_signal = float(historical_data.get('growth_rate_7d_vs_30d', 0.0) or 0.0)
+                explosion_index = round(max(score / 10.0, 1.0), 2)
+                historical_pattern = str(historical_data.get('trend_direction', 'unknown') or 'unknown')
+
+                if score >= 60:
+                    detection_reasons.append('rapid_growth_signals')
 
                 result = {
                     'keyword': keyword,
@@ -438,43 +491,40 @@ class NewWordDetector(BaseAnalyzer):
                     'is_new_word': score >= 60,
                     'confidence_level': 'high' if score >= 80 else 'medium' if score >= 60 else 'low',
                     'grade_description': self.new_word_grades[grade]['description'],
-                    'avg_12m': historical_data.get('avg_12m', 0),
-                    'avg_90d': historical_data.get('avg_90d', 0),
-                    'avg_30d': historical_data.get('avg_30d', 0),
-                    'avg_7d': historical_data.get('avg_7d', 0),
+                    'avg_12m': historical_data.get('avg_12m', 0.0),
+                    'avg_90d': historical_data.get('avg_90d', 0.0),
+                    'avg_30d': historical_data.get('avg_30d', 0.0),
+                    'avg_7d': historical_data.get('avg_7d', 0.0),
                     'recent_trend': historical_data.get('recent_trend', []),
-                    'growth_rate_7d_vs_30d': historical_data.get('growth_rate_7d_vs_30d', 0.0),
+                    'growth_rate_7d_vs_30d': growth_signal,
+                    'growth_rate_7d': growth_signal,
                     'mom_growth': historical_data.get('mom_growth', 0.0),
                     'yoy_growth': historical_data.get('yoy_growth', 0.0),
                     'z_score': historical_data.get('z_score', 0.0),
-                    'std_12m': historical_data.get('std_12m', 0.0)
+                    'std_12m': historical_data.get('std_12m', 0.0),
+                    'historical_pattern': historical_pattern,
+                    'explosion_index': explosion_index,
+                    'detection_reasons': '; '.join(filter(None, detection_reasons))
                 }
 
                 results.append(result)
 
                 if j < len(batch_keywords) - 1:
-                    import time
                     time.sleep(0.2)
 
-            if i + batch_size < len(keywords):
-                import time
+            if i + batch_size < len(keywords_series):
                 time.sleep(0.3)
 
-        # 转换为DataFrame
-        new_word_df = pd.DataFrame(results)
-        
-        # 合并到原数据
-        if not new_word_df.empty:
-            # 重置索引确保合并正确
-            data_reset = data.reset_index(drop=True)
-            new_word_df_reset = new_word_df.reset_index(drop=True)
-            
-            # 合并数据
-            merged_data = pd.concat([data_reset, new_word_df_reset.drop('keyword', axis=1)], axis=1)
-            return merged_data
-        
-        return data
-    
+        new_word_df = pd.DataFrame(results, columns=result_columns)
+
+        if new_word_df.empty:
+            return pd.DataFrame(columns=result_columns)
+
+        data_reset = working_data.reset_index(drop=True)
+        new_word_df_reset = new_word_df.reset_index(drop=True)
+        merged_data = pd.concat([data_reset, new_word_df_reset.drop(columns=['keyword'], errors='ignore')], axis=1)
+        return merged_data
+
     def get_top_new_words(self, data: pd.DataFrame, top_n: int = 10) -> pd.DataFrame:
         """
         获取得分最高的新词

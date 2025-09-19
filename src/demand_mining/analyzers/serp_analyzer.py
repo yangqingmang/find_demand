@@ -6,6 +6,7 @@ SERP 分析工具 - SERP Analyzer
 """
 
 import requests
+import random
 import time
 import json
 import os
@@ -14,6 +15,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 from urllib.parse import urlparse
 import hashlib
+from collections import deque
 
 import sys
 import os
@@ -87,17 +89,32 @@ class SerpAnalyzer:
         self.request_delay = getattr(config, 'SERP_REQUEST_DELAY', 1)
         self.max_retries = getattr(config, 'SERP_MAX_RETRIES', 3)
         
-        # 代理配置
-        self.use_proxy = use_proxy
-        if self.use_proxy and get_proxy_config:
+        # SERP API 直连限速配置
+        self.serp_session = requests.Session()
+        self.serp_rate_limit_window = 60
+        self.serp_max_requests_per_minute = 20
+        self.serp_delay_range = (0.5, 1.5)
+        self._serp_request_history = deque()
+        proxy_config = None
+        if get_proxy_config:
             try:
                 proxy_config = get_proxy_config()
-                if not proxy_config.enabled:
-                    print("提示: 当前代理配置已禁用代理，SERP 分析器将使用直连模式")
-                    self.use_proxy = False
+                domain_config = proxy_config.domain_specific.get('serpapi.com', {}) if getattr(proxy_config, 'domain_specific', None) else {}
+                delay_config = domain_config.get('request_delay', {})
+                min_delay = delay_config.get('min', self.serp_delay_range[0])
+                max_delay = delay_config.get('max', self.serp_delay_range[1])
+                if max_delay < min_delay:
+                    max_delay = min_delay
+                self.serp_delay_range = (min_delay, max_delay)
+                self.serp_max_requests_per_minute = domain_config.get('max_requests_per_minute', self.serp_max_requests_per_minute)
             except Exception as e:
-                print(f"警告: 读取代理配置失败: {e}，SERP 分析器将使用直连模式")
-                self.use_proxy = False
+                print(f"警告: 读取代理配置失败: {e}，将使用默认 SERP API 限速")
+        
+        # 代理配置
+        self.use_proxy = use_proxy
+        if self.use_proxy and proxy_config and not proxy_config.enabled:
+            print("提示: 当前代理配置已禁用代理，SERP 分析器将使用直连模式")
+            self.use_proxy = False
         self.proxy_manager = None
         if self.use_proxy and get_proxy_manager:
             try:
@@ -107,6 +124,7 @@ class SerpAnalyzer:
                 print(f"⚠️ SERP分析器：代理管理器初始化失败: {e}，将使用直接请求")
                 self.use_proxy = False
         
+
         # 缓存配置
         self.cache_enabled = getattr(config, 'SERP_CACHE_ENABLED', True)
         self.cache_duration = getattr(config, 'SERP_CACHE_DURATION', 3600)
@@ -168,6 +186,27 @@ class SerpAnalyzer:
         
         return result
     
+    def _respect_serp_rate_limit(self):
+        """SERP API 直连限速控制"""
+        if self.serp_max_requests_per_minute <= 0:
+            return
+        now = time.time()
+        while self._serp_request_history and now - self._serp_request_history[0] > self.serp_rate_limit_window:
+            self._serp_request_history.popleft()
+        if len(self._serp_request_history) >= self.serp_max_requests_per_minute:
+            wait_time = self.serp_rate_limit_window - (now - self._serp_request_history[0])
+            if wait_time > 0:
+                print(f"⏱️ SERP API 频率限制，等待 {wait_time:.2f} 秒")
+                time.sleep(wait_time)
+        delay = random.uniform(*self.serp_delay_range)
+        if delay > 0:
+            time.sleep(delay)
+
+    def _record_serp_request(self):
+        """记录 SERP API 请求时间"""
+        self._serp_request_history.append(time.time())
+
+
     def _search_with_serpapi(self, query: str) -> Optional[Dict]:
         """使用 SERP API 搜索"""
         params = {
@@ -176,33 +215,45 @@ class SerpAnalyzer:
             'engine': 'google',
             'num': 10
         }
-        
-        try:
-            # 如果启用代理管理器，使用代理发送请求
+
+        if not self.serp_api_key:
+            print("⚠️ 未配置 SERP API Key，跳过 SERP API 搜索")
+            return None
+
+        for attempt in range(1, self.max_retries + 1):
+            # 优先尝试代理请求，让代理管理器统一限速/重试
             if self.use_proxy and self.proxy_manager:
                 try:
                     response = self.proxy_manager.make_request(
-                        self.serp_api_url, 
-                        method='GET', 
-                        params=params, 
+                        self.serp_api_url,
+                        method='GET',
+                        params=params,
                         timeout=30
                     )
                     if response:
                         response.raise_for_status()
                         return response.json()
-                    else:
-                        print("⚠️ 代理请求失败，尝试直接请求")
-                except Exception as e:
-                    print(f"⚠️ 代理请求异常: {e}，尝试直接请求")
+                except Exception as proxy_error:
+                    print(f"⚠️ SERP API 代理请求失败({attempt}/{self.max_retries}): {proxy_error}")
             
-            # 直接请求（无代理或代理失败时的回退方案）
-            response = requests.get(self.serp_api_url, params=params, timeout=30)
-            response.raise_for_status()
-            return response.json()
-        except Exception as e:
-            print(f"SERP API 搜索失败: {e}")
-            return None
-    
+            # 直接请求：按照配置做限速和随机延迟
+            self._respect_serp_rate_limit()
+            try:
+                response = self.serp_session.get(self.serp_api_url, params=params, timeout=30)
+                self._record_serp_request()
+                response.raise_for_status()
+                return response.json()
+            except requests.exceptions.RequestException as direct_error:
+                if attempt < self.max_retries:
+                    base_delay = max(self.request_delay, 0.5)
+                    backoff = min(base_delay * (2 ** (attempt - 1)), 10)
+                    print(f"⚠️ SERP API 第 {attempt} 次尝试失败: {direct_error}，{backoff:.2f} 秒后重试")
+                    time.sleep(backoff)
+                else:
+                    print(f"SERP API 搜索失败: {direct_error}")
+        
+        return None
+
     def _search_with_google_api(self, query: str) -> Optional[Dict]:
         """使用 Google Custom Search API 搜索"""
         params = {
