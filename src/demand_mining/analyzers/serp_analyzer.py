@@ -59,6 +59,11 @@ except ImportError:
     get_proxy_manager = None
     print("警告: 代理管理器不可用，将使用直接请求")
 
+try:
+    from config.proxy_config_loader import get_proxy_config
+except ImportError:
+    get_proxy_config = None
+
 class SerpAnalyzer:
     """SERP分析类，用于分析搜索引擎结果页面"""
     
@@ -84,6 +89,15 @@ class SerpAnalyzer:
         
         # 代理配置
         self.use_proxy = use_proxy
+        if self.use_proxy and get_proxy_config:
+            try:
+                proxy_config = get_proxy_config()
+                if not proxy_config.enabled:
+                    print("提示: 当前代理配置已禁用代理，SERP 分析器将使用直连模式")
+                    self.use_proxy = False
+            except Exception as e:
+                print(f"警告: 读取代理配置失败: {e}，SERP 分析器将使用直连模式")
+                self.use_proxy = False
         self.proxy_manager = None
         if self.use_proxy and get_proxy_manager:
             try:

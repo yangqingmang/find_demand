@@ -26,6 +26,11 @@ except ImportError:
     get_proxy_manager = None
     logging.warning("代理管理器不可用，将使用直接请求")
 
+try:
+    from config.proxy_config_loader import get_proxy_config
+except ImportError:
+    get_proxy_config = None
+
 logger = logging.getLogger(__name__)
 
 
@@ -55,6 +60,16 @@ class HttpClient:
         self.default_headers = default_headers or {}
         self.proxy_manager = None
         
+        if self.use_proxy and get_proxy_config:
+            try:
+                proxy_config = get_proxy_config()
+                if not proxy_config.enabled:
+                    logger.info("代理配置已禁用代理功能，HTTP客户端将改用直连模式")
+                    self.use_proxy = False
+            except Exception as e:
+                logger.warning(f"读取代理配置失败: {e}，HTTP客户端将改用直连模式")
+                self.use_proxy = False
+
         # 初始化代理管理器
         if self.use_proxy and get_proxy_manager:
             try:
@@ -251,7 +266,19 @@ class HttpClient:
         return None
     
     def set_proxy_enabled(self, enabled: bool):
-        """启用或禁用代理"""
+        """启用或停用代理"""
+        if enabled and get_proxy_config:
+            try:
+                proxy_config = get_proxy_config()
+                if not proxy_config.enabled:
+                    logger.info("代理配置已禁用代理功能，无法开启代理")
+                    self.use_proxy = False
+                    return
+            except Exception as e:
+                logger.warning(f"读取代理配置失败: {e}，无法开启代理")
+                self.use_proxy = False
+                return
+
         self.use_proxy = enabled
         if enabled and not self.proxy_manager and get_proxy_manager:
             try:
@@ -260,7 +287,9 @@ class HttpClient:
             except Exception as e:
                 logger.warning(f"⚠️ 代理管理器重新初始化失败: {e}")
                 self.use_proxy = False
-    
+        elif not enabled:
+            logger.info("已关闭代理模式，后续请求将使用直连")
+
     def get_proxy_stats(self) -> Optional[Dict[str, Any]]:
         """获取代理统计信息"""
         if self.proxy_manager:

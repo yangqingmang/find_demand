@@ -17,7 +17,7 @@ import time
 import random
 import requests
 import threading
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Any
 from dataclasses import dataclass
 from collections import defaultdict, deque
 from fake_useragent import UserAgent
@@ -80,8 +80,9 @@ class RateLimiter:
         self.requests = defaultdict(deque)  # 域名 -> 请求时间队列
         self.lock = threading.Lock()
     
-    def can_request(self, domain: str) -> bool:
-        """检查是否可以发起请求"""
+    def can_request(self, domain: str, max_requests: Optional[int] = None) -> bool:
+        """判断是否可以发起请求"""
+        limit = max_requests or self.max_requests
         with self.lock:
             now = time.time()
             request_times = self.requests[domain]
@@ -90,23 +91,24 @@ class RateLimiter:
             while request_times and now - request_times[0] > self.time_window:
                 request_times.popleft()
             
-            return len(request_times) < self.max_requests
+            return len(request_times) < limit
     
     def record_request(self, domain: str):
         """记录请求"""
         with self.lock:
             self.requests[domain].append(time.time())
     
-    def wait_time(self, domain: str) -> float:
+    def wait_time(self, domain: str, max_requests: Optional[int] = None) -> float:
         """计算需要等待的时间"""
+        limit = max_requests or self.max_requests
         with self.lock:
             now = time.time()
             request_times = self.requests[domain]
             
-            if len(request_times) < self.max_requests:
+            if len(request_times) < limit:
                 return 0
             
-            # 计算最早请求过期的时间
+            # 计算最早请求经过的时间
             earliest_request = request_times[0]
             wait_time = self.time_window - (now - earliest_request)
             return max(0, wait_time)
@@ -120,7 +122,9 @@ class ProxyManager:
                  max_requests_per_minute: int = 10,
                  request_delay: Tuple[float, float] = (1.0, 3.0),
                  max_retries: int = 3,
-                 timeout: int = 10):
+                 timeout: int = 10,
+                 enabled: bool = True,
+                 domain_configs: Optional[Dict[str, Dict[str, Any]]] = None):
         """
         初始化代理管理器
         
@@ -132,7 +136,11 @@ class ProxyManager:
             timeout: 请求超时时间(秒)
         """
         self.proxies: List[ProxyInfo] = []
+        self.enabled = enabled
+        self.domain_configs = domain_configs or {}
+        self.default_max_requests = max_requests_per_minute
         self.rate_limiter = RateLimiter(max_requests_per_minute, 60)
+        self.base_request_delay = request_delay
         self.request_delay = request_delay
         self.max_retries = max_retries
         self.timeout = timeout
@@ -143,7 +151,7 @@ class ProxyManager:
         if proxies:
             self._load_proxies(proxies)
         
-        logger.info(f"代理管理器初始化完成，加载了 {len(self.proxies)} 个代理")
+        logger.info(f"代理管理器初始化完成，当前状态: {'启用' if self.enabled else '禁用'}，已加载 {len(self.proxies)} 个代理")
     
     def _load_proxies(self, proxies: List[Dict]):
         """加载代理列表"""
@@ -157,6 +165,43 @@ class ProxyManager:
             )
             self.proxies.append(proxy)
     
+    def _get_domain_config(self, domain: str) -> Dict[str, Any]:
+        """获取域名对应的配置"""
+        return self.domain_configs.get(domain, {})
+
+    def _get_request_delay_range(self, domain_config: Dict[str, Any]) -> Tuple[float, float]:
+        """获取请求延迟范围"""
+        delay_config = domain_config.get('request_delay', {})
+        min_delay = delay_config.get('min', self.base_request_delay[0])
+        max_delay = delay_config.get('max', self.base_request_delay[1])
+        if max_delay < min_delay:
+            max_delay = min_delay
+        return (min_delay, max_delay)
+
+    def _get_max_requests(self, domain_config: Dict[str, Any]) -> int:
+        """获取最大请求数"""
+        return domain_config.get('max_requests_per_minute', self.default_max_requests)
+
+    def _should_use_proxy(self, requested: bool, domain_config: Dict[str, Any]) -> bool:
+        """判断是否应该启用代理"""
+        if not requested or not self.enabled:
+            return False
+        return domain_config.get('use_proxy', True)
+
+    def _respect_rate_limit(self, domain: str, max_requests: int, delay_range: Tuple[float, float]):
+        """应用限速与随机延迟"""
+        wait_time = 0
+        if not self.rate_limiter.can_request(domain, max_requests):
+            wait_time = self.rate_limiter.wait_time(domain, max_requests)
+            if wait_time > 0:
+                logger.info(f"频率限制，等待 {wait_time:.2f} 秒")
+                time.sleep(wait_time)
+
+        delay = random.uniform(*delay_range)
+        if delay > 0:
+            time.sleep(delay)
+
+
     def add_proxy(self, host: str, port: int, 
                   username: Optional[str] = None, 
                   password: Optional[str] = None,
@@ -241,90 +286,86 @@ class ProxyManager:
                     use_proxy: bool = True, **kwargs) -> Optional[requests.Response]:
         """发起请求"""
         domain = urlparse(url).netloc
-        
-        # 检查频率限制
-        if not self.rate_limiter.can_request(domain):
-            wait_time = self.rate_limiter.wait_time(domain)
-            logger.info(f"频率限制，等待 {wait_time:.2f} 秒")
-            time.sleep(wait_time)
-        
-        # 随机延迟
-        delay = random.uniform(*self.request_delay)
-        time.sleep(delay)
-        
-        # 记录请求
-        self.rate_limiter.record_request(domain)
-        
-        # 准备请求参数
+
+        domain_config = self._get_domain_config(domain)
+        max_requests_limit = self._get_max_requests(domain_config)
+        delay_range = self._get_request_delay_range(domain_config)
+        effective_use_proxy = self._should_use_proxy(use_proxy, domain_config)
+
+        if effective_use_proxy and not self.proxies:
+            logger.warning(f"⚠️ 代理列表为空，无法使用代理发送请求: {url}")
+            return None
+
+        self._respect_rate_limit(domain, max_requests_limit, delay_range)
+
+        headers = dict(kwargs.get('headers', {}))
         request_kwargs = {
-            'timeout': self.timeout,
-            'headers': kwargs.get('headers', {})
+            'timeout': kwargs.get('timeout', self.timeout),
+            'headers': headers
         }
-        request_kwargs['headers']['User-Agent'] = self.get_random_user_agent()
-        request_kwargs.update(kwargs)
-        
-        # 选择代理
-        proxy = None
-        if use_proxy:
-            if not self.proxies:
-                logger.warning(f"⚠️ 代理列表为空，无法使用代理发送请求: {url}")
-                return None
-            
-            proxy = self.get_best_proxy() or self.get_random_proxy()
-            if proxy:
-                request_kwargs['proxies'] = proxy.to_dict()
-                logger.debug(f"🔄 使用代理: {proxy.proxy_url}")
+        headers['User-Agent'] = self.get_random_user_agent()
+
+        for key, value in kwargs.items():
+            if key not in ('headers', 'timeout'):
+                request_kwargs[key] = value
+
+        current_proxy = None
+        if effective_use_proxy:
+            current_proxy = self.get_best_proxy() or self.get_random_proxy()
+            if current_proxy:
+                request_kwargs['proxies'] = current_proxy.to_dict()
+                logger.debug(f"✅ 使用代理: {current_proxy.proxy_url}")
             else:
                 logger.warning(f"⚠️ 没有可用的代理，无法发送请求: {url}")
                 return None
-        
-        # 发起请求
+
         for attempt in range(self.max_retries + 1):
+            if attempt > 0:
+                self._respect_rate_limit(domain, max_requests_limit, delay_range)
+            self.rate_limiter.record_request(domain)
             try:
                 start_time = time.time()
-                
+
                 if method.upper() == 'GET':
                     response = requests.get(url, **request_kwargs)
                 elif method.upper() == 'POST':
                     response = requests.post(url, **request_kwargs)
                 else:
                     response = requests.request(method, url, **request_kwargs)
-                
+
                 response_time = time.time() - start_time
-                
-                # 更新代理统计
-                if proxy:
-                    proxy.success_count += 1
-                    proxy.response_time = response_time
-                    proxy.last_used = time.time()
-                
+
+                if current_proxy:
+                    current_proxy.success_count += 1
+                    current_proxy.response_time = response_time
+                    current_proxy.last_used = time.time()
+
                 logger.debug(f"请求成功: {url}, 状态码: {response.status_code}, 响应时间: {response_time:.2f}s")
                 return response
-                
+
             except Exception as e:
-                if proxy:
-                    proxy.failure_count += 1
-                    # 如果失败率过高，暂时禁用代理
-                    if proxy.success_rate < 0.5 and proxy.failure_count > 5:
-                        proxy.is_active = False
-                        logger.warning(f"代理失败率过高，暂时禁用: {proxy.proxy_url}")
-                
+                if current_proxy:
+                    current_proxy.failure_count += 1
+                    if current_proxy.success_rate < 0.5 and current_proxy.failure_count > 5:
+                        current_proxy.is_active = False
+                        logger.warning(f"代理失败率过高，暂时停用: {current_proxy.proxy_url}")
+
                 logger.warning(f"请求失败 (尝试 {attempt + 1}/{self.max_retries + 1}): {url}, 错误: {e}")
-                
+
                 if attempt < self.max_retries:
-                    # 重试时使用不同的代理
-                    if use_proxy and self.proxies:
-                        proxy = self.get_random_proxy()
-                        if proxy:
-                            request_kwargs['proxies'] = proxy.to_dict()
-                    
-                    # 重试延迟
+                    if effective_use_proxy and self.proxies:
+                        next_proxy = self.get_random_proxy()
+                        if next_proxy:
+                            current_proxy = next_proxy
+                            request_kwargs['proxies'] = next_proxy.to_dict()
+
                     retry_delay = random.uniform(2, 5) * (attempt + 1)
                     time.sleep(retry_delay)
-        
+
         logger.error(f"请求最终失败: {url}")
         return None
-    
+
+
     def get_proxy_stats(self) -> Dict:
         """获取代理统计信息"""
         with self.lock:
@@ -399,7 +440,9 @@ class ProxyManagerSingleton:
                     max_requests_per_minute=config.max_requests_per_minute,
                     request_delay=(config.request_delay_min, config.request_delay_max),
                     max_retries=config.max_retries,
-                    timeout=config.timeout
+                    timeout=config.timeout,
+                    enabled=config.enabled,
+                    domain_configs=config.domain_specific
                 )
                 logger.info(f"✅ 代理管理器已从配置文件初始化，加载了 {len(config.proxies)} 个代理")
             except Exception as e:
