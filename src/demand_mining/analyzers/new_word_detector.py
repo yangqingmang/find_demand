@@ -248,6 +248,13 @@ class NewWordDetector(BaseAnalyzer):
         else:
             result['z_score'] = 0.0
 
+        direction = 'stable'
+        if result['growth_rate_7d_vs_30d'] >= 50 or result['mom_growth'] >= 40:
+            direction = 'surging'
+        elif result['growth_rate_7d_vs_30d'] <= -25 or result['mom_growth'] <= -20:
+            direction = 'cooling'
+        result['trend_direction'] = direction
+
         return result
 
     

@@ -55,24 +55,30 @@ class MarketAnalyzer(BaseAnalyzer):
     
     def _estimate_search_volume(self, keyword: str) -> int:
         """估算搜索量"""
-        # 基于关键词长度和类型的简单估算
-        base_volume = 1000
-        
-        # AI相关关键词通常搜索量较高
-        if 'ai' in keyword.lower():
-            base_volume *= 2
-        
-        # 工具类关键词搜索量中等
-        tool_keywords = ['generator', 'converter', 'editor', 'maker']
-        if any(tool in keyword.lower() for tool in tool_keywords):
-            base_volume *= 1.5
-        
-        # 长尾关键词搜索量较低
-        if len(keyword.split()) > 3:
-            base_volume *= 0.5
-        
-        return int(base_volume)
-    
+        keyword_lower = keyword.lower()
+        base_volume = 1500
+
+        # AI、模型或热门品牌相关的关键词通常搜索量更高
+        if any(token in keyword_lower for token in ['ai', 'gpt', 'bypass', 'undetectable']):
+            base_volume *= 2.2
+
+        # 工具类关键词搜索量偏高
+        tool_keywords = ['generator', 'converter', 'editor', 'maker', 'assistant', 'humanizer']
+        if any(tool in keyword_lower for tool in tool_keywords):
+            base_volume *= 1.4
+
+        # 含有定价/方案/服务等词通常关注度更高
+        monetization_terms = ['price', 'pricing', 'plan', 'plans', 'premium', 'login', 'account', 'service', 'subscription']
+        if any(term in keyword_lower for term in monetization_terms):
+            base_volume *= 1.2
+
+        # 长尾关键词适度下调搜索量，不再过度惩罚
+        if len(keyword_lower.split()) > 3:
+            base_volume *= 0.75
+
+        return max(int(base_volume), 200)
+
+
     def _estimate_competition(self, keyword: str) -> float:
         """估算竞争度（0-1之间）"""
         # 基础竞争度

@@ -36,6 +36,24 @@ class KeywordManager(BaseManager):
         self._serp_analyzer = None
         
         print("🔍 关键词管理器初始化完成")
+        default_weights = {
+            'intent_confidence': 0.2,
+            'search_volume': 0.25,
+            'competition': 0.15,
+            'ai_bonus': 0.1,
+            'commercial_value': 0.2,
+            'serp_purchase_intent': 0.05,
+            'serp_ads_presence': 0.05
+        }
+        config_weights = {}
+        keyword_scoring = self.config.get('keyword_scoring', {}) if hasattr(self, 'config') and self.config else {}
+        if isinstance(keyword_scoring, dict):
+            config_weights = keyword_scoring.get('weights', {}) or {}
+        combined = default_weights.copy()
+        combined.update({k: float(v) for k, v in config_weights.items() if isinstance(v, (int, float))})
+        self.scoring_weights = combined
+        self._normalize_scoring_weights()
+
     
     @property
     def intent_analyzer(self):
@@ -307,29 +325,51 @@ class KeywordManager(BaseManager):
                 'opportunity_indicators': []
             }
     
-    @staticmethod
-    def _calculate_opportunity_score(intent_result: Dict, market_result: Dict, serp_signals: Optional[Dict] = None) -> float:
+        def _normalize_scoring_weights(self):
+        """确保机会评分权重归一化"""
+        total = sum(self.scoring_weights.values()) if getattr(self, 'scoring_weights', None) else 0
+        if not total:
+            self.scoring_weights = {
+                'intent_confidence': 0.2,
+                'search_volume': 0.25,
+                'competition': 0.15,
+                'ai_bonus': 0.1,
+                'commercial_value': 0.2,
+                'serp_purchase_intent': 0.05,
+                'serp_ads_presence': 0.05
+            }
+            total = 1.0
+        if total <= 0:
+            total = 1.0
+        self.scoring_weights = {k: (v / total) for k, v in self.scoring_weights.items()}
+
+    def _calculate_opportunity_score(self, intent_result: Dict, market_result: Dict, serp_signals: Optional[Dict] = None) -> float:
         """计算综合机会分数"""
         try:
             serp_signals = serp_signals or market_result.get('serp_signals') or {}
-            weights = {
-                'intent_confidence': 0.15,
-                'search_volume': 0.2,
-                'competition': 0.1,
-                'ai_bonus': 0.15,
-                'commercial_value': 0.25,
-                'serp_purchase_intent': 0.1,
+            weights = getattr(self, 'scoring_weights', None) or {
+                'intent_confidence': 0.2,
+                'search_volume': 0.25,
+                'competition': 0.15,
+                'ai_bonus': 0.1,
+                'commercial_value': 0.2,
+                'serp_purchase_intent': 0.05,
                 'serp_ads_presence': 0.05
             }
 
+            def _weight(key: str, default: float = 0.0) -> float:
+                return float(weights.get(key, default))
+
             intent_score = intent_result.get('confidence', 0) * 100
-            volume_score = min(market_result.get('search_volume', 0) / 1000, 1) * 100
-            competition_score = (1 - market_result.get('competition', 1)) * 100
+            # 增强搜索量影响：缩小归一化分母，鼓励中等搜索量关键词
+            volume_score = min(market_result.get('search_volume', 0) / 800, 1) * 100
+            competition_raw = market_result.get('competition', 1)
+            competition_score = max(0.0, min(1 - competition_raw, 1)) * 100
 
             ai_bonus_raw = market_result.get('ai_bonus', 0)
             commercial_value_raw = market_result.get('commercial_value', 0)
-            ai_bonus_score = min(ai_bonus_raw * 2, 100)
-            commercial_value_score = min(commercial_value_raw * 2, 100)
+            ai_bonus_score = min(ai_bonus_raw * 2.5, 100)
+            commercial_value_score = min(commercial_value_raw * 2.0, 100)
 
             purchase_ratio = serp_signals.get('purchase_intent_ratio')
             if purchase_ratio is None:
@@ -343,21 +383,21 @@ class KeywordManager(BaseManager):
             serp_ads_score = min((ads_count / ads_reference) * 100, 100) if ads_reference else 0.0
 
             total_score = (
-                intent_score * weights['intent_confidence'] +
-                volume_score * weights['search_volume'] +
-                competition_score * weights['competition'] +
-                ai_bonus_score * weights['ai_bonus'] +
-                commercial_value_score * weights['commercial_value'] +
-                serp_purchase_score * weights['serp_purchase_intent'] +
-                serp_ads_score * weights['serp_ads_presence']
+                intent_score * _weight('intent_confidence') +
+                volume_score * _weight('search_volume') +
+                competition_score * _weight('competition') +
+                ai_bonus_score * _weight('ai_bonus') +
+                commercial_value_score * _weight('commercial_value') +
+                serp_purchase_score * _weight('serp_purchase_intent') +
+                serp_ads_score * _weight('serp_ads_presence')
             )
 
-            return round(min(total_score, 100), 2)
+            return round(max(0.0, min(total_score, 100.0)), 2)
 
         except Exception as e:
             print(f"⚠️ 机会分数计算失败: {e}")
             return 0.0
-    
+
     @staticmethod
     def _get_default_intent_result() -> Dict[str, Any]:
         """获取默认意图分析结果"""
@@ -383,13 +423,17 @@ class KeywordManager(BaseManager):
                 break
         
         # AI工具类型匹配
-        ai_tool_types = ['generator', 'detector', 'writer', 'assistant', 'chatbot']
+        ai_tool_types = ['generator', 'detector', 'writer', 'assistant', 'chatbot', 'humanizer']
         for tool_type in ai_tool_types:
             if tool_type in keyword_lower:
                 ai_score += 15
                 break
-        
-        return min(ai_score, 50)
+
+        brand_tokens = ['bypass', 'undetectable', 'deepseek', 'chatgpt', 'gpt', 'llm']
+        if any(token in keyword_lower for token in brand_tokens):
+            ai_score += 10
+
+        return min(ai_score, 60)
     
     @staticmethod
     def _assess_commercial_value(keyword: str) -> float:
@@ -418,8 +462,16 @@ class KeywordManager(BaseManager):
             if domain in keyword_lower:
                 commercial_score += 20
                 break
-        
-        return min(commercial_score, 50)
+
+        monetization_terms = [
+            'pricing', 'price', 'plan', 'plans', 'premium', 'pro', 'subscription',
+            'license', 'licence', 'login', 'account', 'service', 'software',
+            'discount', 'promo', 'alternative'
+        ]
+        if any(term in keyword_lower for term in monetization_terms):
+            commercial_score += 20
+
+        return min(commercial_score, 60)
     
     @staticmethod
     def _get_opportunity_indicators(keyword: str) -> List[str]:

@@ -44,10 +44,10 @@ def handle_stats_display(manager, args):
 
 
 STOPWORD_PATTERNS = [
-    r'\b(news|weather|today|tomorrow|yesterday)\b',
-    r'\b(login|signup|account|app|download|logo|price|stock|settlement|marketplace)\b',
-    r'\b(live stream|live score|highlights|match result|match results|score)\b',
-    r'\b(facebook|instagram|tiktok|youtube|twitter|google|bing|reddit)\b',
+    r'\b(?:news|weather|today|tomorrow|yesterday)\b',
+    r'\b(?:login|signup|account|app|download|logo|price|stock|settlement|marketplace)\b',
+    r'\b(?:live stream|live score|highlights|match result|match results|score)\b',
+    r'\b(?:facebook|instagram|tiktok|youtube|twitter|google|bing|reddit)\b',
 ]
 
 
