@@ -7,6 +7,7 @@
 import os
 import sys
 import json
+import re
 import pandas as pd
 from datetime import datetime
 from typing import Dict, List, Any, Optional
@@ -38,13 +39,15 @@ class KeywordManager(BaseManager):
         
         print("🔍 关键词管理器初始化完成")
         default_weights = {
-            'intent_confidence': 0.2,
-            'search_volume': 0.22,
-            'competition': 0.15,
-            'ai_bonus': 0.1,
-            'commercial_value': 0.18,
+            'intent_confidence': 0.17,
+            'search_volume': 0.18,
+            'competition': 0.14,
+            'ai_bonus': 0.07,
+            'commercial_value': 0.16,
             'serp_purchase_intent': 0.05,
-            'serp_ads_presence': 0.05
+            'serp_ads_presence': 0.05,
+            'long_tail': 0.1,
+            'brand_penalty': 0.08
         }
 
         keyword_scoring_cfg = {}
@@ -82,6 +85,41 @@ class KeywordManager(BaseManager):
             except Exception:
                 pass
         self.cost_penalty = max(0.0, min(default_cost_penalty, 1.0))
+
+        self.brand_phrases = {
+            'chatgpt', 'openai', 'gpt', 'gpt-4', 'gpt4', 'gpt5', 'claude',
+            'midjourney', 'deepseek', 'hix bypass', 'undetectable ai', 'turnitin',
+            'copilot'
+        }
+        self.brand_token_set = {token for phrase in self.brand_phrases for token in phrase.split()}
+        self.brand_token_set.update({'chatgpt', 'openai', 'gpt', 'claude', 'midjourney', 'deepseek', 'hix', 'bypass', 'turnitin', 'copilot'})
+        self.brand_modifier_tokens = {
+            'login', 'logins', 'signup', 'sign', 'account', 'app', 'apps', 'download',
+            'downloads', 'premium', 'price', 'prices', 'pricing', 'cost', 'costs',
+            'free', 'trial', 'promo', 'discount', 'code', 'codes', 'coupon', 'review',
+            'reviews', 'vs', 'versus', 'alternative', 'alternatives', 'compare',
+            'comparison', 'checker', 'detector', 'essay', 'humanizer', 'turnitin',
+            'unlimited', 'pro', 'plus', 'plan', 'plans', 'tier', 'tiers', 'lifetime',
+            'prompt', 'prompts'
+        }
+        self.long_tail_modifiers = {
+            'workflow', 'strategy', 'ideas', 'guide', 'guides', 'step', 'steps',
+            'framework', 'frameworks', 'template', 'templates', 'checklist',
+            'automation', 'process', 'plan', 'plans', 'blueprint', 'examples',
+            'case', 'cases', 'study', 'studies', 'tutorial', 'tutorials', 'use',
+            'uses', 'stack', 'stacks', 'integration', 'integrations', 'workflows',
+            'niche', 'niches', 'system', 'systems'
+        }
+        self.generic_head_terms = {
+            'service', 'services', 'software', 'platform', 'platforms', 'solution',
+            'solutions', 'application', 'applications', 'tool', 'tools',
+            'machine learning', 'artificial intelligence', 'automation', 'ai',
+            'technology', 'technologies', 'gpt'
+        }
+        self.question_prefixes = (
+            'how to', 'how do', 'how can', 'what is', 'what are', 'why', 'should i',
+            'can i', 'is there', 'best way', 'ways to'
+        )
 
     
     @property
@@ -225,7 +263,7 @@ class KeywordManager(BaseManager):
                 'keyword': keyword,
                 'intent': intent_result,
                 'market': market_result,
-                'opportunity_score': self._calculate_opportunity_score(intent_result, market_result, serp_signals),
+                'opportunity_score': self._calculate_opportunity_score(intent_result, market_result, serp_signals, keyword),
                 'execution_cost': market_result.get('execution_cost', 0.0)
             }
 
@@ -336,7 +374,8 @@ class KeywordManager(BaseManager):
             base_data.update({
                 'ai_bonus': ai_bonus,
                 'commercial_value': commercial_value,
-                'opportunity_indicators': self._get_opportunity_indicators(keyword)
+                'opportunity_indicators': self._get_opportunity_indicators(keyword),
+                'keyword': keyword
             })
 
             if serp_signals:
@@ -376,18 +415,20 @@ class KeywordManager(BaseManager):
             total = 1.0
         self.scoring_weights = {k: (v / total) for k, v in self.scoring_weights.items()}
 
-    def _calculate_opportunity_score(self, intent_result: Dict, market_result: Dict, serp_signals: Optional[Dict] = None) -> float:
+    def _calculate_opportunity_score(self, intent_result: Dict, market_result: Dict, serp_signals: Optional[Dict] = None, keyword: Optional[str] = None) -> float:
         """Calculate overall opportunity score"""
         try:
             serp_signals = serp_signals or market_result.get('serp_signals') or {}
             weights = getattr(self, 'scoring_weights', None) or {
-                'intent_confidence': 0.2,
-                'search_volume': 0.22,
-                'competition': 0.15,
-                'ai_bonus': 0.1,
-                'commercial_value': 0.18,
+                'intent_confidence': 0.17,
+                'search_volume': 0.18,
+                'competition': 0.14,
+                'ai_bonus': 0.07,
+                'commercial_value': 0.16,
                 'serp_purchase_intent': 0.05,
-                'serp_ads_presence': 0.05
+                'serp_ads_presence': 0.05,
+                'long_tail': 0.1,
+                'brand_penalty': 0.08
             }
 
             def _weight(key: str, default: float = 0.0) -> float:
@@ -426,6 +467,17 @@ class KeywordManager(BaseManager):
                 serp_purchase_score * _weight('serp_purchase_intent') +
                 serp_ads_score * _weight('serp_ads_presence')
             )
+
+            keyword_text = (keyword or market_result.get('keyword') or '').lower()
+            if keyword_text:
+                long_tail_signal = self._calculate_long_tail_signal(keyword_text)
+                if long_tail_signal > 0:
+                    total_score += long_tail_signal * _weight('long_tail', 0.1)
+
+                brand_penalty = self._calculate_brand_penalty(keyword_text)
+                if brand_penalty > 0:
+                    penalty_weight = _weight('brand_penalty', 0.08)
+                    total_score -= brand_penalty * penalty_weight
 
             execution_cost = market_result.get('execution_cost')
             if execution_cost is None:
@@ -474,6 +526,104 @@ class KeywordManager(BaseManager):
             ai_score += 10
 
         return min(ai_score, 60)
+
+    def _calculate_long_tail_signal(self, keyword: str) -> float:
+        """Estimate long-tail strength to reward descriptive queries"""
+        if not keyword:
+            return 0.0
+
+        tokens = [t for t in re.split(r"[^a-z0-9]+", keyword) if t]
+        if not tokens:
+            return 0.0
+
+        score = 0.0
+
+        if len(tokens) >= 4:
+            score += 55
+        elif len(tokens) == 3:
+            score += 35
+        elif len(tokens) == 2:
+            score += 15
+
+        unique_tokens = len(set(tokens))
+        if unique_tokens >= 3:
+            score += 10
+
+        if any(mod in tokens for mod in self.long_tail_modifiers):
+            score += 20
+
+        if any(keyword.startswith(prefix) for prefix in self.question_prefixes):
+            score += 20
+
+        if 'for' in tokens and tokens.index('for') < len(tokens) - 1:
+            score += 15
+
+        if self._is_generic_head_term(keyword):
+            score -= 40
+
+        return max(0.0, min(score, 100.0))
+
+    def _calculate_brand_penalty(self, keyword: str) -> float:
+        """Apply penalty for branded or vendor-owned terms without unique angle"""
+        if not keyword:
+            return 0.0
+
+        keyword_lower = keyword.lower()
+        raw_tokens = [t for t in re.split(r"[^a-z0-9]+", keyword_lower) if t]
+        if not raw_tokens:
+            return 0.0
+
+        brand_present = any(phrase in keyword_lower for phrase in self.brand_phrases)
+        if not brand_present:
+            brand_present = any(token in self.brand_token_set for token in raw_tokens)
+        if not brand_present:
+            return 0.0
+
+        non_brand_tokens = [t for t in raw_tokens if t not in self.brand_token_set]
+        if not non_brand_tokens:
+            return 80.0
+
+        if all(token in self.brand_modifier_tokens for token in non_brand_tokens):
+            return 65.0
+
+        if len(non_brand_tokens) == 1 and non_brand_tokens[0] in self.brand_modifier_tokens:
+            return 55.0
+
+        if self._is_generic_head_term(keyword_lower):
+            return 45.0
+
+        return 25.0
+
+    def _is_generic_head_term(self, keyword: str) -> bool:
+        """Detect overly generic head terms that lack modifiers"""
+        if not keyword:
+            return False
+
+        keyword_lower = keyword.lower()
+        if keyword_lower in self.generic_head_terms:
+            return True
+
+        tokens = [t for t in re.split(r"[^a-z0-9]+", keyword_lower) if t]
+        if not tokens:
+            return True
+
+        if len(tokens) == 1:
+            token = tokens[0]
+            return token in self.generic_head_terms or len(token) <= 3
+
+        if len(tokens) == 2:
+            joined = " ".join(tokens)
+            generic_pairs = {'ai', 'machine', 'software', 'platform', 'service', 'tool'}
+            if joined in self.generic_head_terms:
+                return True
+            if tokens[0] in self.generic_head_terms and tokens[1] in self.generic_head_terms:
+                return True
+            if tokens[0] in generic_pairs and tokens[1] in self.generic_head_terms:
+                return True
+            if tokens[1] in generic_pairs and tokens[0] in self.generic_head_terms:
+                return True
+
+        return False
 
     @staticmethod
     def _assess_commercial_value(keyword: str) -> float:

@@ -11,7 +11,7 @@ import time
 import random
 import re
 from datetime import datetime
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from urllib.parse import quote
 import pandas as pd
 from collections import Counter
@@ -21,6 +21,7 @@ import os
 # 添加config目录到路径
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'config'))
 from config.config_manager import get_config
+from src.pipeline.cleaning.cleaner import standardize_term, is_valid_term, CleaningConfig
 
 class MultiPlatformKeywordDiscovery:
     """多平台关键词发现工具"""
@@ -79,6 +80,54 @@ class MultiPlatformKeywordDiscovery:
             r'\b(?:ai|artificial intelligence|machine learning|deep learning|neural network)\b',
             r'\b(?:tool|software|app|platform|service|solution)\b'
         ]
+
+        self.brand_phrases = {
+            'chatgpt', 'openai', 'gpt', 'gpt-4', 'gpt4', 'gpt5', 'claude',
+            'midjourney', 'deepseek', 'hix bypass', 'undetectable ai', 'turnitin',
+            'copilot'
+        }
+        self.brand_tokens = {token for phrase in self.brand_phrases for token in phrase.split()}
+        self.brand_tokens.update({'chatgpt', 'openai', 'gpt', 'claude', 'midjourney', 'deepseek', 'hix', 'bypass', 'turnitin', 'copilot'})
+        self.brand_modifier_tokens = {
+            'login', 'logins', 'signup', 'sign', 'account', 'app', 'apps',
+            'download', 'downloads', 'premium', 'price', 'prices', 'pricing',
+            'cost', 'costs', 'free', 'trial', 'promo', 'discount', 'code',
+            'codes', 'coupon', 'review', 'reviews', 'vs', 'versus', 'alternative',
+            'alternatives', 'compare', 'comparison', 'checker', 'detector',
+            'essay', 'humanizer', 'turnitin', 'unlimited', 'pro', 'plus', 'plan',
+            'plans', 'tier', 'tiers', 'lifetime', 'prompt', 'prompts', 'price',
+            'pricing'
+        }
+        self.generic_head_terms = {
+            'service', 'services', 'software', 'platform', 'platforms', 'solution',
+            'solutions', 'application', 'applications', 'tool', 'tools',
+            'machine learning', 'artificial intelligence', 'automation', 'ai',
+            'technology', 'technologies', 'gpt'
+        }
+        self.generic_lead_tokens = {'ai', 'machine', 'software', 'platform', 'service', 'tool', 'technology', 'data'}
+        self.generic_tail_tokens = {
+            'tool', 'tools', 'software', 'platform', 'platforms', 'service',
+            'services', 'application', 'applications', 'app', 'apps', 'solution',
+            'solutions', 'system', 'systems', 'suite'
+        }
+        self.long_tail_tokens = {
+            'workflow', 'workflows', 'strategy', 'strategies', 'ideas', 'guide',
+            'guides', 'tutorial', 'tutorials', 'template', 'templates', 'checklist',
+            'automation', 'process', 'processes', 'plan', 'plans', 'blueprint',
+            'blueprints', 'examples', 'case', 'cases', 'study', 'studies', 'use',
+            'uses', 'stack', 'stacks', 'integration', 'integrations', 'niche',
+            'niches', 'system', 'systems', 'playbook', 'playbooks', 'framework',
+            'frameworks', 'marketing', 'seo', 'content', 'workflow', 'roadmap',
+            'roadmaps', 'setup', 'automation', 'builders', 'for', 'beginners',
+            'advanced', 'agency', 'agencies', 'students', 'writers', 'designers',
+            'developers', 'founders', 'startups', 'teams', 'checklists'
+        }
+        self.question_prefixes = (
+            'how to', 'how do', 'how can', 'what is', 'what are', 'why', 'should i',
+            'can i', 'is there', 'best way', 'ways to'
+        )
+        self.max_brand_variations = 5
+        self._cleaning_config = CleaningConfig()
 
     def _request_with_retry(self, method: str, url: str, **kwargs) -> requests.Response:
         """对外部请求增加超时与重试机制"""
@@ -452,8 +501,112 @@ class MultiPlatformKeywordDiscovery:
         high_competition_words = ['best', 'top', 'review', 'vs', 'comparison']
         if any(comp in keyword_lower for comp in high_competition_words):
             base_score *= 0.6  # 高竞争词降低评分
-        
+
         return base_score
+
+    def _is_brand_heavy(self, keyword: str) -> bool:
+        """过滤品牌词及其常见附属词"""
+        if not keyword:
+            return False
+
+        keyword_lower = keyword.lower()
+        tokens = [t for t in re.split(r"[^a-z0-9]+", keyword_lower) if t]
+        if not tokens:
+            return False
+
+        brand_present = any(phrase in keyword_lower for phrase in self.brand_phrases)
+        if not brand_present:
+            brand_present = any(token in self.brand_tokens for token in tokens)
+        if not brand_present:
+            return False
+
+        non_brand_tokens = [t for t in tokens if t not in self.brand_tokens]
+        if not non_brand_tokens:
+            return True
+
+        if all(token in self.brand_modifier_tokens for token in non_brand_tokens):
+            return True
+
+        if len(non_brand_tokens) == 1 and non_brand_tokens[0] in self.brand_modifier_tokens:
+            return True
+
+        return False
+
+    def _is_underspecified_keyword(self, keyword: str) -> bool:
+        """过滤缺乏限定词的泛词"""
+        if not keyword:
+            return True
+
+        keyword_lower = keyword.lower()
+        if keyword_lower in self.generic_head_terms:
+            return True
+
+        tokens = [t for t in re.split(r"[^a-z0-9]+", keyword_lower) if t]
+        if not tokens:
+            return True
+
+        if len(tokens) == 1:
+            token = tokens[0]
+            return token in self.generic_head_terms or len(token) <= 3
+
+        if len(tokens) == 2:
+            joined = " ".join(tokens)
+            if joined in self.generic_head_terms:
+                return True
+            if tokens[0] in self.generic_head_terms and tokens[1] in self.generic_head_terms:
+                return True
+            if tokens[0] in self.generic_lead_tokens and tokens[1] in self.generic_tail_tokens:
+                return True
+            if tokens[1] in self.generic_lead_tokens and tokens[0] in self.generic_tail_tokens:
+                return True
+            if not any(token in self.long_tail_tokens for token in tokens):
+                return False
+
+        if any(keyword_lower.startswith(prefix) for prefix in self.question_prefixes):
+            return False
+
+        if len(tokens) >= 3:
+            informative_tokens = [t for t in tokens if t in self.long_tail_tokens]
+            return len(informative_tokens) == 0
+
+        return False
+
+    def _identify_brand(self, keyword: str) -> Optional[str]:
+        """识别关键词所属品牌"""
+        if not keyword:
+            return None
+
+        keyword_lower = keyword.lower()
+        for phrase in self.brand_phrases:
+            if phrase in keyword_lower:
+                return phrase
+
+        tokens = [t for t in re.split(r"[^a-z0-9]+", keyword_lower) if t]
+        for token in tokens:
+            if token in self.brand_tokens:
+                return token
+        return None
+
+    def _limit_brand_keywords(self, df: pd.DataFrame) -> pd.DataFrame:
+        """限制单一品牌的关键词数量"""
+        if df.empty or 'keyword' not in df.columns:
+            return df
+
+        keep_indices = []
+        brand_counts: Dict[str, int] = {}
+
+        for idx, keyword in df['keyword'].items():
+            brand = self._identify_brand(str(keyword))
+            if not brand:
+                keep_indices.append(idx)
+                continue
+
+            count = brand_counts.get(brand, 0)
+            if count < self.max_brand_variations:
+                keep_indices.append(idx)
+                brand_counts[brand] = count + 1
+
+        return df.loc[keep_indices].reset_index(drop=True)
     
     def discover_all_platforms(self, search_terms: List[str]) -> pd.DataFrame:
         """从所有平台发现关键词"""
@@ -491,84 +644,112 @@ class MultiPlatformKeywordDiscovery:
         # 转换为DataFrame
         df = pd.DataFrame(all_keywords)
         
+        if 'keyword' not in df.columns:
+            print("⚠️ 结果缺少关键词字段")
+            return df
+
         if not df.empty:
-            # 清洗与标准化，仅保留短词
             try:
-                from src.pipeline.cleaning.cleaner import clean_terms
-                cleaned = clean_terms(df['keyword'].astype(str).tolist()) if 'keyword' in df.columns else []
-                df = pd.DataFrame({'keyword': cleaned})
-            except Exception:
-                pass
-            
-            if not df.empty:
-                # 相似去重（SimHash + SBERT聚类）
-                try:
-                    from datasketch import MinHash, MinHashLSH
-                    from sklearn.cluster import AgglomerativeClustering
-                    from sentence_transformers import SentenceTransformer
-                    import numpy as np
-                    
-                    texts = df['keyword'].tolist()
-                    # SimHash/MinHash 近似去重
-                    def shingles(s, k=3):
-                        s = s.replace(' ', '_')
-                        return {s[i:i+k] for i in range(max(len(s)-k+1, 1))}
-                    signatures = []
-                    mhashes = []
-                    for t in texts:
-                        mh = MinHash(num_perm=64)
-                        for sh in shingles(t):
-                            mh.update(sh.encode('utf-8'))
-                        mhashes.append(mh)
-                        signatures.append(mh)
-                    lsh = MinHashLSH(threshold=0.85, num_perm=64)
-                    for idx, mh in enumerate(mhashes):
-                        lsh.insert(str(idx), mh)
-                    keep_idx = []
-                    seen = set()
-                    for i, mh in enumerate(mhashes):
-                        if i in seen:
-                            continue
-                        near = lsh.query(mh)
-                        grp = sorted(int(x) for x in near)
-                        for j in grp:
-                            seen.add(j)
-                        keep_idx.append(grp[0])
-                    df = df.iloc[keep_idx].reset_index(drop=True)
-                    
-                    # 语义聚类
-                    model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
-                    emb = model.encode(df['keyword'].tolist(), normalize_embeddings=True)
-                    if len(df) >= 5:
-                        clustering = AgglomerativeClustering(n_clusters=None, distance_threshold=0.18, affinity='cosine', linkage='average')
-                        labels = clustering.fit_predict(emb)
-                        df['cluster_id'] = labels
-                        # 代表词选择：簇中心最近
-                        reps = []
-                        for c in sorted(set(labels)):
-                            idxs = np.where(labels == c)[0]
-                            sub = emb[idxs]
-                            center = sub.mean(axis=0, keepdims=True)
-                            sims = (sub @ center.T).ravel()
-                            rep = idxs[int(np.argmax(sims))]
-                            reps.append(rep)
-                        df = df.iloc[sorted(set(reps))].reset_index(drop=True)
-                    else:
-                        df['cluster_id'] = 0
-                except Exception:
-                    pass
-                
-                df['score'] = 0 if 'score' not in df.columns else df['score']
-                df['long_tail_score'] = df['keyword'].apply(self._calculate_long_tail_score)
-                df['weighted_score'] = df['score'] * df['long_tail_score']
-                df = df.sort_values('weighted_score', ascending=False)
-                df['discovered_at'] = datetime.now().isoformat()
-                print(f"✅ 发现 {len(df)} 个关键词")
-            else:
+                df['keyword'] = df['keyword'].astype(str)
+                df['normalized_keyword'] = df['keyword'].apply(standardize_term)
+                df = df[df['normalized_keyword'].apply(lambda term: is_valid_term(term, self._cleaning_config))]
+                df = df.drop_duplicates(subset='normalized_keyword')
+                df['keyword'] = df['normalized_keyword']
+                df = df.drop(columns=['normalized_keyword'])
+            except Exception as exc:
+                print(f"⚠️ 关键词清洗失败: {exc}")
+                df['keyword'] = df['keyword'].astype(str)
+
+            if df.empty:
                 print("⚠️ 清洗后无有效关键词")
+            else:
+                if 'platform' not in df.columns:
+                    df['platform'] = 'unknown'
+                else:
+                    df['platform'] = df['platform'].fillna('unknown')
+
+                before_brand = len(df)
+                df = df[~df['keyword'].apply(self._is_brand_heavy)].reset_index(drop=True)
+                if len(df) < before_brand:
+                    print(f"⚠️ 移除了 {before_brand - len(df)} 个品牌泛词")
+
+                before_generic = len(df)
+                df = df[~df['keyword'].apply(self._is_underspecified_keyword)].reset_index(drop=True)
+                if len(df) < before_generic:
+                    print(f"⚠️ 移除了 {before_generic - len(df)} 个泛化头部词")
+
+                df = self._limit_brand_keywords(df)
+
+                if df.empty:
+                    print("⚠️ 过滤后无有效关键词")
+                else:
+                    try:
+                        from datasketch import MinHash, MinHashLSH
+                        from sklearn.cluster import AgglomerativeClustering
+                        from sentence_transformers import SentenceTransformer
+                        import numpy as np
+
+                        texts = df['keyword'].tolist()
+
+                        def shingles(s, k=3):
+                            s = s.replace(' ', '_')
+                            return {s[i:i+k] for i in range(max(len(s) - k + 1, 1))}
+
+                        mhashes = []
+                        for t in texts:
+                            mh = MinHash(num_perm=64)
+                            for sh in shingles(t):
+                                mh.update(sh.encode('utf-8'))
+                            mhashes.append(mh)
+                        lsh = MinHashLSH(threshold=0.85, num_perm=64)
+                        for idx, mh in enumerate(mhashes):
+                            lsh.insert(str(idx), mh)
+                        keep_idx = []
+                        seen = set()
+                        for i, mh in enumerate(mhashes):
+                            if i in seen:
+                                continue
+                            near = lsh.query(mh)
+                            grp = sorted(int(x) for x in near)
+                            for j in grp:
+                                seen.add(j)
+                            keep_idx.append(grp[0])
+                        df = df.iloc[keep_idx].reset_index(drop=True)
+
+                        model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+                        emb = model.encode(df['keyword'].tolist(), normalize_embeddings=True)
+                        if len(df) >= 5:
+                            clustering = AgglomerativeClustering(
+                                n_clusters=None,
+                                distance_threshold=0.18,
+                                affinity='cosine',
+                                linkage='average'
+                            )
+                            labels = clustering.fit_predict(emb)
+                            df['cluster_id'] = labels
+                            reps = []
+                            for c in sorted(set(labels)):
+                                idxs = np.where(labels == c)[0]
+                                sub = emb[idxs]
+                                center = sub.mean(axis=0, keepdims=True)
+                                sims = (sub @ center.T).ravel()
+                                rep = idxs[int(np.argmax(sims))]
+                                reps.append(rep)
+                            df = df.iloc[sorted(set(reps))].reset_index(drop=True)
+                        else:
+                            df['cluster_id'] = 0
+                    except Exception:
+                        pass
+
+                    df['score'] = 0 if 'score' not in df.columns else df['score']
+                    df['long_tail_score'] = df['keyword'].apply(self._calculate_long_tail_score)
+                    df['weighted_score'] = df['score'] * df['long_tail_score']
+                    df = df.sort_values('weighted_score', ascending=False)
+                    df['discovered_at'] = datetime.now().isoformat()
+                    print(f"✅ 发现 {len(df)} 个关键词")
         else:
             print("⚠️ 未发现任何关键词")
-        
+
         return df
     
     def analyze_keyword_trends(self, df: pd.DataFrame) -> Dict[str, Any]:
@@ -576,10 +757,20 @@ class MultiPlatformKeywordDiscovery:
         if df.empty:
             return {}
         
+        platform_distribution = df['platform'].value_counts().to_dict() if 'platform' in df.columns else {}
+
+        score_df = df.copy()
+        if 'score' not in score_df.columns:
+            score_df['score'] = 0.0
+        if 'platform' not in score_df.columns:
+            score_df['platform'] = 'unknown'
+
+        top_keywords = score_df.nlargest(10, 'score')[['keyword', 'score', 'platform']].to_dict('records')
+
         analysis = {
             'total_keywords': len(df),
-            'platform_distribution': df['platform'].value_counts().to_dict(),
-            'top_keywords_by_score': df.nlargest(10, 'score')[['keyword', 'score', 'platform']].to_dict('records'),
+            'platform_distribution': platform_distribution,
+            'top_keywords_by_score': top_keywords,
             'keyword_length_stats': {
                 'avg_length': df['keyword'].str.len().mean(),
                 'min_length': df['keyword'].str.len().min(),

@@ -44,7 +44,7 @@ class IntegratedWorkflow:
     def _get_default_config(self) -> Dict[str, Any]:
         """获取默认配置"""
         return {
-            'min_opportunity_score': 60,  # 最低机会分数阈值
+            'min_opportunity_score': 50,  # 最低机会分数阈值（放宽以捕获更多潜力长尾）
             'max_projects_per_batch': 5,  # 每批次最大项目数
             'auto_deploy': True,          # 是否自动部署
             'deployment_platform': 'cloudflare',  # 部署平台
