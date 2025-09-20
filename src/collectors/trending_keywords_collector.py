@@ -6,6 +6,8 @@ TrendingKeywords.net 数据收集器
 """
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from bs4 import BeautifulSoup
 import pandas as pd
 import re
@@ -20,18 +22,69 @@ class TrendingKeywordsCollector:
     
     def __init__(self):
         self.base_url = "https://trendingkeywords.net/"
-        self.session = requests.Session()
-        self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5',
-            'Accept-Encoding': 'gzip, deflate',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1',
-        })
+        self.session = self._create_session()
+        self.ssl_retry_attempts = 3
+        self.ssl_retry_backoff = 1.2
         
         # 设置日志
         self.logger = logging.getLogger(__name__)
+
+    def _create_session(self) -> requests.Session:
+        """Create a session with retry-aware adapters."""
+        session = requests.Session()
+        session.headers.update({
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+        })
+        retry_config = Retry(
+            total=3,
+            connect=3,
+            read=2,
+            backoff_factor=0.8,
+            status_forcelist=(429, 500, 502, 503, 504),
+            allowed_methods=None
+        )
+        adapter = HTTPAdapter(max_retries=retry_config, pool_maxsize=5, pool_block=True)
+        session.mount('https://', adapter)
+        session.mount('http://', adapter)
+        return session
+
+    def _reset_session(self) -> None:
+        """Recreate the underlying HTTP session after persistent TLS failures."""
+        try:
+            self.session.close()
+        finally:
+            self.session = self._create_session()
+
+    def _request_with_retries(self, url: str, timeout: int = 10) -> requests.Response:
+        """Perform a GET request with defensive TLS retries."""
+        last_error: Optional[Exception] = None
+        for attempt in range(1, self.ssl_retry_attempts + 1):
+            try:
+                return self.session.get(url, timeout=timeout)
+            except requests.exceptions.SSLError as ssl_error:
+                last_error = ssl_error
+                self.logger.warning(
+                    "TLS 握手异常 (%s/%s): %s", attempt, self.ssl_retry_attempts, ssl_error
+                )
+                self._reset_session()
+                sleep_time = min(self.ssl_retry_backoff * attempt, 3)
+                if sleep_time > 0:
+                    time.sleep(sleep_time)
+            except requests.RequestException as request_error:
+                last_error = request_error
+                if attempt >= self.ssl_retry_attempts:
+                    break
+                sleep_time = min(self.ssl_retry_backoff * attempt, 3)
+                if sleep_time > 0:
+                    time.sleep(sleep_time)
+        if last_error:
+            raise last_error
+        raise RuntimeError("请求未能成功且未捕获具体异常")
         
     def fetch_trending_keywords(self, max_pages: int = 3, delay_range: tuple = (1, 3)) -> pd.DataFrame:
         """
@@ -94,7 +147,7 @@ class TrendingKeywordsCollector:
             关键词数据列表
         """
         try:
-            response = self.session.get(url, timeout=10)
+            response = self._request_with_retries(url, timeout=10)
             response.raise_for_status()
             
             soup = BeautifulSoup(response.content, 'html.parser')

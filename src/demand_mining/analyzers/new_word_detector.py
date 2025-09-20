@@ -340,7 +340,6 @@ class NewWordDetector(BaseAnalyzer):
                 self._trends_cache[cache_key] = {'data': stale_disk_data, 'timestamp': now}
                 return stale_disk_data
             message = f'无法获取 {keyword} 的趋势数据：Trends 接口返回空结果'
-            self.logger.error(message)
             raise TrendsDataUnavailable(message)
 
         result = self._summarize_trends(keyword, data_12m)

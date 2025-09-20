@@ -6,6 +6,8 @@ SERP 分析工具 - SERP Analyzer
 """
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 import random
 import time
 import json
@@ -90,7 +92,7 @@ class SerpAnalyzer:
         self.max_retries = getattr(config, 'SERP_MAX_RETRIES', 3)
         
         # SERP API 直连限速配置
-        self.serp_session = requests.Session()
+        self.serp_session = self._create_serp_session()
         self.serp_rate_limit_window = 60
         self.serp_max_requests_per_minute = 20
         self.serp_delay_range = (0.5, 1.5)
@@ -142,6 +144,33 @@ class SerpAnalyzer:
             'microsoft.com': 95, 'apple.com': 94, 'github.com': 85,
             'stackoverflow.com': 87, 'medium.com': 82, 'quora.com': 80
         }
+
+    def _create_serp_session(self) -> requests.Session:
+        """Create a session with retry-aware adapters for SERP API calls."""
+        session = requests.Session()
+        retry_config = Retry(
+            total=3,
+            connect=3,
+            read=2,
+            backoff_factor=0.7,
+            status_forcelist=(429, 500, 502, 503, 504),
+            allowed_methods=None
+        )
+        adapter = HTTPAdapter(max_retries=retry_config, pool_maxsize=10, pool_block=True)
+        session.mount('https://', adapter)
+        session.mount('http://', adapter)
+        session.headers.update({
+            'Accept': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (SERPAnalyzer/1.0)'
+        })
+        return session
+
+    def _reset_serp_session(self) -> None:
+        """Reset the SERP session after persistent TLS or network failures."""
+        try:
+            self.serp_session.close()
+        finally:
+            self.serp_session = self._create_serp_session()
     
     def analyze_keyword_serp(self, keyword: str) -> Dict:
         """
@@ -243,15 +272,24 @@ class SerpAnalyzer:
                 self._record_serp_request()
                 response.raise_for_status()
                 return response.json()
+            except requests.exceptions.SSLError as ssl_error:
+                direct_error = ssl_error
+                self._reset_serp_session()
             except requests.exceptions.RequestException as direct_error:
-                if attempt < self.max_retries:
-                    base_delay = max(self.request_delay, 0.5)
-                    backoff = min(base_delay * (2 ** (attempt - 1)), 10)
-                    print(f"⚠️ SERP API 第 {attempt} 次尝试失败: {direct_error}，{backoff:.2f} 秒后重试")
-                    time.sleep(backoff)
-                else:
-                    print(f"SERP API 搜索失败: {direct_error}")
-        
+                self._reset_serp_session()
+
+            if attempt < self.max_retries:
+                base_delay = max(self.request_delay, 0.5)
+                backoff = min(base_delay * (2 ** (attempt - 1)), 10)
+                print(f"⚠️ SERP API 第 {attempt} 次尝试失败: {direct_error}，{backoff:.2f} 秒后重试")
+                time.sleep(backoff)
+            else:
+                print(f"SERP API 搜索失败: {direct_error}")
+
+        if self.api_key and self.cse_id:
+            print("ℹ️ SERP API 不可用，回退到 Google Custom Search API")
+            return self._search_with_google_api(query)
+
         return None
 
     def _search_with_google_api(self, query: str) -> Optional[Dict]:
