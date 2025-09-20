@@ -86,14 +86,50 @@ class KeywordManager(BaseManager):
                 pass
         self.cost_penalty = max(0.0, min(default_cost_penalty, 1.0))
 
-        self.brand_phrases = {
+        filters_cfg = self.config.get('keyword_filters', {}) if isinstance(self.config, dict) else {}
+
+        def _extract_values(raw_value):
+            if raw_value is None:
+                return []
+            if isinstance(raw_value, dict):
+                for key in ('values', 'items', 'terms'):
+                    if key in raw_value and isinstance(raw_value[key], (list, tuple, set)):
+                        return [str(v).strip() for v in raw_value[key] if isinstance(v, str) and v.strip()]
+                if 'value' in raw_value and isinstance(raw_value['value'], str):
+                    return [raw_value['value'].strip()]
+                return []
+            if isinstance(raw_value, (list, tuple, set)):
+                return [str(v).strip() for v in raw_value if isinstance(v, str) and v.strip()]
+            if isinstance(raw_value, str) and raw_value.strip():
+                return [raw_value.strip()]
+            return []
+
+        def _resolve_terms(default_values, list_key, mode_key, default_mode='extend'):
+            base_list = [str(v).strip().lower() for v in default_values if isinstance(v, str) and v.strip()]
+            raw_entries = filters_cfg.get(list_key)
+            mode_candidate = filters_cfg.get(mode_key, default_mode)
+            if isinstance(raw_entries, dict) and 'mode' in raw_entries:
+                mode_candidate = raw_entries['mode']
+            mode = str(mode_candidate).lower() if isinstance(mode_candidate, str) else default_mode
+            if mode not in ('extend', 'replace', 'disable'):
+                mode = default_mode
+            if mode == 'replace':
+                base_list = []
+            elif mode == 'disable':
+                return []
+
+            for value in _extract_values(raw_entries):
+                lowered = value.lower()
+                if lowered not in base_list:
+                    base_list.append(lowered)
+            return base_list
+
+        default_brand_phrases = [
             'chatgpt', 'openai', 'gpt', 'gpt-4', 'gpt4', 'gpt5', 'claude',
             'midjourney', 'deepseek', 'hix bypass', 'undetectable ai', 'turnitin',
             'copilot'
-        }
-        self.brand_token_set = {token for phrase in self.brand_phrases for token in phrase.split()}
-        self.brand_token_set.update({'chatgpt', 'openai', 'gpt', 'claude', 'midjourney', 'deepseek', 'hix', 'bypass', 'turnitin', 'copilot'})
-        self.brand_modifier_tokens = {
+        ]
+        default_brand_modifiers = [
             'login', 'logins', 'signup', 'sign', 'account', 'app', 'apps', 'download',
             'downloads', 'premium', 'price', 'prices', 'pricing', 'cost', 'costs',
             'free', 'trial', 'promo', 'discount', 'code', 'codes', 'coupon', 'review',
@@ -101,25 +137,39 @@ class KeywordManager(BaseManager):
             'comparison', 'checker', 'detector', 'essay', 'humanizer', 'turnitin',
             'unlimited', 'pro', 'plus', 'plan', 'plans', 'tier', 'tiers', 'lifetime',
             'prompt', 'prompts'
-        }
-        self.long_tail_modifiers = {
+        ]
+        default_long_tail_modifiers = [
             'workflow', 'strategy', 'ideas', 'guide', 'guides', 'step', 'steps',
             'framework', 'frameworks', 'template', 'templates', 'checklist',
             'automation', 'process', 'plan', 'plans', 'blueprint', 'examples',
             'case', 'cases', 'study', 'studies', 'tutorial', 'tutorials', 'use',
             'uses', 'stack', 'stacks', 'integration', 'integrations', 'workflows',
             'niche', 'niches', 'system', 'systems'
-        }
-        self.generic_head_terms = {
+        ]
+        default_generic_heads = [
             'service', 'services', 'software', 'platform', 'platforms', 'solution',
             'solutions', 'application', 'applications', 'tool', 'tools',
             'machine learning', 'artificial intelligence', 'automation', 'ai',
             'technology', 'technologies', 'gpt'
-        }
-        self.question_prefixes = (
+        ]
+        default_question_prefixes = [
             'how to', 'how do', 'how can', 'what is', 'what are', 'why', 'should i',
             'can i', 'is there', 'best way', 'ways to'
-        )
+        ]
+
+        brand_phrases_list = _resolve_terms(default_brand_phrases, 'brand_phrases', 'brand_phrases_mode')
+        brand_modifier_list = _resolve_terms(default_brand_modifiers, 'brand_modifiers', 'brand_modifier_mode')
+        long_tail_list = _resolve_terms(default_long_tail_modifiers, 'long_tail_tokens', 'long_tail_mode')
+        generic_head_list = _resolve_terms(default_generic_heads, 'generic_head_terms', 'generic_head_mode')
+        question_prefix_list = _resolve_terms(default_question_prefixes, 'question_prefixes', 'question_prefix_mode')
+
+        self.brand_phrases = set(brand_phrases_list)
+        self.brand_token_set = {token for phrase in self.brand_phrases for token in phrase.split()}
+        self.brand_token_set.update({'chatgpt', 'openai', 'gpt', 'claude', 'midjourney', 'deepseek', 'hix', 'bypass', 'turnitin', 'copilot'})
+        self.brand_modifier_tokens = set(brand_modifier_list)
+        self.long_tail_modifiers = set(long_tail_list)
+        self.generic_head_terms = set(generic_head_list)
+        self.question_prefixes = tuple(question_prefix_list)
 
     
     @property

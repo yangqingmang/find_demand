@@ -36,7 +36,12 @@ class DiscoveryManager(BaseManager):
                 self._discoverer = None
         return self._discoverer
     
-    def analyze(self, search_terms: List[str], output_dir: str = None) -> Dict[str, Any]:
+    def analyze(self,
+                search_terms: Optional[List[str]] = None,
+                output_dir: str = None,
+                seed_profile: Optional[str] = None,
+                min_terms: Optional[int] = None,
+                limit: Optional[int] = None) -> Dict[str, Any]:
         """
         执行多平台关键词发现
         
@@ -48,8 +53,6 @@ class DiscoveryManager(BaseManager):
             发现结果
         """
         print(f"🔍 开始多平台关键词发现...")
-        print(f"📊 搜索词汇: {', '.join(search_terms)}")
-        
         if self.discoverer is None:
             return {
                 'error': '多平台发现工具不可用',
@@ -57,10 +60,29 @@ class DiscoveryManager(BaseManager):
                 'platform_distribution': {},
                 'top_keywords_by_score': []
             }
-        
+
+        prepared_terms = self.discoverer.prepare_search_terms(
+            seeds=search_terms,
+            profile=seed_profile,
+            limit=limit,
+            min_terms=min_terms
+        )
+
+        if not prepared_terms:
+            return {
+                'message': '缺少有效的种子关键词',
+                'total_keywords': 0,
+                'platform_distribution': {},
+                'top_keywords_by_score': [],
+                'search_terms': [],
+                'discovery_time': datetime.now().isoformat()
+            }
+
+        print(f"📊 搜索词汇: {', '.join(prepared_terms)}")
+
         try:
             # 执行发现
-            df = self.discoverer.discover_all_platforms(search_terms)
+            df = self.discoverer.discover_all_platforms(prepared_terms)
             
             if not df.empty:
                 # 分析趋势
@@ -74,7 +96,7 @@ class DiscoveryManager(BaseManager):
                         'json': json_path
                     }
                 
-                analysis['search_terms'] = search_terms
+                analysis['search_terms'] = prepared_terms
                 analysis['discovery_time'] = datetime.now().isoformat()
                 
                 return analysis
@@ -84,7 +106,7 @@ class DiscoveryManager(BaseManager):
                     'total_keywords': 0,
                     'platform_distribution': {},
                     'top_keywords_by_score': [],
-                    'search_terms': search_terms,
+                    'search_terms': prepared_terms,
                     'discovery_time': datetime.now().isoformat()
                 }
                 
@@ -95,7 +117,7 @@ class DiscoveryManager(BaseManager):
                 'total_keywords': 0,
                 'platform_distribution': {},
                 'top_keywords_by_score': [],
-                'search_terms': search_terms,
+                'search_terms': prepared_terms,
                 'discovery_time': datetime.now().isoformat()
             }
     

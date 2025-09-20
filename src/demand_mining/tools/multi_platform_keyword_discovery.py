@@ -77,6 +77,11 @@ class MultiPlatformKeywordDiscovery:
         self.generic_filter_config = {
             'enabled': bool(filters_cfg.get('generic_filter_enabled', True))
         }
+
+        seed_cfg = self._load_discovery_seed_config()
+        self.seed_profiles = seed_cfg.get('profiles', {}) if isinstance(seed_cfg.get('profiles'), dict) else {}
+        self.default_seed_profile = seed_cfg.get('default_profile') or next(iter(self.seed_profiles.keys()), None)
+        self.min_seed_terms = max(int(seed_cfg.get('min_terms', 3) or 0), 1)
         
         # AI相关subreddit列表
         self.ai_subreddits = [
@@ -156,6 +161,113 @@ class MultiPlatformKeywordDiscovery:
         except Exception:
             pass
         return {}
+
+    def _load_discovery_seed_config(self) -> Dict[str, Any]:
+        config_path = os.path.join(os.path.dirname(__file__), '../../../config/integrated_workflow_config.json')
+        try:
+            if os.path.exists(config_path):
+                with open(config_path, 'r', encoding='utf-8') as fh:
+                    data = json.load(fh)
+                seed_cfg = data.get('discovery_seeds', {})
+                return seed_cfg if isinstance(seed_cfg, dict) else {}
+        except Exception:
+            pass
+        return {}
+
+    def get_seed_profiles(self) -> List[str]:
+        """返回可用的种子关键词配置名称列表"""
+        return list(self.seed_profiles.keys())
+
+    def get_seed_terms(self, profile: Optional[str] = None, limit: Optional[int] = None) -> List[str]:
+        """根据配置获取种子关键词列表"""
+        profile_name = profile or self.default_seed_profile
+        terms: List[str] = []
+
+        def _extract_terms(profile_key: Optional[str]) -> List[str]:
+            if not profile_key:
+                return []
+            profile_cfg = self.seed_profiles.get(profile_key)
+            if profile_cfg is None:
+                return []
+            if isinstance(profile_cfg, dict):
+                source = profile_cfg.get('terms') or profile_cfg.get('keywords') or []
+            elif isinstance(profile_cfg, (list, tuple, set)):
+                source = profile_cfg
+            else:
+                source = []
+            cleaned = []
+            for term in source:
+                if isinstance(term, str):
+                    normalized = term.strip()
+                    if normalized:
+                        cleaned.append(normalized)
+            return cleaned
+
+        terms = _extract_terms(profile_name)
+        if not terms and profile_name != self.default_seed_profile:
+            terms = _extract_terms(self.default_seed_profile)
+        if not terms and self.seed_profiles:
+            # Fallback到第一个可用配置
+            fallback_profile = next(iter(self.seed_profiles.keys()))
+            terms = _extract_terms(fallback_profile)
+
+        # 去重同时保留顺序
+        unique_terms = []
+        seen = set()
+        for term in terms:
+            lower_term = term.lower()
+            if lower_term not in seen:
+                unique_terms.append(term)
+                seen.add(lower_term)
+
+        if limit and limit > 0:
+            return unique_terms[:limit]
+        return unique_terms
+
+    def prepare_search_terms(self,
+                              seeds: Optional[List[str]] = None,
+                              profile: Optional[str] = None,
+                              limit: Optional[int] = None,
+                              min_terms: Optional[int] = None) -> List[str]:
+        """组合输入的种子关键词与配置中的默认种子"""
+        cleaned: List[str] = []
+        seen: set = set()
+
+        def _append(term: str):
+            lower_term = term.lower()
+            if lower_term not in seen:
+                cleaned.append(term)
+                seen.add(lower_term)
+
+        if seeds:
+            for term in seeds:
+                if isinstance(term, str):
+                    normalized = term.strip()
+                    if normalized:
+                        _append(normalized)
+
+        target_min = max(min_terms or self.min_seed_terms, 1)
+        if len(cleaned) < target_min:
+            fallback_terms = self.get_seed_terms(profile=profile)
+            for term in fallback_terms:
+                _append(term)
+                if limit and len(cleaned) >= limit:
+                    break
+
+        if len(cleaned) < target_min:
+            additional_terms = self.get_seed_terms(profile=self.default_seed_profile)
+            for term in additional_terms:
+                _append(term)
+                if limit and len(cleaned) >= limit:
+                    break
+            if len(cleaned) < target_min and not additional_terms:
+                # 仍不足时，至少保留已有值
+                pass
+
+        if limit and limit > 0:
+            cleaned = cleaned[:limit]
+
+        return cleaned
 
     def _request_with_retry(self, method: str, url: str, **kwargs) -> requests.Response:
         """对外部请求增加超时与重试机制"""
@@ -644,8 +756,13 @@ class MultiPlatformKeywordDiscovery:
         """从所有平台发现关键词"""
         print("🚀 开始多平台关键词发现...")
         
+        search_terms = self.prepare_search_terms(search_terms)
+        if not search_terms:
+            print("⚠️ 缺少有效的搜索词，无法执行多平台发现")
+            return pd.DataFrame(columns=['keyword', 'platform'])
+
         all_keywords = []
-        
+
         # Reddit分析
         for subreddit in self.ai_subreddits[:5]:  # 限制数量避免请求过多
             reddit_keywords = self.discover_reddit_keywords(subreddit, limit=50)
@@ -865,7 +982,7 @@ class MultiPlatformKeywordDiscovery:
         return csv_path, json_path
 
 
-def run_discovery(input_keywords=None, limit=10, output_dir=None, verbose=True):
+def run_discovery(input_keywords=None, limit=10, output_dir=None, verbose=True, seed_profile: Optional[str] = None, min_terms: Optional[int] = None):
     """
     运行多平台关键词发现
     
@@ -881,26 +998,20 @@ def run_discovery(input_keywords=None, limit=10, output_dir=None, verbose=True):
     # 初始化发现工具
     discoverer = MultiPlatformKeywordDiscovery()
     
-    # 获取初始关键词
-    if input_keywords is None or len(input_keywords) == 0:
-        # 使用默认关键词
-        search_terms = [
-            'AI tool', 'AI generator', 'AI writer', 'AI assistant',
-            'machine learning', 'chatbot', 'automation'
-        ]
-        if verbose:
-            print(f"ℹ️ 使用默认关键词: {', '.join(search_terms)}")
-    else:
-        search_terms = input_keywords
-        if verbose:
-            print(f"✅ 使用提供的 {len(search_terms)} 个关键词")
-    
-    # 限制关键词数量
-    if limit and len(search_terms) > limit:
-        search_terms = search_terms[:limit]
-        if verbose:
-            print(f"ℹ️ 限制使用前 {limit} 个关键词")
-    
+    raw_terms = input_keywords if input_keywords else []
+    search_terms = discoverer.prepare_search_terms(
+        seeds=raw_terms,
+        profile=seed_profile,
+        limit=limit,
+        min_terms=min_terms
+    )
+    if verbose:
+        if input_keywords:
+            print(f"✅ 使用 {len(raw_terms)} 个输入关键词，合并后搜索 {len(search_terms)} 个种子词")
+        else:
+            profile_label = seed_profile or discoverer.default_seed_profile or 'default'
+            print(f"ℹ️ 从配置 '{profile_label}' 载入 {len(search_terms)} 个默认关键词")
+
     if verbose:
         print("🔍 多平台关键词发现工具")
         print(f"📊 搜索词汇: {', '.join(search_terms)}")
@@ -949,6 +1060,8 @@ def main():
     parser.add_argument("--use-root-words", "-r", action="store_true", help="使用词根趋势数据")
     parser.add_argument("--limit", "-l", type=int, default=10, help="每个来源使用的关键词数量限制")
     parser.add_argument("--output-dir", "-o", help="输出目录")
+    parser.add_argument("--seed-profile", help="指定配置中的种子关键词档案")
+    parser.add_argument("--min-terms", type=int, help="确保最少使用的种子关键词数量")
     args = parser.parse_args()
     
     # 获取初始关键词
@@ -1003,19 +1116,17 @@ def main():
                 
         except Exception as e:
             print(f"❌ 读取词根趋势数据失败: {e}")
-            # 使用默认关键词作为备选
-            search_terms = [
-                'AI tool', 'AI generator', 'AI writer', 'AI assistant',
-                'machine learning', 'chatbot', 'automation'
-            ]
-            print(f"⚠️ 使用默认关键词: {', '.join(search_terms)}")
+            search_terms = []
+            print("⚠️ 将使用配置中的默认种子关键词")
     
     # 运行发现过程
     run_discovery(
         input_keywords=search_terms,
         limit=args.limit,
         output_dir=args.output_dir,
-        verbose=True
+        verbose=True,
+        seed_profile=args.seed_profile,
+        min_terms=args.min_terms
     )
 
 

@@ -176,16 +176,35 @@ def handle_discover_analysis(manager, args):
     if not args.discover:
         return False
         
+    seed_profile = getattr(args, 'seed_profile', None)
+    seed_limit = getattr(args, 'seed_limit', None)
+    if isinstance(seed_limit, int) and seed_limit <= 0:
+        seed_limit = None
+    min_seed_terms = getattr(args, 'min_seed_terms', None)
+    if isinstance(min_seed_terms, int) and min_seed_terms <= 0:
+        min_seed_terms = None
+
     # 多平台关键词发现
-    search_terms = args.discover if args.discover != ['default'] else ['AI tool', 'AI generator', 'AI assistant']
-    
-    if not args.quiet:
-        print("🔍 开始多平台关键词发现...")
-        print(f"📊 搜索词汇: {', '.join(search_terms)}")
+    raw_terms = [] if args.discover == ['default'] else args.discover
     
     try:
         # 创建发现工具
         discoverer = MultiPlatformKeywordDiscovery()
+
+        search_terms = discoverer.prepare_search_terms(
+            seeds=raw_terms,
+            profile=seed_profile,
+            limit=seed_limit,
+            min_terms=min_seed_terms
+        )
+
+        if not search_terms:
+            print("⚠️ 缺少有效的种子关键词，无法执行多平台发现")
+            return True
+
+        if not args.quiet:
+            print("🔍 开始多平台关键词发现...")
+            print(f"📊 搜索词汇: {', '.join(search_terms)}")
         
         # 执行发现
         df = discoverer.discover_all_platforms(search_terms)
@@ -701,14 +720,34 @@ def handle_all_workflow(manager, args):
                         print("💡 建议检查第一步结果，或使用 --input 指定本地关键词文件。")
                     return True
 
-                # 执行多平台关键词发现
                 discovery_tool = MultiPlatformKeywordDiscovery()
+                seed_profile = getattr(args, 'seed_profile', None)
+                seed_limit_arg = getattr(args, 'seed_limit', None)
+                if isinstance(seed_limit_arg, int) and seed_limit_arg <= 0:
+                    seed_limit_arg = None
+                min_seed_terms = getattr(args, 'min_seed_terms', None)
+                if isinstance(min_seed_terms, int) and min_seed_terms <= 0:
+                    min_seed_terms = None
+                effective_limit = seed_limit_arg or max_seed_keywords
+                prepared_seeds = discovery_tool.prepare_search_terms(
+                    seeds=seed_keywords,
+                    profile=seed_profile,
+                    limit=effective_limit,
+                    min_terms=min_seed_terms
+                )
+
+                if not prepared_seeds:
+                    if not args.quiet:
+                        print("⚠️ 无有效种子关键词可用于多平台发现，流程终止。")
+                    return True
 
                 if not args.quiet:
-                    print(f"🔍 正在发现与 {len(seed_keywords)} 个关键词相关的关键词...")
-                
-                # 使用 discover_all_platforms 方法
-                df = discovery_tool.discover_all_platforms(seed_keywords)
+                    extra_seed_count = len([kw for kw in prepared_seeds if kw not in seed_keywords])
+                    if extra_seed_count > 0:
+                        print(f"ℹ️ 已追加 {extra_seed_count} 个配置种子关键词以满足发现需求")
+                    print(f"🔍 正在发现与 {len(prepared_seeds)} 个关键词相关的关键词...")
+
+                df = discovery_tool.discover_all_platforms(prepared_seeds)
                 
                 unique_keywords = []
                 prioritized_df = None
@@ -941,5 +980,3 @@ def refresh_dashboard_data(output_dir: str, history_size: int = 20) -> None:
             print("[Dashboard] 仪表盘已更新，但尚未检测到有效的分析结果。")
     except Exception as exc:
         print(f"[Dashboard] 刷新仪表盘数据失败: {exc}")
-
-

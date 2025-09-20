@@ -129,9 +129,25 @@ def _scheduled_task(action: str, **kwargs):
     
     try:
         if action == 'discover':
-            search_terms = kwargs.get('search_terms', ['AI tool', 'AI generator'])
+            raw_terms = kwargs.get('search_terms')
+            seed_profile = kwargs.get('seed_profile')
+            seed_limit = kwargs.get('seed_limit')
+            min_seed_terms = kwargs.get('min_seed_terms')
+            if isinstance(seed_limit, int) and seed_limit <= 0:
+                seed_limit = None
+            if isinstance(min_seed_terms, int) and min_seed_terms <= 0:
+                min_seed_terms = None
             from src.demand_mining.tools.multi_platform_keyword_discovery import MultiPlatformKeywordDiscovery
             discoverer = MultiPlatformKeywordDiscovery()
+            search_terms = discoverer.prepare_search_terms(
+                seeds=raw_terms,
+                profile=seed_profile,
+                limit=seed_limit,
+                min_terms=min_seed_terms
+            )
+            if not search_terms:
+                print("⚠️ 定时任务: 未获取到有效种子关键词，跳过多平台发现")
+                return
             df = discoverer.discover_all_platforms(search_terms)
             if not df.empty:
                 analysis = discoverer.analyze_keyword_trends(df)

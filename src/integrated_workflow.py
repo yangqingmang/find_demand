@@ -107,8 +107,19 @@ class IntegratedWorkflow:
             
             # 如果仍然没有关键词，使用默认关键词
             if not initial_keywords:
-                initial_keywords = ['AI tool', 'AI generator', 'AI writer']
-                print("⚠️ 未从需求挖掘结果中找到关键词，使用默认关键词")
+                seeds_cfg = self.config.get('discovery_seeds', {}) if isinstance(self.config, dict) else {}
+                fallback_profile = seeds_cfg.get('default_profile')
+                seed_limit = seeds_cfg.get('min_terms')
+                discoverer = self.discovery_manager.discoverer
+                if discoverer is None:
+                    from src.demand_mining.tools.multi_platform_keyword_discovery import MultiPlatformKeywordDiscovery
+                    discoverer = MultiPlatformKeywordDiscovery()
+                initial_keywords = discoverer.get_seed_terms(profile=fallback_profile, limit=seed_limit)
+                if initial_keywords:
+                    print(f"⚠️ 未从需求挖掘结果中找到关键词，使用配置种子: {', '.join(initial_keywords)}")
+                else:
+                    initial_keywords = ['AI tool', 'AI generator', 'AI writer']
+                    print("⚠️ 未从需求挖掘结果中找到关键词，使用默认关键词")
             
             # 执行多平台关键词发现
             discovery_results = self._run_multi_platform_discovery(initial_keywords)
@@ -167,9 +178,14 @@ class IntegratedWorkflow:
             print(f"📊 初始关键词: {', '.join(initial_keywords[:5])}{'...' if len(initial_keywords) > 5 else ''}")
             
             # 使用发现管理器执行多平台关键词发现
+            seeds_config = self.config.get('discovery_seeds', {}) if isinstance(self.config, dict) else {}
+            default_profile = seeds_config.get('default_profile')
+            min_terms = seeds_config.get('min_terms')
             discovery_results = self.discovery_manager.analyze(
                 search_terms=initial_keywords,
-                output_dir=output_dir
+                output_dir=output_dir,
+                seed_profile=default_profile,
+                min_terms=min_terms
             )
             
             # 如果发现了关键词，显示摘要

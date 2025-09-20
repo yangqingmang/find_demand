@@ -111,7 +111,10 @@ def setup_argument_parser():
     parser.add_argument('--stats', action='store_true', help='显示管理器统计信息')
     parser.add_argument('--use-root-words', action='store_true', help='使用51个词根进行趋势分析')
     parser.add_argument('--serp', action='store_true', help='启用SERP分析功能')
-    
+    parser.add_argument('--seed-profile', help='指定配置中的种子关键词档案（用于多平台发现）')
+    parser.add_argument('--seed-limit', type=int, help='限制多平台发现阶段使用的种子关键词数量')
+    parser.add_argument('--min-seed-terms', type=int, help='确保至少使用的种子关键词数量')
+
     return parser
 
 
@@ -124,6 +127,8 @@ def display_analysis_parameters(args):
             print(f"🔤 分析关键词: {', '.join(args.keywords)}")
         elif args.report:
             print("📊 生成今日分析报告")
+        if getattr(args, 'seed_profile', None):
+            print(f"🌱 种子配置: {args.seed_profile}")
         print(f"📂 输出目录: {args.output}")
         print("")
 

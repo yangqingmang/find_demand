@@ -36,6 +36,76 @@
     "lsh_similarity_threshold": 0.9,
     "cluster_distance_threshold": 0.2
   },
+
+  "keyword_filters": {
+    "brand_phrases_mode": "extend",
+    "brand_phrases": [
+      "runwayml",
+      "perplexity ai",
+      "janitor ai"
+    ],
+    "brand_modifier_mode": "extend",
+    "brand_modifiers": [
+      "lifetime deal",
+      "affiliate",
+      "pricing plan"
+    ],
+    "generic_head_mode": "extend",
+    "generic_head_terms": [
+      "automation platform",
+      "creative suite"
+    ],
+    "question_prefix_mode": "extend",
+    "question_prefixes": [
+      "is there",
+      "best alternative"
+    ],
+    "long_tail_mode": "extend",
+    "long_tail_tokens": [
+      "workflow template",
+      "playbook"
+    ]
+  },
+
+  "discovery_seeds": {
+    "default_profile": "ai_tools",
+    "min_terms": 3,
+    "profiles": {
+      "ai_tools": {
+        "label": "AI tools & automation",
+        "terms": [
+          "AI tool",
+          "AI generator",
+          "AI writer",
+          "AI assistant",
+          "machine learning platform",
+          "chatbot builder",
+          "workflow automation"
+        ]
+      },
+      "saas_growth": {
+        "label": "SaaS growth & marketing",
+        "terms": [
+          "saas marketing",
+          "product led growth",
+          "onboarding automation",
+          "customer success playbook",
+          "b2b lead generation",
+          "self serve trial"
+        ]
+      },
+      "creator_economy": {
+        "label": "Creator & content economy",
+        "terms": [
+          "creator monetization",
+          "newsletter automation",
+          "online course tools",
+          "content repurposing",
+          "audience analytics"
+        ]
+      }
+    }
+  },
   
   "intent_analysis": {
     "confidence_threshold": 0.6,
