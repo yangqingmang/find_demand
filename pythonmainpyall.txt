@@ -1,9 +1,10 @@
-(.venv) PS D:\VscodeWorkspace\find_demand> python main.py --all
+(.venv) yangqingmang@yangqingmangdeMacBook-Pro find_demand % python main.py --all
+/Users/yangqingmang/CursorWorkspace/find_demand/find_demand/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
 正在加载配置...
 ✓ 已加载公开配置
 ✓ 从 file 成功加载私钥
 ✓ 已加载加密配置
-✓ 已加载 .env 配置
 ✓ 配置加载完成
 🔍 需求挖掘分析工具 v2.0
 整合六大需求挖掘方法的智能分析系统
@@ -12,24 +13,24 @@
 
 🔍 关键词管理器初始化完成
 🔍 发现管理器初始化完成
-2025-09-19 13:29:14 - config.proxy_config_loader - INFO - ✅ 加载了 0 个有效代理
-2025-09-19 13:29:14 - config.proxy_config_loader - INFO - ✅ 代理配置加载成功，环境: development
-2025-09-19 13:29:14 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
-2025-09-19 13:29:14 - src.collectors.google_trends_session - INFO - Session初始化成功
-2025-09-19 13:29:14 - src.collectors.google_trends_session - INFO - 🔧 正在初始化Google Trends会话...
-2025-09-19 13:29:24 - src.collectors.google_trends_session - INFO - ✅ Google Trends会话初始化成功
-2025-09-19 13:29:24 - root - INFO - Session初始化成功
-2025-09-19 13:29:24 - src.collectors.trends_singleton - INFO - 🆕 创建新的TrendsCollector实例
-2025-09-19 13:29:24 - src.demand_mining.root_word_trends_analyzer - INFO - TrendsCollector单例获取成功
-2025-09-19 13:29:24 - root - WARNING - 代理管理器不可用，将使用直接请求
-2025-09-19 13:29:24 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
-2025-09-19 13:29:24 - root - INFO - 趋势收集器初始化成功
-2025-09-19 13:29:24 - src.demand_mining.root_word_trends_analyzer - INFO - NewWordDetector单例获取成功
-2025-09-19 13:29:24 - src.demand_mining.core.trends_cache - INFO - 缓存数据库初始化完成
-2025-09-19 13:29:24 - src.demand_mining.core.trends_cache - INFO - 趋势缓存初始化完成，缓存目录: output/reports\trends_cache
+2025-09-20 22:49:32 - config.proxy_config_loader - INFO - ✅ 加载了 0 个有效代理
+2025-09-20 22:49:32 - config.proxy_config_loader - INFO - ✅ 代理配置加载成功，环境: development
+2025-09-20 22:49:32 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
+2025-09-20 22:49:32 - src.collectors.google_trends_session - INFO - Session初始化成功
+2025-09-20 22:49:32 - src.collectors.google_trends_session - INFO - 🔧 正在初始化Google Trends会话...
+2025-09-20 22:49:44 - src.collectors.google_trends_session - INFO - ✅ Google Trends会话初始化成功
+2025-09-20 22:49:44 - root - INFO - Session初始化成功
+2025-09-20 22:49:44 - src.collectors.trends_singleton - INFO - 🆕 创建新的TrendsCollector实例
+2025-09-20 22:49:44 - src.demand_mining.root_word_trends_analyzer - INFO - TrendsCollector单例获取成功
+2025-09-20 22:49:44 - root - WARNING - 代理管理器不可用，将使用直接请求
+2025-09-20 22:49:44 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
+2025-09-20 22:49:44 - root - INFO - 趋势收集器初始化成功
+2025-09-20 22:49:44 - src.demand_mining.root_word_trends_analyzer - INFO - NewWordDetector单例获取成功
+2025-09-20 22:49:44 - src.demand_mining.core.trends_cache - INFO - 缓存数据库初始化完成
+2025-09-20 22:49:44 - src.demand_mining.core.trends_cache - INFO - 趋势缓存初始化完成，缓存目录: output/reports/trends_cache
 📈 趋势管理器初始化完成（已启用缓存）
-2025-09-19 13:29:24 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
-2025-09-19 13:29:24 - root - INFO - 趋势收集器初始化成功
+2025-09-20 22:49:44 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
+2025-09-20 22:49:44 - root - INFO - 趋势收集器初始化成功
 ✅ 新词检测器初始化成功
 🚀 集成需求挖掘管理器初始化完成
 📊 已加载关键词管理器、发现管理器、趋势管理器
@@ -38,47 +39,45 @@
    第一步: 搜索热门关键词 (Google Trends + TrendingKeywords.net)
    第二步: 基于热门关键词进行多平台发现
 🔍 正在获取 Google Trends Rising Queries...
-2025-09-19 13:29:24 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
-2025-09-19 13:29:24 - root - INFO - 📄 原始响应详细: ')]}\'\n{"widgets":[{"r'
-2025-09-19 13:29:24 - root - INFO - 找到JSON开始位置: 5
-2025-09-19 13:29:24 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
-2025-09-19 13:29:24 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
-2025-09-19 13:29:24 - root - INFO - ✅ 成功解析JSON数据
-2025-09-19 13:29:24 - root - INFO - 📊 数据结构: ['widgets', 'keywords', 'timeRanges', 'shareText', 'shouldShowMultiHeatMapMessage']
-2025-09-19 13:29:24 - root - INFO - 🔍 Widget类型: RELATED_TOPICS
-2025-09-19 13:29:24 - root - INFO - 🔍 Widget类型: RELATED_QUERIES
-2025-09-19 13:29:24 - root - INFO - 🎯 找到RELATED_QUERIES token: APP6_UEAAAAAaM47tcd9...
-2025-09-19 13:29:24 - root - INFO - 🔍 正在请求related_searches接口...
-2025-09-19 13:29:26 - root - INFO - ✅ 成功获取related searches数据
-2025-09-19 13:29:26 - root - INFO - 📊 Related data结构: ['default']
-2025-09-19 13:29:26 - root - INFO - 🎯 解析到 50 个真实关键词
+2025-09-20 22:49:44 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
+2025-09-20 22:49:44 - root - INFO - 📄 原始响应详细: ')]}\'\n{"widgets":[{"r'
+2025-09-20 22:49:44 - root - INFO - 找到JSON开始位置: 5
+2025-09-20 22:49:44 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
+2025-09-20 22:49:44 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
+2025-09-20 22:49:44 - root - INFO - ✅ 成功解析JSON数据
+2025-09-20 22:49:44 - root - INFO - 📊 数据结构: ['widgets', 'keywords', 'timeRanges', 'shareText', 'shouldShowMultiHeatMapMessage']
+2025-09-20 22:49:44 - root - INFO - 🔍 Widget类型: RELATED_TOPICS
+2025-09-20 22:49:44 - root - INFO - 🔍 Widget类型: RELATED_QUERIES
+2025-09-20 22:49:44 - root - INFO - 🎯 找到RELATED_QUERIES token: APP6_UEAAAAAaNAQiTEb...
+2025-09-20 22:49:44 - root - INFO - 🔍 正在请求related_searches接口...
+2025-09-20 22:49:46 - root - INFO - ✅ 成功获取related searches数据
+2025-09-20 22:49:46 - root - INFO - 📊 Related data结构: ['default']
+2025-09-20 22:49:46 - root - INFO - 🎯 解析到 46 个真实关键词
 ✅ Google Trends: 获取到 15 个关键词
 🔍 正在获取 TrendingKeywords.net 数据...
-2025-09-19 13:29:26 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 1 页...
-2025-09-19 13:29:29 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
-2025-09-19 13:29:29 - src.collectors.trending_keywords_collector - INFO - 第 1 页获取到 18 个关键词
-2025-09-19 13:29:31 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 2 页...
-2025-09-19 13:29:33 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
-2025-09-19 13:29:33 - src.collectors.trending_keywords_collector - INFO - 第 2 页获取到 18 个关键词
-2025-09-19 13:29:35 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 3 页...
-2025-09-19 13:29:36 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
-2025-09-19 13:29:36 - src.collectors.trending_keywords_collector - INFO - 第 3 页获取到 18 个关键词
-2025-09-19 13:29:36 - src.collectors.trending_keywords_collector - INFO - 总共获取到 54 个关键词
-✅ TrendingKeywords.net: 获取到 2 个关键词
-D:\VscodeWorkspace\find_demand\src\command_handlers.py:74: UserWarning: This pattern is interpreted as a regular expression, and has match groups. To actually get the groups, use str.extract.
-  filtered = filtered[~filtered['query_lower'].str.contains(pattern, regex=True)]
+2025-09-20 22:49:46 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 1 页...
+2025-09-20 22:49:49 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
+2025-09-20 22:49:49 - src.collectors.trending_keywords_collector - INFO - 第 1 页获取到 18 个关键词
+2025-09-20 22:49:50 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 2 页...
+2025-09-20 22:49:51 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
+2025-09-20 22:49:51 - src.collectors.trending_keywords_collector - INFO - 第 2 页获取到 18 个关键词
+2025-09-20 22:49:52 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 3 页...
+2025-09-20 22:49:53 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
+2025-09-20 22:49:53 - src.collectors.trending_keywords_collector - INFO - 第 3 页获取到 18 个关键词
+2025-09-20 22:49:53 - src.collectors.trending_keywords_collector - INFO - 总共获取到 54 个关键词
+✅ TrendingKeywords.net: 获取到 1 个关键词
 [Filter] 已过滤 6 条低质量热门词
-🎯 合并后总计: 11 个关键词
+🎯 合并后总计: 10 个关键词
 📊 数据源分布:
-   • TrendingKeywords.net: 2 个
+   • TrendingKeywords.net: 1 个
 🔍 第一步: 对 2 个热门关键词进行需求挖掘...
 🚀 开始关键词分析 - 类型: file, 综合分析: False
 ✅ 成功读取 2 条关键词数据
 🔍 分析关键词 (1/2): chatgpt
-2025-09-19 13:29:36 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+2025-09-20 22:49:53 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
 提示: 当前代理配置已禁用代理，SERP 分析器将使用直连模式
 🔍 分析关键词 (2/2): hix bypass
-2025-09-19 13:29:40 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+2025-09-20 22:49:59 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
 ✅ 第一步完成! 分析了 2 个热门关键词
 📊 发现 0 个高机会关键词
 
@@ -86,138 +85,80 @@ D:\VscodeWorkspace\find_demand\src\command_handlers.py:74: UserWarning: This pat
 🔍 正在发现与 2 个关键词相关的关键词...
 🚀 开始多平台关键词发现...
 🔍 正在分析 Reddit r/artificial...
+[nltk_data] Error downloading 'punkt' from
+[nltk_data]     <https://raw.githubusercontent.com/nltk/nltk_data/gh-
+[nltk_data]     pages/packages/tokenizers/punkt.zip>:   <urlopen error
+[nltk_data]     EOF occurred in violation of protocol (_ssl.c:1129)>
+[nltk_data] Error downloading 'averaged_perceptron_tagger' from
+[nltk_data]     <https://raw.githubusercontent.com/nltk/nltk_data/gh-p
+[nltk_data]     ages/packages/taggers/averaged_perceptron_tagger.zip>:
+[nltk_data]     <urlopen error EOF occurred in violation of protocol
+[nltk_data]     (_ssl.c:1129)>
 🔍 正在分析 Reddit r/MachineLearning...
 🔍 正在分析 Reddit r/deeplearning...
 🔍 正在分析 Reddit r/ChatGPT...
 🔍 正在分析 Reddit r/OpenAI...
-🔍 正在分析 Hacker News (查询: chatgpt)...
 🔍 正在分析 Hacker News (查询: hix bypass)...
-🔍 正在分析 YouTube 搜索建议 (查询: chatgpt)...
+🔍 正在分析 Hacker News (查询: chatgpt)...
 🔍 正在分析 YouTube 搜索建议 (查询: hix bypass)...
-🔍 正在分析 Google 搜索建议 (查询: chatgpt)...
+🔍 正在分析 YouTube 搜索建议 (查询: chatgpt)...
 🔍 正在分析 Google 搜索建议 (查询: hix bypass)...
-🔍 正在分析 ProductHunt (查询: chatgpt)...
+🔍 正在分析 Google 搜索建议 (查询: chatgpt)...
 🔍 正在分析 ProductHunt (查询: hix bypass)...
-2025-09-19 13:30:17 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
-2025-09-19 13:30:17 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
-Batches: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 2/2 [00:00<00:00,  9.42it/s]
-✅ 发现 39 个关键词
-🎯 发现了 39 个相关关键词
-📁 发现的关键词已保存到: output/reports\discovered_keywords_20250919_133027.csv
+🔍 正在分析 ProductHunt (查询: chatgpt)...
+⚠️ 移除了 19 个品牌泛词
+⚠️ 移除了 7 个泛化头部词
+✅ 发现 4 个关键词
+🎯 发现了 4 个相关关键词
+📁 发现的关键词已保存到: output/reports/discovered_keywords_20250920_225042.csv
 
 🔍 第三步: 对发现的关键词进行需求挖掘分析...
 🚀 开始关键词分析 - 类型: file, 综合分析: False
-✅ 成功读取 39 条关键词数据
-🔍 分析关键词 (1/39): service
-2025-09-19 13:30:27 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (2/39): platform
-2025-09-19 13:30:30 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (3/39): machine learning
-2025-09-19 13:30:33 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (4/39): software
-2025-09-19 13:30:36 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (5/39): chatgpt
-2025-09-19 13:30:39 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (6/39): chatgpt studio ghibli
-2025-09-19 13:30:40 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (7/39): chatgpt photo editing
-2025-09-19 13:30:44 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (8/39): chatgpt agent
-2025-09-19 13:30:47 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (9/39): chatgpt tamil
-2025-09-19 13:30:50 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (10/39): chatgpt photo editing tamil
-2025-09-19 13:30:54 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (11/39): chatgpt pro
-2025-09-19 13:30:58 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (12/39): chatgpt chess
-2025-09-19 13:31:01 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (13/39): chatgpt agent mode
-2025-09-19 13:31:05 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (14/39): chatgpt prompts
-2025-09-19 13:31:09 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (15/39): hix bypass
-2025-09-19 13:31:12 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (16/39): hix bypass turnitin
-2025-09-19 13:31:14 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (17/39): hix bypass premium free
-2025-09-19 13:31:17 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (18/39): hix bypass review
-2025-09-19 13:31:20 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (19/39): hix bypass free
-2025-09-19 13:31:23 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (20/39): hix bypass vs turnitin
-2025-09-19 13:31:26 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (21/39): hix bypass promo code
-2025-09-19 13:31:29 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⏱️ SERP API 频率限制，等待 1.16 秒
-🔍 分析关键词 (22/39): hix bypass vs undetectable ai
-2025-09-19 13:31:33 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (23/39): hix bypass premium
-2025-09-19 13:31:36 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (24/39): hix bypass unlimited
-2025-09-19 13:31:39 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (25/39): hix bypass ai
-2025-09-19 13:31:41 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (26/39): chatgpt 5
-2025-09-19 13:31:44 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⏱️ SERP API 频率限制，等待 0.44 秒
-🔍 分析关键词 (27/39): chatgpt login
-2025-09-19 13:31:47 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (28/39): chatgpt app
-2025-09-19 13:31:50 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⏱️ SERP API 频率限制，等待 0.70 秒
-🔍 分析关键词 (29/39): chatgpt free
-2025-09-19 13:31:54 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (30/39): chatgpt download
-2025-09-19 13:31:58 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⏱️ SERP API 频率限制，等待 0.12 秒
-🔍 分析关键词 (31/39): chatgpt pricing
-2025-09-19 13:32:00 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⏱️ SERP API 频率限制，等待 1.08 秒
-🔍 分析关键词 (32/39): chatgpt release notes
-2025-09-19 13:32:05 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (33/39): hix bypass ai humanizer
-2025-09-19 13:32:08 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⏱️ SERP API 频率限制，等待 0.97 秒
-🔍 分析关键词 (34/39): hix bypass price
-2025-09-19 13:32:11 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⏱️ SERP API 频率限制，等待 1.10 秒
-🔍 分析关键词 (35/39): hix bypass ai humanizer free
-2025-09-19 13:32:15 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (36/39): hix bypass ai checker
-2025-09-19 13:32:17 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (37/39): hix bypass alternative
-2025-09-19 13:32:19 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⏱️ SERP API 频率限制，等待 0.58 秒
-🔍 分析关键词 (38/39): hix bypass essay
-2025-09-19 13:32:22 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⏱️ SERP API 频率限制，等待 0.65 秒
-🔍 分析关键词 (39/39): hix bypass discount code
-2025-09-19 13:32:25 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⏱️ SERP API 频率限制，等待 1.36 秒
+✅ 成功读取 4 条关键词数据
+🔍 分析关键词 (1/4): chatgpt 4o
+2025-09-20 22:50:42 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (2/4): chatgpt5
+2025-09-20 22:50:46 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (3/4): chatgpt agent
+2025-09-20 22:50:49 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (4/4): chatgpt api
+2025-09-20 22:50:52 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
 🔍 正在进行新词检测...
-2025-09-19 13:32:29 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-19 13:32:29 - root - INFO -    关键词: ['service']
-2025-09-19 13:32:29 - root - INFO -    时间范围: today 12-m
-2025-09-19 13:32:29 - root - INFO -    地理位置:
-2025-09-19 13:32:29 - src.collectors.request_rate_limiter - INFO - 🚦 初始化请求频率控制器: 最小间隔5.0秒, 每分钟最多8次请求
-2025-09-19 13:32:29 - src.collectors.request_rate_limiter - INFO - 🆕 创建全局请求频率控制器
-2025-09-19 13:32:35 - root - INFO - ✅ 成功获取到 53 条趋势数据
-⚠️ 新词检测失败: 'NoneType' object has no attribute 'get'
+2025-09-20 22:50:56 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-20 22:50:56 - root - INFO -    关键词: ['chatgpt 4o']
+2025-09-20 22:50:56 - root - INFO -    时间范围: today 12-m
+2025-09-20 22:50:56 - root - INFO -    地理位置:
+2025-09-20 22:50:56 - src.collectors.request_rate_limiter - INFO - 🚦 初始化请求频率控制器: 最小间隔5.0秒, 每分钟最多8次请求
+2025-09-20 22:50:56 - src.collectors.request_rate_limiter - INFO - 🆕 创建全局请求频率控制器
+2025-09-20 22:51:01 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-20 22:51:02 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-20 22:51:02 - root - INFO -    关键词: ['chatgpt5']
+2025-09-20 22:51:02 - root - INFO -    时间范围: today 12-m
+2025-09-20 22:51:02 - root - INFO -    地理位置:
+2025-09-20 22:51:11 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-20 22:51:12 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-20 22:51:12 - root - INFO -    关键词: ['chatgpt agent']
+2025-09-20 22:51:12 - root - INFO -    时间范围: today 12-m
+2025-09-20 22:51:12 - root - INFO -    地理位置:
+2025-09-20 22:51:21 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-20 22:51:23 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-20 22:51:23 - root - INFO -    关键词: ['chatgpt api']
+2025-09-20 22:51:23 - root - INFO -    时间范围: today 12-m
+2025-09-20 22:51:23 - root - INFO -    地理位置:
+2025-09-20 22:51:31 - root - INFO - ✅ 成功获取到 53 条趋势数据
+✅ 新词检测完成: 发现 0 个新词 (0 个高置信度)
 
 🎉 完整工作流程完成!
 📊 热门关键词分析: 2 个关键词
-🌐 多平台发现: 39 个相关关键词
-🎯 最终分析: 39 个关键词
+🌐 多平台发现: 4 个相关关键词
+🎯 最终分析: 4 个关键词
 🏆 总计高机会关键词: 0 个
-📈 平均机会分数: 36.33
+📈 平均机会分数: 31.44
 
 🏆 Top 5 最终机会关键词:
-   1. hix bypass vs undetectable ai (分数: 46.0, 意图: C)
-   2. hix bypass price (分数: 44.0, 意图: E)
-   3. hix bypass ai (分数: 42.5, 意图: I)
-   4. chatgpt login (分数: 41.67, 意图: N)
-   5. hix bypass promo code (分数: 41.5, 意图: I)
-[Dashboard] 数据已刷新: D:\VscodeWorkspace\find_demand\output\reports\dashboard_data.json
-(.venv) PS D:\VscodeWorkspace\find_demand> 
+   1. chatgpt agent (分数: 32.12, 意图: I)
+   2. chatgpt5 (分数: 31.87, 意图: I)
+   3. chatgpt 4o (分数: 31.5, 意图: I)
+   4. chatgpt api (分数: 30.25, 意图: I)
+[Dashboard] 数据已刷新: /Users/yangqingmang/CursorWorkspace/find_demand/find_demand/output/reports/dashboard_data.json
+(.venv) yangqingmang@yangqingmangdeMacBook-Pro find_demand %

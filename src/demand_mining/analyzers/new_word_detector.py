@@ -46,11 +46,14 @@ class NewWordDetector(BaseAnalyzer):
     """新词检测器，用于识别具有新词特征的关键词"""
     
     def __init__(self, 
-                 low_volume_threshold_12m=100,    # 12个月平均搜索量阈值
-                 low_volume_threshold_90d=50,     # 90天平均搜索量阈值  
-                 low_volume_threshold_30d=30,     # 30天平均搜索量阈值
-                 high_growth_threshold_7d=200,    # 7天增长率阈值(%)
-                 min_recent_volume=20):           # 最近7天最低搜索量
+                 low_volume_threshold_12m: int = 250,
+                 low_volume_threshold_90d: int = 120,
+                 low_volume_threshold_30d: int = 80,
+                 high_growth_threshold_7d: float = 80.0,
+                 min_recent_volume: int = 10,
+                 new_word_score_threshold: float = 55.0,
+                 confidence_thresholds: Optional[Dict[str, float]] = None,
+                 grade_thresholds: Optional[Dict[str, Dict[str, Any]]] = None):
         """
         初始化新词检测器
         
@@ -60,17 +63,33 @@ class NewWordDetector(BaseAnalyzer):
             low_volume_threshold_30d (int): 30天平均搜索量阈值
             high_growth_threshold_7d (float): 7天增长率阈值(%)
             min_recent_volume (int): 最近7天最低搜索量
+            new_word_score_threshold (float): 判定为新词的最低得分
+            confidence_thresholds (dict): 置信度阈值设置，如 {'high': 80, 'medium': 60}
+            grade_thresholds (dict): 覆盖默认等级阈值和描述
         """
         super().__init__()
         
         # 新词判断阈值
         self.thresholds = {
-            'low_volume_12m': low_volume_threshold_12m,
-            'low_volume_90d': low_volume_threshold_90d,
-            'low_volume_30d': low_volume_threshold_30d,
-            'high_growth_7d': high_growth_threshold_7d,
-            'min_recent_volume': min_recent_volume
+            'low_volume_12m': max(low_volume_threshold_12m, 0),
+            'low_volume_90d': max(low_volume_threshold_90d, 0),
+            'low_volume_30d': max(low_volume_threshold_30d, 0),
+            'high_growth_7d': float(high_growth_threshold_7d),
+            'min_recent_volume': max(min_recent_volume, 0)
         }
+        self.score_threshold = max(float(new_word_score_threshold), 0.0)
+        default_confidence_thresholds = {
+            'high': 75.0,
+            'medium': max(self.score_threshold, 55.0)
+        }
+        if isinstance(confidence_thresholds, dict):
+            for key in ('high', 'medium'):
+                value = confidence_thresholds.get(key)
+                if isinstance(value, (int, float)):
+                    default_confidence_thresholds[key] = float(value)
+        if default_confidence_thresholds['high'] < default_confidence_thresholds['medium']:
+            default_confidence_thresholds['high'] = default_confidence_thresholds['medium'] + 5.0
+        self.confidence_thresholds = default_confidence_thresholds
         self.cache_dir = Path('data/cache/new_word_trends')
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.memory_cache_ttl = timedelta(minutes=30)
@@ -98,12 +117,23 @@ class NewWordDetector(BaseAnalyzer):
         
         # 新词等级定义
         self.new_word_grades = {
-            'S': {'min_score': 90, 'description': '超级新词 - 爆发式增长'},
-            'A': {'min_score': 80, 'description': '强新词 - 快速增长'},
-            'B': {'min_score': 70, 'description': '中新词 - 稳定增长'},
-            'C': {'min_score': 60, 'description': '弱新词 - 缓慢增长'},
+            'S': {'min_score': 85, 'description': '超级新词 - 爆发式增长'},
+            'A': {'min_score': 70, 'description': '强新词 - 快速增长'},
+            'B': {'min_score': 60, 'description': '中新词 - 稳定增长'},
+            'C': {'min_score': 50, 'description': '弱新词 - 缓慢增长'},
             'D': {'min_score': 0, 'description': '非新词 - 传统关键词'}
         }
+        if isinstance(grade_thresholds, dict):
+            for grade, info in grade_thresholds.items():
+                current = self.new_word_grades.get(grade)
+                if not current:
+                    continue
+                min_score = info.get('min_score') if isinstance(info, dict) else None
+                description = info.get('description') if isinstance(info, dict) else None
+                if isinstance(min_score, (int, float)):
+                    current['min_score'] = float(min_score)
+                if isinstance(description, str) and description.strip():
+                    current['description'] = description.strip()
 
     def _empty_trend_result(self) -> Dict[str, Any]:
         """Return a default trend payload with all expected keys."""
@@ -344,41 +374,43 @@ class NewWordDetector(BaseAnalyzer):
         # 近期趋势加速（7天对比30天）
         score += self._score_growth_signal(
             short_term_growth,
-            [(300, 20.0), (200, 16.0), (120, 12.0), (60, 8.0), (30, 4.0)],
-            [(-20, 4.0), (-40, 8.0)]
+            [(150, 20.0), (120, 17.0), (80, 13.0), (50, 9.0), (30, 6.0), (15, 3.0)],
+            [(-25, 4.0), (-45, 8.0)]
         )
 
         # 环比（月度）增长
         score += self._score_growth_signal(
             mom_growth,
-            [(200, 15.0), (120, 12.0), (80, 9.0), (40, 6.0), (20, 3.0)],
-            [(-15, 3.0), (-30, 6.0)]
+            [(150, 13.0), (100, 10.0), (60, 7.0), (30, 4.0), (15, 2.5)],
+            [(-12, 3.0), (-25, 6.0)]
         )
 
         # 同比（去年同期）增长
         score += self._score_growth_signal(
             yoy_growth,
-            [(250, 15.0), (150, 12.0), (100, 9.0), (50, 6.0), (25, 3.0)],
-            [(-10, 3.0), (-25, 6.0)]
+            [(200, 13.0), (120, 10.0), (80, 7.5), (40, 4.0), (20, 2.0)],
+            [(-8, 3.0), (-20, 6.0)]
         )
 
         # Z 分数衡量异动强度
         score += self._score_growth_signal(
             z_score_value,
-            [(3.0, 15.0), (2.5, 13.0), (2.0, 11.0), (1.5, 8.0), (1.0, 5.0), (0.5, 2.0)],
-            [(-0.5, 2.0), (-1.0, 4.0)]
+            [(2.5, 14.0), (2.0, 11.0), (1.5, 8.0), (1.0, 6.0), (0.7, 4.0), (0.4, 2.0)],
+            [(-0.4, 2.0), (-0.8, 4.0)]
         )
 
         # 近期搜索量底线
         volume_score = 0.0
         min_recent = self.thresholds['min_recent_volume']
-        if avg_7d >= min_recent * 2:
+        if min_recent <= 0:
+            volume_score = 12.0 if avg_7d > 0 else 0.0
+        elif avg_7d >= min_recent * 2.5:
             volume_score = 15.0
-        elif avg_7d >= min_recent * 1.2:
+        elif avg_7d >= min_recent * 1.6:
             volume_score = 12.0
-        elif avg_7d >= min_recent:
+        elif avg_7d >= min_recent * 1.1:
             volume_score = 10.0
-        elif avg_7d >= min_recent * 0.75:
+        elif avg_7d >= min_recent * 0.8:
             volume_score = 6.0
         elif avg_7d >= min_recent * 0.5:
             volume_score = 3.0
@@ -488,15 +520,15 @@ class NewWordDetector(BaseAnalyzer):
                 explosion_index = round(max(score / 10.0, 1.0), 2)
                 historical_pattern = str(historical_data.get('trend_direction', 'unknown') or 'unknown')
 
-                if score >= 60:
+                if score >= self.score_threshold:
                     detection_reasons.append('rapid_growth_signals')
 
                 result = {
                     'keyword': keyword,
                     'new_word_score': score,
                     'new_word_grade': grade,
-                    'is_new_word': score >= 60,
-                    'confidence_level': 'high' if score >= 80 else 'medium' if score >= 60 else 'low',
+                    'is_new_word': score >= self.score_threshold,
+                    'confidence_level': 'high' if score >= self.confidence_thresholds['high'] else 'medium' if score >= self.confidence_thresholds['medium'] else 'low',
                     'grade_description': self.new_word_grades[grade]['description'],
                     'avg_12m': historical_data.get('avg_12m', 0.0),
                     'avg_90d': historical_data.get('avg_90d', 0.0),

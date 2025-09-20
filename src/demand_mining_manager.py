@@ -44,11 +44,37 @@ class IntegratedDemandMiningManager:
         self.keyword_manager = KeywordManager(config_path)
         self.discovery_manager = DiscoveryManager(config_path)
         self.trend_manager = TrendManager(config_path)
+        self.config = getattr(self.keyword_manager, 'config', {})
         
         # 初始化新词检测器
         try:
             from src.demand_mining.analyzers.new_word_detector import NewWordDetector
-            self.new_word_detector = NewWordDetector()
+            new_word_cfg = {}
+            if isinstance(self.config, dict):
+                new_word_cfg = self.config.get('new_word_detection', {}) or {}
+
+            detector_kwargs = {}
+            if isinstance(new_word_cfg, dict):
+                mapping = {
+                    'low_volume_threshold_12m': 'low_volume_threshold_12m',
+                    'low_volume_threshold_90d': 'low_volume_threshold_90d',
+                    'low_volume_threshold_30d': 'low_volume_threshold_30d',
+                    'high_growth_threshold_7d': 'high_growth_threshold_7d',
+                    'min_recent_volume': 'min_recent_volume',
+                    'score_threshold': 'new_word_score_threshold'
+                }
+                for cfg_key, param_name in mapping.items():
+                    value = new_word_cfg.get(cfg_key)
+                    if isinstance(value, (int, float)):
+                        detector_kwargs[param_name] = value
+                confidence_cfg = new_word_cfg.get('confidence_thresholds')
+                if isinstance(confidence_cfg, dict):
+                    detector_kwargs['confidence_thresholds'] = confidence_cfg
+                grade_cfg = new_word_cfg.get('grade_thresholds')
+                if isinstance(grade_cfg, dict):
+                    detector_kwargs['grade_thresholds'] = grade_cfg
+
+            self.new_word_detector = NewWordDetector(**detector_kwargs)
             self.new_word_detection_available = True
             print("✅ 新词检测器初始化成功")
         except ImportError as e:
@@ -116,7 +142,8 @@ class IntegratedDemandMiningManager:
                     'total_analyzed': len(new_word_results),
                     'new_words_detected': new_words_count,
                     'high_confidence_new_words': high_confidence_count,
-                    'new_word_percentage': round(new_words_count / len(new_word_results) * 100, 1) if len(new_word_results) > 0 else 0
+                    'new_word_percentage': round(new_words_count / len(new_word_results) * 100, 1) if len(new_word_results) > 0 else 0,
+                    'score_threshold': getattr(self.new_word_detector, 'score_threshold', 0.0)
                 }
 
                 print(f"✅ 新词检测完成: 发现 {new_words_count} 个新词 ({high_confidence_count} 个高置信度)")

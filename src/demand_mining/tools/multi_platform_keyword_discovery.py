@@ -68,6 +68,16 @@ class MultiPlatformKeywordDiscovery:
         # 请求控制参数
         self._retry_enabled = True
 
+        filters_cfg = self._load_discovery_filter_config()
+        self.brand_filter_config = {
+            'enabled': bool(filters_cfg.get('brand_filter_enabled', True)),
+            'strict_brand_modifiers': bool(filters_cfg.get('strict_brand_modifiers', False)),
+            'min_non_brand_tokens': max(int(filters_cfg.get('min_non_brand_tokens', 1) or 0), 0)
+        }
+        self.generic_filter_config = {
+            'enabled': bool(filters_cfg.get('generic_filter_enabled', True))
+        }
+        
         # AI相关subreddit列表
         self.ai_subreddits = [
             'artificial', 'MachineLearning', 'deeplearning', 'ChatGPT',
@@ -126,8 +136,26 @@ class MultiPlatformKeywordDiscovery:
             'how to', 'how do', 'how can', 'what is', 'what are', 'why', 'should i',
             'can i', 'is there', 'best way', 'ways to'
         )
-        self.max_brand_variations = 5
+        self.max_brand_variations = max(int(filters_cfg.get('max_brand_variations', 8) or 0), 0)
+        self.lsh_similarity_threshold = float(filters_cfg.get('lsh_similarity_threshold', 0.9))
+        self.cluster_distance_threshold = float(filters_cfg.get('cluster_distance_threshold', 0.2))
+        self.lsh_similarity_threshold = min(max(self.lsh_similarity_threshold, 0.5), 0.98)
+        self.cluster_distance_threshold = min(max(self.cluster_distance_threshold, 0.05), 0.5)
         self._cleaning_config = CleaningConfig()
+        self._brand_filter_notice_shown = False
+        self._generic_filter_notice_shown = False
+
+    def _load_discovery_filter_config(self) -> Dict[str, Any]:
+        config_path = os.path.join(os.path.dirname(__file__), '../../../config/integrated_workflow_config.json')
+        try:
+            if os.path.exists(config_path):
+                with open(config_path, 'r', encoding='utf-8') as fh:
+                    data = json.load(fh)
+                filters_cfg = data.get('discovery_filters', {})
+                return filters_cfg if isinstance(filters_cfg, dict) else {}
+        except Exception:
+            pass
+        return {}
 
     def _request_with_retry(self, method: str, url: str, **kwargs) -> requests.Response:
         """对外部请求增加超时与重试机制"""
@@ -506,7 +534,7 @@ class MultiPlatformKeywordDiscovery:
 
     def _is_brand_heavy(self, keyword: str) -> bool:
         """过滤品牌词及其常见附属词"""
-        if not keyword:
+        if not keyword or not self.brand_filter_config.get('enabled', True):
             return False
 
         keyword_lower = keyword.lower()
@@ -524,11 +552,15 @@ class MultiPlatformKeywordDiscovery:
         if not non_brand_tokens:
             return True
 
-        if all(token in self.brand_modifier_tokens for token in non_brand_tokens):
+        min_non_brand = max(int(self.brand_filter_config.get('min_non_brand_tokens', 1) or 0), 0)
+        if min_non_brand and len(non_brand_tokens) < min_non_brand:
             return True
 
-        if len(non_brand_tokens) == 1 and non_brand_tokens[0] in self.brand_modifier_tokens:
-            return True
+        if self.brand_filter_config.get('strict_brand_modifiers', False):
+            if all(token in self.brand_modifier_tokens for token in non_brand_tokens):
+                return True
+            if len(non_brand_tokens) == 1 and non_brand_tokens[0] in self.brand_modifier_tokens:
+                return True
 
         return False
 
@@ -589,7 +621,7 @@ class MultiPlatformKeywordDiscovery:
 
     def _limit_brand_keywords(self, df: pd.DataFrame) -> pd.DataFrame:
         """限制单一品牌的关键词数量"""
-        if df.empty or 'keyword' not in df.columns:
+        if df.empty or 'keyword' not in df.columns or self.max_brand_variations <= 0:
             return df
 
         keep_indices = []
@@ -668,15 +700,23 @@ class MultiPlatformKeywordDiscovery:
                 else:
                     df['platform'] = df['platform'].fillna('unknown')
 
-                before_brand = len(df)
-                df = df[~df['keyword'].apply(self._is_brand_heavy)].reset_index(drop=True)
-                if len(df) < before_brand:
-                    print(f"⚠️ 移除了 {before_brand - len(df)} 个品牌泛词")
+                if self.brand_filter_config.get('enabled', True):
+                    before_brand = len(df)
+                    df = df[~df['keyword'].apply(self._is_brand_heavy)].reset_index(drop=True)
+                    if len(df) < before_brand:
+                        print(f"⚠️ 移除了 {before_brand - len(df)} 个品牌泛词")
+                elif not self._brand_filter_notice_shown:
+                    print("ℹ️ 品牌词过滤已禁用，保留品牌相关关键词")
+                    self._brand_filter_notice_shown = True
 
-                before_generic = len(df)
-                df = df[~df['keyword'].apply(self._is_underspecified_keyword)].reset_index(drop=True)
-                if len(df) < before_generic:
-                    print(f"⚠️ 移除了 {before_generic - len(df)} 个泛化头部词")
+                if self.generic_filter_config.get('enabled', True):
+                    before_generic = len(df)
+                    df = df[~df['keyword'].apply(self._is_underspecified_keyword)].reset_index(drop=True)
+                    if len(df) < before_generic:
+                        print(f"⚠️ 移除了 {before_generic - len(df)} 个泛化头部词")
+                elif not self._generic_filter_notice_shown:
+                    print("ℹ️ 泛词过滤已禁用，将保留更广泛的热门词")
+                    self._generic_filter_notice_shown = True
 
                 df = self._limit_brand_keywords(df)
 
@@ -701,7 +741,7 @@ class MultiPlatformKeywordDiscovery:
                             for sh in shingles(t):
                                 mh.update(sh.encode('utf-8'))
                             mhashes.append(mh)
-                        lsh = MinHashLSH(threshold=0.85, num_perm=64)
+                        lsh = MinHashLSH(threshold=self.lsh_similarity_threshold, num_perm=64)
                         for idx, mh in enumerate(mhashes):
                             lsh.insert(str(idx), mh)
                         keep_idx = []
@@ -721,7 +761,7 @@ class MultiPlatformKeywordDiscovery:
                         if len(df) >= 5:
                             clustering = AgglomerativeClustering(
                                 n_clusters=None,
-                                distance_threshold=0.18,
+                                distance_threshold=self.cluster_distance_threshold,
                                 affinity='cosine',
                                 linkage='average'
                             )

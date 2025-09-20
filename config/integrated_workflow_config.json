@@ -13,6 +13,29 @@
     "analysis_depth": "standard",
     "data_sources": ["google_trends", "keyword_planner"]
   },
+
+  "new_word_detection": {
+    "low_volume_threshold_12m": 250,
+    "low_volume_threshold_90d": 120,
+    "low_volume_threshold_30d": 80,
+    "high_growth_threshold_7d": 80,
+    "min_recent_volume": 10,
+    "score_threshold": 55,
+    "confidence_thresholds": {
+      "high": 75,
+      "medium": 55
+    }
+  },
+
+  "discovery_filters": {
+    "brand_filter_enabled": true,
+    "strict_brand_modifiers": false,
+    "min_non_brand_tokens": 1,
+    "generic_filter_enabled": true,
+    "max_brand_variations": 8,
+    "lsh_similarity_threshold": 0.9,
+    "cluster_distance_threshold": 0.2
+  },
   
   "intent_analysis": {
     "confidence_threshold": 0.6,

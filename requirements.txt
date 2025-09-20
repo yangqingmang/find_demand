@@ -30,10 +30,11 @@ textblob>=0.17.1
 langdetect>=1.0.9
 
 # 网络请求增强
-urllib3>=1.26.0
+urllib3>=2.5.0
 certifi>=2021.5.25
 beautifulsoup4>=4.9.0
 lxml>=4.6.0
+pyopenssl>=25.3.0
 
 # 网站构建依赖
 jinja2>=3.0.0
