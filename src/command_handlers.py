@@ -11,9 +11,10 @@ import tempfile
 import json
 from pathlib import Path
 import re
+import time
 import pandas as pd
 from datetime import datetime
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional, Set
 
 # 添加src目录到Python路径
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
@@ -82,6 +83,233 @@ def _filter_trending_keywords(df):
         print(f'[Filter] 已过滤 {removed} 条低质量热门词')
 
     return filtered
+
+
+def _extract_records_from_df(df: Optional[pd.DataFrame], source_label: str, seed: str,
+                             limit: int, seen_terms: Set[str], text_fields: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+    """从DataFrame中提取候选关键词记录"""
+    if df is None or not isinstance(df, pd.DataFrame) or df.empty:
+        return []
+
+    records: List[Dict[str, Any]] = []
+    usable_fields = text_fields or ['query', 'topic_title', 'title']
+
+    for _, row in df.head(max(limit, 0)).iterrows():
+        text_value: Optional[str] = None
+        for field in usable_fields:
+            if field in row and pd.notna(row[field]):
+                candidate_text = str(row[field]).strip()
+                if candidate_text:
+                    text_value = candidate_text
+                    break
+        if not text_value:
+            continue
+
+        normalized = text_value.lower()
+        if normalized in seen_terms:
+            continue
+
+        record: Dict[str, Any] = {
+            'query': text_value,
+            'source': source_label,
+            'seed': seed
+        }
+
+        if 'value' in row and pd.notna(row['value']):
+            record['value'] = row['value']
+        if 'formattedValue' in row and pd.notna(row['formattedValue']):
+            record['growth'] = row['formattedValue']
+
+        records.append(record)
+        seen_terms.add(normalized)
+
+    return records
+
+
+def _collect_trends_related_candidates(trends_collector, seed_keywords: List[str],
+                                       geo: str = '', timeframe: str = 'today 12-m',
+                                       per_category_limit: int = 5) -> pd.DataFrame:
+    """基于种子关键词补集 Google Trends 相关查询/主题建议"""
+    if not trends_collector or not seed_keywords:
+        return pd.DataFrame(columns=['query', 'source'])
+
+    unique_seeds: List[str] = []
+    seen_seed: Set[str] = set()
+    for keyword in seed_keywords:
+        if not keyword:
+            continue
+        normalized = str(keyword).strip().lower()
+        if not normalized or normalized in seen_seed:
+            continue
+        unique_seeds.append(str(keyword).strip())
+        seen_seed.add(normalized)
+        if len(unique_seeds) >= 8:
+            break
+
+    if not unique_seeds:
+        return pd.DataFrame(columns=['query', 'source'])
+
+    seen_terms: Set[str] = set(seen_seed)
+    rows: List[Dict[str, Any]] = []
+
+    for seed in unique_seeds:
+        try:
+            related_queries = trends_collector.get_related_queries(seed, geo=geo, timeframe=timeframe)
+        except Exception as exc:
+            print(f"⚠️ 获取 {seed} 相关查询失败: {exc}")
+            related_queries = {}
+
+        seed_map = None
+        if isinstance(related_queries, dict):
+            seed_map = related_queries.get(seed)
+            if seed_map is None and len(related_queries) == 1:
+                seed_map = next(iter(related_queries.values()))
+
+        if isinstance(seed_map, dict):
+            rows.extend(_extract_records_from_df(
+                seed_map.get('rising'),
+                'Google Trends Related Rising',
+                seed,
+                per_category_limit,
+                seen_terms
+            ))
+            rows.extend(_extract_records_from_df(
+                seed_map.get('top'),
+                'Google Trends Related Top',
+                seed,
+                per_category_limit,
+                seen_terms
+            ))
+        elif isinstance(related_queries, pd.DataFrame):
+            rows.extend(_extract_records_from_df(
+                related_queries,
+                'Google Trends Related Queries',
+                seed,
+                per_category_limit,
+                seen_terms
+            ))
+
+        try:
+            related_topics = trends_collector.get_related_topics(seed, geo=geo, timeframe=timeframe)
+        except Exception as exc:
+            print(f"⚠️ 获取 {seed} 相关主题失败: {exc}")
+            related_topics = {}
+
+        topic_map = None
+        if isinstance(related_topics, dict):
+            topic_map = related_topics.get(seed)
+            if topic_map is None and len(related_topics) == 1:
+                topic_map = next(iter(related_topics.values()))
+
+        if isinstance(topic_map, dict):
+            rows.extend(_extract_records_from_df(
+                topic_map.get('rising'),
+                'Google Trends Related Topics Rising',
+                seed,
+                per_category_limit,
+                seen_terms,
+                text_fields=['topic_title', 'title', 'query']
+            ))
+            rows.extend(_extract_records_from_df(
+                topic_map.get('top'),
+                'Google Trends Related Topics Top',
+                seed,
+                per_category_limit,
+                seen_terms,
+                text_fields=['topic_title', 'title', 'query']
+            ))
+        elif isinstance(related_topics, pd.DataFrame):
+            rows.extend(_extract_records_from_df(
+                related_topics,
+                'Google Trends Related Topics',
+                seed,
+                per_category_limit,
+                seen_terms,
+                text_fields=['topic_title', 'title', 'query']
+            ))
+
+        try:
+            suggestions = trends_collector.get_suggestions(seed) or []
+        except Exception as exc:
+            print(f"⚠️ 获取 {seed} Suggestion 失败: {exc}")
+            suggestions = []
+
+        for suggestion in suggestions[:max(per_category_limit, 0)]:
+            title = suggestion.get('title') if isinstance(suggestion, dict) else None
+            if not title:
+                continue
+            normalized = str(title).strip().lower()
+            if not normalized or normalized in seen_terms:
+                continue
+            rows.append({
+                'query': str(title).strip(),
+                'source': 'Google Trends Suggestion',
+                'seed': seed
+            })
+            seen_terms.add(normalized)
+
+        time.sleep(0.5)
+
+    if not rows:
+        return pd.DataFrame(columns=['query', 'source'])
+
+    return pd.DataFrame(rows)
+
+
+def _generate_keyword_combinations(seed_keywords: List[str], manager, long_tail_limit: int = 4,
+                                   prefix_limit: int = 3, head_limit: int = 3) -> pd.DataFrame:
+    """基于种子词生成组合关键词"""
+    if not seed_keywords or manager is None:
+        return pd.DataFrame(columns=['query', 'source'])
+
+    unique_seeds: List[str] = []
+    seen_seed: Set[str] = set()
+    for keyword in seed_keywords:
+        if not keyword:
+            continue
+        normalized = str(keyword).strip().lower()
+        if not normalized or normalized in seen_seed:
+            continue
+        unique_seeds.append(str(keyword).strip())
+        seen_seed.add(normalized)
+        if len(unique_seeds) >= 8:
+            break
+
+    if not unique_seeds:
+        return pd.DataFrame(columns=['query', 'source'])
+
+    long_tail_terms = sorted(getattr(manager, 'long_tail_modifiers', []), key=lambda x: (len(x), x))[:max(long_tail_limit, 0)]
+    question_prefixes = list(getattr(manager, 'question_prefixes', ()))[:max(prefix_limit, 0)]
+    generic_heads = sorted(getattr(manager, 'generic_head_terms', []), key=lambda x: (len(x), x))[:max(head_limit, 0)]
+
+    rows: List[Dict[str, Any]] = []
+    seen_terms: Set[str] = set(seen_seed)
+
+    def _append_candidate(text: str, source_label: str, seed: str) -> None:
+        candidate = text.strip()
+        if not candidate:
+            return
+        normalized = candidate.lower()
+        if normalized in seen_terms:
+            return
+        rows.append({'query': candidate, 'source': source_label, 'seed': seed})
+        seen_terms.add(normalized)
+
+    for seed in unique_seeds:
+        for modifier in long_tail_terms:
+            if modifier:
+                _append_candidate(f"{seed} {modifier}".strip(), 'Generated Long Tail', seed)
+        for prefix in question_prefixes:
+            if prefix:
+                _append_candidate(f"{prefix} {seed}".strip(), 'Generated Question Prefix', seed)
+        for head in generic_heads:
+            if head:
+                _append_candidate(f"{seed} {head}".strip(), 'Generated Generic Head', seed)
+
+    if not rows:
+        return pd.DataFrame(columns=['query', 'source'])
+
+    return pd.DataFrame(rows)
 
 def handle_input_file_analysis(manager, args):
     """处理关键词文件分析"""
@@ -548,6 +776,7 @@ def handle_all_workflow(manager, args):
     max_seed_keywords = max(1, getattr(args, 'max_seed_keywords', 10))
     max_discovered_keywords = max(10, getattr(args, 'max_discovered_keywords', 150))
     hot_result = None
+    trends_collector = None
 
     try:
         # 第一步：获取热门关键词 - 整合多个数据源
@@ -623,6 +852,26 @@ def handle_all_workflow(manager, args):
             if not args.quiet:
                 print(f"⚠️ TrendingKeywords.net 获取失败: {e}")
         
+        # 基于现有数据源扩展相关词与组合词
+        seed_pool: List[str] = []
+        for df_candidate in all_trending_keywords:
+            if isinstance(df_candidate, pd.DataFrame) and 'query' in df_candidate.columns:
+                seed_pool.extend(df_candidate['query'].dropna().astype(str).tolist())
+
+        if seed_pool and trends_collector:
+            related_candidates = _collect_trends_related_candidates(trends_collector, seed_pool)
+            if not related_candidates.empty:
+                all_trending_keywords.append(related_candidates)
+                if not args.quiet:
+                    print(f"✅ Google Trends 关联扩展: 新增 {len(related_candidates)} 个候选关键词")
+
+        if seed_pool:
+            combo_candidates = _generate_keyword_combinations(seed_pool, manager)
+            if not combo_candidates.empty:
+                all_trending_keywords.append(combo_candidates)
+                if not args.quiet:
+                    print(f"✅ 组合生成: 新增 {len(combo_candidates)} 个候选关键词")
+
         # 合并所有数据源
         if all_trending_keywords:
             trending_df = pd.concat(all_trending_keywords, ignore_index=True)
@@ -631,7 +880,7 @@ def handle_all_workflow(manager, args):
             trending_df = trending_df.drop_duplicates(subset=['query'], keep='first')
             
             # 限制总数量
-            trending_df = trending_df.head(25)
+            trending_df = trending_df.head(60)
             filtered_trending = _filter_trending_keywords(trending_df)
             if not filtered_trending.empty:
                 trending_df = filtered_trending
