@@ -8,7 +8,7 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Set
 import requests
 import json
 import time
@@ -185,26 +185,47 @@ class NewWordDetector(BaseAnalyzer):
         except Exception as exc:
             self.logger.warning(f"写入新词检测缓存失败 ({keyword}): {exc}")
 
-    def _fetch_trends_dataframe(self, keyword: str, timeframe: str) -> pd.DataFrame:
+    def _fetch_trends_dataframe(self, keyword: str, timeframe: str, geo: str = '') -> Tuple[pd.DataFrame, Dict[str, Any]]:
         if not self.trends_collector:
-            return pd.DataFrame()
+            return pd.DataFrame(), {'timeframe': None, 'geo': None, 'attempts': []}
+
+        geo_candidates = [geo or '', 'US', 'GB']
+        timeframe_candidates = [timeframe, 'today 3-m', 'now 7-d', 'now 1-d']
+        attempts_log: List[Dict[str, Any]] = []
+        seen: Set[Tuple[str, str]] = set()
         last_exception: Optional[Exception] = None
-        for attempt in range(1, self.max_retries + 1):
-            try:
-                sleep_time = min(self.retry_delay_base * attempt, 3)
-                if sleep_time > 0:
-                    time.sleep(sleep_time)
-                df = self.trends_collector.get_trends_data([keyword], timeframe=timeframe)
-                if not df.empty:
-                    return df
-            except Exception as exc:
-                last_exception = exc
-                self.logger.warning(f"获取 {keyword} ({timeframe}) 趋势数据失败，第 {attempt} 次尝试: {exc}")
-            backoff = min(self.retry_backoff ** attempt, 5)
-            time.sleep(backoff)
+
+        for geo_candidate in geo_candidates:
+            for timeframe_candidate in timeframe_candidates:
+                combo = (timeframe_candidate, geo_candidate)
+                if combo in seen:
+                    continue
+                seen.add(combo)
+                try:
+                    df = self.trends_collector.get_trends_data([keyword], timeframe=timeframe_candidate, geo=geo_candidate)
+                    if not df.empty:
+                        return df, {
+                            'timeframe': timeframe_candidate,
+                            'geo': geo_candidate,
+                            'attempts': attempts_log
+                        }
+                except Exception as exc:
+                    last_exception = exc
+                    attempts_log.append({
+                        'timeframe': timeframe_candidate,
+                        'geo': geo_candidate,
+                        'error': str(exc)
+                    })
+                    self.logger.warning(
+                        f"获取 {keyword} ({timeframe_candidate}, {geo_candidate or 'GLOBAL'}) 趋势数据失败: {exc}"
+                    )
+                time.sleep(0.6)
+
         if last_exception:
-            self.logger.warning(f"多次尝试后仍无法获取 {keyword} ({timeframe}) 数据: {last_exception}")
-        return pd.DataFrame()
+            self.logger.warning(
+                f"多次尝试后仍无法获取 {keyword} 趋势数据: {last_exception}"
+            )
+        return pd.DataFrame(), {'timeframe': None, 'geo': None, 'attempts': attempts_log}
 
     @staticmethod
     def _percent_change(current: float, previous: Optional[float]) -> float:
@@ -330,9 +351,7 @@ class NewWordDetector(BaseAnalyzer):
                 return stale_disk_data
             raise TrendsDataUnavailable(f'无法获取 {keyword} 的趋势数据：TrendsCollector 不可用')
 
-        data_12m = self._fetch_trends_dataframe(keyword, 'today 12-m')
-        if data_12m.empty:
-            data_12m = self._fetch_trends_dataframe(keyword, 'today 3-m')
+        data_12m, fetch_meta = self._fetch_trends_dataframe(keyword, 'today 12-m')
 
         if data_12m.empty:
             if stale_disk_data is not None:
@@ -343,8 +362,58 @@ class NewWordDetector(BaseAnalyzer):
             raise TrendsDataUnavailable(message)
 
         result = self._summarize_trends(keyword, data_12m)
+        result['trend_fetch_timeframe'] = fetch_meta.get('timeframe')
+        result['trend_fetch_geo'] = fetch_meta.get('geo')
+        if stale_disk_data:
+            try:
+                result['avg_30d_delta'] = round(
+                    float(result.get('avg_30d', 0.0)) - float(stale_disk_data.get('avg_30d', 0.0) or 0.0),
+                    2
+                )
+                result['avg_7d_delta'] = round(
+                    float(result.get('avg_7d', 0.0)) - float(stale_disk_data.get('avg_7d', 0.0) or 0.0),
+                    2
+                )
+            except Exception:
+                result['avg_30d_delta'] = 0.0
+                result['avg_7d_delta'] = 0.0
+        else:
+            result['avg_30d_delta'] = result.get('avg_30d', 0.0)
+            result['avg_7d_delta'] = result.get('avg_7d', 0.0)
+
+        result['trend_momentum'] = self._infer_trend_momentum(result)
         self._store_cache(cache_key, keyword, result)
         return result
+
+    def _infer_trend_momentum(self, historical: Dict[str, Any]) -> str:
+        delta_30 = float(historical.get('avg_30d_delta', 0.0) or 0.0)
+        delta_7 = float(historical.get('avg_7d_delta', 0.0) or 0.0)
+        growth = float(historical.get('growth_rate_7d_vs_30d', 0.0) or 0.0)
+
+        if growth >= 300 or delta_7 >= 20:
+            return 'breakout'
+        if growth >= 120 or (delta_7 >= 10 and delta_30 >= 5):
+            return 'rising'
+        if growth <= -30 or delta_30 <= -5:
+            return 'cooling'
+        return 'stable'
+
+    def _derive_growth_label(self, historical: Dict[str, Any]) -> str:
+        momentum = historical.get('trend_momentum')
+        if momentum:
+            return str(momentum)
+
+        growth = float(historical.get('growth_rate_7d_vs_30d', 0.0) or 0.0)
+        mom = float(historical.get('mom_growth', 0.0) or 0.0)
+        z_score = float(historical.get('z_score', 0.0) or 0.0)
+
+        if growth >= 400 or mom >= 250 or z_score >= 2.5:
+            return 'breakout'
+        if growth >= 120 or mom >= 120:
+            return 'rising'
+        if growth <= -25 or mom <= -15:
+            return 'declining'
+        return 'stable'
 
     def calculate_new_word_score(self, historical_data: Dict) -> float:
         """计算新词得分"""
@@ -448,7 +517,9 @@ class NewWordDetector(BaseAnalyzer):
             'confidence_level', 'grade_description', 'avg_12m', 'avg_90d',
             'avg_30d', 'avg_7d', 'recent_trend', 'growth_rate_7d_vs_30d',
             'growth_rate_7d', 'mom_growth', 'yoy_growth', 'z_score', 'std_12m',
-            'historical_pattern', 'explosion_index', 'detection_reasons'
+            'historical_pattern', 'explosion_index', 'detection_reasons',
+            'growth_label', 'trend_fetch_timeframe', 'trend_fetch_geo',
+            'avg_30d_delta', 'avg_7d_delta', 'trend_momentum'
         ]
 
         if data.empty:
@@ -499,11 +570,17 @@ class NewWordDetector(BaseAnalyzer):
                         'std_12m': 0.0,
                         'historical_pattern': 'unknown',
                         'explosion_index': 1.0,
-                        'detection_reasons': 'empty_keyword'
+                        'detection_reasons': 'empty_keyword',
+                        'growth_label': 'unknown',
+                        'trend_fetch_timeframe': None,
+                        'trend_fetch_geo': None,
+                        'avg_30d_delta': 0.0,
+                        'avg_7d_delta': 0.0,
+                        'trend_momentum': 'unknown'
                     })
                     continue
 
-                detection_reasons = []
+                    detection_reasons = []
                 try:
                     historical_data = self.get_historical_data(keyword)
                 except Exception as fetch_error:
@@ -518,6 +595,7 @@ class NewWordDetector(BaseAnalyzer):
                 growth_signal = float(historical_data.get('growth_rate_7d_vs_30d', 0.0) or 0.0)
                 explosion_index = round(max(score / 10.0, 1.0), 2)
                 historical_pattern = str(historical_data.get('trend_direction', 'unknown') or 'unknown')
+                growth_label = self._derive_growth_label(historical_data)
 
                 if score >= self.score_threshold:
                     detection_reasons.append('rapid_growth_signals')
@@ -542,7 +620,13 @@ class NewWordDetector(BaseAnalyzer):
                     'std_12m': historical_data.get('std_12m', 0.0),
                     'historical_pattern': historical_pattern,
                     'explosion_index': explosion_index,
-                    'detection_reasons': '; '.join(filter(None, detection_reasons))
+                    'detection_reasons': '; '.join(filter(None, detection_reasons)),
+                    'growth_label': growth_label,
+                    'trend_fetch_timeframe': historical_data.get('trend_fetch_timeframe'),
+                    'trend_fetch_geo': historical_data.get('trend_fetch_geo'),
+                    'avg_30d_delta': historical_data.get('avg_30d_delta', 0.0),
+                    'avg_7d_delta': historical_data.get('avg_7d_delta', 0.0),
+                    'trend_momentum': historical_data.get('trend_momentum', 'unknown')
                 }
 
                 results.append(result)

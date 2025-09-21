@@ -25,6 +25,8 @@ from src.utils.enhanced_features import (
     batch_build_websites
 )
 from src.demand_mining.tools.multi_platform_keyword_discovery import MultiPlatformKeywordDiscovery
+from src.collectors.suggestion_sources import SuggestionCollector
+from src.collectors.rss_hotspot_collector import RSSHotspotCollector
 
 
 def handle_stats_display(manager, args):
@@ -83,6 +85,62 @@ def _filter_trending_keywords(df):
         print(f'[Filter] 已过滤 {removed} 条低质量热门词')
 
     return filtered
+
+
+def _print_new_word_summary(summary: Dict[str, Any]) -> None:
+    if not summary or not isinstance(summary, dict):
+        return
+
+    total = summary.get('total_analyzed')
+    detected = summary.get('new_words_detected')
+    breakout = summary.get('breakout_keywords')
+    rising = summary.get('rising_keywords')
+    high_conf = summary.get('high_confidence_new_words')
+
+    print("\n🔎 新词检测摘要:")
+    print(f"   • 检测总数: {total}")
+    print(f"   • 新词数量: {detected} / 高置信度: {high_conf}")
+    if breakout is not None or rising is not None:
+        print(f"   • Breakout: {breakout} / Rising: {rising}")
+    percentage = summary.get('new_word_percentage')
+    if percentage is not None:
+        print(f"   • 新词占比: {percentage}%")
+
+    report_files = summary.get('report_files')
+    if isinstance(report_files, dict) and report_files:
+        print("   • 导出文件:")
+        for label, path in report_files.items():
+            print(f"     - {label}: {path}")
+
+
+def _print_top_new_words(result: Dict[str, Any], limit: int = 5) -> None:
+    if not result or 'keywords' not in result:
+        return
+
+    candidates = []
+    for item in result['keywords']:
+        nwd = item.get('new_word_detection') if isinstance(item, dict) else None
+        if not nwd or not nwd.get('is_new_word'):
+            continue
+        candidates.append({
+            'keyword': item.get('keyword') or item.get('query'),
+            'score': nwd.get('new_word_score', 0.0),
+            'momentum': nwd.get('trend_momentum'),
+            'delta': nwd.get('avg_7d_delta', 0.0),
+            'grade': nwd.get('new_word_grade', 'D'),
+            'confidence': nwd.get('confidence_level', 'low')
+        })
+
+    if not candidates:
+        return
+
+    candidates.sort(key=lambda x: (x['momentum'] == 'breakout', x['score']), reverse=True)
+    print("\n🔥 Top 新词候选:")
+    for idx, item in enumerate(candidates[:limit], 1):
+        print(
+            f"   {idx}. {item['keyword']} | 分数 {item['score']:.1f} | 动量 {item['momentum']} "
+            f"| Δ7D {item['delta']:.1f} | 等级 {item['grade']} | 置信度 {item['confidence']}"
+        )
 
 
 def _extract_records_from_df(df: Optional[pd.DataFrame], source_label: str, seed: str,
@@ -331,12 +389,10 @@ def handle_input_file_analysis(manager, args):
         print(f"\n🎉 分析完成! 共分析 {result['total_keywords']} 个关键词")
         print(f"📊 高机会关键词: {result['market_insights']['high_opportunity_count']} 个")
         print(f"📈 平均机会分数: {result['market_insights']['avg_opportunity_score']}")
-        
+
         # 显示新词检测摘要
-        if 'new_word_summary' in result and result['new_word_summary'].get('new_words_detected', 0) > 0:
-            summary = result['new_word_summary']
-            print(f"🔍 新词检测: 发现 {summary['new_words_detected']} 个新词 ({summary['new_word_percentage']}%)")
-            print(f"   高置信度新词: {summary['high_confidence_new_words']} 个")
+        _print_new_word_summary(result.get('new_word_summary'))
+        _print_top_new_words(result)
 
         # 显示SERP分析摘要
         if 'serp_summary' in result and result['serp_summary'].get('serp_analysis_enabled', False):
@@ -378,13 +434,13 @@ def handle_keywords_analysis(manager, args):
     
     try:
         result = manager.analyze_keywords(temp_file, args.output, enable_serp=args.serp)
-        
+
         # 显示结果
         if args.quiet:
             print_quiet_summary(result)
         else:
             print(f"\n🎉 分析完成! 共分析 {len(args.keywords)} 个关键词")
-            
+
             # 显示每个关键词的结果
             print("\n📋 关键词分析结果:")
             for kw_result in result['keywords']:
@@ -674,6 +730,75 @@ def handle_hot_keywords(manager, args):
             trending_df = pd.DataFrame(columns=['query'])
 
         if trending_df is not None and not trending_df.empty:
+            all_trending_keywords = [trending_df]
+
+            seed_pool = trending_df['query'].dropna().astype(str).tolist()
+
+            # RSS 热点
+            try:
+                rss_df = RSSHotspotCollector().collect(max_items=20)
+                if not rss_df.empty:
+                    all_trending_keywords.append(rss_df)
+                    if not args.quiet:
+                        print(f"✅ RSS 热点: 获取到 {len(rss_df)} 个热点词")
+            except Exception as exc:
+                if not args.quiet:
+                    print(f"⚠️ RSS 热点抓取失败: {exc}")
+
+            # Google Trends 相关词
+            try:
+                related_df = _collect_trends_related_candidates(trends_collector, seed_pool)
+                if not related_df.empty:
+                    all_trending_keywords.append(related_df)
+                    if not args.quiet:
+                        print(f"✅ Google Trends 关联扩展: 新增 {len(related_df)} 个候选关键词")
+            except Exception as exc:
+                if not args.quiet:
+                    print(f"⚠️ Google Trends 关联扩展失败: {exc}")
+
+            # 组合生成
+            try:
+                combo_df = _generate_keyword_combinations(seed_pool, manager)
+                if not combo_df.empty:
+                    all_trending_keywords.append(combo_df)
+                    if not args.quiet:
+                        print(f"✅ 组合生成: 新增 {len(combo_df)} 个候选关键词")
+            except Exception as exc:
+                if not args.quiet:
+                    print(f"⚠️ 组合生成失败: {exc}")
+
+            # Suggestion 来源
+            suggestion_records: List = []
+            try:
+                suggestion_collector = SuggestionCollector()
+                suggestion_records = suggestion_collector.collect(seed_pool, per_seed_limit=4)
+            except Exception as exc:
+                if not args.quiet:
+                    print(f"⚠️ Suggestion 收集失败: {exc}")
+
+            if suggestion_records:
+                suggestion_df = pd.DataFrame([
+                    {
+                        'query': item.term,
+                        'source': f"Suggestions/{item.source}",
+                        'seed': item.seed
+                    }
+                    for item in suggestion_records if item.term
+                ])
+                if not suggestion_df.empty:
+                    all_trending_keywords.append(suggestion_df)
+                    if not args.quiet:
+                        print(f"✅ 热门联想: 新增 {len(suggestion_df)} 个候选关键词")
+
+            trending_df = pd.concat(all_trending_keywords, ignore_index=True)
+            trending_df = trending_df.drop_duplicates(subset=['query'], keep='first')
+            trending_df = trending_df.head(50)
+            filtered = _filter_trending_keywords(trending_df)
+            if not filtered.empty:
+                trending_df = filtered
+            else:
+                print("[Filter] 热门关键词过滤后为空，继续使用未过滤结果")
+
             # 保存热门关键词到临时文件
             
             # 确保DataFrame有正确的列名
@@ -710,10 +835,8 @@ def handle_hot_keywords(manager, args):
                     print(f"📈 平均机会分数: {result['market_insights']['avg_opportunity_score']}")
                     
                     # 显示新词检测摘要
-                    if 'new_word_summary' in result and result['new_word_summary'].get('new_words_detected', 0) > 0:
-                        summary = result['new_word_summary']
-                        print(f"🔍 新词检测: 发现 {summary['new_words_detected']} 个新词 ({summary['new_word_percentage']}%)")
-                        print(f"   高置信度新词: {summary['high_confidence_new_words']} 个")
+            _print_new_word_summary(result.get('new_word_summary'))
+            _print_top_new_words(result)
 
                     # 显示Top 5机会关键词
                     top_keywords = result['market_insights']['top_opportunities'][:5]
@@ -834,7 +957,7 @@ def handle_all_workflow(manager, args):
         # 1.2 获取 TrendingKeywords.net 数据
         if not args.quiet:
             print("🔍 正在获取 TrendingKeywords.net 数据...")
-        
+
         try:
             from src.collectors.trending_keywords_collector import TrendingKeywordsCollector
             
@@ -851,7 +974,22 @@ def handle_all_workflow(manager, args):
         except Exception as e:
             if not args.quiet:
                 print(f"⚠️ TrendingKeywords.net 获取失败: {e}")
-        
+
+        # 1.3 获取 RSS 热点数据
+        if not args.quiet:
+            print("🔍 正在抓取 RSS 热点...")
+
+        try:
+            rss_collector = RSSHotspotCollector()
+            rss_df = rss_collector.collect(max_items=20)
+            if not rss_df.empty:
+                all_trending_keywords.append(rss_df)
+                if not args.quiet:
+                    print(f"✅ RSS 热点: 获取到 {len(rss_df)} 个热点词")
+        except Exception as e:
+            if not args.quiet:
+                print(f"⚠️ RSS 热点抓取失败: {e}")
+
         # 基于现有数据源扩展相关词与组合词
         seed_pool: List[str] = []
         for df_candidate in all_trending_keywords:
@@ -865,12 +1003,36 @@ def handle_all_workflow(manager, args):
                 if not args.quiet:
                     print(f"✅ Google Trends 关联扩展: 新增 {len(related_candidates)} 个候选关键词")
 
+        suggestion_collector: Optional[SuggestionCollector] = None
         if seed_pool:
             combo_candidates = _generate_keyword_combinations(seed_pool, manager)
             if not combo_candidates.empty:
                 all_trending_keywords.append(combo_candidates)
                 if not args.quiet:
                     print(f"✅ 组合生成: 新增 {len(combo_candidates)} 个候选关键词")
+
+            try:
+                suggestion_collector = SuggestionCollector()
+                suggestion_records = suggestion_collector.collect(seed_pool, per_seed_limit=4)
+            except Exception as exc:
+                if not args.quiet:
+                    print(f"⚠️ Suggestion 收集器初始化失败: {exc}")
+                suggestion_records = []
+
+            if suggestion_records:
+                suggestion_df = pd.DataFrame([
+                    {
+                        'query': item.term,
+                        'source': f"Suggestions/{item.source}",
+                        'seed': item.seed
+                    }
+                    for item in suggestion_records
+                    if item.term
+                ])
+                if not suggestion_df.empty:
+                    all_trending_keywords.append(suggestion_df)
+                    if not args.quiet:
+                        print(f"✅ 热门联想: 新增 {len(suggestion_df)} 个候选关键词")
 
         # 合并所有数据源
         if all_trending_keywords:
@@ -940,6 +1102,8 @@ def handle_all_workflow(manager, args):
                 if not args.quiet:
                     print(f"✅ 第一步完成! 分析了 {hot_result['total_keywords']} 个热门关键词")
                     print(f"📊 发现 {hot_result['market_insights']['high_opportunity_count']} 个高机会关键词")
+                    _print_new_word_summary(hot_result.get('new_word_summary'))
+                    _print_top_new_words(hot_result)
                 
                 # 第二步：使用热门关键词作为种子进行多平台发现
                 if not args.quiet:

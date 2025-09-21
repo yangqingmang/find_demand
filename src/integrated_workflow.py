@@ -40,7 +40,7 @@ class IntegratedWorkflow:
         
         print("🚀 集成工作流初始化完成")
         print("📊 支持功能：需求挖掘 → 多平台关键词发现 → 意图分析 → 网站生成 → 自动部署")
-    
+
     def _get_default_config(self) -> Dict[str, Any]:
         """获取默认配置"""
         return {
@@ -93,6 +93,8 @@ class IntegratedWorkflow:
             demand_results = self._run_demand_mining(keywords_file)
             workflow_results['steps_completed'].append('demand_mining')
             workflow_results['demand_analysis'] = demand_results
+            self._print_new_word_summary(demand_results.get('new_word_summary'))
+            self._print_top_new_words(demand_results)
             
             # 步骤2: 多平台关键词发现
             print("\n🔍 步骤2: 执行多平台关键词发现...")
@@ -160,7 +162,63 @@ class IntegratedWorkflow:
             print(f"🏗️ 生成了 {len(website_results)} 个网站项目")
             print(f"📋 报告路径: {report_path}")
             
-            return workflow_results
+        return workflow_results
+
+    @staticmethod
+    def _print_new_word_summary(summary: Optional[Dict[str, Any]]) -> None:
+        if not summary or not isinstance(summary, dict):
+            return
+
+        total = summary.get('total_analyzed')
+        detected = summary.get('new_words_detected')
+        high_conf = summary.get('high_confidence_new_words')
+        breakout = summary.get('breakout_keywords')
+        rising = summary.get('rising_keywords')
+        percentage = summary.get('new_word_percentage')
+
+        print("\n🔎 新词检测摘要：")
+        print(f"   • 检测总数: {total}")
+        print(f"   • 新词数量: {detected} / 高置信度: {high_conf}")
+        if breakout is not None or rising is not None:
+            print(f"   • Breakout: {breakout} / Rising: {rising}")
+        if percentage is not None:
+            print(f"   • 新词占比: {percentage}%")
+
+        report_files = summary.get('report_files')
+        if isinstance(report_files, dict) and report_files:
+            print("   • 导出文件:")
+            for label, path in report_files.items():
+                print(f"     - {label}: {path}")
+
+    @staticmethod
+    def _print_top_new_words(result: Optional[Dict[str, Any]], limit: int = 5) -> None:
+        if not result or 'keywords' not in result:
+            return
+
+        candidates = []
+        for item in result['keywords']:
+            nwd = item.get('new_word_detection') if isinstance(item, dict) else None
+            if not nwd or not nwd.get('is_new_word'):
+                continue
+            candidates.append({
+                'keyword': item.get('keyword') or item.get('query'),
+                'score': float(nwd.get('new_word_score', 0.0) or 0.0),
+                'momentum': nwd.get('trend_momentum'),
+                'delta': float(nwd.get('avg_7d_delta', 0.0) or 0.0),
+                'grade': nwd.get('new_word_grade', 'D'),
+                'confidence': nwd.get('confidence_level', 'low')
+            })
+
+        if not candidates:
+            return
+
+        candidates.sort(key=lambda x: (x['momentum'] == 'breakout', x['score']), reverse=True)
+        print("\n🔥 Top 新词候选:")
+        for idx, item in enumerate(candidates[:limit], 1):
+            print(
+                f"   {idx}. {item['keyword']} | 分数 {item['score']:.1f} | 动量 {item['momentum']} | "
+                f"Δ7D {item['delta']:.1f} | 等级 {item['grade']} | 置信度 {item['confidence']}"
+            )
             
         except Exception as e:
             workflow_results['end_time'] = datetime.now().isoformat()
@@ -248,9 +306,18 @@ class IntegratedWorkflow:
                             'new_word_score': float(row.get('new_word_score', 0)),
                             'new_word_grade': str(row.get('new_word_grade', 'D')),
                             'growth_rate_7d': float(row.get('growth_rate_7d', 0)),
+                            'growth_rate_7d_vs_30d': float(row.get('growth_rate_7d_vs_30d', 0)),
+                            'mom_growth': float(row.get('mom_growth', 0)),
+                            'yoy_growth': float(row.get('yoy_growth', 0)),
                             'explosion_index': float(row.get('explosion_index', 1.0)),
                             'confidence_level': str(row.get('confidence_level', 'low')),
                             'historical_pattern': str(row.get('historical_pattern', 'unknown')),
+                            'trend_momentum': str(row.get('trend_momentum', 'unknown')),
+                            'growth_label': str(row.get('growth_label', 'unknown')),
+                            'trend_fetch_timeframe': row.get('trend_fetch_timeframe'),
+                            'trend_fetch_geo': row.get('trend_fetch_geo'),
+                            'avg_30d_delta': float(row.get('avg_30d_delta', 0.0) or 0.0),
+                            'avg_7d_delta': float(row.get('avg_7d_delta', 0.0) or 0.0),
                             'detection_reasons': str(row.get('detection_reasons', ''))
                         }
                         
@@ -265,14 +332,27 @@ class IntegratedWorkflow:
             new_words_count = len(new_word_results[new_word_results['is_new_word'] == True])
             high_confidence_count = len(new_word_results[new_word_results['confidence_level'] == 'high'])
             
+            momentum_counts = new_word_results.get('trend_momentum', pd.Series(dtype=str)).value_counts() if 'trend_momentum' in new_word_results.columns else {}
+            breakout_count = int(momentum_counts.get('breakout', 0)) if momentum_counts is not None else 0
+            rising_count = int(momentum_counts.get('rising', 0)) if momentum_counts is not None else 0
+
             demand_results['new_word_summary'] = {
                 'total_analyzed': len(new_word_results),
                 'new_words_detected': new_words_count,
                 'high_confidence_new_words': high_confidence_count,
-                'new_word_percentage': round(new_words_count / len(new_word_results) * 100, 1) if len(new_word_results) > 0 else 0
+                'new_word_percentage': round(new_words_count / len(new_word_results) * 100, 1) if len(new_word_results) > 0 else 0,
+                'breakout_keywords': breakout_count,
+                'rising_keywords': rising_count
             }
-            
-            print(f"✅ 新词检测完成: 发现 {new_words_count} 个新词 ({high_confidence_count} 个高置信度)")
+
+            exported_reports = self._export_new_word_reports(new_word_results)
+            if exported_reports:
+                demand_results['new_word_summary']['report_files'] = exported_reports
+
+            print(
+                f"✅ 新词检测完成: 发现 {new_words_count} 个新词 "
+                f"({high_confidence_count} 个高置信度, {demand_results['new_word_summary']['breakout_keywords']} 个 Breakout)"
+            )
             
         except Exception as e:
             print(f"⚠️ 新词检测失败: {e}")
@@ -591,6 +671,33 @@ class IntegratedWorkflow:
         else:
             report_content += "未发现多平台关键词或发现过程失败。\n\n"
         
+        # 新词检测摘要
+        new_word_summary = workflow_results.get('demand_analysis', {}).get('new_word_summary')
+        if new_word_summary:
+            report_content += "## 🔎 新词检测摘要\n"
+            report_content += f"- **检测总数**: {new_word_summary.get('total_analyzed', 0)}\n"
+            report_content += f"- **新词数量**: {new_word_summary.get('new_words_detected', 0)}\n"
+            report_content += f"- **高置信度新词**: {new_word_summary.get('high_confidence_new_words', 0)}\n"
+            report_content += f"- **Breakout 级别**: {new_word_summary.get('breakout_keywords', 0)}\n"
+            report_content += f"- **Rising 级别**: {new_word_summary.get('rising_keywords', 0)}\n"
+            report_content += f"- **新词占比**: {new_word_summary.get('new_word_percentage', 0)}%\n\n"
+
+            # 列出部分 Breakout 新词
+            demand_keywords = workflow_results.get('demand_analysis', {}).get('keywords', [])
+            breakout_keywords = [
+                kw for kw in demand_keywords
+                if kw.get('new_word_detection', {}).get('trend_momentum') == 'breakout'
+            ]
+            if breakout_keywords:
+                report_content += "### 🔥 Breakout 新词样例\n"
+                for kw in breakout_keywords[:5]:
+                    nwd = kw.get('new_word_detection', {})
+                    report_content += (
+                        f"- **{kw.get('keyword')}** (分数: {nwd.get('new_word_score', 0)}, "
+                        f"动量: {nwd.get('trend_momentum', '-')}, 突增: {nwd.get('avg_7d_delta', 0)})\n"
+                    )
+                report_content += "\n"
+
         report_content += "## 🎯 高价值关键词列表\n"
         
         # 添加高价值关键词详情
@@ -598,7 +705,16 @@ class IntegratedWorkflow:
             report_content += f"- **{kw['keyword']}** (机会分数: {kw.get('opportunity_score', 0)})\n"
             report_content += f"  - 主要意图: {kw.get('intent', {}).get('primary_intent', 'Unknown')}\n"
             report_content += f"  - AI加分: {kw.get('market', {}).get('ai_bonus', 0)}\n"
-            report_content += f"  - 商业价值: {kw.get('market', {}).get('commercial_value', 0)}\n\n"
+            report_content += f"  - 商业价值: {kw.get('market', {}).get('commercial_value', 0)}\n"
+
+            nwd = kw.get('new_word_detection', {})
+            if nwd:
+                report_content += (
+                    "  - 新词信息: "
+                    f"{'✅' if nwd.get('is_new_word') else '❌'} 等级 {nwd.get('new_word_grade', '-')}, "
+                    f"动量 {nwd.get('trend_momentum', '-')}, Δ30D {nwd.get('avg_30d_delta', 0)}\n"
+                )
+            report_content += "\n"
         
         # 添加生成的网站项目
         report_content += "\n## 🏗️ 生成的网站项目\n"
@@ -647,8 +763,39 @@ class IntegratedWorkflow:
         # 保存报告
         with open(report_path, 'w', encoding='utf-8') as f:
             f.write(report_content)
-        
+
         return report_path
+
+    def _export_new_word_reports(self, new_word_results: pd.DataFrame) -> Dict[str, str]:
+        if new_word_results is None or new_word_results.empty:
+            return {}
+
+        reports_dir = os.path.join(self.output_base_dir, 'reports', 'new_words')
+        os.makedirs(reports_dir, exist_ok=True)
+
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        exports: Dict[str, str] = {}
+
+        def _save(df: pd.DataFrame, filename: str, key: str) -> None:
+            if df is None or df.empty:
+                return
+            path = os.path.join(reports_dir, filename)
+            df.to_csv(path, index=False)
+            exports[key] = path
+
+        try:
+            breakout_df = new_word_results[new_word_results.get('trend_momentum') == 'breakout']
+            _save(breakout_df, f'breakout_new_words_{timestamp}.csv', 'breakout')
+
+            rising_df = new_word_results[new_word_results.get('trend_momentum').isin(['breakout', 'rising'])]
+            _save(rising_df, f'rising_new_words_{timestamp}.csv', 'rising')
+
+            top_df = new_word_results.sort_values('new_word_score', ascending=False).head(30)
+            _save(top_df, f'top_new_words_{timestamp}.csv', 'top')
+        except Exception as exc:
+            print(f"⚠️ 导出新词报告失败: {exc}")
+
+        return exports
 
 
 def main():

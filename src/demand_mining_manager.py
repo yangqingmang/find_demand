@@ -124,7 +124,16 @@ class IntegratedDemandMiningManager:
                                 'new_word_score': float(row.get('new_word_score', 0)),
                                 'new_word_grade': str(row.get('new_word_grade', 'D')),
                                 'growth_rate_7d': float(row.get('growth_rate_7d', 0)),
-                                'confidence_level': str(row.get('confidence_level', 'low'))
+                                'growth_rate_7d_vs_30d': float(row.get('growth_rate_7d_vs_30d', 0)),
+                                'mom_growth': float(row.get('mom_growth', 0)),
+                                'yoy_growth': float(row.get('yoy_growth', 0)),
+                                'confidence_level': str(row.get('confidence_level', 'low')),
+                                'trend_momentum': str(row.get('trend_momentum', 'unknown')),
+                                'growth_label': str(row.get('growth_label', 'unknown')),
+                                'trend_fetch_timeframe': row.get('trend_fetch_timeframe'),
+                                'trend_fetch_geo': row.get('trend_fetch_geo'),
+                                'avg_30d_delta': float(row.get('avg_30d_delta', 0.0) or 0.0),
+                                'avg_7d_delta': float(row.get('avg_7d_delta', 0.0) or 0.0)
                             }
 
                             # 如果是新词，增加机会分数加成
@@ -138,15 +147,26 @@ class IntegratedDemandMiningManager:
                 new_words_count = len(new_word_results[new_word_results['is_new_word'] == True])
                 high_confidence_count = len(new_word_results[new_word_results['confidence_level'] == 'high'])
 
+                momentum_counts = new_word_results.get('trend_momentum', pd.Series(dtype=str)).value_counts() if 'trend_momentum' in new_word_results.columns else {}
+                breakout_count = int(momentum_counts.get('breakout', 0)) if momentum_counts is not None else 0
+                rising_count = int(momentum_counts.get('rising', 0)) if momentum_counts is not None else 0
+
                 result['new_word_summary'] = {
                     'total_analyzed': len(new_word_results),
                     'new_words_detected': new_words_count,
                     'high_confidence_new_words': high_confidence_count,
                     'new_word_percentage': round(new_words_count / len(new_word_results) * 100, 1) if len(new_word_results) > 0 else 0,
+                    'breakout_keywords': breakout_count,
+                    'rising_keywords': rising_count,
                     'score_threshold': getattr(self.new_word_detector, 'score_threshold', 0.0)
                 }
 
-                print(f"✅ 新词检测完成: 发现 {new_words_count} 个新词 ({high_confidence_count} 个高置信度)")
+                exported_reports = self._export_new_word_reports(new_word_results)
+                if exported_reports:
+                    result['new_word_summary']['report_files'] = exported_reports
+
+                breakout_count = result['new_word_summary']['breakout_keywords']
+                print(f"✅ 新词检测完成: 发现 {new_words_count} 个新词 ({high_confidence_count} 个高置信度, {breakout_count} 个 Breakout)")
 
             except Exception as e:
                 print(f"⚠️ 新词检测失败: {e}")
@@ -234,7 +254,38 @@ class IntegratedDemandMiningManager:
                 'enhanced_analysis_enabled': True  # 标记已启用增强分析
             }
             
-            return result
+        return result
+
+    def _export_new_word_reports(self, new_word_results: pd.DataFrame) -> Dict[str, str]:
+        if new_word_results is None or new_word_results.empty:
+            return {}
+
+        reports_dir = os.path.join(get_reports_dir(), 'new_words')
+        os.makedirs(reports_dir, exist_ok=True)
+
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        exports: Dict[str, str] = {}
+
+        def _save(df: pd.DataFrame, filename: str, key: str) -> None:
+            if df is None or df.empty:
+                return
+            path = os.path.join(reports_dir, filename)
+            df.to_csv(path, index=False)
+            exports[key] = path
+
+        try:
+            breakout_df = new_word_results[new_word_results.get('trend_momentum') == 'breakout']
+            _save(breakout_df, f'breakout_new_words_{timestamp}.csv', 'breakout')
+
+            rising_df = new_word_results[new_word_results.get('trend_momentum').isin(['breakout', 'rising'])]
+            _save(rising_df, f'rising_new_words_{timestamp}.csv', 'rising')
+
+            top_df = new_word_results.sort_values('new_word_score', ascending=False).head(30)
+            _save(top_df, f'top_new_words_{timestamp}.csv', 'top')
+        except Exception as exc:
+            print(f"⚠️ 导出新词报告失败: {exc}")
+
+        return exports
             
         except ImportError:
             print("⚠️ SERP分析器未找到，跳过SERP分析")
