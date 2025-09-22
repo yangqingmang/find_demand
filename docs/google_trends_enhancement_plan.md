@@ -1,29 +1,33 @@
-# Google Trends 关键词挖掘提升计划
+﻿# Google Trends 关键词挖掘提升计划
 
 > 目标：进一步扩大潜藏机会关键词与新词的捕获范围，并提升对爆发趋势的监控/输出质量。
 
 ## 阶段 1 · 立即执行（P0）
 
 - [ ] **扩充候选种子来源**
-  - 接入 Twitter/X Trending、指定话题热帖（API 或 RSS），写入统一的种子收集器。
-  - 抓取 Product Hunt 当日发布、Reddit 重点子版块（如 `/r/Futurology`、`/r/Entrepreneur`）的标题或话题词。
-  - 将上述词汇追加到 `_collect_trends_related_candidates` 的 seed_pool，并保留来源标签。
+  - 先行上线 Reddit 重点子版块和 Product Hunt 当日发布的标题/话题词，验证对现有流程的影响及限流情况。
+  - 为候选词打上来源、语言等标签并做去重/质量过滤，避免噪声抬入 seed_pool。
+  - Twitter/X Trending 需先确认 API/RSS 的可行性、速率和成本，再决定是否升级为默认输入。
+  - 将所有合格词汇追加到 `_collect_trends_related_candidates` 的 `seed_pool`，保留来源标签以便后续权重调节。
 - [ ] **强化 Google Trends 相关词抓取**
-  - 提高 `per_category_limit`，对 Breakout 种子额外循环抓满相关词（20 条+）。
+  - 提高 `per_category_limit`，对 Breakout 种子额外循环抓满相关词（20 条+），同时设置节流与失败重试上限，避免触发 Trends 配额。
   - 若 `formattedValue == "Breakout"`，将候选标记为高优先级直接进入新词检测队列。
-  - 统计/记录获取失败的 geo/timeframe，避免重复无效重试。
+  - 统计/记录获取失败的 `geo`/`timeframe`，并在下一轮跳过连续失败的组合。
 - [ ] **多地域多语言采集**
-  - 在 `_fetch_trends_dataframe` 中迭代主要市场（示例：`['', 'US', 'IN', 'SG', 'DE']`）。
+  - 在 `_fetch_trends_dataframe` 中迭代主要市场（示例：`['', 'US', 'IN', 'SG', 'DE']`），并基于候选词的语言或来源地域决定是否尝试该 `geo`，提升命中率。
   - 报表与 CLI 输出新增“主要爆发区域”字段。
+- [ ] **最小可行版本验证**
+  - 将扩充种子 + 多地域采集组合部署到灰度任务，记录成功率、限流和新增关键词质量，为后续阶段提供基线数据。
 
 ## 阶段 2 · 短期推进（P1）
 
 - [ ] **Watchlist & 历史回溯机制**
   - 新增 `watchlist.yaml`，支持用户自定义重点词，每日强制跑新词检测。
+  - 设计统一的候选词数据结构（来源、语言、地域、优先级、评分），供 watchlist、历史快照和回测复用。
   - 保留每日候选快照，输出“连续 N 天 Rising”列表。
 - [ ] **增强趋势信号维度**
-  - 对 Breakout 候选调用 Google News / Bing News，区分“新闻驱动”与“需求驱动”。
-  - 评估引入 Ahrefs/SEMrush 等 API 的成本，将搜索量或付费竞价指标并入评分。
+  - 对 Breakout 候选调用 Google News / Bing News，定义判定规则（如标题关键字匹配、情感/主题打分）以区分“新闻驱动”与“需求驱动”。
+  - 评估引入 Ahrefs/SEMrush 等 API 的成本，将搜索量或付费竞价指标并入评分，并在配置中统一管理凭据。
 
 ## 阶段 3 · 中期优化（P2）
 
@@ -31,11 +35,17 @@
   - 当 Breakout 数量较历史均值激增时，在 CLI + 报告中输出“重点关注”提示。
   - Dashboard JSON 加入 Breakout/Rising 历史折线，便于后续图表展示。
 - [ ] **流程回放与回测**
-  - 定期复盘导出的新词报表，对实际站点表现进行标注（成功/失败），回写到评分体系。
+  - 定期复盘导出的新词报表，对实际站点表现进行标准化标注（成功/失败/观望），并回写到评分体系。
 
 ## 依赖与备注
 
-- Twitter/X & Product Hunt 等接口若需 API Key，请先确认可用的访问方式（官方 API、RSS、中间服务）。
-- 多地域采集会增加请求量，需留意 Trends 的限流与冷却策略，可配合代理或延迟控制。
+- Twitter/X & Product Hunt 等接口若需 API Key，请先确认可用的访问方式（官方 API、RSS、中间服务），并记录速率限制与成本。
+- 多来源合并会显著拉高请求量，需配合候选去重、节流与失败重试策略，必要时引入代理或延迟控制。
+- 多地域采集需关注词语语言与 `geo` 的适配关系。
 - 若引入付费数据源（Ahrefs/SEMrush），需要在配置中统一管理凭据并避免泄漏。
 
+## 近期行动建议
+
+1. 完成 Reddit/Product Hunt 接入与多地域采集的灰度验证，输出限流与质量评估。
+2. 基于验证结果确定 Twitter/X 接入方案，并设计候选词统一数据结构。
+3. 启动 watchlist 机制与历史快照，为 P1 阶段的信号增强和回测打基础。
