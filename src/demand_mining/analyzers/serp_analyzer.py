@@ -249,6 +249,8 @@ class SerpAnalyzer:
             print("⚠️ 未配置 SERP API Key，跳过 SERP API 搜索")
             return None
 
+        last_error = None
+
         for attempt in range(1, self.max_retries + 1):
             # 优先尝试代理请求，让代理管理器统一限速/重试
             if self.use_proxy and self.proxy_manager:
@@ -263,6 +265,7 @@ class SerpAnalyzer:
                         response.raise_for_status()
                         return response.json()
                 except Exception as proxy_error:
+                    last_error = proxy_error
                     print(f"⚠️ SERP API 代理请求失败({attempt}/{self.max_retries}): {proxy_error}")
             
             # 直接请求：按照配置做限速和随机延迟
@@ -273,18 +276,19 @@ class SerpAnalyzer:
                 response.raise_for_status()
                 return response.json()
             except requests.exceptions.SSLError as ssl_error:
-                direct_error = ssl_error
+                last_error = ssl_error
                 self._reset_serp_session()
-            except requests.exceptions.RequestException as direct_error:
+            except requests.exceptions.RequestException as req_error:
+                last_error = req_error
                 self._reset_serp_session()
 
             if attempt < self.max_retries:
                 base_delay = max(self.request_delay, 0.5)
                 backoff = min(base_delay * (2 ** (attempt - 1)), 10)
-                print(f"⚠️ SERP API 第 {attempt} 次尝试失败: {direct_error}，{backoff:.2f} 秒后重试")
+                print(f"⚠️ SERP API 第 {attempt} 次尝试失败: {last_error or '未知错误'}，{backoff:.2f} 秒后重试")
                 time.sleep(backoff)
             else:
-                print(f"SERP API 搜索失败: {direct_error}")
+                print(f"SERP API 搜索失败: {last_error or '未知错误'}")
 
         if self.api_key and self.cse_id:
             print("ℹ️ SERP API 不可用，回退到 Google Custom Search API")
