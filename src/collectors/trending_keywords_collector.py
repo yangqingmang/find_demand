@@ -102,7 +102,7 @@ class TrendingKeywordsCollector:
         try:
             for page in range(1, max_pages + 1):
                 self.logger.info(f"正在抓取第 {page} 页...")
-                
+                self.logger.info(f"请求 url: {self.base_url}")
                 # 构建页面URL
                 if page == 1:
                     url = self.base_url

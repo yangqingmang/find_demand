@@ -835,8 +835,8 @@ def handle_hot_keywords(manager, args):
                     print(f"📈 平均机会分数: {result['market_insights']['avg_opportunity_score']}")
                     
                     # 显示新词检测摘要
-            _print_new_word_summary(result.get('new_word_summary'))
-            _print_top_new_words(result)
+                    _print_new_word_summary(result.get('new_word_summary'))
+                    _print_top_new_words(result)
 
                     # 显示Top 5机会关键词
                     top_keywords = result['market_insights']['top_opportunities'][:5]
