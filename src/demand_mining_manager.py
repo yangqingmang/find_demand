@@ -253,6 +253,20 @@ class IntegratedDemandMiningManager:
                 'serp_analysis_enabled': True,
                 'enhanced_analysis_enabled': True  # 标记已启用增强分析
             }
+        except ImportError:
+            print("⚠️ SERP分析器未找到，跳过SERP分析")
+            result['serp_summary'] = {
+                'error': 'SERP分析器未找到',
+                'serp_analysis_enabled': False
+            }
+            return result
+        except Exception as e:
+            print(f"⚠️ SERP分析过程中出错: {e}")
+            result['serp_summary'] = {
+                'error': str(e),
+                'serp_analysis_enabled': False
+            }
+            return result
             
         return result
 
@@ -286,21 +300,6 @@ class IntegratedDemandMiningManager:
             print(f"⚠️ 导出新词报告失败: {exc}")
 
         return exports
-            
-        except ImportError:
-            print("⚠️ SERP分析器未找到，跳过SERP分析")
-            result['serp_summary'] = {
-                'error': 'SERP分析器未找到',
-                'serp_analysis_enabled': False
-            }
-            return result
-        except Exception as e:
-            print(f"⚠️ SERP分析过程中出错: {e}")
-            result['serp_summary'] = {
-                'error': str(e),
-                'serp_analysis_enabled': False
-            }
-            return result
     
     def analyze_root_words(self, output_dir: str = None) -> Dict[str, Any]:
         """分析词根趋势"""
