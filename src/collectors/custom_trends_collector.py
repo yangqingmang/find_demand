@@ -604,12 +604,11 @@ class CustomTrendsCollector(TrendsAPIClient):
         """获取关键词建议"""
         params = {
             'hl': self.hl,
-            'tz': self.tz,
-            'q': keyword
+            'tz': self.tz
         }
         
         response = self._get_data(
-            self.SUGGESTIONS_URL,
+            self.SUGGESTIONS_URL + '/' + keyword,
             method='get',
             params=params,
             trim_chars=5

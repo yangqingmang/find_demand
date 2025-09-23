@@ -33,12 +33,13 @@ class TrendingKeywordsCollector:
         """Create a session with retry-aware adapters."""
         session = requests.Session()
         session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1',
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            # 如果目标站点主要是中文，建议设置为 zh-CN，便于服务端返回中文页面
+            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
+            # 不要手动设置 "Accept-Encoding"，让 requests 自动协商压缩
         })
         retry_config = Retry(
             total=3,
@@ -46,11 +47,12 @@ class TrendingKeywordsCollector:
             read=2,
             backoff_factor=0.8,
             status_forcelist=(429, 500, 502, 503, 504),
+            # None 表示所有方法都可重试（urllib3>=1.26 推荐使用 frozenset({"GET", ...})）
             allowed_methods=None
         )
         adapter = HTTPAdapter(max_retries=retry_config, pool_maxsize=5, pool_block=True)
-        session.mount('https://', adapter)
-        session.mount('http://', adapter)
+        session.mount("https://", adapter)
+        session.mount("http://", adapter)
         return session
 
     def _reset_session(self) -> None:
@@ -149,8 +151,13 @@ class TrendingKeywordsCollector:
         try:
             response = self._request_with_retries(url, timeout=10)
             response.raise_for_status()
-            
-            soup = BeautifulSoup(response.content, 'html.parser')
+
+            # 若服务端未明确编码或给了 ISO-8859-1，使用 apparent_encoding 兜底为实际编码
+            if not getattr(response, "encoding", None) or response.encoding.lower() == "iso-8859-1":
+                response.encoding = response.apparent_encoding or "utf-8"
+
+            # 使用 text（已按 encoding 解码）并改用 lxml 解析器（更健壮）
+            soup = BeautifulSoup(response.text, "lxml")
             keywords = []
             
             # 查找关键词条目
@@ -170,7 +177,8 @@ class TrendingKeywordsCollector:
         except Exception as e:
             self.logger.error(f"解析页面失败 {url}: {e}")
             return []
-    
+
+
     def _find_keyword_containers(self, soup: BeautifulSoup) -> List:
         """
         查找包含关键词的容器元素
