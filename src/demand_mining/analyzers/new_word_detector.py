@@ -238,22 +238,6 @@ class NewWordDetector(BaseAnalyzer):
         if data_12m.empty or keyword not in data_12m.columns:
             return result
 
-    @staticmethod
-    def _score_growth_signal(value: Optional[float], positive_bands: List[Tuple[float, float]], negative_bands: Optional[List[Tuple[float, float]]] = None) -> float:
-        if value is None:
-            return 0.0
-        score = 0.0
-        for threshold, points in positive_bands:
-            if value >= threshold:
-                score = points
-                break
-        if negative_bands:
-            for threshold, penalty in negative_bands:
-                if value <= threshold:
-                    score -= penalty
-                    break
-        return max(score, 0.0)
-
         series = data_12m[keyword].fillna(0).astype(float).values
         if len(series) == 0:
             return result
@@ -308,7 +292,26 @@ class NewWordDetector(BaseAnalyzer):
 
         return result
 
-    
+    @staticmethod
+    def _score_growth_signal(
+        value: Optional[float],
+        positive_bands: List[Tuple[float, float]],
+        negative_bands: Optional[List[Tuple[float, float]]] = None,
+    ) -> float:
+        if value is None:
+            return 0.0
+        score = 0.0
+        for threshold, points in positive_bands:
+            if value >= threshold:
+                score = points
+                break
+        if negative_bands:
+            for threshold, penalty in negative_bands:
+                if value <= threshold:
+                    score -= penalty
+                    break
+        return max(score, 0.0)
+
     def analyze(self, data, keyword_col='query', **kwargs):
         """
         实现基础分析器的抽象方法
@@ -580,7 +583,7 @@ class NewWordDetector(BaseAnalyzer):
                     })
                     continue
 
-                    detection_reasons = []
+                detection_reasons = []
                 try:
                     historical_data = self.get_historical_data(keyword)
                 except Exception as fetch_error:

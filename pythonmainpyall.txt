@@ -1,8 +1,9 @@
-(.venv) yangqingmang@yangqingmangdeMacBook-Pro find_demand % python main.py --all
+(.venv) PS D:\VscodeWorkspace\find_demand> python main.py --all
 正在加载配置...
 ✓ 已加载公开配置
 ✓ 从 file 成功加载私钥
 ✓ 已加载加密配置
+✓ 已加载 .env 配置
 ✓ 配置加载完成
 🔍 需求挖掘分析工具 v2.0
 整合六大需求挖掘方法的智能分析系统
@@ -11,24 +12,24 @@
 
 🔍 关键词管理器初始化完成
 🔍 发现管理器初始化完成
-2025-09-21 00:58:48 - config.proxy_config_loader - INFO - ✅ 加载了 0 个有效代理
-2025-09-21 00:58:48 - config.proxy_config_loader - INFO - ✅ 代理配置加载成功，环境: development
-2025-09-21 00:58:48 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
-2025-09-21 00:58:48 - src.collectors.google_trends_session - INFO - Session初始化成功
-2025-09-21 00:58:48 - src.collectors.google_trends_session - INFO - 🔧 正在初始化Google Trends会话...
-2025-09-21 00:59:02 - src.collectors.google_trends_session - INFO - ✅ Google Trends会话初始化成功
-2025-09-21 00:59:02 - root - INFO - Session初始化成功
-2025-09-21 00:59:02 - src.collectors.trends_singleton - INFO - 🆕 创建新的TrendsCollector实例
-2025-09-21 00:59:02 - src.demand_mining.root_word_trends_analyzer - INFO - TrendsCollector单例获取成功
-2025-09-21 00:59:02 - root - WARNING - 代理管理器不可用，将使用直接请求
-2025-09-21 00:59:02 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
-2025-09-21 00:59:02 - root - INFO - 趋势收集器初始化成功
-2025-09-21 00:59:02 - src.demand_mining.root_word_trends_analyzer - INFO - NewWordDetector单例获取成功
-2025-09-21 00:59:02 - src.demand_mining.core.trends_cache - INFO - 缓存数据库初始化完成
-2025-09-21 00:59:02 - src.demand_mining.core.trends_cache - INFO - 趋势缓存初始化完成，缓存目录: output/reports/trends_cache
+2025-09-24 17:37:40 - config.proxy_config_loader - INFO - ✅ 加载了 0 个有效代理
+2025-09-24 17:37:40 - config.proxy_config_loader - INFO - ✅ 代理配置加载成功，环境: development
+2025-09-24 17:37:40 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
+2025-09-24 17:37:40 - src.collectors.google_trends_session - INFO - Session初始化成功
+2025-09-24 17:37:40 - src.collectors.google_trends_session - INFO - 🔧 正在初始化Google Trends会话...
+2025-09-24 17:37:53 - src.collectors.google_trends_session - INFO - ✅ Google Trends会话初始化成功
+2025-09-24 17:37:53 - root - INFO - Session初始化成功
+2025-09-24 17:37:53 - src.collectors.trends_singleton - INFO - 🆕 创建新的TrendsCollector实例
+2025-09-24 17:37:53 - src.demand_mining.root_word_trends_analyzer - INFO - TrendsCollector单例获取成功
+2025-09-24 17:37:53 - root - WARNING - 代理管理器不可用，将使用直接请求
+2025-09-24 17:37:53 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
+2025-09-24 17:37:53 - root - INFO - 趋势收集器初始化成功
+2025-09-24 17:37:53 - src.demand_mining.root_word_trends_analyzer - INFO - NewWordDetector单例获取成功
+2025-09-24 17:37:53 - src.demand_mining.core.trends_cache - INFO - 缓存数据库初始化完成
+2025-09-24 17:37:53 - src.demand_mining.core.trends_cache - INFO - 趋势缓存初始化完成，缓存目录: output/reports\trends_cache
 📈 趋势管理器初始化完成（已启用缓存）
-2025-09-21 00:59:02 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
-2025-09-21 00:59:02 - root - INFO - 趋势收集器初始化成功
+2025-09-24 17:37:53 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
+2025-09-24 17:37:53 - root - INFO - 趋势收集器初始化成功
 ✅ 新词检测器初始化成功
 🚀 集成需求挖掘管理器初始化完成
 📊 已加载关键词管理器、发现管理器、趋势管理器
@@ -37,503 +38,231 @@
    第一步: 搜索热门关键词 (Google Trends + TrendingKeywords.net)
    第二步: 基于热门关键词进行多平台发现
 🔍 正在获取 Google Trends Rising Queries...
-2025-09-21 00:59:02 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
-2025-09-21 00:59:02 - root - INFO - 📄 原始响应详细: ')]}\'\n{"widgets":[{"r'
-2025-09-21 00:59:02 - root - INFO - 找到JSON开始位置: 5
-2025-09-21 00:59:02 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
-2025-09-21 00:59:02 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
-2025-09-21 00:59:02 - root - INFO - ✅ 成功解析JSON数据
-2025-09-21 00:59:02 - root - INFO - 📊 数据结构: ['widgets', 'keywords', 'timeRanges', 'shareText', 'shouldShowMultiHeatMapMessage']
-2025-09-21 00:59:02 - root - INFO - 🔍 Widget类型: RELATED_TOPICS
-2025-09-21 00:59:02 - root - INFO - 🔍 Widget类型: RELATED_QUERIES
-2025-09-21 00:59:02 - root - INFO - 🎯 找到RELATED_QUERIES token: APP6_UEAAAAAaNAu2aE4...
-2025-09-21 00:59:02 - root - INFO - 🔍 正在请求related_searches接口...
-2025-09-21 00:59:04 - root - INFO - ✅ 成功获取related searches数据
-2025-09-21 00:59:04 - root - INFO - 📊 Related data结构: ['default']
-2025-09-21 00:59:04 - root - INFO - 🎯 解析到 47 个真实关键词
-✅ Google Trends: 获取到 15 个关键词
+2025-09-24 17:37:53 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
+2025-09-24 17:37:53 - root - INFO - 📄 原始响应详细: ')]}\'\n{"widgets":[{"r'
+2025-09-24 17:37:53 - root - INFO - 找到JSON开始位置: 5
+2025-09-24 17:37:53 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
+2025-09-24 17:37:53 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
+2025-09-24 17:37:53 - root - INFO - ✅ 成功解析JSON数据
+2025-09-24 17:37:53 - root - INFO - 📊 数据结构: ['widgets', 'keywords', 'timeRanges', 'shareText', 'shouldShowMultiHeatMapMessage']
+2025-09-24 17:37:53 - root - INFO - 🔍 Widget类型: RELATED_TOPICS
+2025-09-24 17:37:53 - root - INFO - 🔍 Widget类型: RELATED_QUERIES
+2025-09-24 17:37:53 - root - INFO - 🎯 找到RELATED_QUERIES token: APP6_UEAAAAAaNUNc3Tt...
+2025-09-24 17:37:53 - root - INFO - 🔍 正在请求related_searches接口...
+2025-09-24 17:37:53 - root - ERROR - API请求异常: 无法从 Google Trends 获取 related searches 数据，且没有可用的备选数据源
+⚠️ Google Trends 获取失败: 无法从 Google Trends 获取 related searches 数据，且没有可用的备选数据源
 🔍 正在获取 TrendingKeywords.net 数据...
-2025-09-21 00:59:04 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 1 页...
-2025-09-21 00:59:09 - src.collectors.trending_keywords_collector - ERROR - 请求页面失败 https://trendingkeywords.net/: HTTPSConnectionPool(host='trendingkeywords.net', port=443): Max retries exceeded with url: / (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1016)')))
-2025-09-21 00:59:09 - src.collectors.trending_keywords_collector - WARNING - 第 1 页未获取到数据
-2025-09-21 00:59:09 - src.collectors.trending_keywords_collector - WARNING - 未获取到任何关键词数据
-[Filter] 已过滤 6 条低质量热门词
-🎯 合并后总计: 9 个关键词
-🔍 第一步: 对 1 个热门关键词进行需求挖掘...
+2025-09-24 17:37:53 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 1 页...
+2025-09-24 17:37:53 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
+2025-09-24 17:37:58 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
+2025-09-24 17:37:58 - src.collectors.trending_keywords_collector - INFO - 第 1 页获取到 18 个关键词
+2025-09-24 17:38:01 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 2 页...
+2025-09-24 17:38:01 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
+2025-09-24 17:38:02 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
+2025-09-24 17:38:02 - src.collectors.trending_keywords_collector - INFO - 第 2 页获取到 18 个关键词
+2025-09-24 17:38:05 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 3 页...
+2025-09-24 17:38:05 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
+2025-09-24 17:38:08 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
+2025-09-24 17:38:08 - src.collectors.trending_keywords_collector - INFO - 第 3 页获取到 18 个关键词
+2025-09-24 17:38:08 - src.collectors.trending_keywords_collector - INFO - 总共获取到 54 个关键词
+✅ TrendingKeywords.net: 获取到 1 个关键词
+🔍 正在抓取 RSS 热点...
+✅ RSS 热点: 获取到 20 个热点词
+2025-09-24 17:38:21 - src.collectors.request_rate_limiter - INFO - 🚦 初始化请求频率控制器: 最小间隔5.0秒, 每分钟最多8次请求
+2025-09-24 17:38:21 - src.collectors.request_rate_limiter - INFO - 🆕 创建全局请求频率控制器
+2025-09-24 17:38:27 - src.collectors.custom_trends_collector - WARNING - ⚠️ 遇到429错误，第1次重试
+2025-09-24 17:38:27 - src.collectors.custom_trends_collector - WARNING - 🔗 请求URL: https://trends.google.com/trends/api/widgetdata/relatedsearches
+2025-09-24 17:38:27 - src.collectors.custom_trends_collector - INFO - 🔄 重置Session和频率控制器...
+2025-09-24 17:38:27 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
+2025-09-24 17:38:27 - src.collectors.google_trends_session - INFO - 全局Session已重置
+2025-09-24 17:38:27 - src.collectors.request_rate_limiter - INFO - 🔄 请求频率控制器已重置
+2025-09-24 17:38:27 - src.collectors.request_rate_limiter - INFO - ♻️ 全局请求频率控制器已重置
+2025-09-24 17:38:27 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
+2025-09-24 17:38:27 - src.collectors.google_trends_session - INFO - 🔧 正在初始化Google Trends会话...
+2025-09-24 17:38:40 - src.collectors.google_trends_session - INFO - ✅ Google Trends会话初始化成功
+2025-09-24 17:38:40 - src.collectors.custom_trends_collector - WARNING - ⏳ 等待52.7秒后重试...
+2025-09-24 17:39:42 - src.collectors.custom_trends_collector - ERROR - ❌ 多次遇到429错误，请求失败
+2025-09-24 17:39:42 - src.collectors.custom_trends_collector - ERROR - 💡 建议：1) 减少并发请求 2) 增加请求间隔 3) 检查代理设置 4) 稍后再试
+2025-09-24 17:39:58 - src.collectors.custom_trends_collector - WARNING - ⚠️ 遇到429错误，第1次重试
+2025-09-24 17:39:58 - src.collectors.custom_trends_collector - WARNING - 🔗 请求URL: https://trends.google.com/trends/api/widgetdata/relatedsearches
+2025-09-24 17:39:58 - src.collectors.custom_trends_collector - INFO - 🔄 重置Session和频率控制器...
+2025-09-24 17:39:58 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
+2025-09-24 17:39:58 - src.collectors.google_trends_session - INFO - 全局Session已重置
+2025-09-24 17:39:58 - src.collectors.request_rate_limiter - INFO - 🔄 请求频率控制器已重置
+2025-09-24 17:39:58 - src.collectors.request_rate_limiter - INFO - ♻️ 全局请求频率控制器已重置
+2025-09-24 17:39:58 - src.collectors.custom_trends_collector - WARNING - ⏳ 等待57.8秒后重试...
+2025-09-24 17:41:52 - src.collectors.custom_trends_collector - WARNING - 连接中断，等待16.0秒后重试: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2025-09-24 17:42:25 - src.collectors.custom_trends_collector - WARNING - ⚠️ 遇到429错误，第1次重试
+2025-09-24 17:42:25 - src.collectors.custom_trends_collector - WARNING - 🔗 请求URL: https://trends.google.com/trends/api/widgetdata/relatedsearches
+2025-09-24 17:42:25 - src.collectors.custom_trends_collector - INFO - 🔄 重置Session和频率控制器...
+2025-09-24 17:42:25 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
+2025-09-24 17:42:25 - src.collectors.google_trends_session - INFO - 全局Session已重置
+2025-09-24 17:42:25 - src.collectors.request_rate_limiter - INFO - 🔄 请求频率控制器已重置
+2025-09-24 17:42:25 - src.collectors.request_rate_limiter - INFO - ♻️ 全局请求频率控制器已重置
+2025-09-24 17:42:25 - src.collectors.custom_trends_collector - WARNING - ⏳ 等待59.8秒后重试...
+2025-09-24 17:44:12 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 24.6 秒
+2025-09-24 17:44:37 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.7 秒
+2025-09-24 17:44:43 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 3.7 秒
+2025-09-24 17:44:48 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.2 秒
+2025-09-24 17:44:53 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.3 秒
+2025-09-24 17:44:57 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.6 秒
+2025-09-24 17:45:03 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.0 秒
+2025-09-24 17:45:08 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.4 秒
+2025-09-24 17:45:13 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 24.2 秒
+2025-09-24 17:45:38 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.5 秒
+✅ Google Trends 关联扩展: 新增 1 个候选关键词
+✅ 热门联想: 新增 8 个候选关键词
+[Filter] 已过滤 9 条低质量热门词
+🎯 合并后总计: 20 个关键词
+📊 数据源分布:
+   • RSS/Google News AI: 13 个
+   • Suggestions/Google Autocomplete: 3 个
+   • Suggestions/Google Autocomplete Cn: 2 个
+   • TrendingKeywords.net: 1 个
+   • Google Trends Suggestion: 1 个
+🔍 第一步: 对 7 个热门关键词进行需求挖掘...
 🚀 开始关键词分析 - 类型: file, 综合分析: False
-✅ 成功读取 1 条关键词数据
-🔍 分析关键词 (1/1): chatgpt
-2025-09-21 00:59:09 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+✅ 成功读取 7 条关键词数据
+🔍 分析关键词 (1/7): hix bypass
+2025-09-24 17:47:16 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
 提示: 当前代理配置已禁用代理，SERP 分析器将使用直连模式
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt&engine=google&num=10 (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1016)')))，1.00 秒后 重试
-✅ 第一步完成! 分析了 1 个热门关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+ℹ️ SERP API 不可用，回退到 Google Custom Search API
+Google API 搜索失败: 400 Client Error: Bad Request for url: https://www.googleapis.com/customsearch/v1?key=mock_api_key_for_testing&cx=mock_cse_id_for_testing&q=hix+bypass&num=10
+🔍 分析关键词 (2/7): ai humanizer & writer
+2025-09-24 17:47:46 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=ai+humanizer+%26+writer&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+2025-09-24 17:48:02 - urllib3.connectionpool - WARNING - Retrying (Retry(total=2, connect=3, read=1, redirect=None, status=None)) after connection broken by 'ConnectionResetError(10054, '远程主机强迫关闭了一个现有的连接。', None, 10054, None)': /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=ai+humanizer+%26+writer&engine=google&num=10
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=ai+humanizer+%26+writer&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=ai+humanizer+%26+writer&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+ℹ️ SERP API 不可用，回退到 Google Custom Search API
+Google API 搜索失败: 400 Client Error: Bad Request for url: https://www.googleapis.com/customsearch/v1?key=mock_api_key_for_testing&cx=mock_cse_id_for_testing&q=ai+humanizer+%26+writer&num=10
+🔍 分析关键词 (3/7): hix bypass ai humanizer free
+2025-09-24 17:48:22 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+ai+humanizer+free&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+ai+humanizer+free&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+ai+humanizer+free&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+ℹ️ SERP API 不可用，回退到 Google Custom Search API
+Google API 搜索失败: 400 Client Error: Bad Request for url: https://www.googleapis.com/customsearch/v1?key=mock_api_key_for_testing&cx=mock_cse_id_for_testing&q=hix+bypass+ai+humanizer+free&num=10
+🔍 分析关键词 (4/7): hix bypass ai
+2025-09-24 17:48:51 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+ai&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+ai&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+ai&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+ℹ️ SERP API 不可用，回退到 Google Custom Search API
+Google API 搜索失败: 400 Client Error: Bad Request for url: https://www.googleapis.com/customsearch/v1?key=mock_api_key_for_testing&cx=mock_cse_id_for_testing&q=hix+bypass+ai&num=10
+🔍 分析关键词 (5/7): hix bypass free
+2025-09-24 17:49:18 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+free&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+free&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+2025-09-24 17:49:44 - urllib3.connectionpool - WARNING - Retrying (Retry(total=2, connect=3, read=1, redirect=None, status=None)) after connection broken by 'ConnectionResetError(10054, '远程主机强迫关闭了一个现有的连接。', None, 10054, None)': /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+free&engine=google&num=10
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+free&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+ℹ️ SERP API 不可用，回退到 Google Custom Search API
+Google API 搜索失败: 400 Client Error: Bad Request for url: https://www.googleapis.com/customsearch/v1?key=mock_api_key_for_testing&cx=mock_cse_id_for_testing&q=hix+bypass+free&num=10
+🔍 分析关键词 (6/7): hix bypass humanize
+2025-09-24 17:49:55 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+humanize&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+humanize&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+humanize&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+ℹ️ SERP API 不可用，回退到 Google Custom Search API
+Google API 搜索失败: 400 Client Error: Bad Request for url: https://www.googleapis.com/customsearch/v1?key=mock_api_key_for_testing&cx=mock_cse_id_for_testing&q=hix+bypass+humanize&num=10
+🔍 分析关键词 (7/7): hix bypass review
+2025-09-24 17:50:24 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+review&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+review&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+review&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+ℹ️ SERP API 不可用，回退到 Google Custom Search API
+Google API 搜索失败: 400 Client Error: Bad Request for url: https://www.googleapis.com/customsearch/v1?key=mock_api_key_for_testing&cx=mock_cse_id_for_testing&q=hix+bypass+review&num=10
+✅ 第一步完成! 分析了 7 个热门关键词
 📊 发现 0 个高机会关键词
 
 🌐 第二步: 基于热门关键词进行多平台关键词发现...
-ℹ️ 已追加 7 个配置种子关键词以满足发现需求
-🔍 正在发现与 8 个关键词相关的关键词...
+🔍 正在发现与 7 个关键词相关的关键词...
 🚀 开始多平台关键词发现...
 🔍 正在分析 Reddit r/artificial...
+❌ Reddit r/artificial 分析失败: 403 Client Error: Blocked for url: https://www.reddit.com/r/artificial/hot.json?limit=50
 🔍 正在分析 Reddit r/MachineLearning...
+❌ Reddit r/MachineLearning 分析失败: 403 Client Error: Blocked for url: https://www.reddit.com/r/MachineLearning/hot.json?limit=50
 🔍 正在分析 Reddit r/deeplearning...
+❌ Reddit r/deeplearning 分析失败: 403 Client Error: Blocked for url: https://www.reddit.com/r/deeplearning/hot.json?limit=50
 🔍 正在分析 Reddit r/ChatGPT...
+❌ Reddit r/ChatGPT 分析失败: 403 Client Error: Blocked for url: https://www.reddit.com/r/ChatGPT/hot.json?limit=50
 🔍 正在分析 Reddit r/OpenAI...
-🔍 正在分析 Hacker News (查询: chatgpt)...
-🔍 正在分析 Hacker News (查询: AI tool)...
-🔍 正在分析 Hacker News (查询: AI generator)...
-🔍 正在分析 Hacker News (查询: AI writer)...
-🔍 正在分析 Hacker News (查询: AI assistant)...
-🔍 正在分析 Hacker News (查询: machine learning platform)...
-🔍 正在分析 Hacker News (查询: chatbot builder)...
-🔍 正在分析 Hacker News (查询: workflow automation)...
-🔍 正在分析 YouTube 搜索建议 (查询: chatgpt)...
-❌ YouTube 分析失败: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
-🔍 正在分析 YouTube 搜索建议 (查询: AI tool)...
-🔍 正在分析 YouTube 搜索建议 (查询: AI generator)...
-🔍 正在分析 YouTube 搜索建议 (查询: AI writer)...
-🔍 正在分析 YouTube 搜索建议 (查询: AI assistant)...
-🔍 正在分析 YouTube 搜索建议 (查询: machine learning platform)...
-🔍 正在分析 YouTube 搜索建议 (查询: chatbot builder)...
-🔍 正在分析 YouTube 搜索建议 (查询: workflow automation)...
-🔍 正在分析 Google 搜索建议 (查询: chatgpt)...
-🔍 正在分析 Google 搜索建议 (查询: AI tool)...
-🔍 正在分析 Google 搜索建议 (查询: AI generator)...
-🔍 正在分析 Google 搜索建议 (查询: AI writer)...
-🔍 正在分析 Google 搜索建议 (查询: AI assistant)...
-🔍 正在分析 Google 搜索建议 (查询: machine learning platform)...
-🔍 正在分析 Google 搜索建议 (查询: chatbot builder)...
-🔍 正在分析 Google 搜索建议 (查询: workflow automation)...
-🔍 正在分析 ProductHunt (查询: chatgpt)...
-🔍 正在分析 ProductHunt (查询: AI tool)...
-🔍 正在分析 ProductHunt (查询: AI generator)...
-🔍 正在分析 ProductHunt (查询: AI writer)...
-🔍 正在分析 ProductHunt (查询: AI assistant)...
-🔍 正在分析 ProductHunt (查询: machine learning platform)...
-🔍 正在分析 ProductHunt (查询: chatbot builder)...
-🔍 正在分析 ProductHunt (查询: workflow automation)...
-⚠️ 移除了 1 个品牌泛词
-⚠️ 移除了 58 个泛化头部词
-2025-09-21 01:00:29 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: mps
-2025-09-21 01:00:29 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
-Batches: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  2.84it/s]
-✅ 发现 29 个关键词
-🎯 发现了 29 个相关关键词
-📁 发现的关键词已保存到: output/reports/discovered_keywords_20250921_010038.csv
+❌ Reddit r/OpenAI 分析失败: 403 Client Error: Blocked for url: https://www.reddit.com/r/OpenAI/hot.json?limit=50
+🔍 正在分析 Hacker News (查询: hix bypass review)...
+🔍 正在分析 Hacker News (查询: ai humanizer & writer)...
+🔍 正在分析 Hacker News (查询: hix bypass ai humanizer free)...
+🔍 正在分析 Hacker News (查询: hix bypass humanize)...
+🔍 正在分析 Hacker News (查询: hix bypass ai)...
+🔍 正在分析 Hacker News (查询: hix bypass free)...
+🔍 正在分析 Hacker News (查询: hix bypass)...
+🔍 正在分析 YouTube 搜索建议 (查询: hix bypass review)...
+🔍 正在分析 YouTube 搜索建议 (查询: ai humanizer & writer)...
+🔍 正在分析 YouTube 搜索建议 (查询: hix bypass ai humanizer free)...
+🔍 正在分析 YouTube 搜索建议 (查询: hix bypass humanize)...
+🔍 正在分析 YouTube 搜索建议 (查询: hix bypass ai)...
+🔍 正在分析 YouTube 搜索建议 (查询: hix bypass free)...
+🔍 正在分析 YouTube 搜索建议 (查询: hix bypass)...
+🔍 正在分析 Google 搜索建议 (查询: hix bypass review)...
+🔍 正在分析 Google 搜索建议 (查询: ai humanizer & writer)...
+🔍 正在分析 Google 搜索建议 (查询: hix bypass ai humanizer free)...
+🔍 正在分析 Google 搜索建议 (查询: hix bypass humanize)...
+🔍 正在分析 Google 搜索建议 (查询: hix bypass ai)...
+🔍 正在分析 Google 搜索建议 (查询: hix bypass free)...
+🔍 正在分析 Google 搜索建议 (查询: hix bypass)...
+🔍 正在分析 ProductHunt (查询: hix bypass review)...
+🔍 正在分析 ProductHunt (查询: ai humanizer & writer)...
+🔍 正在分析 ProductHunt (查询: hix bypass ai humanizer free)...
+🔍 正在分析 ProductHunt (查询: hix bypass humanize)...
+🔍 正在分析 ProductHunt (查询: hix bypass ai)...
+🔍 正在分析 ProductHunt (查询: hix bypass free)...
+🔍 正在分析 ProductHunt (查询: hix bypass)...
+⚠️ 移除了 3 个品牌泛词
+⚠️ 移除了 55 个泛化头部词
+2025-09-24 17:52:25 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-09-24 17:52:25 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+Batches: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 11.49it/s]
+✅ 发现 2 个关键词
+🎯 发现了 2 个相关关键词
+📁 发现的关键词已保存到: output/reports\discovered_keywords_20250924_175237.csv
 
 🔍 第三步: 对发现的关键词进行需求挖掘分析...
 🚀 开始关键词分析 - 类型: file, 综合分析: False
-✅ 成功读取 29 条关键词数据
-🔍 分析关键词 (1/29): ai tools for business
-2025-09-21 01:00:38 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (2/29): ai toolkit for visual studio code
-2025-09-21 01:00:42 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (3/29): ai tools for teachers
-2025-09-21 01:00:45 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (4/29): ai writer
-2025-09-21 01:00:48 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (5/29): ai writers
-2025-09-21 01:00:51 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (6/29): ai assistant for stock trading
-2025-09-21 01:00:54 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (7/29): chatbot builder
-2025-09-21 01:00:57 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (8/29): chatbot builder tutorial
-2025-09-21 01:01:00 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (9/29): workflow automation
-2025-09-21 01:01:04 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (10/29): workflow automation tool
-2025-09-21 01:01:08 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (11/29): workflow automation examples
-2025-09-21 01:01:12 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (12/29): workflow automation go high level
-2025-09-21 01:01:15 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (13/29): workflow automation tutorial
-2025-09-21 01:01:18 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (14/29): workflow automation software
-2025-09-21 01:01:21 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (15/29): workflow automation microsoft
-2025-09-21 01:01:25 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (16/29): workflow automation free
-2025-09-21 01:01:27 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (17/29): workflow automation open source
-2025-09-21 01:01:30 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (18/29): workflow automation make
-2025-09-21 01:01:34 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (19/29): workflow automation hubspot
-2025-09-21 01:01:37 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (20/29): chatgpt 4
-2025-09-21 01:01:40 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (21/29): chatgpt agent
-2025-09-21 01:01:41 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⏱️ SERP API 频率限制，等待 0.30 秒
-🔍 分析关键词 (22/29): ai toolkit for vs code
-2025-09-21 01:01:43 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⏱️ SERP API 频率限制，等待 1.61 秒
-🔍 分析关键词 (23/29): ai writer 使 方
-2025-09-21 01:01:47 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⏱️ SERP API 频率限制，等待 0.37 秒
-🔍 分析关键词 (24/29): machine learning platform examples
-2025-09-21 01:01:50 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⏱️ SERP API 频率限制，等待 0.48 秒
-🔍 分析关键词 (25/29): chatbot builder for whatsapp
-2025-09-21 01:01:55 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (26/29): workflow automation datadog
-2025-09-21 01:01:57 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (27/29): workflow automation zscaler
-2025-09-21 01:02:01 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (28/29): workflow automation zoom
-2025-09-21 01:02:04 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-🔍 分析关键词 (29/29): workflow automation business
-2025-09-21 01:02:06 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⏱️ SERP API 频率限制，等待 1.44 秒
+✅ 成功读取 2 条关键词数据
+🔍 分析关键词 (1/2): bypassnro cmd
+2025-09-24 17:52:37 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=bypassnro+cmd&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=bypassnro+cmd&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=bypassnro+cmd&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+ℹ️ SERP API 不可用，回退到 Google Custom Search API
+Google API 搜索失败: 400 Client Error: Bad Request for url: https://www.googleapis.com/customsearch/v1?key=mock_api_key_for_testing&cx=mock_cse_id_for_testing&q=bypassnro+cmd&num=10
+🔍 分析关键词 (2/2): by ai
+2025-09-24 17:53:06 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=by+ai&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=by+ai&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=by+ai&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+ℹ️ SERP API 不可用，回退到 Google Custom Search API
+Google API 搜索失败: HTTPSConnectionPool(host='www.googleapis.com', port=443): Max retries exceeded with url: /customsearch/v1?key=mock_api_key_for_testing&cx=mock_cse_id_for_testing&q=by+ai&num=10 (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1018)')))
 🔍 正在进行新词检测...
-2025-09-21 01:02:12 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:02:12 - root - INFO -    关键词: ['ai tools for business']
-2025-09-21 01:02:12 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:02:12 - root - INFO -    地理位置:
-2025-09-21 01:02:12 - src.collectors.request_rate_limiter - INFO - 🚦 初始化请求频率控制器: 最小间隔5.0秒, 每分钟最多8次请求
-2025-09-21 01:02:12 - src.collectors.request_rate_limiter - INFO - 🆕 创建全局请求频率控制器
-2025-09-21 01:02:18 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:02:19 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:02:19 - root - INFO -    关键词: ['ai toolkit for visual studio code']
-2025-09-21 01:02:19 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:02:19 - root - INFO -    地理位置:
-2025-09-21 01:02:28 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:02:29 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:02:29 - root - INFO -    关键词: ['ai tools for teachers']
-2025-09-21 01:02:29 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:02:29 - root - INFO -    地理位置:
-2025-09-21 01:02:38 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:02:39 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:02:39 - root - INFO -    关键词: ['ai writer']
-2025-09-21 01:02:39 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:02:39 - root - INFO -    地理位置:
-2025-09-21 01:02:48 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:02:49 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:02:49 - root - INFO -    关键词: ['ai writers']
-2025-09-21 01:02:49 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:02:49 - root - INFO -    地理位置:
-2025-09-21 01:02:49 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 23.6 秒
-2025-09-21 01:03:12 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.7 秒
-2025-09-21 01:03:18 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:03:19 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:03:19 - root - INFO -    关键词: ['ai assistant for stock trading']
-2025-09-21 01:03:19 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:03:19 - root - INFO -    地理位置:
-2025-09-21 01:03:19 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 3.6 秒
-2025-09-21 01:03:23 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.6 秒
-2025-09-21 01:03:28 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:03:29 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:03:29 - root - INFO -    关键词: ['chatbot builder']
-2025-09-21 01:03:29 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:03:29 - root - INFO -    地理位置:
-2025-09-21 01:03:29 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 3.5 秒
-2025-09-21 01:03:32 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.7 秒
-2025-09-21 01:03:38 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:03:39 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:03:39 - root - INFO -    关键词: ['chatbot builder tutorial']
-2025-09-21 01:03:39 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:03:39 - root - INFO -    地理位置:
-2025-09-21 01:03:39 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 3.4 秒
-2025-09-21 01:03:42 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.7 秒
-2025-09-21 01:03:48 - root - WARNING - 未获取到关键词 ['chatbot builder tutorial'] 的 Google Trends 数据
-2025-09-21 01:03:48 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatbot builder tutorial'] 的 Google Trends 数据
-2025-09-21 01:03:48 - root - ERROR -    请求参数: keywords=['chatbot builder tutorial'], timeframe=today 12-m, geo=
-2025-09-21 01:03:48 - root - WARNING - 获取 chatbot builder tutorial (today 12-m) 趋势数据失败，第 1 次尝试: 未获取到关键词 ['chatbot builder tutorial'] 的 Google Trends 数据
-2025-09-21 01:03:51 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:03:51 - root - INFO -    关键词: ['chatbot builder tutorial']
-2025-09-21 01:03:51 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:03:51 - root - INFO -    地理位置:
-2025-09-21 01:03:51 - root - WARNING - 未获取到关键词 ['chatbot builder tutorial'] 的 Google Trends 数据
-2025-09-21 01:03:51 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatbot builder tutorial'] 的 Google Trends 数据
-2025-09-21 01:03:51 - root - ERROR -    请求参数: keywords=['chatbot builder tutorial'], timeframe=today 12-m, geo=
-2025-09-21 01:03:51 - root - WARNING - 获取 chatbot builder tutorial (today 12-m) 趋势数据失败，第 2 次尝试: 未获取到关键词 ['chatbot builder tutorial'] 的 Google Trends 数据
-2025-09-21 01:03:55 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:03:55 - root - INFO -    关键词: ['chatbot builder tutorial']
-2025-09-21 01:03:55 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:03:55 - root - INFO -    地理位置:
-2025-09-21 01:03:55 - root - WARNING - 未获取到关键词 ['chatbot builder tutorial'] 的 Google Trends 数据
-2025-09-21 01:03:55 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatbot builder tutorial'] 的 Google Trends 数据
-2025-09-21 01:03:55 - root - ERROR -    请求参数: keywords=['chatbot builder tutorial'], timeframe=today 12-m, geo=
-2025-09-21 01:03:55 - root - WARNING - 获取 chatbot builder tutorial (today 12-m) 趋势数据失败，第 3 次尝试: 未获取到关键词 ['chatbot builder tutorial'] 的 Google Trends 数据
-2025-09-21 01:03:59 - root - WARNING - 多次尝试后仍无法获取 chatbot builder tutorial (today 12-m) 数据: 未获取到关键词 ['chatbot builder tutorial'] 的 Google Trends 数据
-2025-09-21 01:04:00 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:04:00 - root - INFO -    关键词: ['chatbot builder tutorial']
-2025-09-21 01:04:00 - root - INFO -    时间范围: today 3-m
-2025-09-21 01:04:00 - root - INFO -    地理位置:
-2025-09-21 01:04:00 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 12.7 秒
-2025-09-21 01:04:13 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.7 秒
-2025-09-21 01:04:18 - root - WARNING - 未获取到关键词 ['chatbot builder tutorial'] 的 Google Trends 数据
-2025-09-21 01:04:18 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatbot builder tutorial'] 的 Google Trends 数据
-2025-09-21 01:04:18 - root - ERROR -    请求参数: keywords=['chatbot builder tutorial'], timeframe=today 3-m, geo=
-2025-09-21 01:04:18 - root - WARNING - 获取 chatbot builder tutorial (today 3-m) 趋势数据失败，第 1 次尝试: 未获取到关键词 ['chatbot builder tutorial'] 的 Google Trends 数据
-2025-09-21 01:04:21 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:04:21 - root - INFO -    关键词: ['chatbot builder tutorial']
-2025-09-21 01:04:21 - root - INFO -    时间范围: today 3-m
-2025-09-21 01:04:21 - root - INFO -    地理位置:
-2025-09-21 01:04:21 - root - WARNING - 未获取到关键词 ['chatbot builder tutorial'] 的 Google Trends 数据
-2025-09-21 01:04:21 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatbot builder tutorial'] 的 Google Trends 数据
-2025-09-21 01:04:21 - root - ERROR -    请求参数: keywords=['chatbot builder tutorial'], timeframe=today 3-m, geo=
-2025-09-21 01:04:21 - root - WARNING - 获取 chatbot builder tutorial (today 3-m) 趋势数据失败，第 2 次尝试: 未获取到关键词 ['chatbot builder tutorial'] 的 Google Trends 数据
-2025-09-21 01:04:25 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:04:25 - root - INFO -    关键词: ['chatbot builder tutorial']
-2025-09-21 01:04:25 - root - INFO -    时间范围: today 3-m
-2025-09-21 01:04:25 - root - INFO -    地理位置:
-2025-09-21 01:04:25 - root - WARNING - 未获取到关键词 ['chatbot builder tutorial'] 的 Google Trends 数据
-2025-09-21 01:04:25 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatbot builder tutorial'] 的 Google Trends 数据
-2025-09-21 01:04:25 - root - ERROR -    请求参数: keywords=['chatbot builder tutorial'], timeframe=today 3-m, geo=
-2025-09-21 01:04:25 - root - WARNING - 获取 chatbot builder tutorial (today 3-m) 趋势数据失败，第 3 次尝试: 未获取到关键词 ['chatbot builder tutorial'] 的 Google Trends 数据
-2025-09-21 01:04:29 - root - WARNING - 多次尝试后仍无法获取 chatbot builder tutorial (today 3-m) 数据: 未获取到关键词 ['chatbot builder tutorial'] 的 Google Trends 数据
-2025-09-21 01:04:29 - root - ERROR - 无法获取 chatbot builder tutorial 的趋势数据：Trends 接口返回空结果
-2025-09-21 01:04:29 - root - WARNING - 获取 chatbot builder tutorial 趋势数据失败: 无法获取 chatbot builder tutorial 的趋势数据：Trends 接口返回空结果
-2025-09-21 01:04:30 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:04:30 - root - INFO -    关键词: ['workflow automation']
-2025-09-21 01:04:30 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:04:30 - root - INFO -    地理位置:
-2025-09-21 01:04:35 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:04:36 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:04:36 - root - INFO -    关键词: ['workflow automation tool']
-2025-09-21 01:04:36 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:04:36 - root - INFO -    地理位置:
-2025-09-21 01:04:46 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:04:47 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:04:47 - root - INFO -    关键词: ['workflow automation examples']
-2025-09-21 01:04:47 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:04:47 - root - INFO -    地理位置:
-2025-09-21 01:04:56 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:04:57 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:04:57 - root - INFO -    关键词: ['workflow automation go high level']
-2025-09-21 01:04:57 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:04:57 - root - INFO -    地理位置:
-2025-09-21 01:04:57 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 15.3 秒
-2025-09-21 01:05:13 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.6 秒
-2025-09-21 01:05:18 - root - WARNING - 未获取到关键词 ['workflow automation go high level'] 的 Google Trends 数据
-2025-09-21 01:05:18 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['workflow automation go high level'] 的 Google Trends 数据
-2025-09-21 01:05:18 - root - ERROR -    请求参数: keywords=['workflow automation go high level'], timeframe=today 12-m, geo=
-2025-09-21 01:05:18 - root - WARNING - 获取 workflow automation go high level (today 12-m) 趋势数据失败，第 1 次尝试: 未获取到关键词 ['workflow automation go high level'] 的 Google Trends 数据
-2025-09-21 01:05:21 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:05:21 - root - INFO -    关键词: ['workflow automation go high level']
-2025-09-21 01:05:21 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:05:21 - root - INFO -    地理位置:
-2025-09-21 01:05:21 - root - WARNING - 未获取到关键词 ['workflow automation go high level'] 的 Google Trends 数据
-2025-09-21 01:05:21 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['workflow automation go high level'] 的 Google Trends 数据
-2025-09-21 01:05:21 - root - ERROR -    请求参数: keywords=['workflow automation go high level'], timeframe=today 12-m, geo=
-2025-09-21 01:05:21 - root - WARNING - 获取 workflow automation go high level (today 12-m) 趋势数据失败，第 2 次尝试: 未获取到关键词 ['workflow automation go high level'] 的 Google Trends 数据
-2025-09-21 01:05:26 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:05:26 - root - INFO -    关键词: ['workflow automation go high level']
-2025-09-21 01:05:26 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:05:26 - root - INFO -    地理位置:
-2025-09-21 01:05:26 - root - WARNING - 未获取到关键词 ['workflow automation go high level'] 的 Google Trends 数据
-2025-09-21 01:05:26 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['workflow automation go high level'] 的 Google Trends 数据
-2025-09-21 01:05:26 - root - ERROR -    请求参数: keywords=['workflow automation go high level'], timeframe=today 12-m, geo=
-2025-09-21 01:05:26 - root - WARNING - 获取 workflow automation go high level (today 12-m) 趋势数据失败，第 3 次尝试: 未获取到关键词 ['workflow automation go high level'] 的 Google Trends 数据
-2025-09-21 01:05:29 - root - WARNING - 多次尝试后仍无法获取 workflow automation go high level (today 12-m) 数据: 未获取到关键词 ['workflow automation go high level'] 的 Google Trends 数据
-2025-09-21 01:05:30 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:05:30 - root - INFO -    关键词: ['workflow automation go high level']
-2025-09-21 01:05:30 - root - INFO -    时间范围: today 3-m
-2025-09-21 01:05:30 - root - INFO -    地理位置:
-2025-09-21 01:05:30 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 0.1 秒
-2025-09-21 01:05:30 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.5 秒
-2025-09-21 01:05:36 - root - WARNING - 未获取到关键词 ['workflow automation go high level'] 的 Google Trends 数据
-2025-09-21 01:05:36 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['workflow automation go high level'] 的 Google Trends 数据
-2025-09-21 01:05:36 - root - ERROR -    请求参数: keywords=['workflow automation go high level'], timeframe=today 3-m, geo=
-2025-09-21 01:05:36 - root - WARNING - 获取 workflow automation go high level (today 3-m) 趋势数据失败，第 1 次尝试: 未获取到关键词 ['workflow automation go high level'] 的 Google Trends 数据
-2025-09-21 01:05:39 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:05:39 - root - INFO -    关键词: ['workflow automation go high level']
-2025-09-21 01:05:39 - root - INFO -    时间范围: today 3-m
-2025-09-21 01:05:39 - root - INFO -    地理位置:
-2025-09-21 01:05:39 - root - WARNING - 未获取到关键词 ['workflow automation go high level'] 的 Google Trends 数据
-2025-09-21 01:05:39 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['workflow automation go high level'] 的 Google Trends 数据
-2025-09-21 01:05:39 - root - ERROR -    请求参数: keywords=['workflow automation go high level'], timeframe=today 3-m, geo=
-2025-09-21 01:05:39 - root - WARNING - 获取 workflow automation go high level (today 3-m) 趋势数据失败，第 2 次尝试: 未获取到关键词 ['workflow automation go high level'] 的 Google Trends 数据
-2025-09-21 01:05:43 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:05:43 - root - INFO -    关键词: ['workflow automation go high level']
-2025-09-21 01:05:43 - root - INFO -    时间范围: today 3-m
-2025-09-21 01:05:43 - root - INFO -    地理位置:
-2025-09-21 01:05:43 - root - WARNING - 未获取到关键词 ['workflow automation go high level'] 的 Google Trends 数据
-2025-09-21 01:05:43 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['workflow automation go high level'] 的 Google Trends 数据
-2025-09-21 01:05:43 - root - ERROR -    请求参数: keywords=['workflow automation go high level'], timeframe=today 3-m, geo=
-2025-09-21 01:05:43 - root - WARNING - 获取 workflow automation go high level (today 3-m) 趋势数据失败，第 3 次尝试: 未获取到关键词 ['workflow automation go high level'] 的 Google Trends 数据
-2025-09-21 01:05:47 - root - WARNING - 多次尝试后仍无法获取 workflow automation go high level (today 3-m) 数据: 未获取到关键词 ['workflow automation go high level'] 的 Google Trends 数据
-2025-09-21 01:05:47 - root - ERROR - 无法获取 workflow automation go high level 的趋势数据：Trends 接口返回空结果
-2025-09-21 01:05:47 - root - WARNING - 获取 workflow automation go high level 趋势数据失败: 无法获取 workflow automation go high level 的趋势数据：Trends 接口返回空结果
-2025-09-21 01:05:48 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:05:48 - root - INFO -    关键词: ['workflow automation tutorial']
-2025-09-21 01:05:48 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:05:48 - root - INFO -    地理位置:
-2025-09-21 01:05:53 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:05:54 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:05:54 - root - INFO -    关键词: ['workflow automation software']
-2025-09-21 01:05:54 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:05:54 - root - INFO -    地理位置:
-2025-09-21 01:06:03 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:06:04 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:06:04 - root - INFO -    关键词: ['workflow automation microsoft']
-2025-09-21 01:06:04 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:06:04 - root - INFO -    地理位置:
-2025-09-21 01:06:04 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 7.8 秒
-2025-09-21 01:06:13 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.6 秒
-2025-09-21 01:06:18 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:06:19 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:06:19 - root - INFO -    关键词: ['workflow automation free']
-2025-09-21 01:06:19 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:06:19 - root - INFO -    地理位置:
-2025-09-21 01:06:19 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 11.1 秒
-2025-09-21 01:06:30 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.4 秒
-2025-09-21 01:06:35 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:06:36 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:06:36 - root - INFO -    关键词: ['workflow automation open source']
-2025-09-21 01:06:36 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:06:36 - root - INFO -    地理位置:
-2025-09-21 01:06:36 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 11.6 秒
-2025-09-21 01:06:49 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.2 秒
-2025-09-21 01:06:54 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:06:55 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:06:55 - root - INFO -    关键词: ['workflow automation make']
-2025-09-21 01:06:55 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:06:55 - root - INFO -    地理位置:
-2025-09-21 01:06:55 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 3.3 秒
-2025-09-21 01:06:58 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.7 秒
-2025-09-21 01:07:03 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:07:05 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:07:05 - root - INFO -    关键词: ['workflow automation hubspot']
-2025-09-21 01:07:05 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:07:05 - root - INFO -    地理位置:
-2025-09-21 01:07:05 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 7.6 秒
-2025-09-21 01:07:13 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.5 秒
-2025-09-21 01:07:18 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:07:19 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:07:19 - root - INFO -    关键词: ['chatgpt 4']
-2025-09-21 01:07:19 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:07:19 - root - INFO -    地理位置:
-2025-09-21 01:07:19 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 11.2 秒
-2025-09-21 01:07:30 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.5 秒
-2025-09-21 01:07:35 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:07:36 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:07:36 - root - INFO -    关键词: ['chatgpt agent']
-2025-09-21 01:07:36 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:07:36 - root - INFO -    地理位置:
-2025-09-21 01:07:36 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 11.6 秒
-2025-09-21 01:07:49 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.3 秒
-2025-09-21 01:07:53 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:07:54 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:07:54 - root - INFO -    关键词: ['ai toolkit for vs code']
-2025-09-21 01:07:54 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:07:54 - root - INFO -    地理位置:
-2025-09-21 01:07:54 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 3.4 秒
-2025-09-21 01:07:58 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.4 秒
-2025-09-21 01:08:03 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:08:04 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:08:04 - root - INFO -    关键词: ['ai writer 使 方']
-2025-09-21 01:08:04 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:08:04 - root - INFO -    地理位置:
-2025-09-21 01:08:04 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 7.8 秒
-2025-09-21 01:08:13 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.5 秒
-2025-09-21 01:08:18 - root - WARNING - 未获取到关键词 ['ai writer 使 方'] 的 Google Trends 数据
-2025-09-21 01:08:18 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['ai writer 使 方'] 的 Google Trends 数据
-2025-09-21 01:08:18 - root - ERROR -    请求参数: keywords=['ai writer 使 方'], timeframe=today 12-m, geo=
-2025-09-21 01:08:18 - root - WARNING - 获取 ai writer 使 方 (today 12-m) 趋势数据失败，第 1 次尝试: 未获取到关键词 ['ai writer 使 方'] 的 Google Trends 数据
-2025-09-21 01:08:21 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:08:21 - root - INFO -    关键词: ['ai writer 使 方']
-2025-09-21 01:08:21 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:08:21 - root - INFO -    地理位置:
-2025-09-21 01:08:21 - root - WARNING - 未获取到关键词 ['ai writer 使 方'] 的 Google Trends 数据
-2025-09-21 01:08:21 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['ai writer 使 方'] 的 Google Trends 数据
-2025-09-21 01:08:21 - root - ERROR -    请求参数: keywords=['ai writer 使 方'], timeframe=today 12-m, geo=
-2025-09-21 01:08:21 - root - WARNING - 获取 ai writer 使 方 (today 12-m) 趋势数据失败，第 2 次尝试: 未获取到关键词 ['ai writer 使 方'] 的 Google Trends 数据
-2025-09-21 01:08:26 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:08:26 - root - INFO -    关键词: ['ai writer 使 方']
-2025-09-21 01:08:26 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:08:26 - root - INFO -    地理位置:
-2025-09-21 01:08:26 - root - WARNING - 未获取到关键词 ['ai writer 使 方'] 的 Google Trends 数据
-2025-09-21 01:08:26 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['ai writer 使 方'] 的 Google Trends 数据
-2025-09-21 01:08:26 - root - ERROR -    请求参数: keywords=['ai writer 使 方'], timeframe=today 12-m, geo=
-2025-09-21 01:08:26 - root - WARNING - 获取 ai writer 使 方 (today 12-m) 趋势数据失败，第 3 次尝试: 未获取到关键词 ['ai writer 使 方'] 的 Google Trends 数据
-2025-09-21 01:08:29 - root - WARNING - 多次尝试后仍无法获取 ai writer 使 方 (today 12-m) 数据: 未获取到关键词 ['ai writer 使 方'] 的 Google Trends 数据
-2025-09-21 01:08:30 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:08:30 - root - INFO -    关键词: ['ai writer 使 方']
-2025-09-21 01:08:30 - root - INFO -    时间范围: today 3-m
-2025-09-21 01:08:30 - root - INFO -    地理位置:
-2025-09-21 01:08:30 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 0.1 秒
-2025-09-21 01:08:31 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.3 秒
-2025-09-21 01:08:35 - root - WARNING - 未获取到关键词 ['ai writer 使 方'] 的 Google Trends 数据
-2025-09-21 01:08:35 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['ai writer 使 方'] 的 Google Trends 数据
-2025-09-21 01:08:35 - root - ERROR -    请求参数: keywords=['ai writer 使 方'], timeframe=today 3-m, geo=
-2025-09-21 01:08:35 - root - WARNING - 获取 ai writer 使 方 (today 3-m) 趋势数据失败，第 1 次尝试: 未获取到关键词 ['ai writer 使 方'] 的 Google Trends 数据
-2025-09-21 01:08:38 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:08:38 - root - INFO -    关键词: ['ai writer 使 方']
-2025-09-21 01:08:38 - root - INFO -    时间范围: today 3-m
-2025-09-21 01:08:38 - root - INFO -    地理位置:
-2025-09-21 01:08:38 - root - WARNING - 未获取到关键词 ['ai writer 使 方'] 的 Google Trends 数据
-2025-09-21 01:08:38 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['ai writer 使 方'] 的 Google Trends 数据
-2025-09-21 01:08:38 - root - ERROR -    请求参数: keywords=['ai writer 使 方'], timeframe=today 3-m, geo=
-2025-09-21 01:08:38 - root - WARNING - 获取 ai writer 使 方 (today 3-m) 趋势数据失败，第 2 次尝试: 未获取到关键词 ['ai writer 使 方'] 的 Google Trends 数据
-2025-09-21 01:08:43 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:08:43 - root - INFO -    关键词: ['ai writer 使 方']
-2025-09-21 01:08:43 - root - INFO -    时间范围: today 3-m
-2025-09-21 01:08:43 - root - INFO -    地理位置:
-2025-09-21 01:08:43 - root - WARNING - 未获取到关键词 ['ai writer 使 方'] 的 Google Trends 数据
-2025-09-21 01:08:43 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['ai writer 使 方'] 的 Google Trends 数据
-2025-09-21 01:08:43 - root - ERROR -    请求参数: keywords=['ai writer 使 方'], timeframe=today 3-m, geo=
-2025-09-21 01:08:43 - root - WARNING - 获取 ai writer 使 方 (today 3-m) 趋势数据失败，第 3 次尝试: 未获取到关键词 ['ai writer 使 方'] 的 Google Trends 数据
-2025-09-21 01:08:47 - root - WARNING - 多次尝试后仍无法获取 ai writer 使 方 (today 3-m) 数据: 未获取到关键词 ['ai writer 使 方'] 的 Google Trends 数据
-2025-09-21 01:08:47 - root - ERROR - 无法获取 ai writer 使 方 的趋势数据：Trends 接口返回空结果
-2025-09-21 01:08:47 - root - WARNING - 获取 ai writer 使 方 趋势数据失败: 无法获取 ai writer 使 方 的趋势数据：Trends 接口返回空结果
-2025-09-21 01:08:48 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:08:48 - root - INFO -    关键词: ['machine learning platform examples']
-2025-09-21 01:08:48 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:08:48 - root - INFO -    地理位置:
-2025-09-21 01:08:48 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 0.3 秒
-2025-09-21 01:08:49 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.3 秒
-2025-09-21 01:08:53 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:08:54 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:08:54 - root - INFO -    关键词: ['chatbot builder for whatsapp']
-2025-09-21 01:08:54 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:08:54 - root - INFO -    地理位置:
-2025-09-21 01:08:54 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 3.5 秒
-2025-09-21 01:08:58 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.5 秒
-2025-09-21 01:09:03 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:09:04 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:09:04 - root - INFO -    关键词: ['workflow automation datadog']
-2025-09-21 01:09:04 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:09:04 - root - INFO -    地理位置:
-2025-09-21 01:09:04 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 7.7 秒
-2025-09-21 01:09:13 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.7 秒
-2025-09-21 01:09:18 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:09:19 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:09:19 - root - INFO -    关键词: ['workflow automation zscaler']
-2025-09-21 01:09:19 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:09:19 - root - INFO -    地理位置:
-2025-09-21 01:09:19 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 11.1 秒
-2025-09-21 01:09:31 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.3 秒
-2025-09-21 01:09:35 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:09:37 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:09:37 - root - INFO -    关键词: ['workflow automation zoom']
-2025-09-21 01:09:37 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:09:37 - root - INFO -    地理位置:
-2025-09-21 01:09:37 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 11.3 秒
-2025-09-21 01:09:49 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.2 秒
-2025-09-21 01:09:53 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-21 01:09:54 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-21 01:09:54 - root - INFO -    关键词: ['workflow automation business']
-2025-09-21 01:09:54 - root - INFO -    时间范围: today 12-m
-2025-09-21 01:09:54 - root - INFO -    地理位置:
-2025-09-21 01:09:54 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 3.6 秒
-2025-09-21 01:09:58 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.6 秒
-2025-09-21 01:10:04 - root - INFO - ✅ 成功获取到 53 条趋势数据
-✅ 新词检测完成: 发现 0 个新词 (0 个高置信度)
+2025-09-24 17:53:34 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-24 17:53:34 - root - INFO -    关键词: ['bypassnro cmd']
+2025-09-24 17:53:34 - root - INFO -    时间范围: today 12-m
+2025-09-24 17:53:34 - root - INFO -    地理位置:
+2025-09-24 17:53:39 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-24 17:53:39 - root - WARNING - 获取 bypassnro cmd 趋势数据失败: 'NoneType' object does not support item assignment
+⚠️ 新词检测失败: cannot access local variable 'detection_reasons' where it is not associated with a value
 
 🎉 完整工作流程完成!
-📊 热门关键词分析: 1 个关键词
-🌐 多平台发现: 29 个相关关键词
-🎯 最终分析: 29 个关键词
+📊 热门关键词分析: 7 个关键词
+🌐 多平台发现: 2 个相关关键词
+🎯 最终分析: 2 个关键词
 🏆 总计高机会关键词: 0 个
-📈 平均机会分数: 37.5
+📈 平均机会分数: 30.73
 
 🏆 Top 5 最终机会关键词:
-   1. ai tools for business (分数: 47.76, 意图: I)
-   2. ai toolkit for vs code (分数: 47.0, 意图: C)
-   3. machine learning platform examples (分数: 43.8, 意图: I)
-   4. chatbot builder for whatsapp (分数: 42.98, 意图: I)
-   5. workflow automation business (分数: 42.4, 意图: I)
-[Dashboard] 数据已刷新: /Users/yangqingmang/CursorWorkspace/find_demand/find_demand/output/reports/dashboard_data.json
+   1. bypassnro cmd (分数: 32.25, 意图: I)
+   2. by ai (分数: 29.2, 意图: I)
+[Dashboard] 数据已刷新: D:\VscodeWorkspace\find_demand\output\reports\dashboard_data.json
+(.venv) PS D:\VscodeWorkspace\find_demand>
