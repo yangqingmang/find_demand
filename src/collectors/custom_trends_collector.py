@@ -17,7 +17,7 @@ import hashlib
 logger = logging.getLogger(__name__)
 
 from .google_trends_session import GoogleTrendsSession, get_global_session
-from .request_rate_limiter import wait_for_next_request, get_rate_limiter_stats
+from .request_rate_limiter import wait_for_next_request, get_rate_limiter_stats, register_rate_limit_event
 
 # 类型变量定义
 T = TypeVar('T')
@@ -42,41 +42,72 @@ class TrendsAPIClient:
     # 使用公共session管理，不再需要DEFAULT_HEADERS
     pass
     
-    def __init__(self, hl: str = 'en-US', tz: int = 360, 
-                 timeout: tuple[float, float] = (3, 7), proxies: Optional[Dict[str, str]] = None, 
-                 retries: int = 2, backoff_factor: float = 0.3):
+    def __init__(
+        self,
+        hl: str = 'en-US',
+        tz: int = 360,
+        timeout: tuple[float, float] = (3, 7),
+        proxies: Optional[Dict[str, str]] = None,
+        retries: int = 3,
+        backoff_factor: float = 0.3,
+        initial_retry_delay: float = 8.0,
+        max_retry_backoff: float = 180.0,
+    ):
         """初始化API客户端
-        
+
         Args:
             hl: 语言设置 (默认: 'en-US')
             tz: 时区偏移 (默认: 360)
             timeout: 请求超时设置，格式为 (连接超时秒数, 读取超时秒数)
             proxies: 代理设置
             retries: 请求失败时的重试次数
-            backoff_factor: 重试间隔的退避因子
+            backoff_factor: 重试间隔的退避因子（用于网络异常）
+            initial_retry_delay: 指数退避的初始等待秒数
+            max_retry_backoff: 指数退避的最大等待上限
         """
         self.hl = hl
         self.tz = tz
         self.timeout = timeout  # (connect_timeout, read_timeout)
         self.proxies = proxies
-        self.retries = retries
-        self.backoff_factor = backoff_factor
+        self.retries = max(int(retries), 0)
+        self.backoff_factor = max(float(backoff_factor), 0.1)
+        self.initial_retry_delay = max(float(initial_retry_delay), 3.0)
+        self.max_retry_backoff = max(float(max_retry_backoff), self.initial_retry_delay)
         self.initialized = False
-        
+        self._retry_multiplier = 2.0
+        self._retry_jitter = (0.75, 1.25)
+
         # 会话管理 - 使用全局session避免重复初始化
         from .google_trends_session import get_global_session
         self.trends_session = get_global_session()
         self.session = self.trends_session.get_session()
-        
+
         # 简单的内存缓存
         self._cache: Dict[str, Any] = {}
+
     
     # _init_session 方法已移至 GoogleTrendsSession 类中统一管理
     
-    def _get_data(self, url: str, method: str = 'get', trim_chars: int = 0, 
-                  use_cache: bool = True, **kwargs) -> Union[dict[Any, Any], None, Any]:
+    def _calculate_retry_delay(self, attempt: int, base_delay: Optional[float] = None) -> float:
+        """计算指数退避等待时间"""
+        if attempt <= 0:
+            return 0.0
+        base = max(base_delay if base_delay is not None else self.initial_retry_delay, 0.5)
+        delay = base * (self._retry_multiplier ** (attempt - 1))
+        jitter_min, jitter_max = self._retry_jitter
+        jitter = random.uniform(jitter_min, jitter_max)
+        return min(delay * jitter, self.max_retry_backoff)
+
+
+    def _get_data(
+        self,
+        url: str,
+        method: str = 'get',
+        trim_chars: int = 0,
+        use_cache: bool = True,
+        **kwargs,
+    ) -> Union[dict[Any, Any], None, Any]:
         """发送请求获取数据"""
-        # 生成缓存键
         cache_key = None
         if use_cache:
             cache_data = {
@@ -88,94 +119,98 @@ class TrendsAPIClient:
             if cache_key in self._cache:
                 logger.debug(f"使用缓存数据: {url}")
                 return self._cache[cache_key]
-        
-        # 使用全局请求频率控制器
-        logger.debug(f"📊 请求前统计: {get_rate_limiter_stats()}")
-        wait_for_next_request()
-        
-        # 直接发送请求，无锁
-        s = self.session
-        s.headers.update({'accept-language': self.hl})
-        
-        if self.proxies:
-            s.proxies.update(self.proxies)
-        
+
         for attempt in range(self.retries + 1):
+            if attempt > 0:
+                backoff_delay = self._calculate_retry_delay(attempt)
+                logger.debug(f"⏳ 第{attempt}次重试指数退避 {backoff_delay:.1f} 秒")
+                time.sleep(backoff_delay)
+
             try:
-                # 添加随机延迟避免429错误
-                if attempt > 0:
-                    delay = random.uniform(5, 10) + (attempt * 3)
-                    time.sleep(delay)
-                
-                # 使用GoogleTrendsSession的make_request方法，支持代理
-                response = self.trends_session.make_request(method.upper(), url, timeout=self.timeout, **kwargs)
-                
-                # 特殊处理429错误 - 增强等待时间并重置Session
-                if response.status_code == 429:
-                    if attempt < self.retries:
-                        logger.warning(f"⚠️ 遇到429错误，第{attempt + 1}次重试")
-                        logger.warning(f"🔗 请求URL: {url}")
-                        
-                        # 重置Session和频率控制器
-                        try:
-                            from .google_trends_session import reset_global_session
-                            from .request_rate_limiter import reset_global_rate_limiter
-                            
-                            logger.info("🔄 重置Session和频率控制器...")
-                            reset_global_session()
-                            reset_global_rate_limiter()
-                            
-                            # 重新获取Session
-                            self.trends_session = get_global_session()
-                            self.session = self.trends_session.get_session()
-                            
-                        except Exception as reset_error:
-                            logger.error(f"❌ 重置Session失败: {reset_error}")
-                        
-                        # 增加更长的等待时间
-                        base_wait = 30 + (attempt * 30)  # 基础等待时间增加到30秒
-                        random_wait = random.uniform(15, 30)  # 随机等待时间15-30秒
-                        wait_time = base_wait + random_wait
-                        
-                        logger.warning(f"⏳ 等待{wait_time:.1f}秒后重试...")
-                        time.sleep(wait_time)
-                        continue
-                    else:
-                        logger.error("❌ 多次遇到429错误，请求失败")
-                        logger.error("💡 建议：1) 减少并发请求 2) 增加请求间隔 3) 检查代理设置 4) 稍后再试")
-                        return {}
-                
-                response.raise_for_status()
-                
-                # 处理响应数据
-                content = response.text[trim_chars:] if trim_chars > 0 else response.text
-                
-                # 尝试解析JSON
-                try:
-                    result = json.loads(content)
-                    # 缓存结果
-                    if cache_key:
-                        self._cache[cache_key] = result
-                    return result
-                except json.JSONDecodeError:
-                    logger.warning(f"无法解析JSON响应: {content[:100]}...")
-                    return {}
-                    
-            except requests.exceptions.RequestException as e:
+                stats = get_rate_limiter_stats()
+                logger.debug(f"📊 请求前统计: {stats}")
+                wait_for_next_request()
+            except RuntimeError as quota_error:
+                logger.error(f"❌ 请求被配额守卫阻止: {quota_error}")
+                return {}
+            except Exception as limiter_error:
+                logger.warning(f"⚠️ 频率控制器检查失败: {limiter_error}")
+
+            try:
+                self.session = self.trends_session.get_session()
+            except Exception as session_error:
+                logger.error(f"❌ 获取Google Trends session失败: {session_error}")
                 if attempt < self.retries:
-                    # 对于连接中断，增加更长的等待时间
-                    if "Connection aborted" in str(e) or "RemoteDisconnected" in str(e):
-                        wait_time = (self.backoff_factor * (2 ** attempt) + random.uniform(3, 8)) * 2
-                        logger.warning(f"连接中断，等待{wait_time:.1f}秒后重试: {e}")
-                    else:
-                        wait_time = self.backoff_factor * (2 ** attempt) + random.uniform(1, 3)
-                        logger.warning(f"请求失败，等待{wait_time:.1f}秒后重试: {e}")
-                    time.sleep(wait_time)
+                    penalty = register_rate_limit_event('medium')
+                    logger.debug(f"Session恢复，建议额外等待 {penalty:.1f} 秒")
                     continue
-                else:
-                    logger.error(f"请求最终失败: {e}")
-                    return {}
-    
+                return {}
+
+            s = self.session
+            s.headers.update({'accept-language': self.hl})
+            if self.proxies:
+                s.proxies.update(self.proxies)
+
+            try:
+                response = self.trends_session.make_request(
+                    method.upper(),
+                    url,
+                    timeout=self.timeout,
+                    **kwargs
+                )
+            except requests.exceptions.RequestException as request_error:
+                logger.warning(f"请求异常: {request_error}")
+                if attempt < self.retries:
+                    penalty = register_rate_limit_event('medium')
+                    logger.debug(f"请求异常后等待建议 {penalty:.1f} 秒")
+                    continue
+                logger.error(f"请求最终失败: {request_error}")
+                return {}
+
+            if response.status_code == 429:
+                if attempt < self.retries:
+                    logger.warning(f"⚠️ 遇到429错误，第{attempt + 1}次重试")
+                    logger.warning(f"🔗 请求URL: {url}")
+                    penalty = register_rate_limit_event('high')
+                    logger.warning(f"⏳ 节流提示，额外等待 {penalty:.1f} 秒")
+                    try:
+                        from .google_trends_session import reset_global_session
+                        reset_global_session()
+                        self.trends_session = get_global_session()
+                        self.session = self.trends_session.get_session()
+                    except Exception as reset_error:
+                        logger.error(f"❌ 重置Session失败: {reset_error}")
+                    continue
+
+                register_rate_limit_event('high')
+                logger.error("❌ 多次遇到429错误，请求失败")
+                return {}
+
+            try:
+                response.raise_for_status()
+            except requests.exceptions.HTTPError as http_error:
+                logger.warning(f"HTTP错误: {http_error}")
+                if attempt < self.retries:
+                    penalty = register_rate_limit_event('medium')
+                    logger.debug(f"HTTP错误后等待建议 {penalty:.1f} 秒")
+                    continue
+                logger.error(f"请求最终失败: {http_error}")
+                return {}
+
+            content = response.text[trim_chars:] if trim_chars > 0 else response.text
+
+            try:
+                result = json.loads(content)
+                if cache_key:
+                    self._cache[cache_key] = result
+                return result
+            except json.JSONDecodeError:
+                logger.warning(f"无法解析JSON响应: {content[:100]}...")
+                return {}
+
+        return {}
+
+
     def clear_cache(self) -> None:
         """清除请求缓存"""
         self._cache.clear()
@@ -763,3 +798,4 @@ def reset_global_session() -> None:
         _global_session.reset_session()
     else:
         _global_session = GoogleTrendsSession()
+

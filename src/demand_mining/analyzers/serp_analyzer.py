@@ -76,27 +76,54 @@ class SerpAnalyzer:
         # 验证配置
         if hasattr(config, 'validate'):
             config.validate()
-        
+
         # 初始化SERP数据结构化解析器
         self.serp_parser = SerpParser() if SerpParser else None
-        
+
         # API配置
-        self.api_key = config.GOOGLE_API_KEY
-        self.serp_api_key = getattr(config, 'SERP_API_KEY', '')
-        self.cse_id = config.GOOGLE_CSE_ID
+        self.api_key = (config.GOOGLE_API_KEY or '').strip()
+        self.serp_api_key = (getattr(config, 'SERP_API_KEY', '') or '').strip()
+        self.cse_id = (config.GOOGLE_CSE_ID or '').strip()
         self.base_url = "https://www.googleapis.com/customsearch/v1"
         self.serp_api_url = "https://serpapi.com/search"
-        
+
         # 请求配置
         self.request_delay = getattr(config, 'SERP_REQUEST_DELAY', 1)
         self.max_retries = getattr(config, 'SERP_MAX_RETRIES', 3)
-        
+
         # SERP API 直连限速配置
         self.serp_session = self._create_serp_session()
         self.serp_rate_limit_window = 60
         self.serp_max_requests_per_minute = 20
         self.serp_delay_range = (0.5, 1.5)
         self._serp_request_history = deque()
+        self._warned_messages: set[str] = set()
+
+        # 凭证可用性检测
+        self._serp_api_available, self._serp_api_reason = self._evaluate_key(self.serp_api_key, 'SERP API Key')
+        self._google_api_key_available, self._google_api_reason = self._evaluate_key(self.api_key, 'Google API Key')
+        self._google_cse_available, self._google_cse_reason = self._evaluate_key(self.cse_id, 'Google Custom Search Engine ID')
+        self._google_api_available = self._google_api_key_available and self._google_cse_available
+        self.credentials_available = self._serp_api_available or self._google_api_available
+
+        warnings: list[str] = []
+        if not self._serp_api_available and self._serp_api_reason:
+            warnings.append(self._serp_api_reason)
+        if not self._google_api_key_available and self._google_api_reason:
+            warnings.append(self._google_api_reason)
+        if not self._google_cse_available and self._google_cse_reason:
+            warnings.append(self._google_cse_reason)
+        if warnings and not self.credentials_available:
+            warnings.append('SERP 分析将跳过')
+        # 去重同时保留顺序
+        if warnings:
+            ordered = list(dict.fromkeys([w for w in warnings if w]))
+            self.credential_warning = '；'.join(ordered) if ordered else None
+        else:
+            self.credential_warning = None
+
+        self._no_credentials_warned = False
+
         proxy_config = None
         if get_proxy_config:
             try:
@@ -110,32 +137,31 @@ class SerpAnalyzer:
                 self.serp_delay_range = (min_delay, max_delay)
                 self.serp_max_requests_per_minute = domain_config.get('max_requests_per_minute', self.serp_max_requests_per_minute)
             except Exception as e:
-                print(f"警告: 读取代理配置失败: {e}，将使用默认 SERP API 限速")
-        
+                print(f'警告: 读取代理配置失败: {e}，将使用默认 SERP API 限速')
+
         # 代理配置
         self.use_proxy = use_proxy
         if self.use_proxy and proxy_config and not proxy_config.enabled:
-            print("提示: 当前代理配置已禁用代理，SERP 分析器将使用直连模式")
+            print('提示: 当前代理配置已禁用代理，SERP 分析器将使用直连模式')
             self.use_proxy = False
         self.proxy_manager = None
         if self.use_proxy and get_proxy_manager:
             try:
                 self.proxy_manager = get_proxy_manager()
-                print("✅ SERP分析器：代理管理器已启用")
+                print('✅ SERP分析器：代理管理器已启用')
             except Exception as e:
-                print(f"⚠️ SERP分析器：代理管理器初始化失败: {e}，将使用直接请求")
+                print(f'⚠️ SERP分析器：代理管理器初始化失败: {e}，将使用直接请求')
                 self.use_proxy = False
-        
 
         # 缓存配置
         self.cache_enabled = getattr(config, 'SERP_CACHE_ENABLED', True)
         self.cache_duration = getattr(config, 'SERP_CACHE_DURATION', 3600)
-        self.cache_dir = "data/serp_cache"
-        
+        self.cache_dir = 'data/serp_cache'
+
         # 创建缓存目录
         if self.cache_enabled:
             os.makedirs(self.cache_dir, exist_ok=True)
-        
+
         # 域名权重数据库（用于竞争对手分析）
         self.domain_authority_db = {
             'google.com': 100, 'youtube.com': 100, 'facebook.com': 96,
@@ -175,10 +201,10 @@ class SerpAnalyzer:
     def analyze_keyword_serp(self, keyword: str) -> Dict:
         """
         分析单个关键词的SERP特征和意图
-        
+
         参数:
             keyword (str): 关键词
-            
+
         返回:
             Dict: 分析结果
         """
@@ -190,31 +216,44 @@ class SerpAnalyzer:
             'secondary_intent': None,
             'analysis_time': datetime.now().isoformat()
         }
-        
+
         try:
-            # 如果有 SERP API key，使用 SERP API
-            if self.serp_api_key:
+            if not self.credentials_available:
+                warning = self.credential_warning or '未配置 SERP 或 Google Custom Search 凭证，已跳过 SERP 分析'
+                self._warn_once('serp_skipped_no_credentials', f"⚠️ {warning}")
+                result['serp_status'] = 'skipped_no_credentials'
+                result['serp_warning'] = warning
+                return result
+
+            search_result = None
+
+            if self._serp_api_available:
                 search_result = self._search_with_serpapi(keyword)
-            else:
-                # 否则使用 Google Custom Search API
+
+            if not search_result and self._google_api_available:
+                if self._serp_api_available:
+                    self._warn_once('serp_runtime_fallback', 'ℹ️ SERP API 未返回数据，尝试使用 Google Custom Search API')
                 search_result = self._search_with_google_api(keyword)
-            
-            if search_result:
-                # 提取SERP特征
-                features = self._extract_serp_features(search_result)
-                result['serp_features'] = features
-                
-                # 分析意图
-                intent, confidence, secondary = self._analyze_serp_intent(features)
-                result['intent'] = intent
-                result['confidence'] = confidence
-                result['secondary_intent'] = secondary
-                
+
+            if not search_result:
+                print(f"⚠️ 未能获取 {keyword} 的 SERP 数据，返回空结果")
+                return result
+
+            # 提取SERP特征
+            features = self._extract_serp_features(search_result)
+            result['serp_features'] = features
+
+            # 分析意图
+            intent, confidence, secondary = self._analyze_serp_intent(features)
+            result['intent'] = intent
+            result['confidence'] = confidence
+            result['secondary_intent'] = secondary
+
         except Exception as e:
             print(f"SERP分析失败 {keyword}: {e}")
-        
+
         return result
-    
+
     def _respect_serp_rate_limit(self):
         """SERP API 直连限速控制"""
         if self.serp_max_requests_per_minute <= 0:
@@ -236,18 +275,41 @@ class SerpAnalyzer:
         self._serp_request_history.append(time.time())
 
 
+    def _warn_once(self, key: str, message: str) -> None:
+        if not message:
+            return
+        if key in self._warned_messages:
+            return
+        print(message)
+        self._warned_messages.add(key)
+
+    @staticmethod
+    def _evaluate_key(value: Optional[str], label: str) -> Tuple[bool, Optional[str]]:
+        normalized = (value or '').strip()
+        if not normalized:
+            return False, f"{label} 未配置"
+        lowered = normalized.lower()
+        placeholder_prefixes = ('mock', 'your_', 'your-', 'replace', 'todo', 'sample')
+        placeholder_substrings = ('placeholder', 'changeme')
+        if any(lowered.startswith(prefix) for prefix in placeholder_prefixes):
+            return False, f"{label} 使用占位符值"
+        if any(token in lowered for token in placeholder_substrings):
+            return False, f"{label} 使用占位符值"
+        return True, None
+
     def _search_with_serpapi(self, query: str) -> Optional[Dict]:
         """使用 SERP API 搜索"""
+        if not self._serp_api_available:
+            reason = self._serp_api_reason or 'SERP API Key 未配置'
+            self._warn_once('serp_api_unavailable', f"⚠️ {reason}，跳过 SERP API 查询")
+            return None
+
         params = {
             'api_key': self.serp_api_key,
             'q': query,
             'engine': 'google',
             'num': 10
         }
-
-        if not self.serp_api_key:
-            print("⚠️ 未配置 SERP API Key，跳过 SERP API 搜索")
-            return None
 
         last_error = None
 
@@ -267,7 +329,7 @@ class SerpAnalyzer:
                 except Exception as proxy_error:
                     last_error = proxy_error
                     print(f"⚠️ SERP API 代理请求失败({attempt}/{self.max_retries}): {proxy_error}")
-            
+
             # 直接请求：按照配置做限速和随机延迟
             self._respect_serp_rate_limit()
             try:
@@ -290,29 +352,39 @@ class SerpAnalyzer:
             else:
                 print(f"SERP API 搜索失败: {last_error or '未知错误'}")
 
-        if self.api_key and self.cse_id:
-            print("ℹ️ SERP API 不可用，回退到 Google Custom Search API")
+        if self._google_api_available:
+            self._warn_once('serp_api_fallback', 'ℹ️ SERP API 不可用，回退到 Google Custom Search API')
             return self._search_with_google_api(query)
 
         return None
 
     def _search_with_google_api(self, query: str) -> Optional[Dict]:
         """使用 Google Custom Search API 搜索"""
+        if not self._google_api_available:
+            reasons = []
+            if not self._google_api_key_available and self._google_api_reason:
+                reasons.append(self._google_api_reason)
+            if not self._google_cse_available and self._google_cse_reason:
+                reasons.append(self._google_cse_reason)
+            reason_text = '；'.join(reasons) if reasons else 'Google Custom Search API 凭证不可用'
+            self._warn_once('google_api_unavailable', f"⚠️ {reason_text}，跳过 Google Custom Search API 查询")
+            return None
+
         params = {
             'key': self.api_key,
             'cx': self.cse_id,
             'q': query,
             'num': 10
         }
-        
+
         try:
             # 如果启用代理管理器，使用代理发送请求
             if self.use_proxy and self.proxy_manager:
                 try:
                     response = self.proxy_manager.make_request(
-                        self.base_url, 
-                        method='GET', 
-                        params=params, 
+                        self.base_url,
+                        method='GET',
+                        params=params,
                         timeout=30
                     )
                     if response:
@@ -322,7 +394,7 @@ class SerpAnalyzer:
                         print("⚠️ 代理请求失败，尝试直接请求")
                 except Exception as e:
                     print(f"⚠️ 代理请求异常: {e}，尝试直接请求")
-            
+
             # 直接请求（无代理或代理失败时的回退方案）
             response = requests.get(self.base_url, params=params, timeout=30)
             response.raise_for_status()
@@ -330,7 +402,7 @@ class SerpAnalyzer:
         except Exception as e:
             print(f"Google API 搜索失败: {e}")
             return None
-    
+
     def _extract_serp_features(self, search_result: Dict) -> Dict:
         """从搜索结果中提取SERP特征"""
         features = {

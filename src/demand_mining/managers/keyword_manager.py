@@ -214,8 +214,9 @@ class KeywordManager(BaseManager):
                 return None
             try:
                 analyzer = SerpAnalyzer(use_proxy=self.config.get('serp', {}).get('use_proxy', True))
-                if not getattr(analyzer, 'serp_api_key', None) and not getattr(analyzer, 'api_key', None):
-                    print("⚠️ 未检测到SERP相关API Key，跳过SERP信号提取")
+                if not getattr(analyzer, 'credentials_available', True):
+                    warning = getattr(analyzer, 'credential_warning', None) or '未检测到SERP相关API凭证，跳过SERP信号提取'
+                    print(f"⚠️ {warning}")
                     self._serp_analyzer = False
                     return None
                 self._serp_analyzer = analyzer
