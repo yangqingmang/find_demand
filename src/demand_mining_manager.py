@@ -115,9 +115,26 @@ class IntegratedDemandMiningManager:
 
                 # 将新词检测结果合并到分析结果中
                 if 'keywords' in result:
+                    thresholds = getattr(self.new_word_detector, 'thresholds', {}) if hasattr(self.new_word_detector, 'thresholds') else {}
+                    min_recent_threshold = float(thresholds.get('min_recent_volume', 0) or 0.0)
+                    baseline_threshold_raw = float(thresholds.get('low_volume_30d', 0) or 0.0)
+                    historical_threshold_raw = float(thresholds.get('low_volume_90d', baseline_threshold_raw) or baseline_threshold_raw)
+                    recent_threshold = max(min_recent_threshold, 1.0)
+                    baseline_threshold = max(baseline_threshold_raw, recent_threshold) if baseline_threshold_raw else recent_threshold
+                    historical_threshold = max(historical_threshold_raw, baseline_threshold) if historical_threshold_raw else baseline_threshold
+                    volume_summary = {
+                        'total_keywords': len(result['keywords']),
+                        'status_counts': {'sufficient': 0, 'needs_review': 0, 'insufficient': 0, 'not_evaluated': 0},
+                        'insufficient_keywords': [],
+                        'needs_review_keywords': [],
+                        'thresholds': {
+                            'recent_threshold': recent_threshold,
+                            'baseline_threshold': baseline_threshold,
+                            'historical_threshold': historical_threshold
+                        }
+                    }
                     for i, keyword_data in enumerate(result['keywords']):
                         if i < len(new_word_results):
-                            # 添加新词检测信息
                             row = new_word_results.iloc[i]
                             keyword_data['new_word_detection'] = {
                                 'is_new_word': bool(row.get('is_new_word', False)),
@@ -136,14 +153,75 @@ class IntegratedDemandMiningManager:
                                 'avg_7d_delta': float(row.get('avg_7d_delta', 0.0) or 0.0)
                             }
 
-                            # 如果是新词，增加机会分数加成
                             if row.get('is_new_word', False):
                                 original_score = keyword_data.get('opportunity_score', 0)
                                 new_word_bonus = row.get('new_word_score', 0) * 0.1  # 10%加成
                                 keyword_data['opportunity_score'] = min(100, original_score + new_word_bonus)
                                 keyword_data['new_word_bonus'] = new_word_bonus
 
-                # 生成新词检测摘要
+                            avg_7d = float(row.get('avg_7d', 0.0) or 0.0)
+                            avg_30d = float(row.get('avg_30d', 0.0) or 0.0)
+                            avg_90d = float(row.get('avg_90d', 0.0) or 0.0)
+                            avg_12m = float(row.get('avg_12m', 0.0) or 0.0)
+
+                            meets_recent = avg_7d >= recent_threshold if recent_threshold > 0 else avg_7d > 0
+                            meets_baseline = avg_30d >= baseline_threshold if baseline_threshold > 0 else avg_30d > 0
+                            meets_historical = avg_90d >= historical_threshold if historical_threshold > 0 else avg_90d > 0
+
+                            if avg_7d <= 0.0 and avg_30d <= 0.0:
+                                volume_status = 'insufficient'
+                                volume_note = 'recent_trend_zero'
+                            elif not meets_recent and not meets_baseline:
+                                volume_status = 'needs_review'
+                                volume_note = 'below_volume_baseline'
+                            else:
+                                volume_status = 'sufficient'
+                                volume_note = ''
+
+                            volume_info = {
+                                'status': volume_status,
+                                'avg_7d': round(avg_7d, 2),
+                                'avg_30d': round(avg_30d, 2),
+                                'avg_90d': round(avg_90d, 2),
+                                'avg_12m': round(avg_12m, 2),
+                                'meets_recent_threshold': meets_recent,
+                                'meets_baseline_threshold': meets_baseline,
+                                'meets_historical_threshold': meets_historical,
+                                'recent_threshold': recent_threshold,
+                                'baseline_threshold': baseline_threshold,
+                                'historical_threshold': historical_threshold
+                            }
+                            if volume_note:
+                                volume_info['notes'] = volume_note
+
+                            keyword_data['volume_validation'] = volume_info
+                            volume_summary['status_counts'].setdefault(volume_status, 0)
+                            volume_summary['status_counts'][volume_status] += 1
+
+                            if volume_status == 'insufficient':
+                                volume_summary['insufficient_keywords'].append({
+                                    'keyword': keyword_data.get('keyword'),
+                                    'avg_7d': volume_info['avg_7d'],
+                                    'avg_30d': volume_info['avg_30d']
+                                })
+                                print(f"⚠️ 关键词 {keyword_data.get('keyword')} 最近趋势量级几乎为0，建议补充流量验证。")
+                            elif volume_status == 'needs_review':
+                                volume_summary['needs_review_keywords'].append({
+                                    'keyword': keyword_data.get('keyword'),
+                                    'avg_7d': volume_info['avg_7d'],
+                                    'avg_30d': volume_info['avg_30d']
+                                })
+                        else:
+                            keyword_data['volume_validation'] = {
+                                'status': 'not_evaluated',
+                                'notes': 'missing_new_word_detection'
+                            }
+                            volume_summary['status_counts']['not_evaluated'] += 1
+
+                    evaluated_keywords = volume_summary['total_keywords'] - volume_summary['status_counts']['not_evaluated']
+                    volume_summary['evaluated_keywords'] = max(evaluated_keywords, 0)
+                    result['volume_validation_summary'] = volume_summary
+
                 new_words_count = len(new_word_results[new_word_results['is_new_word'] == True])
                 high_confidence_count = len(new_word_results[new_word_results['confidence_level'] == 'high'])
 
