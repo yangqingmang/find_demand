@@ -12,24 +12,24 @@
 
 🔍 关键词管理器初始化完成
 🔍 发现管理器初始化完成
-2025-09-24 17:37:40 - config.proxy_config_loader - INFO - ✅ 加载了 0 个有效代理
-2025-09-24 17:37:40 - config.proxy_config_loader - INFO - ✅ 代理配置加载成功，环境: development
-2025-09-24 17:37:40 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
-2025-09-24 17:37:40 - src.collectors.google_trends_session - INFO - Session初始化成功
-2025-09-24 17:37:40 - src.collectors.google_trends_session - INFO - 🔧 正在初始化Google Trends会话...
-2025-09-24 17:37:53 - src.collectors.google_trends_session - INFO - ✅ Google Trends会话初始化成功
-2025-09-24 17:37:53 - root - INFO - Session初始化成功
-2025-09-24 17:37:53 - src.collectors.trends_singleton - INFO - 🆕 创建新的TrendsCollector实例
-2025-09-24 17:37:53 - src.demand_mining.root_word_trends_analyzer - INFO - TrendsCollector单例获取成功
-2025-09-24 17:37:53 - root - WARNING - 代理管理器不可用，将使用直接请求
-2025-09-24 17:37:53 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
-2025-09-24 17:37:53 - root - INFO - 趋势收集器初始化成功
-2025-09-24 17:37:53 - src.demand_mining.root_word_trends_analyzer - INFO - NewWordDetector单例获取成功
-2025-09-24 17:37:53 - src.demand_mining.core.trends_cache - INFO - 缓存数据库初始化完成
-2025-09-24 17:37:53 - src.demand_mining.core.trends_cache - INFO - 趋势缓存初始化完成，缓存目录: output/reports\trends_cache
+2025-09-25 09:22:42 - config.proxy_config_loader - INFO - ✅ 加载了 0 个有效代理
+2025-09-25 09:22:42 - config.proxy_config_loader - INFO - ✅ 代理配置加载成功，环境: development
+2025-09-25 09:22:42 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
+2025-09-25 09:22:42 - src.collectors.google_trends_session - INFO - Session初始化成功
+2025-09-25 09:22:42 - src.collectors.google_trends_session - INFO - 🔧 正在初始化Google Trends会话...
+2025-09-25 09:22:53 - src.collectors.google_trends_session - INFO - ✅ Google Trends会话初始化成功
+2025-09-25 09:22:53 - root - INFO - Session初始化成功
+2025-09-25 09:22:53 - src.collectors.trends_singleton - INFO - 🆕 创建新的TrendsCollector实例
+2025-09-25 09:22:53 - src.demand_mining.root_word_trends_analyzer - INFO - TrendsCollector单例获取成功
+2025-09-25 09:22:53 - root - WARNING - 代理管理器不可用，将使用直接请求
+2025-09-25 09:22:53 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
+2025-09-25 09:22:53 - root - INFO - 趋势收集器初始化成功
+2025-09-25 09:22:53 - src.demand_mining.root_word_trends_analyzer - INFO - NewWordDetector单例获取成功
+2025-09-25 09:22:53 - src.demand_mining.core.trends_cache - INFO - 缓存数据库初始化完成
+2025-09-25 09:22:53 - src.demand_mining.core.trends_cache - INFO - 趋势缓存初始化完成，缓存目录: output/reports\trends_cache
 📈 趋势管理器初始化完成（已启用缓存）
-2025-09-24 17:37:53 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
-2025-09-24 17:37:53 - root - INFO - 趋势收集器初始化成功
+2025-09-25 09:22:53 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
+2025-09-25 09:22:53 - root - INFO - 趋势收集器初始化成功
 ✅ 新词检测器初始化成功
 🚀 集成需求挖掘管理器初始化完成
 📊 已加载关键词管理器、发现管理器、趋势管理器
@@ -38,148 +38,86 @@
    第一步: 搜索热门关键词 (Google Trends + TrendingKeywords.net)
    第二步: 基于热门关键词进行多平台发现
 🔍 正在获取 Google Trends Rising Queries...
-2025-09-24 17:37:53 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
-2025-09-24 17:37:53 - root - INFO - 📄 原始响应详细: ')]}\'\n{"widgets":[{"r'
-2025-09-24 17:37:53 - root - INFO - 找到JSON开始位置: 5
-2025-09-24 17:37:53 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
-2025-09-24 17:37:53 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
-2025-09-24 17:37:53 - root - INFO - ✅ 成功解析JSON数据
-2025-09-24 17:37:53 - root - INFO - 📊 数据结构: ['widgets', 'keywords', 'timeRanges', 'shareText', 'shouldShowMultiHeatMapMessage']
-2025-09-24 17:37:53 - root - INFO - 🔍 Widget类型: RELATED_TOPICS
-2025-09-24 17:37:53 - root - INFO - 🔍 Widget类型: RELATED_QUERIES
-2025-09-24 17:37:53 - root - INFO - 🎯 找到RELATED_QUERIES token: APP6_UEAAAAAaNUNc3Tt...
-2025-09-24 17:37:53 - root - INFO - 🔍 正在请求related_searches接口...
-2025-09-24 17:37:53 - root - ERROR - API请求异常: 无法从 Google Trends 获取 related searches 数据，且没有可用的备选数据源
-⚠️ Google Trends 获取失败: 无法从 Google Trends 获取 related searches 数据，且没有可用的备选数据源
+2025-09-25 09:22:53 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
+2025-09-25 09:22:54 - root - INFO - 📄 原始响应详细: ')]}\'\n{"widgets":[{"r'
+2025-09-25 09:22:54 - root - INFO - 找到JSON开始位置: 5
+2025-09-25 09:22:54 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
+2025-09-25 09:22:54 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
+2025-09-25 09:22:54 - root - INFO - ✅ 成功解析JSON数据
+2025-09-25 09:22:54 - root - INFO - 📊 数据结构: ['widgets', 'keywords', 'timeRanges', 'shareText', 'shouldShowMultiHeatMapMessage']
+2025-09-25 09:22:54 - root - INFO - 🔍 Widget类型: RELATED_TOPICS
+2025-09-25 09:22:54 - root - INFO - 🔍 Widget类型: RELATED_QUERIES
+2025-09-25 09:22:54 - root - INFO - 🎯 找到RELATED_QUERIES token: APP6_UEAAAAAaNXq8tbE...
+2025-09-25 09:22:54 - root - INFO - 🔍 正在请求related_searches接口...
+2025-09-25 09:22:55 - root - INFO - ✅ 成功获取related searches数据
+2025-09-25 09:22:55 - root - INFO - 📊 Related data结构: ['default']
+2025-09-25 09:22:55 - root - INFO - 🎯 解析到 38 个真实关键词
+✅ Google Trends: 获取到 15 个关键词
 🔍 正在获取 TrendingKeywords.net 数据...
-2025-09-24 17:37:53 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 1 页...
-2025-09-24 17:37:53 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
-2025-09-24 17:37:58 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
-2025-09-24 17:37:58 - src.collectors.trending_keywords_collector - INFO - 第 1 页获取到 18 个关键词
-2025-09-24 17:38:01 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 2 页...
-2025-09-24 17:38:01 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
-2025-09-24 17:38:02 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
-2025-09-24 17:38:02 - src.collectors.trending_keywords_collector - INFO - 第 2 页获取到 18 个关键词
-2025-09-24 17:38:05 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 3 页...
-2025-09-24 17:38:05 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
-2025-09-24 17:38:08 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
-2025-09-24 17:38:08 - src.collectors.trending_keywords_collector - INFO - 第 3 页获取到 18 个关键词
-2025-09-24 17:38:08 - src.collectors.trending_keywords_collector - INFO - 总共获取到 54 个关键词
+2025-09-25 09:22:55 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 1 页...
+2025-09-25 09:22:55 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
+2025-09-25 09:22:57 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
+2025-09-25 09:22:57 - src.collectors.trending_keywords_collector - INFO - 第 1 页获取到 18 个关键词
+2025-09-25 09:22:58 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 2 页...
+2025-09-25 09:22:58 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
+2025-09-25 09:22:59 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
+2025-09-25 09:22:59 - src.collectors.trending_keywords_collector - INFO - 第 2 页获取到 18 个关键词
+2025-09-25 09:23:02 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 3 页...
+2025-09-25 09:23:02 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
+2025-09-25 09:23:02 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
+2025-09-25 09:23:02 - src.collectors.trending_keywords_collector - INFO - 第 3 页获取到 18 个关键词
+2025-09-25 09:23:02 - src.collectors.trending_keywords_collector - INFO - 总共获取到 54 个关键词
 ✅ TrendingKeywords.net: 获取到 1 个关键词
 🔍 正在抓取 RSS 热点...
 ✅ RSS 热点: 获取到 20 个热点词
-2025-09-24 17:38:21 - src.collectors.request_rate_limiter - INFO - 🚦 初始化请求频率控制器: 最小间隔5.0秒, 每分钟最多8次请求
-2025-09-24 17:38:21 - src.collectors.request_rate_limiter - INFO - 🆕 创建全局请求频率控制器
-2025-09-24 17:38:27 - src.collectors.custom_trends_collector - WARNING - ⚠️ 遇到429错误，第1次重试
-2025-09-24 17:38:27 - src.collectors.custom_trends_collector - WARNING - 🔗 请求URL: https://trends.google.com/trends/api/widgetdata/relatedsearches
-2025-09-24 17:38:27 - src.collectors.custom_trends_collector - INFO - 🔄 重置Session和频率控制器...
-2025-09-24 17:38:27 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
-2025-09-24 17:38:27 - src.collectors.google_trends_session - INFO - 全局Session已重置
-2025-09-24 17:38:27 - src.collectors.request_rate_limiter - INFO - 🔄 请求频率控制器已重置
-2025-09-24 17:38:27 - src.collectors.request_rate_limiter - INFO - ♻️ 全局请求频率控制器已重置
-2025-09-24 17:38:27 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
-2025-09-24 17:38:27 - src.collectors.google_trends_session - INFO - 🔧 正在初始化Google Trends会话...
-2025-09-24 17:38:40 - src.collectors.google_trends_session - INFO - ✅ Google Trends会话初始化成功
-2025-09-24 17:38:40 - src.collectors.custom_trends_collector - WARNING - ⏳ 等待52.7秒后重试...
-2025-09-24 17:39:42 - src.collectors.custom_trends_collector - ERROR - ❌ 多次遇到429错误，请求失败
-2025-09-24 17:39:42 - src.collectors.custom_trends_collector - ERROR - 💡 建议：1) 减少并发请求 2) 增加请求间隔 3) 检查代理设置 4) 稍后再试
-2025-09-24 17:39:58 - src.collectors.custom_trends_collector - WARNING - ⚠️ 遇到429错误，第1次重试
-2025-09-24 17:39:58 - src.collectors.custom_trends_collector - WARNING - 🔗 请求URL: https://trends.google.com/trends/api/widgetdata/relatedsearches
-2025-09-24 17:39:58 - src.collectors.custom_trends_collector - INFO - 🔄 重置Session和频率控制器...
-2025-09-24 17:39:58 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
-2025-09-24 17:39:58 - src.collectors.google_trends_session - INFO - 全局Session已重置
-2025-09-24 17:39:58 - src.collectors.request_rate_limiter - INFO - 🔄 请求频率控制器已重置
-2025-09-24 17:39:58 - src.collectors.request_rate_limiter - INFO - ♻️ 全局请求频率控制器已重置
-2025-09-24 17:39:58 - src.collectors.custom_trends_collector - WARNING - ⏳ 等待57.8秒后重试...
-2025-09-24 17:41:52 - src.collectors.custom_trends_collector - WARNING - 连接中断，等待16.0秒后重试: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
-2025-09-24 17:42:25 - src.collectors.custom_trends_collector - WARNING - ⚠️ 遇到429错误，第1次重试
-2025-09-24 17:42:25 - src.collectors.custom_trends_collector - WARNING - 🔗 请求URL: https://trends.google.com/trends/api/widgetdata/relatedsearches
-2025-09-24 17:42:25 - src.collectors.custom_trends_collector - INFO - 🔄 重置Session和频率控制器...
-2025-09-24 17:42:25 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
-2025-09-24 17:42:25 - src.collectors.google_trends_session - INFO - 全局Session已重置
-2025-09-24 17:42:25 - src.collectors.request_rate_limiter - INFO - 🔄 请求频率控制器已重置
-2025-09-24 17:42:25 - src.collectors.request_rate_limiter - INFO - ♻️ 全局请求频率控制器已重置
-2025-09-24 17:42:25 - src.collectors.custom_trends_collector - WARNING - ⏳ 等待59.8秒后重试...
-2025-09-24 17:44:12 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 24.6 秒
-2025-09-24 17:44:37 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.7 秒
-2025-09-24 17:44:43 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 3.7 秒
-2025-09-24 17:44:48 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.2 秒
-2025-09-24 17:44:53 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.3 秒
-2025-09-24 17:44:57 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.6 秒
-2025-09-24 17:45:03 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.0 秒
-2025-09-24 17:45:08 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.4 秒
-2025-09-24 17:45:13 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 24.2 秒
-2025-09-24 17:45:38 - src.collectors.request_rate_limiter - WARNING - ⏳ 达到每分钟请求限制，等待 4.5 秒
-✅ Google Trends 关联扩展: 新增 1 个候选关键词
-✅ 热门联想: 新增 8 个候选关键词
-[Filter] 已过滤 9 条低质量热门词
-🎯 合并后总计: 20 个关键词
+2025-09-25 09:23:08 - src.collectors.request_rate_limiter - INFO - 🚦 初始化请求频率控制器: 最小间隔5.0秒, 每分钟最多8次请求
+2025-09-25 09:23:08 - src.collectors.request_rate_limiter - INFO - 🆕 创建全局请求频率控制器
+2025-09-25 09:23:38 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 88% (7/8)
+2025-09-25 09:24:39 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 88% (7/8)
+2025-09-25 09:25:39 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 88% (7/8)
+2025-09-25 09:26:39 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 88% (7/8)
+✅ Google Trends 关联扩展: 新增 63 个候选关键词
+✅ 热门联想: 新增 128 个候选关键词
+[Filter] 已过滤 26 条低质量热门词
+🎯 合并后总计: 34 个关键词
 📊 数据源分布:
-   • RSS/Google News AI: 13 个
-   • Suggestions/Google Autocomplete: 3 个
-   • Suggestions/Google Autocomplete Cn: 2 个
+   • RSS/Google News AI: 15 个
+   • Google Trends Suggestion: 5 个
+   • Google Trends Related Rising: 4 个
    • TrendingKeywords.net: 1 个
-   • Google Trends Suggestion: 1 个
-🔍 第一步: 对 7 个热门关键词进行需求挖掘...
+🔍 第一步: 对 4 个热门关键词进行需求挖掘...
 🚀 开始关键词分析 - 类型: file, 综合分析: False
-✅ 成功读取 7 条关键词数据
-🔍 分析关键词 (1/7): hix bypass
-2025-09-24 17:47:16 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+✅ 成功读取 4 条关键词数据
+🔍 分析关键词 (1/4): chatgpt
+2025-09-25 09:29:11 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
 提示: 当前代理配置已禁用代理，SERP 分析器将使用直连模式
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 chatgpt 的 SERP 数据，返回空结果
+🔍 分析关键词 (2/4): hix bypass
+2025-09-25 09:29:35 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
 ⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
 ⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
 SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-ℹ️ SERP API 不可用，回退到 Google Custom Search API
-Google API 搜索失败: 400 Client Error: Bad Request for url: https://www.googleapis.com/customsearch/v1?key=mock_api_key_for_testing&cx=mock_cse_id_for_testing&q=hix+bypass&num=10
-🔍 分析关键词 (2/7): ai humanizer & writer
-2025-09-24 17:47:46 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=ai+humanizer+%26+writer&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-2025-09-24 17:48:02 - urllib3.connectionpool - WARNING - Retrying (Retry(total=2, connect=3, read=1, redirect=None, status=None)) after connection broken by 'ConnectionResetError(10054, '远程主机强迫关闭了一个现有的连接。', None, 10054, None)': /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=ai+humanizer+%26+writer&engine=google&num=10
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=ai+humanizer+%26+writer&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=ai+humanizer+%26+writer&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-ℹ️ SERP API 不可用，回退到 Google Custom Search API
-Google API 搜索失败: 400 Client Error: Bad Request for url: https://www.googleapis.com/customsearch/v1?key=mock_api_key_for_testing&cx=mock_cse_id_for_testing&q=ai+humanizer+%26+writer&num=10
-🔍 分析关键词 (3/7): hix bypass ai humanizer free
-2025-09-24 17:48:22 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+ai+humanizer+free&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+ai+humanizer+free&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+ai+humanizer+free&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-ℹ️ SERP API 不可用，回退到 Google Custom Search API
-Google API 搜索失败: 400 Client Error: Bad Request for url: https://www.googleapis.com/customsearch/v1?key=mock_api_key_for_testing&cx=mock_cse_id_for_testing&q=hix+bypass+ai+humanizer+free&num=10
-🔍 分析关键词 (4/7): hix bypass ai
-2025-09-24 17:48:51 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+ai&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+ai&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+ai&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-ℹ️ SERP API 不可用，回退到 Google Custom Search API
-Google API 搜索失败: 400 Client Error: Bad Request for url: https://www.googleapis.com/customsearch/v1?key=mock_api_key_for_testing&cx=mock_cse_id_for_testing&q=hix+bypass+ai&num=10
-🔍 分析关键词 (5/7): hix bypass free
-2025-09-24 17:49:18 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+free&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+free&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-2025-09-24 17:49:44 - urllib3.connectionpool - WARNING - Retrying (Retry(total=2, connect=3, read=1, redirect=None, status=None)) after connection broken by 'ConnectionResetError(10054, '远程主机强迫关闭了一个现有的连接。', None, 10054, None)': /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+free&engine=google&num=10
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+free&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-ℹ️ SERP API 不可用，回退到 Google Custom Search API
-Google API 搜索失败: 400 Client Error: Bad Request for url: https://www.googleapis.com/customsearch/v1?key=mock_api_key_for_testing&cx=mock_cse_id_for_testing&q=hix+bypass+free&num=10
-🔍 分析关键词 (6/7): hix bypass humanize
-2025-09-24 17:49:55 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+humanize&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+humanize&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+humanize&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-ℹ️ SERP API 不可用，回退到 Google Custom Search API
-Google API 搜索失败: 400 Client Error: Bad Request for url: https://www.googleapis.com/customsearch/v1?key=mock_api_key_for_testing&cx=mock_cse_id_for_testing&q=hix+bypass+humanize&num=10
-🔍 分析关键词 (7/7): hix bypass review
-2025-09-24 17:50:24 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+review&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+review&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+review&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-ℹ️ SERP API 不可用，回退到 Google Custom Search API
-Google API 搜索失败: 400 Client Error: Bad Request for url: https://www.googleapis.com/customsearch/v1?key=mock_api_key_for_testing&cx=mock_cse_id_for_testing&q=hix+bypass+review&num=10
-✅ 第一步完成! 分析了 7 个热门关键词
+⚠️ 未能获取 hix bypass 的 SERP 数据，返回空结果
+🔍 分析关键词 (3/4): weathertech
+2025-09-25 09:29:59 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 weathertech 的 SERP 数据，返回空结果
+🔍 分析关键词 (4/4): weatherguard
+2025-09-25 09:30:24 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 weatherguard 的 SERP 数据，返回空结果
+✅ 第一步完成! 分析了 4 个热门关键词
 📊 发现 0 个高机会关键词
 
 🌐 第二步: 基于热门关键词进行多平台关键词发现...
-🔍 正在发现与 7 个关键词相关的关键词...
+🔍 正在发现与 4 个关键词相关的关键词...
 🚀 开始多平台关键词发现...
 🔍 正在分析 Reddit r/artificial...
 ❌ Reddit r/artificial 分析失败: 403 Client Error: Blocked for url: https://www.reddit.com/r/artificial/hot.json?limit=50
@@ -191,78 +129,336 @@ Google API 搜索失败: 400 Client Error: Bad Request for url: https://www.goog
 ❌ Reddit r/ChatGPT 分析失败: 403 Client Error: Blocked for url: https://www.reddit.com/r/ChatGPT/hot.json?limit=50
 🔍 正在分析 Reddit r/OpenAI...
 ❌ Reddit r/OpenAI 分析失败: 403 Client Error: Blocked for url: https://www.reddit.com/r/OpenAI/hot.json?limit=50
-🔍 正在分析 Hacker News (查询: hix bypass review)...
-🔍 正在分析 Hacker News (查询: ai humanizer & writer)...
-🔍 正在分析 Hacker News (查询: hix bypass ai humanizer free)...
-🔍 正在分析 Hacker News (查询: hix bypass humanize)...
-🔍 正在分析 Hacker News (查询: hix bypass ai)...
-🔍 正在分析 Hacker News (查询: hix bypass free)...
+🔍 正在分析 Hacker News (查询: weathertech)...
+🔍 正在分析 Hacker News (查询: weatherguard)...
 🔍 正在分析 Hacker News (查询: hix bypass)...
-🔍 正在分析 YouTube 搜索建议 (查询: hix bypass review)...
-🔍 正在分析 YouTube 搜索建议 (查询: ai humanizer & writer)...
-🔍 正在分析 YouTube 搜索建议 (查询: hix bypass ai humanizer free)...
-🔍 正在分析 YouTube 搜索建议 (查询: hix bypass humanize)...
-🔍 正在分析 YouTube 搜索建议 (查询: hix bypass ai)...
-🔍 正在分析 YouTube 搜索建议 (查询: hix bypass free)...
+🔍 正在分析 Hacker News (查询: chatgpt)...
+🔍 正在分析 YouTube 搜索建议 (查询: weathertech)...
+🔍 正在分析 YouTube 搜索建议 (查询: weatherguard)...
 🔍 正在分析 YouTube 搜索建议 (查询: hix bypass)...
-🔍 正在分析 Google 搜索建议 (查询: hix bypass review)...
-🔍 正在分析 Google 搜索建议 (查询: ai humanizer & writer)...
-🔍 正在分析 Google 搜索建议 (查询: hix bypass ai humanizer free)...
-🔍 正在分析 Google 搜索建议 (查询: hix bypass humanize)...
-🔍 正在分析 Google 搜索建议 (查询: hix bypass ai)...
-🔍 正在分析 Google 搜索建议 (查询: hix bypass free)...
+🔍 正在分析 YouTube 搜索建议 (查询: chatgpt)...
+🔍 正在分析 Google 搜索建议 (查询: weathertech)...
+🔍 正在分析 Google 搜索建议 (查询: weatherguard)...
 🔍 正在分析 Google 搜索建议 (查询: hix bypass)...
-🔍 正在分析 ProductHunt (查询: hix bypass review)...
-🔍 正在分析 ProductHunt (查询: ai humanizer & writer)...
-🔍 正在分析 ProductHunt (查询: hix bypass ai humanizer free)...
-🔍 正在分析 ProductHunt (查询: hix bypass humanize)...
-🔍 正在分析 ProductHunt (查询: hix bypass ai)...
-🔍 正在分析 ProductHunt (查询: hix bypass free)...
+🔍 正在分析 Google 搜索建议 (查询: chatgpt)...
+🔍 正在分析 ProductHunt (查询: weathertech)...
+🔍 正在分析 ProductHunt (查询: weatherguard)...
 🔍 正在分析 ProductHunt (查询: hix bypass)...
-⚠️ 移除了 3 个品牌泛词
-⚠️ 移除了 55 个泛化头部词
-2025-09-24 17:52:25 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
-2025-09-24 17:52:25 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
-Batches: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 11.49it/s]
-✅ 发现 2 个关键词
-🎯 发现了 2 个相关关键词
-📁 发现的关键词已保存到: output/reports\discovered_keywords_20250924_175237.csv
+🔍 正在分析 ProductHunt (查询: chatgpt)...
+⚠️ 移除了 4 个品牌泛词
+⚠️ 移除了 45 个泛化头部词
+2025-09-25 09:31:56 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-09-25 09:31:56 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+Batches: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  6.03it/s]
+✅ 发现 15 个关键词
+🎯 发现了 15 个相关关键词
+📁 发现的关键词已保存到: output/reports\discovered_keywords_20250925_093206.csv
 
 🔍 第三步: 对发现的关键词进行需求挖掘分析...
 🚀 开始关键词分析 - 类型: file, 综合分析: False
-✅ 成功读取 2 条关键词数据
-🔍 分析关键词 (1/2): bypassnro cmd
-2025-09-24 17:52:37 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=bypassnro+cmd&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=bypassnro+cmd&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=bypassnro+cmd&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-ℹ️ SERP API 不可用，回退到 Google Custom Search API
-Google API 搜索失败: 400 Client Error: Bad Request for url: https://www.googleapis.com/customsearch/v1?key=mock_api_key_for_testing&cx=mock_cse_id_for_testing&q=bypassnro+cmd&num=10
-🔍 分析关键词 (2/2): by ai
-2025-09-24 17:53:06 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=by+ai&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=by+ai&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=by+ai&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-ℹ️ SERP API 不可用，回退到 Google Custom Search API
-Google API 搜索失败: HTTPSConnectionPool(host='www.googleapis.com', port=443): Max retries exceeded with url: /customsearch/v1?key=mock_api_key_for_testing&cx=mock_cse_id_for_testing&q=by+ai&num=10 (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1018)')))
+✅ 成功读取 15 条关键词数据
+🔍 分析关键词 (1/15): weathertech
+2025-09-25 09:32:06 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 weathertech 的 SERP 数据，返回空结果
+🔍 分析关键词 (2/15): weathertech sunshade
+2025-09-25 09:32:31 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+sunshade&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+sunshade&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+sunshade&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 weathertech sunshade 的 SERP 数据，返回空结果
+🔍 分析关键词 (3/15): weathertech championship
+2025-09-25 09:32:55 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+championship&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+championship&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+championship&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 weathertech championship 的 SERP 数据，返回空结果
+🔍 分析关键词 (4/15): weathertech floorliner
+2025-09-25 09:33:21 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+floorliner&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+floorliner&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+floorliner&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 weathertech floorliner 的 SERP 数据，返回空结果
+🔍 分析关键词 (5/15): chatgpt pro
+2025-09-25 09:33:46 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+pro&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+pro&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+pro&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 chatgpt pro 的 SERP 数据，返回空结果
+🔍 分析关键词 (6/15): chatgpt5
+2025-09-25 09:34:10 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt5&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt5&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt5&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 chatgpt5 的 SERP 数据，返回空结果
+🔍 分析关键词 (7/15): chatgpt 4o
+2025-09-25 09:34:36 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+4o&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+4o&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+4o&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 chatgpt 4o 的 SERP 数据，返回空结果
+🔍 分析关键词 (8/15): weathertech techshade
+2025-09-25 09:35:01 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+techshade&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+techshade&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+techshade&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 weathertech techshade 的 SERP 数据，返回空结果
+🔍 分析关键词 (9/15): weathertech mats
+2025-09-25 09:35:25 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+mats&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+mats&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+mats&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 weathertech mats 的 SERP 数据，返回空结果
+🔍 分析关键词 (10/15): weatherguard
+2025-09-25 09:35:50 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 weatherguard 的 SERP 数据，返回空结果
+🔍 分析关键词 (11/15): weatherguard roofing
+2025-09-25 09:36:14 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+2025-09-25 09:36:36 - urllib3.connectionpool - WARNING - Retrying (Retry(total=2, connect=2, read=2, redirect=None, status=None)) after connection broken by 'ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x0000022D0001CF50>, 'Connection to serpapi.com timed out. (connect timeout=30)')': /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+roofing&engine=google&num=10
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+roofing&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+roofing&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+roofing&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 weatherguard roofing 的 SERP 数据，返回空结果
+🔍 分析关键词 (12/15): weatherguard paint
+2025-09-25 09:36:59 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+paint&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+paint&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+paint&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 weatherguard paint 的 SERP 数据，返回空结果
+🔍 分析关键词 (13/15): weatherguard windows
+2025-09-25 09:37:24 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+windows&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+windows&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+windows&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 weatherguard windows 的 SERP 数据，返回空结果
+🔍 分析关键词 (14/15): chatgpt agent
+2025-09-25 09:37:49 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+agent&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+agent&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+agent&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 chatgpt agent 的 SERP 数据，返回空结果
+🔍 分析关键词 (15/15): chatgpt 4
+2025-09-25 09:38:15 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+4&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+4&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+4&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 chatgpt 4 的 SERP 数据，返回空结果
 🔍 正在进行新词检测...
-2025-09-24 17:53:34 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-24 17:53:34 - root - INFO -    关键词: ['bypassnro cmd']
-2025-09-24 17:53:34 - root - INFO -    时间范围: today 12-m
-2025-09-24 17:53:34 - root - INFO -    地理位置:
-2025-09-24 17:53:39 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-24 17:53:39 - root - WARNING - 获取 bypassnro cmd 趋势数据失败: 'NoneType' object does not support item assignment
-⚠️ 新词检测失败: cannot access local variable 'detection_reasons' where it is not associated with a value
+2025-09-25 09:38:41 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:38:41 - root - INFO -    关键词: ['weathertech']
+2025-09-25 09:38:41 - root - INFO -    时间范围: today 12-m
+2025-09-25 09:38:41 - root - INFO -    地理位置:
+2025-09-25 09:38:46 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-25 09:38:46 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:38:46 - root - INFO -    关键词: ['weathertech sunshade']
+2025-09-25 09:38:46 - root - INFO -    时间范围: today 12-m
+2025-09-25 09:38:46 - root - INFO -    地理位置:
+2025-09-25 09:38:56 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-25 09:38:56 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:38:56 - root - INFO -    关键词: ['weathertech championship']
+2025-09-25 09:38:56 - root - INFO -    时间范围: today 12-m
+2025-09-25 09:38:56 - root - INFO -    地理位置:
+2025-09-25 09:39:06 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-25 09:39:06 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:39:06 - root - INFO -    关键词: ['weathertech floorliner']
+2025-09-25 09:39:06 - root - INFO -    时间范围: today 12-m
+2025-09-25 09:39:06 - root - INFO -    地理位置:
+2025-09-25 09:39:11 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 88% (7/8)
+2025-09-25 09:39:16 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-25 09:39:16 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:39:16 - root - INFO -    关键词: ['chatgpt pro']
+2025-09-25 09:39:16 - root - INFO -    时间范围: today 12-m
+2025-09-25 09:39:16 - root - INFO -    地理位置:
+2025-09-25 09:39:46 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-25 09:39:46 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:39:46 - root - INFO -    关键词: ['chatgpt5']
+2025-09-25 09:39:46 - root - INFO -    时间范围: today 12-m
+2025-09-25 09:39:46 - root - INFO -    地理位置:
+2025-09-25 09:39:56 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-25 09:39:56 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:39:56 - root - INFO -    关键词: ['chatgpt 4o']
+2025-09-25 09:39:56 - root - INFO -    时间范围: today 12-m
+2025-09-25 09:39:56 - root - INFO -    地理位置:
+2025-09-25 09:40:06 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-25 09:40:06 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:40:06 - root - INFO -    关键词: ['weathertech techshade']
+2025-09-25 09:40:06 - root - INFO -    时间范围: today 12-m
+2025-09-25 09:40:06 - root - INFO -    地理位置:
+2025-09-25 09:40:11 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 100% (8/8)
+2025-09-25 09:40:16 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-25 09:40:16 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:40:16 - root - INFO -    关键词: ['weathertech mats']
+2025-09-25 09:40:16 - root - INFO -    时间范围: today 12-m
+2025-09-25 09:40:16 - root - INFO -    地理位置:
+2025-09-25 09:40:16 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每小时请求已使用 80% (48/60)
+2025-09-25 09:40:46 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-25 09:40:47 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:40:47 - root - INFO -    关键词: ['weatherguard']
+2025-09-25 09:40:47 - root - INFO -    时间范围: today 12-m
+2025-09-25 09:40:47 - root - INFO -    地理位置:
+2025-09-25 09:40:56 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-25 09:40:56 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:40:56 - root - INFO -    关键词: ['weatherguard roofing']
+2025-09-25 09:40:56 - root - INFO -    时间范围: today 12-m
+2025-09-25 09:40:56 - root - INFO -    地理位置:
+2025-09-25 09:41:06 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-25 09:41:06 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:41:06 - root - INFO -    关键词: ['weatherguard paint']
+2025-09-25 09:41:06 - root - INFO -    时间范围: today 12-m
+2025-09-25 09:41:06 - root - INFO -    地理位置:
+2025-09-25 09:41:16 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 88% (7/8)
+2025-09-25 09:41:16 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-25 09:41:16 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:41:16 - root - INFO -    关键词: ['weatherguard windows']
+2025-09-25 09:41:16 - root - INFO -    时间范围: today 12-m
+2025-09-25 09:41:16 - root - INFO -    地理位置:
+2025-09-25 09:41:16 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每小时请求已使用 93% (56/60)
+2025-09-25 09:41:46 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-25 09:41:46 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:41:46 - root - INFO -    关键词: ['chatgpt agent']
+2025-09-25 09:41:46 - root - INFO -    时间范围: today 12-m
+2025-09-25 09:41:46 - root - INFO -    地理位置:
+2025-09-25 09:41:56 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-25 09:41:57 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:41:57 - root - INFO -    关键词: ['chatgpt 4']
+2025-09-25 09:41:57 - root - INFO -    时间范围: today 12-m
+2025-09-25 09:41:57 - root - INFO -    地理位置:
+2025-09-25 09:41:57 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
+2025-09-25 09:41:57 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
+2025-09-25 09:41:57 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:41:57 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:41:57 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=today 12-m, geo=
+2025-09-25 09:41:57 - root - WARNING - 获取 chatgpt 4 (today 12-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:41:57 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:41:57 - root - INFO -    关键词: ['chatgpt 4']
+2025-09-25 09:41:57 - root - INFO -    时间范围: today 3-m
+2025-09-25 09:41:57 - root - INFO -    地理位置:
+2025-09-25 09:41:57 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
+2025-09-25 09:41:57 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
+2025-09-25 09:41:57 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:41:57 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:41:57 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=today 3-m, geo=
+2025-09-25 09:41:57 - root - WARNING - 获取 chatgpt 4 (today 3-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:41:58 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:41:58 - root - INFO -    关键词: ['chatgpt 4']
+2025-09-25 09:41:58 - root - INFO -    时间范围: now 7-d
+2025-09-25 09:41:58 - root - INFO -    地理位置:
+2025-09-25 09:41:58 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
+2025-09-25 09:41:58 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
+2025-09-25 09:41:58 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:41:58 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:41:58 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=now 7-d, geo=
+2025-09-25 09:41:58 - root - WARNING - 获取 chatgpt 4 (now 7-d, GLOBAL) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:41:58 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:41:58 - root - INFO -    关键词: ['chatgpt 4']
+2025-09-25 09:41:58 - root - INFO -    时间范围: now 1-d
+2025-09-25 09:41:58 - root - INFO -    地理位置:
+2025-09-25 09:41:58 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
+2025-09-25 09:41:58 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
+2025-09-25 09:41:58 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:41:58 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:41:58 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=now 1-d, geo=
+2025-09-25 09:41:58 - root - WARNING - 获取 chatgpt 4 (now 1-d, GLOBAL) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:41:59 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:41:59 - root - INFO -    关键词: ['chatgpt 4']
+2025-09-25 09:41:59 - root - INFO -    时间范围: today 12-m
+2025-09-25 09:41:59 - root - INFO -    地理位置: US
+2025-09-25 09:41:59 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
+2025-09-25 09:41:59 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
+2025-09-25 09:41:59 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:41:59 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:41:59 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=today 12-m, geo=US
+2025-09-25 09:41:59 - root - WARNING - 获取 chatgpt 4 (today 12-m, US) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:42:00 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:42:00 - root - INFO -    关键词: ['chatgpt 4']
+2025-09-25 09:42:00 - root - INFO -    时间范围: today 3-m
+2025-09-25 09:42:00 - root - INFO -    地理位置: US
+2025-09-25 09:42:00 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
+2025-09-25 09:42:00 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
+2025-09-25 09:42:00 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:42:00 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:42:00 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=today 3-m, geo=US
+2025-09-25 09:42:00 - root - WARNING - 获取 chatgpt 4 (today 3-m, US) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:42:00 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:42:00 - root - INFO -    关键词: ['chatgpt 4']
+2025-09-25 09:42:00 - root - INFO -    时间范围: now 7-d
+2025-09-25 09:42:00 - root - INFO -    地理位置: US
+2025-09-25 09:42:00 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
+2025-09-25 09:42:00 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
+2025-09-25 09:42:00 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:42:00 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:42:00 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=now 7-d, geo=US
+2025-09-25 09:42:00 - root - WARNING - 获取 chatgpt 4 (now 7-d, US) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:42:01 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:42:01 - root - INFO -    关键词: ['chatgpt 4']
+2025-09-25 09:42:01 - root - INFO -    时间范围: now 1-d
+2025-09-25 09:42:01 - root - INFO -    地理位置: US
+2025-09-25 09:42:01 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
+2025-09-25 09:42:01 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
+2025-09-25 09:42:01 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:42:01 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:42:01 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=now 1-d, geo=US
+2025-09-25 09:42:01 - root - WARNING - 获取 chatgpt 4 (now 1-d, US) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:42:01 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:42:01 - root - INFO -    关键词: ['chatgpt 4']
+2025-09-25 09:42:01 - root - INFO -    时间范围: today 12-m
+2025-09-25 09:42:01 - root - INFO -    地理位置: GB
+2025-09-25 09:42:01 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
+2025-09-25 09:42:01 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
+2025-09-25 09:42:01 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:42:01 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:42:01 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=today 12-m, geo=GB
+2025-09-25 09:42:01 - root - WARNING - 获取 chatgpt 4 (today 12-m, GB) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:42:02 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:42:02 - root - INFO -    关键词: ['chatgpt 4']
+2025-09-25 09:42:02 - root - INFO -    时间范围: today 3-m
+2025-09-25 09:42:02 - root - INFO -    地理位置: GB
+2025-09-25 09:42:02 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
+2025-09-25 09:42:02 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
+2025-09-25 09:42:02 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:42:02 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:42:02 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=today 3-m, geo=GB
+2025-09-25 09:42:02 - root - WARNING - 获取 chatgpt 4 (today 3-m, GB) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:42:03 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:42:03 - root - INFO -    关键词: ['chatgpt 4']
+2025-09-25 09:42:03 - root - INFO -    时间范围: now 7-d
+2025-09-25 09:42:03 - root - INFO -    地理位置: GB
+2025-09-25 09:42:03 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
+2025-09-25 09:42:03 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
+2025-09-25 09:42:03 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:42:03 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:42:03 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=now 7-d, geo=GB
+2025-09-25 09:42:03 - root - WARNING - 获取 chatgpt 4 (now 7-d, GB) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:42:03 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-25 09:42:03 - root - INFO -    关键词: ['chatgpt 4']
+2025-09-25 09:42:03 - root - INFO -    时间范围: now 1-d
+2025-09-25 09:42:03 - root - INFO -    地理位置: GB
+2025-09-25 09:42:03 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
+2025-09-25 09:42:03 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
+2025-09-25 09:42:03 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:42:03 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:42:03 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=now 1-d, geo=GB
+2025-09-25 09:42:03 - root - WARNING - 获取 chatgpt 4 (now 1-d, GB) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:42:04 - root - WARNING - 多次尝试后仍无法获取 chatgpt 4 趋势数据: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
+2025-09-25 09:42:04 - root - WARNING - 获取 chatgpt 4 趋势数据失败: 无法获取 chatgpt 4 的趋势数据：Trends 接口返回空结果
+✅ 新词检测完成: 发现 5 个新词 (0 个高置信度, 13 个 Breakout)
 
 🎉 完整工作流程完成!
-📊 热门关键词分析: 7 个关键词
-🌐 多平台发现: 2 个相关关键词
-🎯 最终分析: 2 个关键词
+📊 热门关键词分析: 4 个关键词
+🌐 多平台发现: 15 个相关关键词
+🎯 最终分析: 15 个关键词
 🏆 总计高机会关键词: 0 个
-📈 平均机会分数: 30.73
+📈 平均机会分数: 30.38
 
 🏆 Top 5 最终机会关键词:
-   1. bypassnro cmd (分数: 32.25, 意图: I)
-   2. by ai (分数: 29.2, 意图: I)
+   1. chatgpt pro (分数: 39.050000000000004, 意图: I)
+   2. weatherguard paint (分数: 31.2, 意图: I)
+   3. weathertech sunshade (分数: 30.5, 意图: I)
+   4. weathertech championship (分数: 30.5, 意图: I)
+   5. weathertech floorliner (分数: 30.5, 意图: I)
 [Dashboard] 数据已刷新: D:\VscodeWorkspace\find_demand\output\reports\dashboard_data.json
-(.venv) PS D:\VscodeWorkspace\find_demand>

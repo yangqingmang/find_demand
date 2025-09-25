@@ -20,12 +20,12 @@ class RequestRateLimiter:
 
     def __init__(
         self,
-        min_interval: float = 3.0,
-        max_requests_per_minute: int = 15,
-        max_requests_per_hour: Optional[int] = 120,
-        max_requests_per_day: Optional[int] = 1200,
-        max_min_interval: float = 30.0,
-        throttle_cooldown: float = 300.0,
+        min_interval: float = 1.0,
+        max_requests_per_minute: int = 30,
+        max_requests_per_hour: Optional[int] = 300,
+        max_requests_per_day: Optional[int] = 2000,
+        max_min_interval: float = 20.0,
+        throttle_cooldown: float = 240.0,
     ) -> None:
         """初始化频率控制器"""
         self.base_min_interval = float(min_interval)
@@ -77,7 +77,7 @@ class RequestRateLimiter:
                         self.max_requests_per_hour,
                         'hour',
                         now,
-                        allow_sleep=False,
+                        allow_sleep=True,
                     )
                 )
                 waits.append(
@@ -87,7 +87,7 @@ class RequestRateLimiter:
                         self.max_requests_per_day,
                         'day',
                         now,
-                        allow_sleep=False,
+                        allow_sleep=True,
                     )
                 )
 
@@ -252,12 +252,12 @@ def get_global_rate_limiter() -> RequestRateLimiter:
         with _limiter_lock:
             if _global_rate_limiter is None:
                 _global_rate_limiter = RequestRateLimiter(
-                    min_interval=5.0,
-                    max_requests_per_minute=8,
-                    max_requests_per_hour=60,
-                    max_requests_per_day=400,
-                    max_min_interval=45.0,
-                    throttle_cooldown=420.0,
+                    min_interval=1.0,
+                    max_requests_per_minute=30,
+                    max_requests_per_hour=300,
+                    max_requests_per_day=2000,
+                    max_min_interval=30.0,
+                    throttle_cooldown=240.0,
                 )
                 logger.info("🆕 创建全局请求频率控制器")
 
