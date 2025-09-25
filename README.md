@@ -1,77 +1,119 @@
-# 市场需求分析工具集
+# Find Demand – Market Demand Analysis Toolkit
 
-这是一个专业的市场需求分析工具集，专门用于挖掘和分析关键词需求，帮助内容创作者和营销人员更好地了解目标市场。项目特别针对海外AI工具站进行了优化，提供了完整的从关键词收集到内容策略制定的一站式解决方案。
+Find Demand is a full-stack toolkit for discovering, validating, and executing on market demand with a single command line workflow. It automates keyword collection, scoring, intent analysis, demand validation, and even scaffolds landing pages so that product and content teams can move from idea to deployment quickly.
 
-## 核心功能
+## Highlights
+- **Integrated demand mining pipeline** – from seed collection to opportunity scoring, trend monitoring, and volume validation in one pass.
+- **Multi-source discovery** – fetches ideas from Google Suggest, Reddit, Product Hunt, Hacker News, YouTube, and more (via `SuggestionCollector` and `DiscoveryManager`).
+- **Intelligent scoring & insights** – combines intent detection, SERP/market signals, commercial value, and new-word detection to prioritize ideas.
+- **Volume guardrails** – recent enhancements reuse Google Trends thresholds to label each keyword as `sufficient`, `needs_review`, or `insufficient`, with summaries surfaced in CLI output.
+- **One-click website scaffolding** – generate intent-driven site structures, Tailwind templates, and deployment artifacts under `generated_websites/`.
+- **Crawler support** – `run_lummstudio_spider.py` mirrors external insight feeds for recurring research.
 
-### 1. Google Trends 数据采集
-- **功能**: 自动收集Google Trends趋势数据和相关查询
-- **特点**: 支持多地区、多时间范围、批量处理
-- **输出**: 趋势数据CSV文件，包含搜索量、增长率等指标
+## Project Structure
+| Path | Purpose |
+| ---- | ------- |
+| `src/collectors/` | Suggestion & trend collectors, including Google Suggest, Reddit, and Product Hunt integrations. |
+| `src/demand_mining/` | Core demand mining logic (managers, analyzers, new word detector, multi-platform validation). |
+| `src/pipeline/` | Cleaning, transformation, and orchestration helpers used by the CLI workflow. |
+| `src/website_builder/` | Intent-aware site generator, SEO helpers, deployment adapters. |
+| `config/` | Runtime configuration (`integrated_workflow_config.json`, encrypted secrets, proxy settings). |
+| `data/` | Sample inputs and cached artifacts; safe location for keyword CSVs. |
+| `docs/` | Playbooks, to-do lists, API guides, and demand mining SOP references. |
+| `output/` | Generated CSV/JSON reports (analysis, discovery, new word detection summaries). |
+| `generated_websites/` | Output of website builder workflows. |
 
-### 2. 关键词智能评分
-- **算法**: 基于搜索量、增长率、关键词难度的多维度评分
-- **权重**: 可自定义各维度权重配置
-- **分级**: 自动分为A/B/C/D四个等级，便于优先级排序
+## Core Workflows
+### 1. Integrated Demand Mining
+1. **Seed ingestion** – read CSV/JSON keywords or discover seeds from multi-platform sources.
+2. **Cleaning & normalization** – standardize tokens, deduplicate, and filter brands.
+3. **Intent & market analysis** – `KeywordManager` pipes data through intent, market, SERP, and competitive scorers.
+4. **New word detection** – Google Trends-based detector grades breakout/rising terms and boosts opportunity scores when warranted.
+5. **Volume validation** – each keyword receives a `volume_validation` block (recent & baseline averages vs configured thresholds) plus a `volume_validation_summary` across the batch.
+6. **Reporting** – CSV/JSON outputs under `output/reports/` with per-keyword metrics, summaries, and optional trend cache exports.
 
-### 3. 搜索意图分析
-- **类型识别**: 自动识别5种搜索意图类型
-  - **I (信息型)**: 寻求信息和知识
-  - **N (导航型)**: 寻找特定网站或页面  
-  - **C (商业型)**: 研究产品或服务
-  - **E (交易型)**: 准备购买或下载
-  - **B (行为型)**: 解决问题或执行任务
-- **置信度**: 提供意图识别的置信度评估
-- **策略建议**: 针对每种意图提供具体的内容策略建议
-
-### 4. SERP 分析 (可选)
-- **功能**: 分析搜索引擎结果页面特征
-- **数据**: 广告数量、有机结果数量、特殊功能识别
-- **竞争**: 竞争对手分析和市场格局评估
-
-### 5. Google Ads 数据集成 (可选)
-- **数据源**: 集成Google Ads API获取精确搜索量
-- **指标**: 平均月搜索量、竞争程度、建议出价
-- **增强**: 提高关键词评分的准确性
-
-## 快速开始
-
+Run directly through the CLI:
 ```bash
-# 安装依赖
-pip install -r requirements.txt
-
-# 运行分析（使用默认词根分析）
-python main.py
-
-# 分析关键词文件
-python main.py --input data/keywords.csv
-
-# 多平台关键词发现
-python main.py --discover "AI tool" "AI generator"
-
-# 查看所有选项
-python main.py --help
+python main.py --input data/keywords.csv               # Analyze a prepared keyword list
+python main.py --discover "AI tool" "AI generator"      # Seed discovery + analysis pipeline
+python main.py --help                                   # Full CLI reference
 ```
 
-## 主要功能
+### 2. Multi-Platform Discovery
+`DiscoveryManager` aligns multiple sources (Reddit, Hacker News, YouTube, Google Suggestions, Twitter/X*, Product Hunt*). Results feed the demand mining pipeline or can be stored separately.
 
-- 🔍 **词根趋势分析** - 基于52个核心词根的趋势分析
-- 📊 **关键词分析** - 搜索意图、市场机会评估
-- 🌐 **多平台发现** - 整合多个平台的关键词发现
-- 📈 **趋势预测** - 基于Google Trends的趋势分析
-- 🏗️ **网站生成** - 基于关键词意图的自动建站
+### 3. Website Generation
+Once high-priority intents are chosen, `src/website_builder` can craft:
+- Intent-driven navigation and page blueprints.
+- Tailwind/Turbo HTML templates.
+- SEO metadata and structured data stubs.
+- Deployment descriptors for Vercel/Cloudflare (when tokens are configured).
 
-## 输出结果
+Invoke via the builder CLI:
+```bash
+python -m src.website_builder.cli --intent "AI essay checker" --output generated_websites/essay
+```
 
-分析结果保存在 `src/demand_mining/reports/` 目录下，包括：
-- CSV格式的详细数据
-- JSON格式的分析报告
-- 按意图分类的关键词文件
+### 4. LummStudio Spider
+For continuous inspiration from curated sources:
+```bash
+python run_lummstudio_spider.py
+```
+Outputs live under `src/spider/` (HTML + Markdown) and can be piped back to discovery pipelines.
 
-## 配置
+## Installation
+```bash
+python -m venv .venv
+.venv\Scripts\activate          # On Windows
+# source .venv/bin/activate      # On macOS/Linux
+pip install -r requirements.txt
+```
 
-API配置文件位于 `config/` 目录，支持加密存储。
+## Configuration
+1. **Environment / secrets** – populate `config/.env` or run the encryption helper to store secrets in `config/.env.encrypted`.
+2. **Google APIs** – obtain Custom Search & Ads keys (see `docs/API配置待办事项.md` for step-by-step instructions).
+3. **Additional integrations** – Product Hunt, SERP API, Vercel, Cloudflare, and proxy configuration live in `config/` and can be toggled per workflow.
+4. **Workflow tuning** – adjust `config/integrated_workflow_config.json` to override seed profiles, filters, scoring weights, and detector thresholds.
 
----
+## Output & Reporting
+- `output/reports/*.json` – master run metadata, per-keyword metrics, intent & market summaries.
+- `output/reports/*.csv` – detailed keyword tables for spreadsheets or BI tools.
+- `output/discovery/` – (optional) raw discovery exports by platform and timestamp.
+- `output/reports/new_word_*` – Google Trends snapshots with detector annotations.
+- `generated_websites/` – static site scaffolds, ready for deployment.
 
-更多详细信息请运行 `python main.py --help` 查看。
+Each keyword in the JSON output now includes:
+```json
+{
+  "keyword": "ai essay checker",
+  "opportunity_score": 87.4,
+  "volume_validation": {
+    "status": "needs_review",
+    "avg_7d": 4.2,
+    "avg_30d": 8.7,
+    "recent_threshold": 5.0,
+    "notes": "below_volume_baseline"
+  }
+}
+```
+Use ` volume_validation_summary` to quickly triage which ideas require manual volume checks before investing further.
+
+## Development & Testing
+```bash
+pytest                              # Run unit tests
+pytest --maxfail=1 --disable-warnings
+pytest --cov=src                    # Coverage run
+```
+
+Before pushing changes, ensure:
+- New dependencies are captured in `requirements.txt`.
+- Relevant docs in `docs/` are updated (API guides, SOPs, enhancement plans).
+- CLI commands still succeed on the sample dataset (`data/keywords.csv`).
+
+## Further Reading
+- `docs/需求挖掘整理版.md` – end-to-end qualitative demand mining SOP.
+- `docs/需求挖掘阶段增强待办.md` – roadmap for volume validation, Reddit structuring, and verification loops.
+- `docs/google_trends_enhancement_plan.md` – plans for expanding seed pools and trend watchlists.
+- `docs/API配置待办事项.md` – API setup & encryption reference.
+
+*Items marked with an asterisk require API tokens or additional configuration before use.
