@@ -14,10 +14,11 @@ import json
 import os
 import re
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import urlparse
 import hashlib
 from collections import deque
+from pathlib import Path
 
 import sys
 import os
@@ -95,9 +96,13 @@ class SerpAnalyzer:
         self.serp_session = self._create_serp_session()
         self.serp_rate_limit_window = 60
         self.serp_max_requests_per_minute = 20
-        self.serp_delay_range = (0.5, 1.5)
+        self.serp_delay_range = (1.0, 2.5)
+        self._serp_backoff_until = 0.0
         self._serp_request_history = deque()
         self._warned_messages: set[str] = set()
+        self.serp_monthly_limit = getattr(config, 'SERP_API_MONTHLY_LIMIT', 400)
+        self.serp_failure_limit = getattr(config, 'SERP_API_FAILURE_LIMIT', 12)
+        self.serp_failure_disable_days = getattr(config, 'SERP_API_FAILURE_DISABLE_DAYS', 1)
 
         # 凭证可用性检测
         self._serp_api_available, self._serp_api_reason = self._evaluate_key(self.serp_api_key, 'SERP API Key')
@@ -157,10 +162,10 @@ class SerpAnalyzer:
         self.cache_enabled = getattr(config, 'SERP_CACHE_ENABLED', True)
         self.cache_duration = getattr(config, 'SERP_CACHE_DURATION', 3600)
         self.cache_dir = 'data/serp_cache'
-
-        # 创建缓存目录
-        if self.cache_enabled:
-            os.makedirs(self.cache_dir, exist_ok=True)
+        cache_path = Path(self.cache_dir)
+        cache_path.mkdir(parents=True, exist_ok=True)
+        self.serp_state_path = cache_path / 'serp_usage_state.json'
+        self._serp_usage = self._load_serp_usage_state()
 
         # 域名权重数据库（用于竞争对手分析）
         self.domain_authority_db = {
@@ -259,6 +264,11 @@ class SerpAnalyzer:
         if self.serp_max_requests_per_minute <= 0:
             return
         now = time.time()
+        if self._serp_backoff_until > now:
+            cooldown = self._serp_backoff_until - now
+            print(f"⏱️ SERP API 防护冷却中，等待 {cooldown:.2f} 秒")
+            time.sleep(cooldown)
+            now = time.time()
         while self._serp_request_history and now - self._serp_request_history[0] > self.serp_rate_limit_window:
             self._serp_request_history.popleft()
         if len(self._serp_request_history) >= self.serp_max_requests_per_minute:
@@ -266,6 +276,10 @@ class SerpAnalyzer:
             if wait_time > 0:
                 print(f"⏱️ SERP API 频率限制，等待 {wait_time:.2f} 秒")
                 time.sleep(wait_time)
+                now = time.time()
+                while self._serp_request_history and now - self._serp_request_history[0] > self.serp_rate_limit_window:
+                    self._serp_request_history.popleft()
+                self._serp_backoff_until = 0.0
         delay = random.uniform(*self.serp_delay_range)
         if delay > 0:
             time.sleep(delay)
@@ -274,6 +288,85 @@ class SerpAnalyzer:
         """记录 SERP API 请求时间"""
         self._serp_request_history.append(time.time())
 
+
+    def _load_serp_usage_state(self) -> Dict[str, Any]:
+        month = datetime.utcnow().strftime('%Y-%m')
+        state = {'month': month, 'request_count': 0, 'failure_count': 0, 'disabled_until': None}
+        if not self.serp_state_path:
+            return state
+        try:
+            if self.serp_state_path.exists():
+                with self.serp_state_path.open('r', encoding='utf-8') as fh:
+                    payload = json.load(fh)
+                if payload.get('month') == month:
+                    for key in ('request_count', 'failure_count', 'disabled_until'):
+                        if key in payload:
+                            state[key] = payload[key]
+        except Exception as exc:
+            print(f"⚠️ 读取 SERP 使用状态失败: {exc}")
+        return state
+
+    def _save_serp_usage_state(self) -> None:
+        if not self.serp_state_path:
+            return
+        try:
+            payload = dict(self._serp_usage)
+            with self.serp_state_path.open('w', encoding='utf-8') as fh:
+                json.dump(payload, fh)
+        except Exception as exc:
+            print(f"⚠️ 写入 SERP 使用状态失败: {exc}")
+
+    def _next_month_start(self) -> datetime:
+        now = datetime.utcnow()
+        first = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        return (first + timedelta(days=32)).replace(day=1)
+
+    def _serp_api_quota_available(self) -> Tuple[bool, Optional[str]]:
+        now = datetime.utcnow()
+        month_key = now.strftime('%Y-%m')
+        if self._serp_usage.get('month') != month_key:
+            self._serp_usage = {'month': month_key, 'request_count': 0, 'failure_count': 0, 'disabled_until': None}
+            self._save_serp_usage_state()
+        disabled_until = self._serp_usage.get('disabled_until')
+        if disabled_until:
+            try:
+                until_dt = datetime.fromisoformat(disabled_until)
+            except ValueError:
+                until_dt = None
+            if until_dt and now < until_dt:
+                return False, f"SERP API 已暂停至 {until_dt.strftime('%Y-%m-%d %H:%M UTC')}"
+            self._serp_usage['disabled_until'] = None
+            self._save_serp_usage_state()
+        limit = max(int(self.serp_monthly_limit), 0) if self.serp_monthly_limit else 0
+        if limit and self._serp_usage.get('request_count', 0) >= limit:
+            next_month = self._next_month_start()
+            self._serp_usage['disabled_until'] = next_month.isoformat()
+            self._save_serp_usage_state()
+            return False, 'SERP API 月度额度已用完，本月将跳过 SERP 请求'
+        return True, None
+
+    def _record_serp_api_success(self) -> None:
+        month_key = datetime.utcnow().strftime('%Y-%m')
+        if self._serp_usage.get('month') != month_key:
+            self._serp_usage = {'month': month_key, 'request_count': 0, 'failure_count': 0, 'disabled_until': None}
+        self._serp_usage['request_count'] = int(self._serp_usage.get('request_count', 0)) + 1
+        self._save_serp_usage_state()
+        limit = max(int(self.serp_monthly_limit), 0) if self.serp_monthly_limit else 0
+        if limit and self._serp_usage['request_count'] >= limit:
+            self._warn_once('serp_api_monthly_limit_hit', 'ℹ️ SERP API 月度额度已达上限，后续将自动暂停')
+
+    def _record_serp_api_failure(self, reason: str = '') -> None:
+        month_key = datetime.utcnow().strftime('%Y-%m')
+        if self._serp_usage.get('month') != month_key:
+            self._serp_usage = {'month': month_key, 'request_count': 0, 'failure_count': 0, 'disabled_until': None}
+        self._serp_usage['failure_count'] = int(self._serp_usage.get('failure_count', 0)) + 1
+        limit = max(int(self.serp_failure_limit), 0) if self.serp_failure_limit else 0
+        if limit and self._serp_usage['failure_count'] >= limit:
+            disable_days = max(int(self.serp_failure_disable_days), 1)
+            until = datetime.utcnow() + timedelta(days=disable_days)
+            self._serp_usage['disabled_until'] = until.isoformat()
+            self._warn_once('serp_api_failure_lock', f"⚠️ SERP API 连续失败次数过多，已暂停 {disable_days} 天")
+        self._save_serp_usage_state()
 
     def _warn_once(self, key: str, message: str) -> None:
         if not message:
@@ -304,6 +397,14 @@ class SerpAnalyzer:
             self._warn_once('serp_api_unavailable', f"⚠️ {reason}，跳过 SERP API 查询")
             return None
 
+        allowed, quota_reason = self._serp_api_quota_available()
+        if not allowed:
+            message = quota_reason or 'SERP API 已暂停，跳过 SERP 查询'
+            warn_key = f"serp_api_quota_block_{hash(message)}"
+            prefix = '⚠️ ' if not message.startswith('⚠️') else ''
+            self._warn_once(warn_key, f"{prefix}{message}")
+            return None
+
         params = {
             'api_key': self.serp_api_key,
             'q': query,
@@ -312,6 +413,7 @@ class SerpAnalyzer:
         }
 
         last_error = None
+        failure_recorded = False
 
         for attempt in range(1, self.max_retries + 1):
             # 优先尝试代理请求，让代理管理器统一限速/重试
@@ -325,7 +427,9 @@ class SerpAnalyzer:
                     )
                     if response:
                         response.raise_for_status()
-                        return response.json()
+                        data = response.json()
+                        self._record_serp_api_success()
+                        return data
                 except Exception as proxy_error:
                     last_error = proxy_error
                     print(f"⚠️ SERP API 代理请求失败({attempt}/{self.max_retries}): {proxy_error}")
@@ -335,14 +439,37 @@ class SerpAnalyzer:
             try:
                 response = self.serp_session.get(self.serp_api_url, params=params, timeout=30)
                 self._record_serp_request()
+
+                if response.status_code == 429:
+                    retry_after = response.headers.get('Retry-After') or response.headers.get('retry-after')
+                    try:
+                        retry_after_seconds = float(retry_after)
+                    except (TypeError, ValueError):
+                        retry_after_seconds = max(self.serp_rate_limit_window / max(self.serp_max_requests_per_minute, 1), 10)
+                    cooldown = max(retry_after_seconds, 5.0)
+                    self._serp_backoff_until = time.time() + cooldown
+                    self._warn_once(
+                        'serp_api_rate_limit',
+                        f"⚠️ SERP API 返回 429，进入冷却 {cooldown:.1f} 秒后再试"
+                    )
+                    self._record_serp_api_failure('rate_limit')
+                    failure_recorded = True
+                    time.sleep(cooldown)
+                    continue
+
                 response.raise_for_status()
-                return response.json()
+                data = response.json()
+                self._record_serp_api_success()
+                return data
             except requests.exceptions.SSLError as ssl_error:
                 last_error = ssl_error
                 self._reset_serp_session()
             except requests.exceptions.RequestException as req_error:
                 last_error = req_error
                 self._reset_serp_session()
+                if attempt == self.max_retries:
+                    self._record_serp_api_failure('request_exception')
+                    failure_recorded = True
 
             if attempt < self.max_retries:
                 base_delay = max(self.request_delay, 0.5)
@@ -351,10 +478,16 @@ class SerpAnalyzer:
                 time.sleep(backoff)
             else:
                 print(f"SERP API 搜索失败: {last_error or '未知错误'}")
+                if not failure_recorded:
+                    self._record_serp_api_failure('exhausted')
+                    failure_recorded = True
 
         if self._google_api_available:
             self._warn_once('serp_api_fallback', 'ℹ️ SERP API 不可用，回退到 Google Custom Search API')
             return self._search_with_google_api(query)
+
+        if last_error and not failure_recorded:
+            self._record_serp_api_failure('exhausted')
 
         return None
 
