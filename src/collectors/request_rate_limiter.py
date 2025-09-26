@@ -20,12 +20,12 @@ class RequestRateLimiter:
 
     def __init__(
         self,
-        min_interval: float = 1.0,
-        max_requests_per_minute: int = 30,
-        max_requests_per_hour: Optional[int] = 300,
+        min_interval: float = 3.0,
+        max_requests_per_minute: int = 15,
+        max_requests_per_hour: Optional[int] = 200,
         max_requests_per_day: Optional[int] = 2000,
-        max_min_interval: float = 20.0,
-        throttle_cooldown: float = 240.0,
+        max_min_interval: float = 30.0,
+        throttle_cooldown: float = 300.0,
     ) -> None:
         """初始化频率控制器"""
         self.base_min_interval = float(min_interval)
@@ -128,8 +128,8 @@ class RequestRateLimiter:
     def register_throttle(self, severity: str = 'medium') -> float:
         """记录一次节流事件并返回建议等待时间"""
         severity_key = (severity or 'medium').lower()
-        multiplier_map = {'low': 1.3, 'medium': 1.6, 'high': 2.2}
-        cooldown_map = {'low': 12.0, 'medium': 25.0, 'high': 45.0}
+        multiplier_map = {'low': 1.3, 'medium': 1.6, 'high': 2.4}
+        cooldown_map = {'low': 20.0, 'medium': 45.0, 'high': 120.0}
         multiplier = multiplier_map.get(severity_key, multiplier_map['medium'])
         cooldown = cooldown_map.get(severity_key, cooldown_map['medium'])
 

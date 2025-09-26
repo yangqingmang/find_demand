@@ -661,8 +661,8 @@ class TrendManager(BaseManager):
                     'error': str(e)
                 }
         
-        # 使用线程池并行处理（注意：由于API限制，实际效果可能有限）
-        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        # 使用受限的线程池避免触发Google Trends的速率限制
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
             future_to_keyword = {
                 executor.submit(analyze_single_keyword, keyword): keyword 
                 for keyword in keywords
