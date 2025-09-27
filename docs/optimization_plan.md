@@ -15,17 +15,17 @@
 ## 优化路线图
 
 ### Phase 1：速率 & 清洗快速缓解（优先完成）
-1. **统一 Trends 限流接入**  
+1. ✅ **统一 Trends 限流接入**  
    - 修改 `TrendsCollector` 及相关 helper，在所有对 `trends_session` 的请求前调用 `wait_for_next_request()`。
    - 为 `_fetch_trending_via_api`、`_collect_trends_related_candidates`、`related_queries` 重试逻辑增加“429 冷却中跳过”标记，避免风暴式重置。  
    - 交付：带测试日志的 MR，附运行 `python main.py --all` 的截断输出验证。
 
-2. **清洗链路瘦身**  
+2. ✅ **清洗链路瘦身**  
    - 为 `clean_terms` 增加禁用语言检测的配置与缓存；默认在批量清洗时跳过或缓存结果。
    - 在 `handle_all_workflow` 中使用内存 DataFrame 传递而非临时文件传递，减少多余落盘。
    - 交付：单元测试覆盖新配置；运行耗时前后对比记录。
 
-3. **Suggestion Collector 限速与采样**  
+3. ✅ **Suggestion Collector 限速与采样**  
    - 增加全局 `asyncio.Semaphore` 或简单延迟控制，限制 `seed × source` 同步请求数。
    - 对大于阈值的 seed 池进行采样或批次化，记录命中率指标。
    - 交付：采集日志展示命中/跳过统计。
