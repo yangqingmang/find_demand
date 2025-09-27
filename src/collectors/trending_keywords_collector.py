@@ -409,8 +409,11 @@ class TrendingKeywordsCollector:
             df['query'] = df['keyword']
         
         try:
-            from src.pipeline.cleaning.cleaner import clean_terms
-            cleaned = clean_terms(df['query'].astype(str).tolist())
+            from src.pipeline.cleaning.cleaner import clean_terms, CleaningConfig
+            cleaned = clean_terms(
+                df['query'].astype(str).tolist(),
+                CleaningConfig(enable_langdetect=False)
+            )
             if not cleaned:
                 return pd.DataFrame(columns=['query'])
             return pd.DataFrame({'query': cleaned})

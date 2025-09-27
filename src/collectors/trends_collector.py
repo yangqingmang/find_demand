@@ -14,6 +14,10 @@ from config.config_manager import get_config
 config = get_config()
 
 from .google_trends_session import get_global_session
+from .request_rate_limiter import (
+    wait_for_next_request,
+    register_rate_limit_event,
+)
 
 class TrendsCollector:
     """Google Trends 数据采集类"""
@@ -47,6 +51,7 @@ class TrendsCollector:
         self.retries = retries
         self.backoff_factor = backoff_factor
         self.logger = Logger()
+        self._cooldown_until = 0.0
         
         # 直接使用 CustomTrendsCollector，避免循环依赖
         try:
@@ -121,6 +126,10 @@ class TrendsCollector:
         url = ''
         params={}
 
+        if self._is_in_cooldown():
+            self.logger.warning("⚠️ TrendsCollector 仍在冷却窗口内，跳过请求: %s", request_type)
+            return None
+
         try:
             if request_type == 'explore':
                 url = self.API_CONFIG['base_urls']['explore']
@@ -154,15 +163,17 @@ class TrendsCollector:
             
             # 使用统一的session管理
             if self.trends_collector and hasattr(self.trends_collector, 'session'):
+                if not self._wait_for_slot():
+                    return None
                 time.sleep(2)
                 response = self.trends_collector.session.get(full_url, headers=self.API_CONFIG['headers'], timeout=self.timeout)
             else:
                 self.logger.error("trends_collector未初始化或没有session")
                 return None
-            
+
             # 打印响应状态
             self.logger.info(f"📡 响应状态码: {response.status_code}")
-            
+
             if response.status_code == 200:
                 content = response.text
                 if content.startswith(")]}',"):
@@ -171,13 +182,14 @@ class TrendsCollector:
                     content = content[4:]
                 return json.loads(content)
             elif response.status_code == 429:
-                self.logger.error("API请求过于频繁，等待5秒")
-                time.sleep(5)
+                penalty = register_rate_limit_event('high')
+                self._start_cooldown(penalty)
+                self.logger.error("API请求过于频繁，触发冷却 %.1f 秒", penalty)
                 return None
             else:
                 self.logger.error(f"API请求失败: {response.status_code}")
                 return None
-                
+
         except Exception as e:
             self.logger.error(f"API请求异常: {e}")
             return None
@@ -221,6 +233,10 @@ class TrendsCollector:
     def _fetch_trending_via_api(self, geo=None, timeframe=None):
         """通过API获取热门关键词"""
 
+        if self._is_in_cooldown():
+            self.logger.warning("⚠️ TrendsCollector 仍在冷却窗口内，跳过 trending API 调用")
+            return pd.DataFrame(columns=['query', 'value', 'growth'])
+
         try:
             # 完全按照成功的curl请求
             url = "https://trends.google.com/trends/api/explore"
@@ -229,16 +245,18 @@ class TrendsCollector:
                 'tz': '360',
                 'req': '{"comparisonItem":[{"keyword":"","geo":"US","time":"now 7-d"}],"category":0,"property":""}'
             }
-            
+
             # 使用公共session管理
             trends_session = get_global_session()
-            
+
             try:
+                if not self._wait_for_slot():
+                    return pd.DataFrame(columns=['query', 'value', 'growth'])
                 response = trends_session.get(url, params=params)
             except Exception as session_error:
                 self.logger.error(f"❌ 请求失败: {session_error}")
                 return pd.DataFrame(columns=['query', 'value', 'growth'])
-            
+
             if response.status_code == 200:
                 content = response.text
                 
@@ -286,12 +304,14 @@ class TrendsCollector:
                                         'req': json.dumps(widget.get('request', {})),
                                         'token': token
                                     }
-                                    
+
                                     self.logger.info("🔍 正在请求related_searches接口...")
                                     # 使用公共session管理
                                     trends_session = get_global_session()
+                                    if not self._wait_for_slot():
+                                        return pd.DataFrame(columns=['query', 'value', 'growth'])
                                     related_response = trends_session.get(related_url, params=related_params)
-                                    
+
                                     if related_response.status_code == 200:
                                         related_content = related_response.text
                                         # 处理特殊前缀
@@ -323,7 +343,17 @@ class TrendsCollector:
                                             
                                         except json.JSONDecodeError as e:
                                             self.logger.error(f"Related searches JSON解析失败: {e}")
-                                    
+                                    else:
+                                        if related_response.status_code == 429:
+                                            penalty_inner = register_rate_limit_event('high')
+                                            self._start_cooldown(penalty_inner)
+                                            self.logger.error("❌ related_searches 命中 429，冷却 %.1f 秒", penalty_inner)
+                                        else:
+                                            self.logger.error(
+                                                f"⚠️ related_searches 请求失败: {related_response.status_code}"
+                                            )
+                                        return pd.DataFrame(columns=['query', 'value', 'growth'])
+
                                     break
                     
                     raise RuntimeError("无法从 Google Trends 获取 related searches 数据，且没有可用的备选数据源")
@@ -332,7 +362,12 @@ class TrendsCollector:
                     self.logger.error(f"尝试解析的内容: {content[:200]}")
                     raise
             else:
-                self.logger.error(f"❌ 请求失败，状态码: {response.status_code}")
+                if response.status_code == 429:
+                    penalty = register_rate_limit_event('high')
+                    self._start_cooldown(penalty)
+                    self.logger.error("❌ trending API 命中 429，已进入冷却 %.1f 秒", penalty)
+                else:
+                    self.logger.error(f"❌ 请求失败，状态码: {response.status_code}")
                 raise RuntimeError(f"Google Trends related searches 请求失败，状态码: {response.status_code}")
 
         except Exception as e:
@@ -379,6 +414,29 @@ class TrendsCollector:
         except Exception as e:
             self.logger.error(f"获取相关查询失败: {e}")
             return {}
+
+    def _is_in_cooldown(self) -> bool:
+        return time.time() < self._cooldown_until
+
+    def _start_cooldown(self, seconds: float) -> None:
+        seconds = max(float(seconds or 0.0), 0.0)
+        if seconds <= 0:
+            return
+        new_until = time.time() + seconds
+        if new_until > self._cooldown_until:
+            self._cooldown_until = new_until
+            self.logger.warning("⏳ TrendsCollector 进入冷却，剩余 %.1f 秒", seconds)
+
+    def _wait_for_slot(self) -> bool:
+        try:
+            wait_for_next_request()
+            return True
+        except RuntimeError as exc:
+            self.logger.error(f"❌ 请求被限流守卫阻止: {exc}")
+            return False
+        except Exception as exc:
+            self.logger.warning(f"⚠️ 等待限流槽位时异常: {exc}")
+            return True
 
     def get_related_topics(self, keyword, geo='', timeframe='today 12-m'):
         """获取相关主题"""

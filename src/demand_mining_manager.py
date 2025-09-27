@@ -9,9 +9,8 @@ import os
 import sys
 import json
 import pandas as pd
-import tempfile
 from datetime import datetime
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Union, Sequence
 
 # 添加src目录到Python路径
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
@@ -87,16 +86,38 @@ class IntegratedDemandMiningManager:
         if self.new_word_detection_available:
             print("🔍 新词检测功能已启用")
 
-    def analyze_keywords(self, input_file: str, output_dir: str = None, enable_serp: bool = False) -> Dict[str, Any]:
-        """分析关键词文件（包含新词检测和可选的SERP分析）"""
-        # 执行基础关键词分析
-        result = self.keyword_manager.analyze(input_file, 'file', output_dir)
+    def analyze_keywords(
+        self,
+        input_data: Union[str, Sequence[str], pd.DataFrame],
+        output_dir: str = None,
+        enable_serp: bool = False
+    ) -> Dict[str, Any]:
+        """分析关键词输入（可接受文件路径、序列或DataFrame）"""
+
+        keywords_df: pd.DataFrame
+
+        if isinstance(input_data, pd.DataFrame):
+            keywords_df = input_data.copy()
+            source_payload = keywords_df.get('query', pd.Series(dtype=str)).astype(str).tolist()
+            result = self.keyword_manager.analyze(source_payload, 'keywords', output_dir)
+        elif isinstance(input_data, (list, tuple, set)):
+            source_payload = [str(item) for item in input_data if str(item).strip()]
+            keywords_df = pd.DataFrame({'query': source_payload})
+            result = self.keyword_manager.analyze(source_payload, 'keywords', output_dir)
+        else:
+            # 默认为文件路径
+            result = self.keyword_manager.analyze(input_data, 'file', output_dir)
+            try:
+                keywords_df = pd.read_csv(input_data)
+            except Exception as read_err:
+                print(f"⚠️ 无法读取关键词文件用于新词检测: {read_err}")
+                keywords_df = pd.DataFrame(columns=['query'])
 
         # 如果启用SERP分析，执行SERP分析
         if enable_serp:
             try:
                 print("🔍 正在进行SERP分析...")
-                result = self._perform_serp_analysis(result, input_file)
+                result = self._perform_serp_analysis(result, input_data)
                 print("✅ SERP分析完成")
             except Exception as e:
                 print(f"⚠️ SERP分析失败: {e}")
@@ -107,11 +128,11 @@ class IntegratedDemandMiningManager:
             try:
                 print("🔍 正在进行新词检测...")
 
-                # 读取关键词数据
-                df = pd.read_csv(input_file)
+                if keywords_df.empty:
+                    raise ValueError("关键词数据为空，无法执行新词检测")
 
                 # 执行新词检测
-                new_word_results = self.new_word_detector.detect_new_words(df)
+                new_word_results = self.new_word_detector.detect_new_words(keywords_df)
 
                 # 将新词检测结果合并到分析结果中
                 if 'keywords' in result:
@@ -255,7 +276,7 @@ class IntegratedDemandMiningManager:
 
         return result
 
-    def _perform_serp_analysis(self, result: Dict[str, Any], input_file: str) -> Dict[str, Any]:
+    def _perform_serp_analysis(self, result: Dict[str, Any], input_data: Union[str, Sequence[str], pd.DataFrame]) -> Dict[str, Any]:
         """执行SERP分析"""
         try:
             from src.demand_mining.analyzers.serp_analyzer import SerpAnalyzer
@@ -264,7 +285,12 @@ class IntegratedDemandMiningManager:
             serp_analyzer = SerpAnalyzer()
             
             # 读取关键词数据
-            df = pd.read_csv(input_file)
+            if isinstance(input_data, pd.DataFrame):
+                df = input_data.copy()
+            elif isinstance(input_data, (list, tuple, set)):
+                df = pd.DataFrame({'query': [str(item) for item in input_data if str(item).strip()]})
+            else:
+                df = pd.read_csv(input_data)
             
             # 对每个关键词进行SERP分析
             serp_results = []

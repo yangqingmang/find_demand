@@ -226,7 +226,7 @@ class KeywordManager(BaseManager):
         return self._serp_analyzer or None
 
     
-    def analyze(self, input_source: str, analysis_type: str = 'file', 
+    def analyze(self, input_source, analysis_type: str = 'file', 
                 output_dir: str = None, use_comprehensive: bool = False) -> Dict[str, Any]:
         """
         分析关键词
@@ -248,7 +248,13 @@ class KeywordManager(BaseManager):
         if analysis_type == 'file':
             return self._analyze_from_file(input_source, output_dir)
         elif analysis_type == 'keywords':
-            return self._analyze_from_keywords([input_source], output_dir)
+            if isinstance(input_source, (list, tuple, set)):
+                keywords = [str(kw) for kw in input_source if kw]
+            elif hasattr(input_source, 'tolist'):
+                keywords = [str(kw) for kw in input_source.tolist() if kw]
+            else:
+                keywords = [str(input_source)] if input_source else []
+            return self._analyze_from_keywords(keywords, output_dir)
         else:
             raise ValueError(f"不支持的分析类型: {analysis_type}")
     
