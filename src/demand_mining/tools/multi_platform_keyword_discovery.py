@@ -146,7 +146,7 @@ class MultiPlatformKeywordDiscovery:
         self.cluster_distance_threshold = float(filters_cfg.get('cluster_distance_threshold', 0.2))
         self.lsh_similarity_threshold = min(max(self.lsh_similarity_threshold, 0.5), 0.98)
         self.cluster_distance_threshold = min(max(self.cluster_distance_threshold, 0.05), 0.5)
-        self._cleaning_config = CleaningConfig(enable_langdetect=False)
+        self._cleaning_config = CleaningConfig()
         self._brand_filter_notice_shown = False
         self._generic_filter_notice_shown = False
 

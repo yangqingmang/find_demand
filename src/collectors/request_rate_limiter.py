@@ -12,6 +12,8 @@ import math
 from collections import deque
 from typing import Optional, Deque, Dict
 
+from .rate_limit_config import DEFAULT_RATE_LIMIT_SETTINGS
+
 logger = logging.getLogger(__name__)
 
 
@@ -251,13 +253,14 @@ def get_global_rate_limiter() -> RequestRateLimiter:
     if _global_rate_limiter is None:
         with _limiter_lock:
             if _global_rate_limiter is None:
+                settings = DEFAULT_RATE_LIMIT_SETTINGS
                 _global_rate_limiter = RequestRateLimiter(
-                    min_interval=1.0,
-                    max_requests_per_minute=30,
-                    max_requests_per_hour=300,
-                    max_requests_per_day=2000,
-                    max_min_interval=30.0,
-                    throttle_cooldown=240.0,
+                    min_interval=settings.min_interval,
+                    max_requests_per_minute=settings.max_requests_per_minute,
+                    max_requests_per_hour=settings.max_requests_per_hour,
+                    max_requests_per_day=settings.max_requests_per_day,
+                    max_min_interval=settings.max_min_interval,
+                    throttle_cooldown=settings.throttle_cooldown,
                 )
                 logger.info("🆕 创建全局请求频率控制器")
 

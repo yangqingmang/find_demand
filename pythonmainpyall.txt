@@ -1,9 +1,8 @@
-(.venv) PS D:\VscodeWorkspace\find_demand> python main.py --all
+(.venv) yangqingmang@yangqingmangdeMacBook-Pro find_demand % python main.py --all
 正在加载配置...
 ✓ 已加载公开配置
 ✓ 从 file 成功加载私钥
 ✓ 已加载加密配置
-✓ 已加载 .env 配置
 ✓ 配置加载完成
 🔍 需求挖掘分析工具 v2.0
 整合六大需求挖掘方法的智能分析系统
@@ -12,24 +11,24 @@
 
 🔍 关键词管理器初始化完成
 🔍 发现管理器初始化完成
-2025-09-25 09:22:42 - config.proxy_config_loader - INFO - ✅ 加载了 0 个有效代理
-2025-09-25 09:22:42 - config.proxy_config_loader - INFO - ✅ 代理配置加载成功，环境: development
-2025-09-25 09:22:42 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
-2025-09-25 09:22:42 - src.collectors.google_trends_session - INFO - Session初始化成功
-2025-09-25 09:22:42 - src.collectors.google_trends_session - INFO - 🔧 正在初始化Google Trends会话...
-2025-09-25 09:22:53 - src.collectors.google_trends_session - INFO - ✅ Google Trends会话初始化成功
-2025-09-25 09:22:53 - root - INFO - Session初始化成功
-2025-09-25 09:22:53 - src.collectors.trends_singleton - INFO - 🆕 创建新的TrendsCollector实例
-2025-09-25 09:22:53 - src.demand_mining.root_word_trends_analyzer - INFO - TrendsCollector单例获取成功
-2025-09-25 09:22:53 - root - WARNING - 代理管理器不可用，将使用直接请求
-2025-09-25 09:22:53 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
-2025-09-25 09:22:53 - root - INFO - 趋势收集器初始化成功
-2025-09-25 09:22:53 - src.demand_mining.root_word_trends_analyzer - INFO - NewWordDetector单例获取成功
-2025-09-25 09:22:53 - src.demand_mining.core.trends_cache - INFO - 缓存数据库初始化完成
-2025-09-25 09:22:53 - src.demand_mining.core.trends_cache - INFO - 趋势缓存初始化完成，缓存目录: output/reports\trends_cache
+2025-09-27 23:17:06 - config.proxy_config_loader - INFO - ✅ 加载了 0 个有效代理
+2025-09-27 23:17:06 - config.proxy_config_loader - INFO - ✅ 代理配置加载成功，环境: development
+2025-09-27 23:17:06 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
+2025-09-27 23:17:06 - src.collectors.google_trends_session - INFO - Session初始化成功
+2025-09-27 23:17:06 - src.collectors.google_trends_session - INFO - 🔧 正在初始化Google Trends会话...
+2025-09-27 23:17:20 - src.collectors.google_trends_session - INFO - ✅ Google Trends会话初始化成功
+2025-09-27 23:17:20 - root - INFO - Session初始化成功
+2025-09-27 23:17:20 - src.collectors.trends_singleton - INFO - 🆕 创建新的TrendsCollector实例
+2025-09-27 23:17:20 - src.demand_mining.root_word_trends_analyzer - INFO - TrendsCollector单例获取成功
+2025-09-27 23:17:20 - root - WARNING - 代理管理器不可用，将使用直接请求
+2025-09-27 23:17:20 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
+2025-09-27 23:17:20 - root - INFO - 趋势收集器初始化成功
+2025-09-27 23:17:20 - src.demand_mining.root_word_trends_analyzer - INFO - NewWordDetector单例获取成功
+2025-09-27 23:17:20 - src.demand_mining.core.trends_cache - INFO - 缓存数据库初始化完成
+2025-09-27 23:17:20 - src.demand_mining.core.trends_cache - INFO - 趋势缓存初始化完成，缓存目录: output/reports/trends_cache
 📈 趋势管理器初始化完成（已启用缓存）
-2025-09-25 09:22:53 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
-2025-09-25 09:22:53 - root - INFO - 趋势收集器初始化成功
+2025-09-27 23:17:20 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
+2025-09-27 23:17:20 - root - INFO - 趋势收集器初始化成功
 ✅ 新词检测器初始化成功
 🚀 集成需求挖掘管理器初始化完成
 📊 已加载关键词管理器、发现管理器、趋势管理器
@@ -38,427 +37,977 @@
    第一步: 搜索热门关键词 (Google Trends + TrendingKeywords.net)
    第二步: 基于热门关键词进行多平台发现
 🔍 正在获取 Google Trends Rising Queries...
-2025-09-25 09:22:53 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
-2025-09-25 09:22:54 - root - INFO - 📄 原始响应详细: ')]}\'\n{"widgets":[{"r'
-2025-09-25 09:22:54 - root - INFO - 找到JSON开始位置: 5
-2025-09-25 09:22:54 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
-2025-09-25 09:22:54 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
-2025-09-25 09:22:54 - root - INFO - ✅ 成功解析JSON数据
-2025-09-25 09:22:54 - root - INFO - 📊 数据结构: ['widgets', 'keywords', 'timeRanges', 'shareText', 'shouldShowMultiHeatMapMessage']
-2025-09-25 09:22:54 - root - INFO - 🔍 Widget类型: RELATED_TOPICS
-2025-09-25 09:22:54 - root - INFO - 🔍 Widget类型: RELATED_QUERIES
-2025-09-25 09:22:54 - root - INFO - 🎯 找到RELATED_QUERIES token: APP6_UEAAAAAaNXq8tbE...
-2025-09-25 09:22:54 - root - INFO - 🔍 正在请求related_searches接口...
-2025-09-25 09:22:55 - root - INFO - ✅ 成功获取related searches数据
-2025-09-25 09:22:55 - root - INFO - 📊 Related data结构: ['default']
-2025-09-25 09:22:55 - root - INFO - 🎯 解析到 38 个真实关键词
+2025-09-27 23:17:20 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
+2025-09-27 23:17:20 - src.collectors.request_rate_limiter - INFO - 🚦 初始化请求频率控制器: 最小间隔1.0秒, 每分钟最多30次请求
+2025-09-27 23:17:20 - src.collectors.request_rate_limiter - INFO - 🆕 创建全局请求频率控制器
+2025-09-27 23:17:20 - root - INFO - 📄 原始响应详细: ')]}\'\n{"widgets":[{"r'
+2025-09-27 23:17:20 - root - INFO - 找到JSON开始位置: 5
+2025-09-27 23:17:20 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
+2025-09-27 23:17:20 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
+2025-09-27 23:17:20 - root - INFO - ✅ 成功解析JSON数据
+2025-09-27 23:17:20 - root - INFO - 📊 数据结构: ['widgets', 'keywords', 'timeRanges', 'shareText', 'shouldShowMultiHeatMapMessage']
+2025-09-27 23:17:20 - root - INFO - 🔍 Widget类型: RELATED_TOPICS
+2025-09-27 23:17:20 - root - INFO - 🔍 Widget类型: RELATED_QUERIES
+2025-09-27 23:17:20 - root - INFO - 🎯 找到RELATED_QUERIES token: APP6_UEAAAAAaNlRgPhh...
+2025-09-27 23:17:20 - root - INFO - 🔍 正在请求related_searches接口...
+2025-09-27 23:17:22 - root - INFO - ✅ 成功获取related searches数据
+2025-09-27 23:17:22 - root - INFO - 📊 Related data结构: ['default']
+2025-09-27 23:17:22 - root - INFO - 🎯 解析到 37 个真实关键词
 ✅ Google Trends: 获取到 15 个关键词
 🔍 正在获取 TrendingKeywords.net 数据...
-2025-09-25 09:22:55 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 1 页...
-2025-09-25 09:22:55 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
-2025-09-25 09:22:57 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
-2025-09-25 09:22:57 - src.collectors.trending_keywords_collector - INFO - 第 1 页获取到 18 个关键词
-2025-09-25 09:22:58 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 2 页...
-2025-09-25 09:22:58 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
-2025-09-25 09:22:59 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
-2025-09-25 09:22:59 - src.collectors.trending_keywords_collector - INFO - 第 2 页获取到 18 个关键词
-2025-09-25 09:23:02 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 3 页...
-2025-09-25 09:23:02 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
-2025-09-25 09:23:02 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
-2025-09-25 09:23:02 - src.collectors.trending_keywords_collector - INFO - 第 3 页获取到 18 个关键词
-2025-09-25 09:23:02 - src.collectors.trending_keywords_collector - INFO - 总共获取到 54 个关键词
-✅ TrendingKeywords.net: 获取到 1 个关键词
+2025-09-27 23:17:22 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 1 页...
+2025-09-27 23:17:22 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
+2025-09-27 23:17:23 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
+2025-09-27 23:17:23 - src.collectors.trending_keywords_collector - INFO - 第 1 页获取到 18 个关键词
+2025-09-27 23:17:24 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 2 页...
+2025-09-27 23:17:24 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
+2025-09-27 23:17:26 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
+2025-09-27 23:17:26 - src.collectors.trending_keywords_collector - INFO - 第 2 页获取到 18 个关键词
+2025-09-27 23:17:28 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 3 页...
+2025-09-27 23:17:28 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
+2025-09-27 23:17:29 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
+2025-09-27 23:17:30 - src.collectors.trending_keywords_collector - INFO - 第 3 页获取到 18 个关键词
+2025-09-27 23:17:30 - src.collectors.trending_keywords_collector - INFO - 总共获取到 54 个关键词
+✅ TrendingKeywords.net: 获取到 6 个关键词
 🔍 正在抓取 RSS 热点...
 ✅ RSS 热点: 获取到 20 个热点词
-2025-09-25 09:23:08 - src.collectors.request_rate_limiter - INFO - 🚦 初始化请求频率控制器: 最小间隔5.0秒, 每分钟最多8次请求
-2025-09-25 09:23:08 - src.collectors.request_rate_limiter - INFO - 🆕 创建全局请求频率控制器
-2025-09-25 09:23:38 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 88% (7/8)
-2025-09-25 09:24:39 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 88% (7/8)
-2025-09-25 09:25:39 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 88% (7/8)
-2025-09-25 09:26:39 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 88% (7/8)
+2025-09-27 23:17:56 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 80% (24/30)
 ✅ Google Trends 关联扩展: 新增 63 个候选关键词
-✅ 热门联想: 新增 128 个候选关键词
-[Filter] 已过滤 26 条低质量热门词
-🎯 合并后总计: 34 个关键词
+2025-09-27 23:18:33 - src.collectors.suggestion_sources - INFO - SuggestionCollector: 种子数 41 超过上限 40，将截断处理
+2025-09-27 23:22:59 - src.collectors.suggestion_sources - INFO - SuggestionCollector: 本次收集结束，处理 40/40 个种子，发送 200 次请求，获得 322 条建议
+✅ 热门联想: 新增 322 个候选关键词
+   • 联想摘要: 种子 40/40 | 请求 200 | 建议 322
+[Filter] 已过滤 24 条低质量热门词
+🎯 合并后总计: 36 个关键词
 📊 数据源分布:
-   • RSS/Google News AI: 15 个
+   • RSS/Google News AI: 16 个
+   • TrendingKeywords.net: 6 个
    • Google Trends Suggestion: 5 个
-   • Google Trends Related Rising: 4 个
-   • TrendingKeywords.net: 1 个
-🔍 第一步: 对 4 个热门关键词进行需求挖掘...
-🚀 开始关键词分析 - 类型: file, 综合分析: False
-✅ 成功读取 4 条关键词数据
-🔍 分析关键词 (1/4): chatgpt
-2025-09-25 09:29:11 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 第一步: 对 19 个热门关键词进行需求挖掘...
+🚀 开始关键词分析 - 类型: keywords, 综合分析: False
+✅ 接收到 19 个关键词
+🔍 分析关键词 (1/19): amazon
+2025-09-27 23:22:59 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
 提示: 当前代理配置已禁用代理，SERP 分析器将使用直连模式
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-⚠️ 未能获取 chatgpt 的 SERP 数据，返回空结果
-🔍 分析关键词 (2/4): hix bypass
-2025-09-25 09:29:35 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-⚠️ 未能获取 hix bypass 的 SERP 数据，返回空结果
-🔍 分析关键词 (3/4): weathertech
-2025-09-25 09:29:59 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-⚠️ 未能获取 weathertech 的 SERP 数据，返回空结果
-🔍 分析关键词 (4/4): weatherguard
-2025-09-25 09:30:24 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-⚠️ 未能获取 weatherguard 的 SERP 数据，返回空结果
-✅ 第一步完成! 分析了 4 个热门关键词
+🔍 分析关键词 (2/19): nfl
+2025-09-27 23:23:02 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (3/19): apple
+2025-09-27 23:23:03 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (4/19): chatgpt
+2025-09-27 23:23:04 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (5/19): walmart
+2025-09-27 23:23:05 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (6/19): gmail
+2025-09-27 23:23:07 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (7/19): charlie kirk
+2025-09-27 23:23:08 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (8/19): calculator
+2025-09-27 23:23:10 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (9/19): translate
+2025-09-27 23:23:11 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (10/19): meta ai whatsapp
+2025-09-27 23:23:12 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (11/19): adobe firefly
+2025-09-27 23:23:13 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (12/19): jfif to jpg
+2025-09-27 23:23:15 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (13/19): hix bypass
+2025-09-27 23:23:16 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (14/19): lumalabs ai
+2025-09-27 23:23:18 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (15/19): udio ai
+2025-09-27 23:23:19 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (16/19): weathertech
+2025-09-27 23:23:20 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (17/19): climate
+2025-09-27 23:23:24 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (18/19): weatherguard
+2025-09-27 23:23:28 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (19/19): the wedding people a novel
+2025-09-27 23:23:31 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+✅ 第一步完成! 分析了 19 个热门关键词
 📊 发现 0 个高机会关键词
 
 🌐 第二步: 基于热门关键词进行多平台关键词发现...
-🔍 正在发现与 4 个关键词相关的关键词...
+🔍 正在发现与 10 个关键词相关的关键词...
 🚀 开始多平台关键词发现...
 🔍 正在分析 Reddit r/artificial...
-❌ Reddit r/artificial 分析失败: 403 Client Error: Blocked for url: https://www.reddit.com/r/artificial/hot.json?limit=50
 🔍 正在分析 Reddit r/MachineLearning...
-❌ Reddit r/MachineLearning 分析失败: 403 Client Error: Blocked for url: https://www.reddit.com/r/MachineLearning/hot.json?limit=50
 🔍 正在分析 Reddit r/deeplearning...
-❌ Reddit r/deeplearning 分析失败: 403 Client Error: Blocked for url: https://www.reddit.com/r/deeplearning/hot.json?limit=50
 🔍 正在分析 Reddit r/ChatGPT...
-❌ Reddit r/ChatGPT 分析失败: 403 Client Error: Blocked for url: https://www.reddit.com/r/ChatGPT/hot.json?limit=50
 🔍 正在分析 Reddit r/OpenAI...
-❌ Reddit r/OpenAI 分析失败: 403 Client Error: Blocked for url: https://www.reddit.com/r/OpenAI/hot.json?limit=50
+🔍 正在分析 Hacker News (查询: the wedding people a novel)...
 🔍 正在分析 Hacker News (查询: weathertech)...
-🔍 正在分析 Hacker News (查询: weatherguard)...
-🔍 正在分析 Hacker News (查询: hix bypass)...
-🔍 正在分析 Hacker News (查询: chatgpt)...
+🔍 正在分析 Hacker News (查询: walmart)...
+🔍 正在分析 Hacker News (查询: jfif to jpg)...
+🔍 正在分析 Hacker News (查询: udio ai)...
+🔍 正在分析 Hacker News (查询: adobe firefly)...
+🔍 正在分析 Hacker News (查询: meta ai whatsapp)...
+🔍 正在分析 Hacker News (查询: charlie kirk)...
+🔍 正在分析 Hacker News (查询: amazon)...
+🔍 正在分析 Hacker News (查询: gmail)...
+🔍 正在分析 YouTube 搜索建议 (查询: the wedding people a novel)...
 🔍 正在分析 YouTube 搜索建议 (查询: weathertech)...
-🔍 正在分析 YouTube 搜索建议 (查询: weatherguard)...
-🔍 正在分析 YouTube 搜索建议 (查询: hix bypass)...
-🔍 正在分析 YouTube 搜索建议 (查询: chatgpt)...
+🔍 正在分析 YouTube 搜索建议 (查询: walmart)...
+🔍 正在分析 YouTube 搜索建议 (查询: jfif to jpg)...
+🔍 正在分析 YouTube 搜索建议 (查询: udio ai)...
+🔍 正在分析 YouTube 搜索建议 (查询: adobe firefly)...
+🔍 正在分析 YouTube 搜索建议 (查询: meta ai whatsapp)...
+🔍 正在分析 YouTube 搜索建议 (查询: charlie kirk)...
+🔍 正在分析 YouTube 搜索建议 (查询: amazon)...
+🔍 正在分析 YouTube 搜索建议 (查询: gmail)...
+🔍 正在分析 Google 搜索建议 (查询: the wedding people a novel)...
 🔍 正在分析 Google 搜索建议 (查询: weathertech)...
-🔍 正在分析 Google 搜索建议 (查询: weatherguard)...
-🔍 正在分析 Google 搜索建议 (查询: hix bypass)...
-🔍 正在分析 Google 搜索建议 (查询: chatgpt)...
+🔍 正在分析 Google 搜索建议 (查询: walmart)...
+🔍 正在分析 Google 搜索建议 (查询: jfif to jpg)...
+🔍 正在分析 Google 搜索建议 (查询: udio ai)...
+🔍 正在分析 Google 搜索建议 (查询: adobe firefly)...
+🔍 正在分析 Google 搜索建议 (查询: meta ai whatsapp)...
+🔍 正在分析 Google 搜索建议 (查询: charlie kirk)...
+🔍 正在分析 Google 搜索建议 (查询: amazon)...
+🔍 正在分析 Google 搜索建议 (查询: gmail)...
+🔍 正在分析 ProductHunt (查询: the wedding people a novel)...
 🔍 正在分析 ProductHunt (查询: weathertech)...
-🔍 正在分析 ProductHunt (查询: weatherguard)...
-🔍 正在分析 ProductHunt (查询: hix bypass)...
-🔍 正在分析 ProductHunt (查询: chatgpt)...
-⚠️ 移除了 4 个品牌泛词
-⚠️ 移除了 45 个泛化头部词
-2025-09-25 09:31:56 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
-2025-09-25 09:31:56 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
-Batches: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  6.03it/s]
-✅ 发现 15 个关键词
-🎯 发现了 15 个相关关键词
-📁 发现的关键词已保存到: output/reports\discovered_keywords_20250925_093206.csv
+🔍 正在分析 ProductHunt (查询: walmart)...
+🔍 正在分析 ProductHunt (查询: jfif to jpg)...
+🔍 正在分析 ProductHunt (查询: udio ai)...
+🔍 正在分析 ProductHunt (查询: adobe firefly)...
+🔍 正在分析 ProductHunt (查询: meta ai whatsapp)...
+🔍 正在分析 ProductHunt (查询: charlie kirk)...
+🔍 正在分析 ProductHunt (查询: amazon)...
+🔍 正在分析 ProductHunt (查询: gmail)...
+⚠️ 移除了 1 个品牌泛词
+⚠️ 移除了 105 个泛化头部词
+2025-09-27 23:24:17 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: mps
+2025-09-27 23:24:17 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-09-27 23:24:17 - sentence_transformers.SentenceTransformer - WARNING - No sentence-transformers model found with name sentence-transformers/all-MiniLM-L6-v2. Creating a new one with mean pooling.
+Batches: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3/3 [00:00<00:00,  4.37it/s]
+✅ 发现 68 个关键词
+🎯 发现了 68 个相关关键词
+📁 发现的关键词已保存到: output/reports/discovered_keywords_20250927_232422.csv
 
 🔍 第三步: 对发现的关键词进行需求挖掘分析...
 🚀 开始关键词分析 - 类型: file, 综合分析: False
-✅ 成功读取 15 条关键词数据
-🔍 分析关键词 (1/15): weathertech
-2025-09-25 09:32:06 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-⚠️ 未能获取 weathertech 的 SERP 数据，返回空结果
-🔍 分析关键词 (2/15): weathertech sunshade
-2025-09-25 09:32:31 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+sunshade&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+sunshade&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+sunshade&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-⚠️ 未能获取 weathertech sunshade 的 SERP 数据，返回空结果
-🔍 分析关键词 (3/15): weathertech championship
-2025-09-25 09:32:55 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+championship&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+championship&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+championship&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-⚠️ 未能获取 weathertech championship 的 SERP 数据，返回空结果
-🔍 分析关键词 (4/15): weathertech floorliner
-2025-09-25 09:33:21 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+floorliner&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+floorliner&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+floorliner&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-⚠️ 未能获取 weathertech floorliner 的 SERP 数据，返回空结果
-🔍 分析关键词 (5/15): chatgpt pro
-2025-09-25 09:33:46 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+pro&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+pro&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+pro&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-⚠️ 未能获取 chatgpt pro 的 SERP 数据，返回空结果
-🔍 分析关键词 (6/15): chatgpt5
-2025-09-25 09:34:10 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt5&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt5&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt5&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-⚠️ 未能获取 chatgpt5 的 SERP 数据，返回空结果
-🔍 分析关键词 (7/15): chatgpt 4o
-2025-09-25 09:34:36 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+4o&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+4o&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+4o&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-⚠️ 未能获取 chatgpt 4o 的 SERP 数据，返回空结果
-🔍 分析关键词 (8/15): weathertech techshade
-2025-09-25 09:35:01 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+techshade&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+techshade&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+techshade&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-⚠️ 未能获取 weathertech techshade 的 SERP 数据，返回空结果
-🔍 分析关键词 (9/15): weathertech mats
-2025-09-25 09:35:25 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+mats&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+mats&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+mats&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-⚠️ 未能获取 weathertech mats 的 SERP 数据，返回空结果
-🔍 分析关键词 (10/15): weatherguard
-2025-09-25 09:35:50 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-⚠️ 未能获取 weatherguard 的 SERP 数据，返回空结果
-🔍 分析关键词 (11/15): weatherguard roofing
-2025-09-25 09:36:14 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-2025-09-25 09:36:36 - urllib3.connectionpool - WARNING - Retrying (Retry(total=2, connect=2, read=2, redirect=None, status=None)) after connection broken by 'ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x0000022D0001CF50>, 'Connection to serpapi.com timed out. (connect timeout=30)')': /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+roofing&engine=google&num=10
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+roofing&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+roofing&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+roofing&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-⚠️ 未能获取 weatherguard roofing 的 SERP 数据，返回空结果
-🔍 分析关键词 (12/15): weatherguard paint
-2025-09-25 09:36:59 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+paint&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+paint&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+paint&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-⚠️ 未能获取 weatherguard paint 的 SERP 数据，返回空结果
-🔍 分析关键词 (13/15): weatherguard windows
-2025-09-25 09:37:24 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+windows&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+windows&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+windows&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-⚠️ 未能获取 weatherguard windows 的 SERP 数据，返回空结果
-🔍 分析关键词 (14/15): chatgpt agent
-2025-09-25 09:37:49 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+agent&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+agent&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+agent&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-⚠️ 未能获取 chatgpt agent 的 SERP 数据，返回空结果
-🔍 分析关键词 (15/15): chatgpt 4
-2025-09-25 09:38:15 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+4&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+4&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+4&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-⚠️ 未能获取 chatgpt 4 的 SERP 数据，返回空结果
+✅ 成功读取 68 条关键词数据
+🔍 分析关键词 (1/68): ai assistant
+2025-09-27 23:24:22 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (2/68): neural network
+2025-09-27 23:24:27 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (3/68): deep learning
+2025-09-27 23:24:32 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (4/68): computer vision
+2025-09-27 23:24:35 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (5/68): amazon
+2025-09-27 23:24:40 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (6/68): amazon 感謝祭
+2025-09-27 23:24:42 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (7/68): weathertech
+2025-09-27 23:24:44 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (8/68): weathertech sunshade
+2025-09-27 23:24:45 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (9/68): weathertech championship
+2025-09-27 23:24:50 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (10/68): weathertech floorliner
+2025-09-27 23:24:54 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (11/68): walmart
+2025-09-27 23:24:57 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (12/68): walmart shopping
+2025-09-27 23:24:58 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (13/68): walmart cm
+2025-09-27 23:25:02 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (14/68): walmart commercial
+2025-09-27 23:25:09 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (15/68): walmart prank
+2025-09-27 23:25:13 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (16/68): walmart meme
+2025-09-27 23:25:16 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (17/68): walmart oven
+2025-09-27 23:25:21 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (18/68): walmart trump
+2025-09-27 23:25:26 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (19/68): walmart customers
+2025-09-27 23:25:29 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (20/68): udio ai 使 方
+2025-09-27 23:25:33 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (21/68): udio ai
+2025-09-27 23:25:41 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (22/68): gmail 追加
+2025-09-27 23:25:42 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (23/68): udio ai tutorial
+2025-09-27 23:25:46 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (24/68): udio ai tutorial hindi
+2025-09-27 23:25:49 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (25/68): adobe firefly
+2025-09-27 23:25:53 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (26/68): adobe firefly 使 方
+2025-09-27 23:25:54 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (27/68): adobe firefly 動画生成
+2025-09-27 23:25:57 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (28/68): adobe firefly 商用利用
+2025-09-27 23:26:00 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (29/68): adobe firefly 作成
+2025-09-27 23:26:03 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (30/68): adobe firefly 同
+2025-09-27 23:26:07 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (31/68): adobe firefly 似顔絵
+2025-09-27 23:26:11 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (32/68): adobe firefly 料金
+2025-09-27 23:26:14 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (33/68): charlie kirk
+2025-09-27 23:26:17 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (34/68): 2025
+2025-09-27 23:26:19 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (35/68): udio ai 日本語
+2025-09-27 23:26:24 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (36/68): walmart stock
+2025-09-27 23:26:28 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (37/68): amazon cm
+2025-09-27 23:26:31 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (38/68): amazon 納税
+2025-09-27 23:26:35 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (39/68): gmail 変更
+2025-09-27 23:26:39 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (40/68): gmail
+2025-09-27 23:26:43 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (41/68): gmail 分
+2025-09-27 23:26:45 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (42/68): gmail 作 方
+2025-09-27 23:26:48 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (43/68): gmail 複数
+2025-09-27 23:26:51 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (44/68): gmail 一括削除
+2025-09-27 23:26:54 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (45/68): gmail 届
+2025-09-27 23:26:58 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (46/68): gmail 作成
+2025-09-27 23:27:01 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (47/68): gmail 容量減
+2025-09-27 23:27:04 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (48/68): gmail 署名設定
+2025-09-27 23:27:12 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (49/68): gmail 日本語設定
+2025-09-27 23:27:18 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (50/68): weathertech techshade
+2025-09-27 23:27:21 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (51/68): weathertech store
+2025-09-27 23:27:26 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (52/68): walmart 日本
+2025-09-27 23:27:29 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (53/68): walmart 株価
+2025-09-27 23:27:33 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (54/68): walmart ir
+2025-09-27 23:27:37 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (55/68): walmart canada
+2025-09-27 23:27:40 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (56/68): gmail 使 方
+2025-09-27 23:27:46 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (57/68): walmart logo
+2025-09-27 23:27:49 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (58/68): walmart 西友
+2025-09-27 23:27:54 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (59/68): udio ai 商用利用
+2025-09-27 23:27:59 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (60/68): udio ai 無料
+2025-09-27 23:28:05 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (61/68): adobe firefly 著作権
+2025-09-27 23:28:08 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (62/68): adobe firefly 読 方
+2025-09-27 23:28:10 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (63/68): adobe firefly 何
+2025-09-27 23:28:12 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (64/68): charlie kirk 動画
+2025-09-27 23:28:16 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (65/68): charlie kirk 参政党
+2025-09-27 23:28:18 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (66/68): amazon prime
+2025-09-27 23:28:23 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (67/68): amazon kindle
+2025-09-27 23:28:26 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
+🔍 分析关键词 (68/68): gmail 送信取 消
+2025-09-27 23:28:34 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
 🔍 正在进行新词检测...
-2025-09-25 09:38:41 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:38:41 - root - INFO -    关键词: ['weathertech']
-2025-09-25 09:38:41 - root - INFO -    时间范围: today 12-m
-2025-09-25 09:38:41 - root - INFO -    地理位置:
-2025-09-25 09:38:46 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-25 09:38:46 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:38:46 - root - INFO -    关键词: ['weathertech sunshade']
-2025-09-25 09:38:46 - root - INFO -    时间范围: today 12-m
-2025-09-25 09:38:46 - root - INFO -    地理位置:
-2025-09-25 09:38:56 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-25 09:38:56 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:38:56 - root - INFO -    关键词: ['weathertech championship']
-2025-09-25 09:38:56 - root - INFO -    时间范围: today 12-m
-2025-09-25 09:38:56 - root - INFO -    地理位置:
-2025-09-25 09:39:06 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-25 09:39:06 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:39:06 - root - INFO -    关键词: ['weathertech floorliner']
-2025-09-25 09:39:06 - root - INFO -    时间范围: today 12-m
-2025-09-25 09:39:06 - root - INFO -    地理位置:
-2025-09-25 09:39:11 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 88% (7/8)
-2025-09-25 09:39:16 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-25 09:39:16 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:39:16 - root - INFO -    关键词: ['chatgpt pro']
-2025-09-25 09:39:16 - root - INFO -    时间范围: today 12-m
-2025-09-25 09:39:16 - root - INFO -    地理位置:
-2025-09-25 09:39:46 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-25 09:39:46 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:39:46 - root - INFO -    关键词: ['chatgpt5']
-2025-09-25 09:39:46 - root - INFO -    时间范围: today 12-m
-2025-09-25 09:39:46 - root - INFO -    地理位置:
-2025-09-25 09:39:56 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-25 09:39:56 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:39:56 - root - INFO -    关键词: ['chatgpt 4o']
-2025-09-25 09:39:56 - root - INFO -    时间范围: today 12-m
-2025-09-25 09:39:56 - root - INFO -    地理位置:
-2025-09-25 09:40:06 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-25 09:40:06 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:40:06 - root - INFO -    关键词: ['weathertech techshade']
-2025-09-25 09:40:06 - root - INFO -    时间范围: today 12-m
-2025-09-25 09:40:06 - root - INFO -    地理位置:
-2025-09-25 09:40:11 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 100% (8/8)
-2025-09-25 09:40:16 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-25 09:40:16 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:40:16 - root - INFO -    关键词: ['weathertech mats']
-2025-09-25 09:40:16 - root - INFO -    时间范围: today 12-m
-2025-09-25 09:40:16 - root - INFO -    地理位置:
-2025-09-25 09:40:16 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每小时请求已使用 80% (48/60)
-2025-09-25 09:40:46 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-25 09:40:47 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:40:47 - root - INFO -    关键词: ['weatherguard']
-2025-09-25 09:40:47 - root - INFO -    时间范围: today 12-m
-2025-09-25 09:40:47 - root - INFO -    地理位置:
-2025-09-25 09:40:56 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-25 09:40:56 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:40:56 - root - INFO -    关键词: ['weatherguard roofing']
-2025-09-25 09:40:56 - root - INFO -    时间范围: today 12-m
-2025-09-25 09:40:56 - root - INFO -    地理位置:
-2025-09-25 09:41:06 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-25 09:41:06 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:41:06 - root - INFO -    关键词: ['weatherguard paint']
-2025-09-25 09:41:06 - root - INFO -    时间范围: today 12-m
-2025-09-25 09:41:06 - root - INFO -    地理位置:
-2025-09-25 09:41:16 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 88% (7/8)
-2025-09-25 09:41:16 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-25 09:41:16 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:41:16 - root - INFO -    关键词: ['weatherguard windows']
-2025-09-25 09:41:16 - root - INFO -    时间范围: today 12-m
-2025-09-25 09:41:16 - root - INFO -    地理位置:
-2025-09-25 09:41:16 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每小时请求已使用 93% (56/60)
-2025-09-25 09:41:46 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-25 09:41:46 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:41:46 - root - INFO -    关键词: ['chatgpt agent']
-2025-09-25 09:41:46 - root - INFO -    时间范围: today 12-m
-2025-09-25 09:41:46 - root - INFO -    地理位置:
-2025-09-25 09:41:56 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-25 09:41:57 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:41:57 - root - INFO -    关键词: ['chatgpt 4']
-2025-09-25 09:41:57 - root - INFO -    时间范围: today 12-m
-2025-09-25 09:41:57 - root - INFO -    地理位置:
-2025-09-25 09:41:57 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
-2025-09-25 09:41:57 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
-2025-09-25 09:41:57 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:41:57 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:41:57 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=today 12-m, geo=
-2025-09-25 09:41:57 - root - WARNING - 获取 chatgpt 4 (today 12-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:41:57 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:41:57 - root - INFO -    关键词: ['chatgpt 4']
-2025-09-25 09:41:57 - root - INFO -    时间范围: today 3-m
-2025-09-25 09:41:57 - root - INFO -    地理位置:
-2025-09-25 09:41:57 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
-2025-09-25 09:41:57 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
-2025-09-25 09:41:57 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:41:57 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:41:57 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=today 3-m, geo=
-2025-09-25 09:41:57 - root - WARNING - 获取 chatgpt 4 (today 3-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:41:58 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:41:58 - root - INFO -    关键词: ['chatgpt 4']
-2025-09-25 09:41:58 - root - INFO -    时间范围: now 7-d
-2025-09-25 09:41:58 - root - INFO -    地理位置:
-2025-09-25 09:41:58 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
-2025-09-25 09:41:58 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
-2025-09-25 09:41:58 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:41:58 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:41:58 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=now 7-d, geo=
-2025-09-25 09:41:58 - root - WARNING - 获取 chatgpt 4 (now 7-d, GLOBAL) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:41:58 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:41:58 - root - INFO -    关键词: ['chatgpt 4']
-2025-09-25 09:41:58 - root - INFO -    时间范围: now 1-d
-2025-09-25 09:41:58 - root - INFO -    地理位置:
-2025-09-25 09:41:58 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
-2025-09-25 09:41:58 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
-2025-09-25 09:41:58 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:41:58 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:41:58 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=now 1-d, geo=
-2025-09-25 09:41:58 - root - WARNING - 获取 chatgpt 4 (now 1-d, GLOBAL) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:41:59 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:41:59 - root - INFO -    关键词: ['chatgpt 4']
-2025-09-25 09:41:59 - root - INFO -    时间范围: today 12-m
-2025-09-25 09:41:59 - root - INFO -    地理位置: US
-2025-09-25 09:41:59 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
-2025-09-25 09:41:59 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
-2025-09-25 09:41:59 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:41:59 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:41:59 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=today 12-m, geo=US
-2025-09-25 09:41:59 - root - WARNING - 获取 chatgpt 4 (today 12-m, US) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:42:00 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:42:00 - root - INFO -    关键词: ['chatgpt 4']
-2025-09-25 09:42:00 - root - INFO -    时间范围: today 3-m
-2025-09-25 09:42:00 - root - INFO -    地理位置: US
-2025-09-25 09:42:00 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
-2025-09-25 09:42:00 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
-2025-09-25 09:42:00 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:42:00 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:42:00 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=today 3-m, geo=US
-2025-09-25 09:42:00 - root - WARNING - 获取 chatgpt 4 (today 3-m, US) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:42:00 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:42:00 - root - INFO -    关键词: ['chatgpt 4']
-2025-09-25 09:42:00 - root - INFO -    时间范围: now 7-d
-2025-09-25 09:42:00 - root - INFO -    地理位置: US
-2025-09-25 09:42:00 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
-2025-09-25 09:42:00 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
-2025-09-25 09:42:00 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:42:00 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:42:00 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=now 7-d, geo=US
-2025-09-25 09:42:00 - root - WARNING - 获取 chatgpt 4 (now 7-d, US) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:42:01 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:42:01 - root - INFO -    关键词: ['chatgpt 4']
-2025-09-25 09:42:01 - root - INFO -    时间范围: now 1-d
-2025-09-25 09:42:01 - root - INFO -    地理位置: US
-2025-09-25 09:42:01 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
-2025-09-25 09:42:01 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
-2025-09-25 09:42:01 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:42:01 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:42:01 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=now 1-d, geo=US
-2025-09-25 09:42:01 - root - WARNING - 获取 chatgpt 4 (now 1-d, US) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:42:01 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:42:01 - root - INFO -    关键词: ['chatgpt 4']
-2025-09-25 09:42:01 - root - INFO -    时间范围: today 12-m
-2025-09-25 09:42:01 - root - INFO -    地理位置: GB
-2025-09-25 09:42:01 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
-2025-09-25 09:42:01 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
-2025-09-25 09:42:01 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:42:01 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:42:01 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=today 12-m, geo=GB
-2025-09-25 09:42:01 - root - WARNING - 获取 chatgpt 4 (today 12-m, GB) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:42:02 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:42:02 - root - INFO -    关键词: ['chatgpt 4']
-2025-09-25 09:42:02 - root - INFO -    时间范围: today 3-m
-2025-09-25 09:42:02 - root - INFO -    地理位置: GB
-2025-09-25 09:42:02 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
-2025-09-25 09:42:02 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
-2025-09-25 09:42:02 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:42:02 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:42:02 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=today 3-m, geo=GB
-2025-09-25 09:42:02 - root - WARNING - 获取 chatgpt 4 (today 3-m, GB) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:42:03 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:42:03 - root - INFO -    关键词: ['chatgpt 4']
-2025-09-25 09:42:03 - root - INFO -    时间范围: now 7-d
-2025-09-25 09:42:03 - root - INFO -    地理位置: GB
-2025-09-25 09:42:03 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
-2025-09-25 09:42:03 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
-2025-09-25 09:42:03 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:42:03 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:42:03 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=now 7-d, geo=GB
-2025-09-25 09:42:03 - root - WARNING - 获取 chatgpt 4 (now 7-d, GB) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:42:03 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-25 09:42:03 - root - INFO -    关键词: ['chatgpt 4']
-2025-09-25 09:42:03 - root - INFO -    时间范围: now 1-d
-2025-09-25 09:42:03 - root - INFO -    地理位置: GB
-2025-09-25 09:42:03 - src.collectors.custom_trends_collector - ERROR - ❌ 请求被配额守卫阻止: 已达到每小时请求上限(60)，请等待 42 分钟后再试
-2025-09-25 09:42:03 - src.collectors.custom_trends_collector - ERROR - 未找到时间序列widget
-2025-09-25 09:42:03 - root - WARNING - 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:42:03 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:42:03 - root - ERROR -    请求参数: keywords=['chatgpt 4'], timeframe=now 1-d, geo=GB
-2025-09-25 09:42:03 - root - WARNING - 获取 chatgpt 4 (now 1-d, GB) 趋势数据失败: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:42:04 - root - WARNING - 多次尝试后仍无法获取 chatgpt 4 趋势数据: 未获取到关键词 ['chatgpt 4'] 的 Google Trends 数据
-2025-09-25 09:42:04 - root - WARNING - 获取 chatgpt 4 趋势数据失败: 无法获取 chatgpt 4 的趋势数据：Trends 接口返回空结果
-✅ 新词检测完成: 发现 5 个新词 (0 个高置信度, 13 个 Breakout)
+2025-09-27 23:28:38 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:28:38 - root - INFO -    关键词: ['ai assistant']
+2025-09-27 23:28:38 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:28:38 - root - INFO -    地理位置:
+2025-09-27 23:28:40 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:28:40 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:28:40 - root - INFO -    关键词: ['neural network']
+2025-09-27 23:28:40 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:28:40 - root - INFO -    地理位置:
+2025-09-27 23:28:42 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:28:42 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:28:42 - root - INFO -    关键词: ['deep learning']
+2025-09-27 23:28:42 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:28:42 - root - INFO -    地理位置:
+2025-09-27 23:28:44 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:28:44 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:28:44 - root - INFO -    关键词: ['computer vision']
+2025-09-27 23:28:44 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:28:44 - root - INFO -    地理位置:
+2025-09-27 23:28:46 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:28:46 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:28:46 - root - INFO -    关键词: ['amazon']
+2025-09-27 23:28:46 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:28:46 - root - INFO -    地理位置:
+2025-09-27 23:28:47 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:28:47 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:28:47 - root - INFO -    关键词: ['amazon 感謝祭']
+2025-09-27 23:28:47 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:28:47 - root - INFO -    地理位置:
+2025-09-27 23:28:49 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:28:49 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:28:49 - root - INFO -    关键词: ['weathertech']
+2025-09-27 23:28:49 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:28:49 - root - INFO -    地理位置:
+2025-09-27 23:28:51 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:28:51 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:28:51 - root - INFO -    关键词: ['weathertech sunshade']
+2025-09-27 23:28:51 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:28:51 - root - INFO -    地理位置:
+2025-09-27 23:28:53 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:28:53 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:28:53 - root - INFO -    关键词: ['weathertech championship']
+2025-09-27 23:28:53 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:28:53 - root - INFO -    地理位置:
+2025-09-27 23:28:56 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:28:56 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:28:56 - root - INFO -    关键词: ['weathertech floorliner']
+2025-09-27 23:28:56 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:28:56 - root - INFO -    地理位置:
+2025-09-27 23:28:58 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:28:58 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:28:58 - root - INFO -    关键词: ['walmart']
+2025-09-27 23:28:58 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:28:58 - root - INFO -    地理位置:
+2025-09-27 23:29:00 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:29:00 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:29:00 - root - INFO -    关键词: ['walmart shopping']
+2025-09-27 23:29:00 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:29:00 - root - INFO -    地理位置:
+2025-09-27 23:29:02 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:29:02 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:29:02 - root - INFO -    关键词: ['walmart cm']
+2025-09-27 23:29:02 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:29:02 - root - INFO -    地理位置:
+2025-09-27 23:29:03 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 80% (24/30)
+2025-09-27 23:29:04 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:29:04 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:29:04 - root - INFO -    关键词: ['walmart commercial']
+2025-09-27 23:29:04 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:29:04 - root - INFO -    地理位置:
+2025-09-27 23:29:06 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:29:06 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:29:06 - root - INFO -    关键词: ['walmart prank']
+2025-09-27 23:29:06 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:29:06 - root - INFO -    地理位置:
+2025-09-27 23:29:08 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:29:08 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:29:08 - root - INFO -    关键词: ['walmart meme']
+2025-09-27 23:29:08 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:29:08 - root - INFO -    地理位置:
+2025-09-27 23:29:39 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:29:39 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:29:39 - root - INFO -    关键词: ['walmart oven']
+2025-09-27 23:29:39 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:29:39 - root - INFO -    地理位置:
+2025-09-27 23:29:41 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:29:41 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:29:41 - root - INFO -    关键词: ['walmart trump']
+2025-09-27 23:29:41 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:29:41 - root - INFO -    地理位置:
+2025-09-27 23:29:43 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:29:44 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:29:44 - root - INFO -    关键词: ['walmart customers']
+2025-09-27 23:29:44 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:29:44 - root - INFO -    地理位置:
+2025-09-27 23:29:45 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:29:45 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:29:45 - root - INFO -    关键词: ['udio ai 使 方']
+2025-09-27 23:29:45 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:29:45 - root - INFO -    地理位置:
+2025-09-27 23:29:47 - root - WARNING - 未获取到关键词 ['udio ai 使 方'] 的 Google Trends 数据
+2025-09-27 23:29:47 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['udio ai 使 方'] 的 Google Trends 数据
+2025-09-27 23:29:47 - root - ERROR -    请求参数: keywords=['udio ai 使 方'], timeframe=today 12-m, geo=
+2025-09-27 23:29:47 - root - WARNING - 获取 udio ai 使 方 (today 12-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['udio ai 使 方'] 的 Google Trends 数据
+2025-09-27 23:29:48 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:29:48 - root - INFO -    关键词: ['udio ai 使 方']
+2025-09-27 23:29:48 - root - INFO -    时间范围: today 3-m
+2025-09-27 23:29:48 - root - INFO -    地理位置:
+2025-09-27 23:29:50 - root - WARNING - 未获取到关键词 ['udio ai 使 方'] 的 Google Trends 数据
+2025-09-27 23:29:50 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['udio ai 使 方'] 的 Google Trends 数据
+2025-09-27 23:29:50 - root - ERROR -    请求参数: keywords=['udio ai 使 方'], timeframe=today 3-m, geo=
+2025-09-27 23:29:50 - root - WARNING - 获取 udio ai 使 方 (today 3-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['udio ai 使 方'] 的 Google Trends 数据
+2025-09-27 23:29:50 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:29:50 - root - INFO -    关键词: ['udio ai 使 方']
+2025-09-27 23:29:50 - root - INFO -    时间范围: now 7-d
+2025-09-27 23:29:50 - root - INFO -    地理位置:
+2025-09-27 23:29:52 - root - INFO - ✅ 成功获取到 169 条趋势数据
+2025-09-27 23:29:52 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:29:52 - root - INFO -    关键词: ['udio ai']
+2025-09-27 23:29:52 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:29:52 - root - INFO -    地理位置:
+2025-09-27 23:29:54 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:29:54 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:29:54 - root - INFO -    关键词: ['gmail 追加']
+2025-09-27 23:29:54 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:29:54 - root - INFO -    地理位置:
+2025-09-27 23:29:56 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:29:56 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:29:56 - root - INFO -    关键词: ['udio ai tutorial']
+2025-09-27 23:29:56 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:29:56 - root - INFO -    地理位置:
+2025-09-27 23:29:58 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:29:58 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:29:58 - root - INFO -    关键词: ['udio ai tutorial hindi']
+2025-09-27 23:29:58 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:29:58 - root - INFO -    地理位置:
+2025-09-27 23:30:00 - root - WARNING - 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:00 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:00 - root - ERROR -    请求参数: keywords=['udio ai tutorial hindi'], timeframe=today 12-m, geo=
+2025-09-27 23:30:00 - root - WARNING - 获取 udio ai tutorial hindi (today 12-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:00 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:30:00 - root - INFO -    关键词: ['udio ai tutorial hindi']
+2025-09-27 23:30:00 - root - INFO -    时间范围: today 3-m
+2025-09-27 23:30:00 - root - INFO -    地理位置:
+2025-09-27 23:30:02 - root - WARNING - 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:02 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:02 - root - ERROR -    请求参数: keywords=['udio ai tutorial hindi'], timeframe=today 3-m, geo=
+2025-09-27 23:30:02 - root - WARNING - 获取 udio ai tutorial hindi (today 3-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:03 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:30:03 - root - INFO -    关键词: ['udio ai tutorial hindi']
+2025-09-27 23:30:03 - root - INFO -    时间范围: now 7-d
+2025-09-27 23:30:03 - root - INFO -    地理位置:
+2025-09-27 23:30:03 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 100% (30/30)
+2025-09-27 23:30:04 - root - WARNING - 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:04 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:04 - root - ERROR -    请求参数: keywords=['udio ai tutorial hindi'], timeframe=now 7-d, geo=
+2025-09-27 23:30:04 - root - WARNING - 获取 udio ai tutorial hindi (now 7-d, GLOBAL) 趋势数据失败: 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:05 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:30:05 - root - INFO -    关键词: ['udio ai tutorial hindi']
+2025-09-27 23:30:05 - root - INFO -    时间范围: now 1-d
+2025-09-27 23:30:05 - root - INFO -    地理位置:
+2025-09-27 23:30:06 - root - WARNING - 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:06 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:06 - root - ERROR -    请求参数: keywords=['udio ai tutorial hindi'], timeframe=now 1-d, geo=
+2025-09-27 23:30:06 - root - WARNING - 获取 udio ai tutorial hindi (now 1-d, GLOBAL) 趋势数据失败: 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:07 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:30:07 - root - INFO -    关键词: ['udio ai tutorial hindi']
+2025-09-27 23:30:07 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:30:07 - root - INFO -    地理位置: US
+2025-09-27 23:30:10 - root - WARNING - 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:10 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:10 - root - ERROR -    请求参数: keywords=['udio ai tutorial hindi'], timeframe=today 12-m, geo=US
+2025-09-27 23:30:10 - root - WARNING - 获取 udio ai tutorial hindi (today 12-m, US) 趋势数据失败: 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:11 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:30:11 - root - INFO -    关键词: ['udio ai tutorial hindi']
+2025-09-27 23:30:11 - root - INFO -    时间范围: today 3-m
+2025-09-27 23:30:11 - root - INFO -    地理位置: US
+2025-09-27 23:30:39 - root - WARNING - 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:39 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:39 - root - ERROR -    请求参数: keywords=['udio ai tutorial hindi'], timeframe=today 3-m, geo=US
+2025-09-27 23:30:39 - root - WARNING - 获取 udio ai tutorial hindi (today 3-m, US) 趋势数据失败: 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:39 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:30:39 - root - INFO -    关键词: ['udio ai tutorial hindi']
+2025-09-27 23:30:39 - root - INFO -    时间范围: now 7-d
+2025-09-27 23:30:39 - root - INFO -    地理位置: US
+2025-09-27 23:30:41 - root - WARNING - 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:41 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:41 - root - ERROR -    请求参数: keywords=['udio ai tutorial hindi'], timeframe=now 7-d, geo=US
+2025-09-27 23:30:41 - root - WARNING - 获取 udio ai tutorial hindi (now 7-d, US) 趋势数据失败: 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:42 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:30:42 - root - INFO -    关键词: ['udio ai tutorial hindi']
+2025-09-27 23:30:42 - root - INFO -    时间范围: now 1-d
+2025-09-27 23:30:42 - root - INFO -    地理位置: US
+2025-09-27 23:30:43 - root - WARNING - 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:43 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:43 - root - ERROR -    请求参数: keywords=['udio ai tutorial hindi'], timeframe=now 1-d, geo=US
+2025-09-27 23:30:43 - root - WARNING - 获取 udio ai tutorial hindi (now 1-d, US) 趋势数据失败: 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:44 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:30:44 - root - INFO -    关键词: ['udio ai tutorial hindi']
+2025-09-27 23:30:44 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:30:44 - root - INFO -    地理位置: GB
+2025-09-27 23:30:45 - root - WARNING - 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:45 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:45 - root - ERROR -    请求参数: keywords=['udio ai tutorial hindi'], timeframe=today 12-m, geo=GB
+2025-09-27 23:30:45 - root - WARNING - 获取 udio ai tutorial hindi (today 12-m, GB) 趋势数据失败: 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:46 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:30:46 - root - INFO -    关键词: ['udio ai tutorial hindi']
+2025-09-27 23:30:46 - root - INFO -    时间范围: today 3-m
+2025-09-27 23:30:46 - root - INFO -    地理位置: GB
+2025-09-27 23:30:47 - root - WARNING - 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:47 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:47 - root - ERROR -    请求参数: keywords=['udio ai tutorial hindi'], timeframe=today 3-m, geo=GB
+2025-09-27 23:30:47 - root - WARNING - 获取 udio ai tutorial hindi (today 3-m, GB) 趋势数据失败: 未获取到关键词 ['udio ai tutorial hindi'] 的 Google Trends 数据
+2025-09-27 23:30:48 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:30:48 - root - INFO -    关键词: ['udio ai tutorial hindi']
+2025-09-27 23:30:48 - root - INFO -    时间范围: now 7-d
+2025-09-27 23:30:48 - root - INFO -    地理位置: GB
+2025-09-27 23:30:50 - root - INFO - ✅ 成功获取到 169 条趋势数据
+2025-09-27 23:30:50 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:30:50 - root - INFO -    关键词: ['adobe firefly']
+2025-09-27 23:30:50 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:30:50 - root - INFO -    地理位置:
+2025-09-27 23:30:52 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:30:52 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:30:52 - root - INFO -    关键词: ['adobe firefly 使 方']
+2025-09-27 23:30:52 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:30:52 - root - INFO -    地理位置:
+2025-09-27 23:30:54 - root - WARNING - 未获取到关键词 ['adobe firefly 使 方'] 的 Google Trends 数据
+2025-09-27 23:30:54 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['adobe firefly 使 方'] 的 Google Trends 数据
+2025-09-27 23:30:54 - root - ERROR -    请求参数: keywords=['adobe firefly 使 方'], timeframe=today 12-m, geo=
+2025-09-27 23:30:54 - root - WARNING - 获取 adobe firefly 使 方 (today 12-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['adobe firefly 使 方'] 的 Google Trends 数据
+2025-09-27 23:30:54 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:30:54 - root - INFO -    关键词: ['adobe firefly 使 方']
+2025-09-27 23:30:54 - root - INFO -    时间范围: today 3-m
+2025-09-27 23:30:54 - root - INFO -    地理位置:
+2025-09-27 23:30:56 - root - WARNING - 未获取到关键词 ['adobe firefly 使 方'] 的 Google Trends 数据
+2025-09-27 23:30:56 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['adobe firefly 使 方'] 的 Google Trends 数据
+2025-09-27 23:30:56 - root - ERROR -    请求参数: keywords=['adobe firefly 使 方'], timeframe=today 3-m, geo=
+2025-09-27 23:30:56 - root - WARNING - 获取 adobe firefly 使 方 (today 3-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['adobe firefly 使 方'] 的 Google Trends 数据
+2025-09-27 23:30:57 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:30:57 - root - INFO -    关键词: ['adobe firefly 使 方']
+2025-09-27 23:30:57 - root - INFO -    时间范围: now 7-d
+2025-09-27 23:30:57 - root - INFO -    地理位置:
+2025-09-27 23:30:59 - root - INFO - ✅ 成功获取到 169 条趋势数据
+2025-09-27 23:30:59 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:30:59 - root - INFO -    关键词: ['adobe firefly 動画生成']
+2025-09-27 23:30:59 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:30:59 - root - INFO -    地理位置:
+2025-09-27 23:31:00 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:31:01 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:31:01 - root - INFO -    关键词: ['adobe firefly 商用利用']
+2025-09-27 23:31:01 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:31:01 - root - INFO -    地理位置:
+2025-09-27 23:31:02 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:31:03 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:31:03 - root - INFO -    关键词: ['adobe firefly 作成']
+2025-09-27 23:31:03 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:31:03 - root - INFO -    地理位置:
+2025-09-27 23:31:04 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 97% (29/30)
+2025-09-27 23:31:04 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:31:04 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:31:04 - root - INFO -    关键词: ['adobe firefly 同']
+2025-09-27 23:31:04 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:31:04 - root - INFO -    地理位置:
+2025-09-27 23:31:06 - root - WARNING - 未获取到关键词 ['adobe firefly 同'] 的 Google Trends 数据
+2025-09-27 23:31:06 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['adobe firefly 同'] 的 Google Trends 数据
+2025-09-27 23:31:06 - root - ERROR -    请求参数: keywords=['adobe firefly 同'], timeframe=today 12-m, geo=
+2025-09-27 23:31:06 - root - WARNING - 获取 adobe firefly 同 (today 12-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['adobe firefly 同'] 的 Google Trends 数据
+2025-09-27 23:31:07 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:31:07 - root - INFO -    关键词: ['adobe firefly 同']
+2025-09-27 23:31:07 - root - INFO -    时间范围: today 3-m
+2025-09-27 23:31:07 - root - INFO -    地理位置:
+2025-09-27 23:31:09 - root - WARNING - 未获取到关键词 ['adobe firefly 同'] 的 Google Trends 数据
+2025-09-27 23:31:09 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['adobe firefly 同'] 的 Google Trends 数据
+2025-09-27 23:31:09 - root - ERROR -    请求参数: keywords=['adobe firefly 同'], timeframe=today 3-m, geo=
+2025-09-27 23:31:09 - root - WARNING - 获取 adobe firefly 同 (today 3-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['adobe firefly 同'] 的 Google Trends 数据
+2025-09-27 23:31:09 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:31:09 - root - INFO -    关键词: ['adobe firefly 同']
+2025-09-27 23:31:09 - root - INFO -    时间范围: now 7-d
+2025-09-27 23:31:09 - root - INFO -    地理位置:
+2025-09-27 23:31:38 - root - INFO - ✅ 成功获取到 169 条趋势数据
+2025-09-27 23:31:39 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:31:39 - root - INFO -    关键词: ['adobe firefly 似顔絵']
+2025-09-27 23:31:39 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:31:39 - root - INFO -    地理位置:
+2025-09-27 23:31:41 - root - WARNING - 未获取到关键词 ['adobe firefly 似顔絵'] 的 Google Trends 数据
+2025-09-27 23:31:41 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['adobe firefly 似顔絵'] 的 Google Trends 数据
+2025-09-27 23:31:41 - root - ERROR -    请求参数: keywords=['adobe firefly 似顔絵'], timeframe=today 12-m, geo=
+2025-09-27 23:31:41 - root - WARNING - 获取 adobe firefly 似顔絵 (today 12-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['adobe firefly 似顔絵'] 的 Google Trends 数据
+2025-09-27 23:31:42 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:31:42 - root - INFO -    关键词: ['adobe firefly 似顔絵']
+2025-09-27 23:31:42 - root - INFO -    时间范围: today 3-m
+2025-09-27 23:31:42 - root - INFO -    地理位置:
+2025-09-27 23:31:43 - root - INFO - ✅ 成功获取到 93 条趋势数据
+2025-09-27 23:31:43 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:31:43 - root - INFO -    关键词: ['adobe firefly 料金']
+2025-09-27 23:31:43 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:31:43 - root - INFO -    地理位置:
+2025-09-27 23:31:45 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:31:45 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:31:45 - root - INFO -    关键词: ['charlie kirk']
+2025-09-27 23:31:45 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:31:45 - root - INFO -    地理位置:
+2025-09-27 23:31:47 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:31:48 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:31:48 - root - INFO -    关键词: ['2025']
+2025-09-27 23:31:48 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:31:48 - root - INFO -    地理位置:
+2025-09-27 23:31:50 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:31:50 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:31:50 - root - INFO -    关键词: ['udio ai 日本語']
+2025-09-27 23:31:50 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:31:50 - root - INFO -    地理位置:
+2025-09-27 23:31:52 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:31:52 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:31:52 - root - INFO -    关键词: ['walmart stock']
+2025-09-27 23:31:52 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:31:52 - root - INFO -    地理位置:
+2025-09-27 23:31:54 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:31:54 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:31:54 - root - INFO -    关键词: ['amazon cm']
+2025-09-27 23:31:54 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:31:54 - root - INFO -    地理位置:
+2025-09-27 23:31:56 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:31:56 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:31:56 - root - INFO -    关键词: ['amazon 納税']
+2025-09-27 23:31:56 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:31:56 - root - INFO -    地理位置:
+2025-09-27 23:31:58 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:31:58 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:31:58 - root - INFO -    关键词: ['gmail 変更']
+2025-09-27 23:31:58 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:31:58 - root - INFO -    地理位置:
+2025-09-27 23:32:00 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:32:01 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:32:01 - root - INFO -    关键词: ['gmail']
+2025-09-27 23:32:01 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:32:01 - root - INFO -    地理位置:
+2025-09-27 23:32:02 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:32:03 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:32:03 - root - INFO -    关键词: ['gmail 分']
+2025-09-27 23:32:03 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:32:03 - root - INFO -    地理位置:
+2025-09-27 23:32:04 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 97% (29/30)
+2025-09-27 23:32:04 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:32:04 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:32:04 - root - INFO -    关键词: ['gmail 作 方']
+2025-09-27 23:32:04 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:32:04 - root - INFO -    地理位置:
+2025-09-27 23:32:06 - root - WARNING - 未获取到关键词 ['gmail 作 方'] 的 Google Trends 数据
+2025-09-27 23:32:06 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['gmail 作 方'] 的 Google Trends 数据
+2025-09-27 23:32:06 - root - ERROR -    请求参数: keywords=['gmail 作 方'], timeframe=today 12-m, geo=
+2025-09-27 23:32:06 - root - WARNING - 获取 gmail 作 方 (today 12-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['gmail 作 方'] 的 Google Trends 数据
+2025-09-27 23:32:07 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:32:07 - root - INFO -    关键词: ['gmail 作 方']
+2025-09-27 23:32:07 - root - INFO -    时间范围: today 3-m
+2025-09-27 23:32:07 - root - INFO -    地理位置:
+2025-09-27 23:32:09 - root - INFO - ✅ 成功获取到 93 条趋势数据
+2025-09-27 23:32:09 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:32:09 - root - INFO -    关键词: ['gmail 複数']
+2025-09-27 23:32:09 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:32:09 - root - INFO -    地理位置:
+2025-09-27 23:32:38 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:32:39 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:32:39 - root - INFO -    关键词: ['gmail 一括削除']
+2025-09-27 23:32:39 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:32:39 - root - INFO -    地理位置:
+2025-09-27 23:32:41 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:32:41 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:32:41 - root - INFO -    关键词: ['gmail 届']
+2025-09-27 23:32:41 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:32:41 - root - INFO -    地理位置:
+2025-09-27 23:32:43 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:32:43 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:32:43 - root - INFO -    关键词: ['gmail 作成']
+2025-09-27 23:32:43 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:32:43 - root - INFO -    地理位置:
+2025-09-27 23:32:45 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:32:45 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:32:45 - root - INFO -    关键词: ['gmail 容量減']
+2025-09-27 23:32:45 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:32:45 - root - INFO -    地理位置:
+2025-09-27 23:32:47 - root - WARNING - 未获取到关键词 ['gmail 容量減'] 的 Google Trends 数据
+2025-09-27 23:32:47 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['gmail 容量減'] 的 Google Trends 数据
+2025-09-27 23:32:47 - root - ERROR -    请求参数: keywords=['gmail 容量減'], timeframe=today 12-m, geo=
+2025-09-27 23:32:47 - root - WARNING - 获取 gmail 容量減 (today 12-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['gmail 容量減'] 的 Google Trends 数据
+2025-09-27 23:32:48 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:32:48 - root - INFO -    关键词: ['gmail 容量減']
+2025-09-27 23:32:48 - root - INFO -    时间范围: today 3-m
+2025-09-27 23:32:48 - root - INFO -    地理位置:
+2025-09-27 23:32:50 - root - WARNING - 未获取到关键词 ['gmail 容量減'] 的 Google Trends 数据
+2025-09-27 23:32:50 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['gmail 容量減'] 的 Google Trends 数据
+2025-09-27 23:32:50 - root - ERROR -    请求参数: keywords=['gmail 容量減'], timeframe=today 3-m, geo=
+2025-09-27 23:32:50 - root - WARNING - 获取 gmail 容量減 (today 3-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['gmail 容量減'] 的 Google Trends 数据
+2025-09-27 23:32:50 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:32:50 - root - INFO -    关键词: ['gmail 容量減']
+2025-09-27 23:32:50 - root - INFO -    时间范围: now 7-d
+2025-09-27 23:32:50 - root - INFO -    地理位置:
+2025-09-27 23:32:52 - root - INFO - ✅ 成功获取到 169 条趋势数据
+2025-09-27 23:32:52 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:32:52 - root - INFO -    关键词: ['gmail 署名設定']
+2025-09-27 23:32:52 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:32:52 - root - INFO -    地理位置:
+2025-09-27 23:32:54 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:32:54 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:32:54 - root - INFO -    关键词: ['gmail 日本語設定']
+2025-09-27 23:32:54 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:32:54 - root - INFO -    地理位置:
+2025-09-27 23:32:56 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:32:56 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:32:56 - root - INFO -    关键词: ['weathertech techshade']
+2025-09-27 23:32:56 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:32:56 - root - INFO -    地理位置:
+2025-09-27 23:32:58 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:32:58 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:32:58 - root - INFO -    关键词: ['weathertech store']
+2025-09-27 23:32:58 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:32:58 - root - INFO -    地理位置:
+2025-09-27 23:33:01 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:33:01 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:33:01 - root - INFO -    关键词: ['walmart 日本']
+2025-09-27 23:33:01 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:33:01 - root - INFO -    地理位置:
+2025-09-27 23:33:02 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:33:03 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:33:03 - root - INFO -    关键词: ['walmart 株価']
+2025-09-27 23:33:03 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:33:03 - root - INFO -    地理位置:
+2025-09-27 23:33:04 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 97% (29/30)
+2025-09-27 23:33:05 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:33:05 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:33:05 - root - INFO -    关键词: ['walmart ir']
+2025-09-27 23:33:05 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:33:05 - root - INFO -    地理位置:
+2025-09-27 23:33:07 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:33:07 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:33:07 - root - INFO -    关键词: ['walmart canada']
+2025-09-27 23:33:07 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:33:07 - root - INFO -    地理位置:
+2025-09-27 23:33:09 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:33:09 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:33:09 - root - INFO -    关键词: ['gmail 使 方']
+2025-09-27 23:33:09 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:33:09 - root - INFO -    地理位置:
+2025-09-27 23:33:38 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:33:39 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:33:39 - root - INFO -    关键词: ['walmart logo']
+2025-09-27 23:33:39 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:33:39 - root - INFO -    地理位置:
+2025-09-27 23:33:41 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:33:41 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:33:41 - root - INFO -    关键词: ['walmart 西友']
+2025-09-27 23:33:41 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:33:41 - root - INFO -    地理位置:
+2025-09-27 23:33:43 - root - WARNING - 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:43 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:43 - root - ERROR -    请求参数: keywords=['walmart 西友'], timeframe=today 12-m, geo=
+2025-09-27 23:33:43 - root - WARNING - 获取 walmart 西友 (today 12-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:44 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:33:44 - root - INFO -    关键词: ['walmart 西友']
+2025-09-27 23:33:44 - root - INFO -    时间范围: today 3-m
+2025-09-27 23:33:44 - root - INFO -    地理位置:
+2025-09-27 23:33:45 - root - WARNING - 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:45 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:45 - root - ERROR -    请求参数: keywords=['walmart 西友'], timeframe=today 3-m, geo=
+2025-09-27 23:33:45 - root - WARNING - 获取 walmart 西友 (today 3-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:46 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:33:46 - root - INFO -    关键词: ['walmart 西友']
+2025-09-27 23:33:46 - root - INFO -    时间范围: now 7-d
+2025-09-27 23:33:46 - root - INFO -    地理位置:
+2025-09-27 23:33:47 - root - WARNING - 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:47 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:47 - root - ERROR -    请求参数: keywords=['walmart 西友'], timeframe=now 7-d, geo=
+2025-09-27 23:33:47 - root - WARNING - 获取 walmart 西友 (now 7-d, GLOBAL) 趋势数据失败: 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:48 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:33:48 - root - INFO -    关键词: ['walmart 西友']
+2025-09-27 23:33:48 - root - INFO -    时间范围: now 1-d
+2025-09-27 23:33:48 - root - INFO -    地理位置:
+2025-09-27 23:33:50 - root - WARNING - 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:50 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:50 - root - ERROR -    请求参数: keywords=['walmart 西友'], timeframe=now 1-d, geo=
+2025-09-27 23:33:50 - root - WARNING - 获取 walmart 西友 (now 1-d, GLOBAL) 趋势数据失败: 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:50 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:33:50 - root - INFO -    关键词: ['walmart 西友']
+2025-09-27 23:33:50 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:33:50 - root - INFO -    地理位置: US
+2025-09-27 23:33:52 - root - WARNING - 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:52 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:52 - root - ERROR -    请求参数: keywords=['walmart 西友'], timeframe=today 12-m, geo=US
+2025-09-27 23:33:52 - root - WARNING - 获取 walmart 西友 (today 12-m, US) 趋势数据失败: 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:52 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:33:52 - root - INFO -    关键词: ['walmart 西友']
+2025-09-27 23:33:52 - root - INFO -    时间范围: today 3-m
+2025-09-27 23:33:52 - root - INFO -    地理位置: US
+2025-09-27 23:33:54 - root - WARNING - 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:54 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:54 - root - ERROR -    请求参数: keywords=['walmart 西友'], timeframe=today 3-m, geo=US
+2025-09-27 23:33:54 - root - WARNING - 获取 walmart 西友 (today 3-m, US) 趋势数据失败: 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:54 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:33:54 - root - INFO -    关键词: ['walmart 西友']
+2025-09-27 23:33:54 - root - INFO -    时间范围: now 7-d
+2025-09-27 23:33:54 - root - INFO -    地理位置: US
+2025-09-27 23:33:56 - root - WARNING - 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:56 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:56 - root - ERROR -    请求参数: keywords=['walmart 西友'], timeframe=now 7-d, geo=US
+2025-09-27 23:33:56 - root - WARNING - 获取 walmart 西友 (now 7-d, US) 趋势数据失败: 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:57 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:33:57 - root - INFO -    关键词: ['walmart 西友']
+2025-09-27 23:33:57 - root - INFO -    时间范围: now 1-d
+2025-09-27 23:33:57 - root - INFO -    地理位置: US
+2025-09-27 23:33:58 - root - WARNING - 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:58 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:58 - root - ERROR -    请求参数: keywords=['walmart 西友'], timeframe=now 1-d, geo=US
+2025-09-27 23:33:58 - root - WARNING - 获取 walmart 西友 (now 1-d, US) 趋势数据失败: 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:33:59 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:33:59 - root - INFO -    关键词: ['walmart 西友']
+2025-09-27 23:33:59 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:33:59 - root - INFO -    地理位置: GB
+2025-09-27 23:34:00 - root - WARNING - 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:34:00 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:34:00 - root - ERROR -    请求参数: keywords=['walmart 西友'], timeframe=today 12-m, geo=GB
+2025-09-27 23:34:00 - root - WARNING - 获取 walmart 西友 (today 12-m, GB) 趋势数据失败: 未获取到关键词 ['walmart 西友'] 的 Google Trends 数据
+2025-09-27 23:34:01 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:34:01 - root - INFO -    关键词: ['walmart 西友']
+2025-09-27 23:34:01 - root - INFO -    时间范围: today 3-m
+2025-09-27 23:34:01 - root - INFO -    地理位置: GB
+2025-09-27 23:34:02 - src.collectors.custom_trends_collector - WARNING - ⚠️ 遇到429错误，第1次重试
+2025-09-27 23:34:02 - src.collectors.custom_trends_collector - WARNING - 🔗 请求URL: https://trends.google.com/trends/api/widgetdata/multiline
+2025-09-27 23:34:02 - src.collectors.request_rate_limiter - WARNING - ⚠️ 收到high级节流信号，最小间隔调整为 2.4 秒，额外冷却 60.0 秒
+2025-09-27 23:34:02 - src.collectors.custom_trends_collector - WARNING - ⏳ 节流提示，额外等待 60.0 秒
+2025-09-27 23:34:02 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
+2025-09-27 23:34:02 - src.collectors.google_trends_session - INFO - 全局Session已重置
+2025-09-27 23:34:02 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
+2025-09-27 23:34:02 - src.collectors.google_trends_session - INFO - 🔧 正在初始化Google Trends会话...
+2025-09-27 23:34:14 - src.collectors.google_trends_session - INFO - ✅ Google Trends会话初始化成功
+2025-09-27 23:35:03 - root - INFO - ✅ 成功获取到 93 条趋势数据
+2025-09-27 23:35:03 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:35:03 - root - INFO -    关键词: ['udio ai 商用利用']
+2025-09-27 23:35:03 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:35:03 - root - INFO -    地理位置:
+2025-09-27 23:35:08 - root - WARNING - 未获取到关键词 ['udio ai 商用利用'] 的 Google Trends 数据
+2025-09-27 23:35:08 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['udio ai 商用利用'] 的 Google Trends 数据
+2025-09-27 23:35:08 - root - ERROR -    请求参数: keywords=['udio ai 商用利用'], timeframe=today 12-m, geo=
+2025-09-27 23:35:08 - root - WARNING - 获取 udio ai 商用利用 (today 12-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['udio ai 商用利用'] 的 Google Trends 数据
+2025-09-27 23:35:08 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:35:08 - root - INFO -    关键词: ['udio ai 商用利用']
+2025-09-27 23:35:08 - root - INFO -    时间范围: today 3-m
+2025-09-27 23:35:08 - root - INFO -    地理位置:
+2025-09-27 23:35:13 - root - INFO - ✅ 成功获取到 93 条趋势数据
+2025-09-27 23:35:13 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:35:13 - root - INFO -    关键词: ['udio ai 無料']
+2025-09-27 23:35:13 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:35:13 - root - INFO -    地理位置:
+2025-09-27 23:35:18 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:35:18 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:35:18 - root - INFO -    关键词: ['adobe firefly 著作権']
+2025-09-27 23:35:18 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:35:18 - root - INFO -    地理位置:
+2025-09-27 23:35:22 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:35:22 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:35:22 - root - INFO -    关键词: ['adobe firefly 読 方']
+2025-09-27 23:35:22 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:35:22 - root - INFO -    地理位置:
+2025-09-27 23:35:27 - root - WARNING - 未获取到关键词 ['adobe firefly 読 方'] 的 Google Trends 数据
+2025-09-27 23:35:27 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['adobe firefly 読 方'] 的 Google Trends 数据
+2025-09-27 23:35:27 - root - ERROR -    请求参数: keywords=['adobe firefly 読 方'], timeframe=today 12-m, geo=
+2025-09-27 23:35:27 - root - WARNING - 获取 adobe firefly 読 方 (today 12-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['adobe firefly 読 方'] 的 Google Trends 数据
+2025-09-27 23:35:27 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:35:27 - root - INFO -    关键词: ['adobe firefly 読 方']
+2025-09-27 23:35:27 - root - INFO -    时间范围: today 3-m
+2025-09-27 23:35:27 - root - INFO -    地理位置:
+2025-09-27 23:35:32 - root - WARNING - 未获取到关键词 ['adobe firefly 読 方'] 的 Google Trends 数据
+2025-09-27 23:35:32 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['adobe firefly 読 方'] 的 Google Trends 数据
+2025-09-27 23:35:32 - root - ERROR -    请求参数: keywords=['adobe firefly 読 方'], timeframe=today 3-m, geo=
+2025-09-27 23:35:32 - root - WARNING - 获取 adobe firefly 読 方 (today 3-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['adobe firefly 読 方'] 的 Google Trends 数据
+2025-09-27 23:35:32 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:35:32 - root - INFO -    关键词: ['adobe firefly 読 方']
+2025-09-27 23:35:32 - root - INFO -    时间范围: now 7-d
+2025-09-27 23:35:32 - root - INFO -    地理位置:
+2025-09-27 23:35:37 - root - WARNING - 未获取到关键词 ['adobe firefly 読 方'] 的 Google Trends 数据
+2025-09-27 23:35:37 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['adobe firefly 読 方'] 的 Google Trends 数据
+2025-09-27 23:35:37 - root - ERROR -    请求参数: keywords=['adobe firefly 読 方'], timeframe=now 7-d, geo=
+2025-09-27 23:35:37 - root - WARNING - 获取 adobe firefly 読 方 (now 7-d, GLOBAL) 趋势数据失败: 未获取到关键词 ['adobe firefly 読 方'] 的 Google Trends 数据
+2025-09-27 23:35:37 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:35:37 - root - INFO -    关键词: ['adobe firefly 読 方']
+2025-09-27 23:35:37 - root - INFO -    时间范围: now 1-d
+2025-09-27 23:35:37 - root - INFO -    地理位置:
+2025-09-27 23:35:41 - root - WARNING - 未获取到关键词 ['adobe firefly 読 方'] 的 Google Trends 数据
+2025-09-27 23:35:41 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['adobe firefly 読 方'] 的 Google Trends 数据
+2025-09-27 23:35:41 - root - ERROR -    请求参数: keywords=['adobe firefly 読 方'], timeframe=now 1-d, geo=
+2025-09-27 23:35:41 - root - WARNING - 获取 adobe firefly 読 方 (now 1-d, GLOBAL) 趋势数据失败: 未获取到关键词 ['adobe firefly 読 方'] 的 Google Trends 数据
+2025-09-27 23:35:42 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:35:42 - root - INFO -    关键词: ['adobe firefly 読 方']
+2025-09-27 23:35:42 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:35:42 - root - INFO -    地理位置: US
+2025-09-27 23:35:46 - root - WARNING - 未获取到关键词 ['adobe firefly 読 方'] 的 Google Trends 数据
+2025-09-27 23:35:46 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['adobe firefly 読 方'] 的 Google Trends 数据
+2025-09-27 23:35:46 - root - ERROR -    请求参数: keywords=['adobe firefly 読 方'], timeframe=today 12-m, geo=US
+2025-09-27 23:35:46 - root - WARNING - 获取 adobe firefly 読 方 (today 12-m, US) 趋势数据失败: 未获取到关键词 ['adobe firefly 読 方'] 的 Google Trends 数据
+2025-09-27 23:35:47 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:35:47 - root - INFO -    关键词: ['adobe firefly 読 方']
+2025-09-27 23:35:47 - root - INFO -    时间范围: today 3-m
+2025-09-27 23:35:47 - root - INFO -    地理位置: US
+2025-09-27 23:35:51 - root - INFO - ✅ 成功获取到 93 条趋势数据
+2025-09-27 23:35:51 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:35:51 - root - INFO -    关键词: ['adobe firefly 何']
+2025-09-27 23:35:51 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:35:51 - root - INFO -    地理位置:
+2025-09-27 23:35:56 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:35:56 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:35:56 - root - INFO -    关键词: ['charlie kirk 動画']
+2025-09-27 23:35:56 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:35:56 - root - INFO -    地理位置:
+2025-09-27 23:35:58 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 80% (24/30)
+2025-09-27 23:36:01 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:36:01 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:36:01 - root - INFO -    关键词: ['charlie kirk 参政党']
+2025-09-27 23:36:01 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:36:01 - root - INFO -    地理位置:
+2025-09-27 23:36:05 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:36:06 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:36:06 - root - INFO -    关键词: ['amazon prime']
+2025-09-27 23:36:06 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:36:06 - root - INFO -    地理位置:
+2025-09-27 23:36:10 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:36:11 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:36:11 - root - INFO -    关键词: ['amazon kindle']
+2025-09-27 23:36:11 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:36:11 - root - INFO -    地理位置:
+2025-09-27 23:36:15 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-27 23:36:16 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:36:16 - root - INFO -    关键词: ['gmail 送信取 消']
+2025-09-27 23:36:16 - root - INFO -    时间范围: today 12-m
+2025-09-27 23:36:16 - root - INFO -    地理位置:
+2025-09-27 23:36:20 - root - WARNING - 未获取到关键词 ['gmail 送信取 消'] 的 Google Trends 数据
+2025-09-27 23:36:20 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['gmail 送信取 消'] 的 Google Trends 数据
+2025-09-27 23:36:20 - root - ERROR -    请求参数: keywords=['gmail 送信取 消'], timeframe=today 12-m, geo=
+2025-09-27 23:36:20 - root - WARNING - 获取 gmail 送信取 消 (today 12-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['gmail 送信取 消'] 的 Google Trends 数据
+2025-09-27 23:36:21 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:36:21 - root - INFO -    关键词: ['gmail 送信取 消']
+2025-09-27 23:36:21 - root - INFO -    时间范围: today 3-m
+2025-09-27 23:36:21 - root - INFO -    地理位置:
+2025-09-27 23:36:21 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每小时请求已使用 80% (240/300)
+2025-09-27 23:36:25 - root - WARNING - 未获取到关键词 ['gmail 送信取 消'] 的 Google Trends 数据
+2025-09-27 23:36:25 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['gmail 送信取 消'] 的 Google Trends 数据
+2025-09-27 23:36:25 - root - ERROR -    请求参数: keywords=['gmail 送信取 消'], timeframe=today 3-m, geo=
+2025-09-27 23:36:25 - root - WARNING - 获取 gmail 送信取 消 (today 3-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['gmail 送信取 消'] 的 Google Trends 数据
+2025-09-27 23:36:26 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:36:26 - root - INFO -    关键词: ['gmail 送信取 消']
+2025-09-27 23:36:26 - root - INFO -    时间范围: now 7-d
+2025-09-27 23:36:26 - root - INFO -    地理位置:
+2025-09-27 23:36:30 - root - WARNING - 未获取到关键词 ['gmail 送信取 消'] 的 Google Trends 数据
+2025-09-27 23:36:30 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['gmail 送信取 消'] 的 Google Trends 数据
+2025-09-27 23:36:30 - root - ERROR -    请求参数: keywords=['gmail 送信取 消'], timeframe=now 7-d, geo=
+2025-09-27 23:36:30 - root - WARNING - 获取 gmail 送信取 消 (now 7-d, GLOBAL) 趋势数据失败: 未获取到关键词 ['gmail 送信取 消'] 的 Google Trends 数据
+2025-09-27 23:36:31 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-27 23:36:31 - root - INFO -    关键词: ['gmail 送信取 消']
+2025-09-27 23:36:31 - root - INFO -    时间范围: now 1-d
+2025-09-27 23:36:31 - root - INFO -    地理位置:
+2025-09-27 23:36:35 - root - INFO - ✅ 成功获取到 180 条趋势数据
+⚠️ 关键词 udio ai tutorial hindi 最近趋势量级几乎为0，建议补充流量验证。
+⚠️ 关键词 adobe firefly 使 方 最近趋势量级几乎为0，建议补充流量验证。
+⚠️ 关键词 adobe firefly 同 最近趋势量级几乎为0，建议补充流量验证。
+⚠️ 关键词 adobe firefly 似顔絵 最近趋势量级几乎为0，建议补充流量验证。
+⚠️ 关键词 gmail 作 方 最近趋势量级几乎为0，建议补充流量验证。
+⚠️ 关键词 gmail 容量減 最近趋势量级几乎为0，建议补充流量验证。
+⚠️ 关键词 walmart 西友 最近趋势量级几乎为0，建议补充流量验证。
+⚠️ 关键词 gmail 送信取 消 最近趋势量级几乎为0，建议补充流量验证。
+✅ 新词检测完成: 发现 12 个新词 (0 个高置信度, 47 个 Breakout)
 
 🎉 完整工作流程完成!
-📊 热门关键词分析: 4 个关键词
-🌐 多平台发现: 15 个相关关键词
-🎯 最终分析: 15 个关键词
+📊 热门关键词分析: 19 个关键词
+🌐 多平台发现: 68 个相关关键词
+🎯 最终分析: 68 个关键词
 🏆 总计高机会关键词: 0 个
-📈 平均机会分数: 30.38
+📈 平均机会分数: 31.25
 
 🏆 Top 5 最终机会关键词:
-   1. chatgpt pro (分数: 39.050000000000004, 意图: I)
-   2. weatherguard paint (分数: 31.2, 意图: I)
-   3. weathertech sunshade (分数: 30.5, 意图: I)
-   4. weathertech championship (分数: 30.5, 意图: I)
-   5. weathertech floorliner (分数: 30.5, 意图: I)
-[Dashboard] 数据已刷新: D:\VscodeWorkspace\find_demand\output\reports\dashboard_data.json
+   1. udio ai tutorial hindi (分数: 39.0, 意图: I)
+   2. weathertech (分数: 36.0, 意图: I)
+   3. walmart trump (分数: 34.87, 意图: I)
+   4. walmart shopping (分数: 34.5, 意图: I)
+   5. walmart stock (分数: 34.39, 意图: I)
+[Dashboard] 数据已刷新: /Users/yangqingmang/CursorWorkspace/find_demand/find_demand/output/reports/dashboard_data.json
+(.venv) yangqingmang@yangqingmangdeMacBook-Pro find_demand %

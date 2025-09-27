@@ -412,7 +412,7 @@ class TrendingKeywordsCollector:
             from src.pipeline.cleaning.cleaner import clean_terms, CleaningConfig
             cleaned = clean_terms(
                 df['query'].astype(str).tolist(),
-                CleaningConfig(enable_langdetect=False)
+                CleaningConfig()
             )
             if not cleaned:
                 return pd.DataFrame(columns=['query'])

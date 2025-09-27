@@ -805,7 +805,7 @@ def handle_hot_keywords(manager, args):
                 if 'query' in trending_df.columns:
                     cleaned = clean_terms(
                         trending_df['query'].astype(str).tolist(),
-                        CleaningConfig(enable_langdetect=False)
+                        CleaningConfig()
                     )
                     trending_df = pd.DataFrame({'query': cleaned})
             except Exception:
@@ -1070,7 +1070,7 @@ def handle_all_workflow(manager, args):
                 if 'query' in trending_df.columns:
                     cleaned_terms = clean_terms(
                         trending_df['query'].astype(str).tolist(),
-                        CleaningConfig(enable_langdetect=False)
+                        CleaningConfig()
                     )
             except Exception as exc:
                 if not args.quiet:
@@ -1292,7 +1292,7 @@ def handle_demand_validation(manager, args):
                 from src.pipeline.cleaning.cleaner import clean_terms, CleaningConfig
                 cleaned = clean_terms(
                     trending_df['query'].astype(str).tolist(),
-                    CleaningConfig(enable_langdetect=False)
+                    CleaningConfig()
                 )
                 trending_df = pd.DataFrame({'query': cleaned})
             except Exception:

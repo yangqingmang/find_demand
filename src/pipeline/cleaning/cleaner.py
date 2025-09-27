@@ -11,7 +11,7 @@ except Exception:
 
 URL_RE = re.compile(r"https?://\S+|www\.[^\s]+", re.IGNORECASE)
 MULTISPACE_RE = re.compile(r"\s+")
-VALID_CHARS_RE = re.compile(r"[^a-zA-Z0-9\u4e00-\u9fff\s\-_'&+/]", re.UNICODE)
+VALID_CHARS_RE = re.compile(r"[^a-zA-Z0-9\s\-_'&+/]", re.UNICODE)
 
 
 @dataclass
@@ -22,6 +22,7 @@ class CleaningConfig:
     max_words: int = 6
     max_symbol_ratio: float = 0.2
     enable_langdetect: bool = True
+    allow_only_ascii: bool = True
 
 
 @lru_cache(maxsize=4096)
@@ -59,6 +60,9 @@ def is_valid_term(s: str, cfg: Optional[CleaningConfig] = None) -> bool:
     if sym_ratio > cfg.max_symbol_ratio:
         return False
 
+    if cfg.allow_only_ascii and not _is_ascii_str(s):
+        return False
+
     if (
         detect
         and cfg.enable_langdetect
@@ -92,3 +96,11 @@ def clean_terms(terms: List[str], cfg: Optional[CleaningConfig] = None) -> List[
         seen.add(std)
         results.append(std)
     return results
+
+
+def _is_ascii_str(text: str) -> bool:
+    try:
+        text.encode('ascii')
+        return True
+    except UnicodeEncodeError:
+        return False
