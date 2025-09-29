@@ -7,6 +7,7 @@ import time
 import json
 import urllib.parse
 import argparse
+from typing import Optional
 from src.utils import Logger
 from src.utils.constants import GOOGLE_TRENDS_CONFIG
 from config.config_manager import get_config
@@ -52,7 +53,9 @@ class TrendsCollector:
         self.backoff_factor = backoff_factor
         self.logger = Logger()
         self._cooldown_until = 0.0
-        
+        self._last_cooldown_log = 0.0
+        self._rate_limit_severity: Optional[str] = None
+
         # 直接使用 CustomTrendsCollector，避免循环依赖
         try:
             from .custom_trends_collector import CustomTrendsCollector
@@ -62,6 +65,12 @@ class TrendsCollector:
             self.logger.error(f"Session初始化失败: {e}")
             self.trends_collector = None
             
+        if self.trends_collector and hasattr(self.trends_collector, 'set_rate_limit_callback'):
+            try:
+                self.trends_collector.set_rate_limit_callback(self._handle_rate_limit_event)
+            except Exception as callback_error:
+                self.logger.warning(f"⚠️ 无法注册限流回调: {callback_error}")
+
         pd.set_option('future.no_silent_downcasting', True)
 
     def get_trends_data(self, keywords, timeframe='today 12-m', geo=''):
@@ -81,6 +90,9 @@ class TrendsCollector:
             self.logger.error(error_msg)
             raise RuntimeError(error_msg)
             
+        if not self._ensure_ready("兴趣度数据请求"):
+            raise RuntimeError("Google Trends 处于冷却期，暂未执行趋势数据请求")
+
         try:
             # 确保keywords是列表格式
             if isinstance(keywords, str):
@@ -199,6 +211,9 @@ class TrendsCollector:
         geo = geo or self.API_CONFIG['default_params']['geo']
         timeframe = timeframe or self.API_CONFIG['default_params']['timeframe']
 
+        if not self._ensure_ready("related queries 数据抓取"):
+            return pd.DataFrame(columns=['query', 'value', 'growth'])
+
         if not keyword or not keyword.strip():
             return self._fetch_trending_via_api(geo=geo, timeframe=timeframe)
 
@@ -233,8 +248,7 @@ class TrendsCollector:
     def _fetch_trending_via_api(self, geo=None, timeframe=None):
         """通过API获取热门关键词"""
 
-        if self._is_in_cooldown():
-            self.logger.warning("⚠️ TrendsCollector 仍在冷却窗口内，跳过 trending API 调用")
+        if not self._ensure_ready("trending API 调用"):
             return pd.DataFrame(columns=['query', 'value', 'growth'])
 
         try:
@@ -403,6 +417,9 @@ class TrendsCollector:
         if not self.trends_collector:
             self.logger.error("trends_collector 未初始化")
             return {}
+
+        if not self._ensure_ready("Google Trends 相关查询"):
+            return {}
             
         try:
             # 构建payload
@@ -426,6 +443,36 @@ class TrendsCollector:
         if new_until > self._cooldown_until:
             self._cooldown_until = new_until
             self.logger.warning("⏳ TrendsCollector 进入冷却，剩余 %.1f 秒", seconds)
+            self._last_cooldown_log = 0.0
+
+    def _handle_rate_limit_event(self, penalty: float, severity: str = 'medium') -> None:
+        try:
+            wait_seconds = float(penalty or 0.0)
+        except (TypeError, ValueError):
+            wait_seconds = 0.0
+
+        if wait_seconds <= 0:
+            return
+
+        self._rate_limit_severity = severity
+        self._start_cooldown(wait_seconds)
+
+    def _ensure_ready(self, action_desc: str) -> bool:
+        if not self._is_in_cooldown():
+            return True
+
+        remaining = max(self._cooldown_until - time.time(), 0.0)
+        now = time.time()
+        if now - self._last_cooldown_log >= 1.0:
+            self.logger.warning(
+                "⏸ Google Trends 冷却中 (%.1f 秒)，跳过 %s", remaining, action_desc
+            )
+            self._last_cooldown_log = now
+        return False
+
+    def is_in_cooldown(self) -> bool:
+        """对外暴露的冷却状态查询"""
+        return self._is_in_cooldown()
 
     def _wait_for_slot(self) -> bool:
         try:
@@ -442,6 +489,9 @@ class TrendsCollector:
         """获取相关主题"""
         if not self.trends_collector:
             self.logger.error("trends_collector 未初始化")
+            return {}
+
+        if not self._ensure_ready("Google Trends 相关主题"):
             return {}
             
         try:
@@ -460,6 +510,9 @@ class TrendsCollector:
         if not self.trends_collector:
             self.logger.error("trends_collector 未初始化")
             return pd.DataFrame()
+
+        if not self._ensure_ready("Google Trends 区域兴趣度"):
+            return pd.DataFrame()
             
         try:
             # 构建payload
@@ -477,6 +530,9 @@ class TrendsCollector:
         if not self.trends_collector:
             self.logger.error("trends_collector 未初始化")
             return []
+
+        if not self._ensure_ready("Google Trends 关键词建议"):
+            return []
             
         try:
             suggestions = self.trends_collector.suggestions(keyword)
@@ -490,6 +546,9 @@ class TrendsCollector:
         if not self.trends_collector:
             self.logger.error("trends_collector 未初始化")
             return pd.DataFrame()
+
+        if not self._ensure_ready("Google Trends 热门搜索"):
+            return pd.DataFrame()
             
         try:
             trending = self.trends_collector.trending_searches(pn)
@@ -502,6 +561,9 @@ class TrendsCollector:
         """获取历史兴趣数据"""
         if not self.trends_collector:
             self.logger.error("trends_collector 未初始化")
+            return pd.DataFrame()
+
+        if not self._ensure_ready("Google Trends 历史数据"):
             return pd.DataFrame()
             
         try:
@@ -517,6 +579,9 @@ class TrendsCollector:
             error_msg = "Google Trends 会话未初始化，无法获取关键词趋势数据"
             self.logger.error(error_msg)
             raise RuntimeError(error_msg)
+
+        if not self._ensure_ready("Google Trends 单词趋势数据"):
+            raise RuntimeError("Google Trends 处于冷却期，暂未执行关键词趋势请求")
 
         try:
             return self.trends_collector.get_keyword_trends(keyword, timeframe, geo)

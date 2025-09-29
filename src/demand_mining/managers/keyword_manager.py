@@ -8,9 +8,11 @@ import os
 import sys
 import json
 import re
+import copy
 import pandas as pd
-from datetime import datetime
-from typing import Dict, List, Any, Optional
+from pathlib import Path
+from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional, Tuple
 from src.demand_mining.analyzers.intent_analyzer_v2 import IntentAnalyzerV2 as IntentAnalyzer
 from src.demand_mining.analyzers.market_analyzer import MarketAnalyzer
 from src.demand_mining.analyzers.keyword_analyzer import KeywordAnalyzer
@@ -171,6 +173,46 @@ class KeywordManager(BaseManager):
         self.generic_head_terms = set(generic_head_list)
         self.question_prefixes = tuple(question_prefix_list)
 
+        keyword_analysis_cfg = self.config.get('keyword_analysis', {})
+        if not isinstance(keyword_analysis_cfg, dict):
+            keyword_analysis_cfg = {}
+        self.keyword_analysis_config = keyword_analysis_cfg
+
+        def _resolve_positive_int(value, fallback):
+            try:
+                candidate = int(value)
+            except (TypeError, ValueError):
+                return fallback
+            return candidate if candidate > 0 else fallback
+
+        base_batch = _resolve_positive_int(keyword_analysis_cfg.get('batch_size', 25), 25)
+        self.intent_batch_size = _resolve_positive_int(keyword_analysis_cfg.get('intent_batch_size', base_batch), base_batch)
+        self.market_batch_size = _resolve_positive_int(keyword_analysis_cfg.get('market_batch_size', base_batch), base_batch)
+
+        self._cache_enabled = bool(keyword_analysis_cfg.get('enable_cache', True))
+        ttl_hours = keyword_analysis_cfg.get('cache_ttl_hours', 12)
+        try:
+            ttl_hours_value = float(ttl_hours)
+        except (TypeError, ValueError):
+            ttl_hours_value = 12.0
+
+        if ttl_hours_value <= 0:
+            self.cache_ttl = None
+            self._cache_enabled = False
+        else:
+            self.cache_ttl = timedelta(hours=ttl_hours_value)
+
+        cache_dir_cfg = keyword_analysis_cfg.get('cache_dir') or os.path.join(self.output_dir, 'keyword_cache')
+        self.cache_dir = Path(cache_dir_cfg)
+        self.intent_cache_path = self.cache_dir / 'intent_cache.json'
+        self.market_cache_path = self.cache_dir / 'market_cache.json'
+        self.intent_cache: Dict[str, Dict[str, Any]] = {}
+        self.market_cache: Dict[str, Dict[str, Any]] = {}
+        self._cache_dirty: Dict[str, bool] = {'intent': False, 'market': False}
+
+        if self._cache_enabled:
+            self._load_caches()
+
     
     @property
     def intent_analyzer(self):
@@ -295,32 +337,60 @@ class KeywordManager(BaseManager):
     
     def _perform_analysis(self, keywords: List[str], output_dir: str = None) -> Dict[str, Any]:
         """执行关键词分析"""
+        normalized_keywords = self._prepare_keywords(keywords)
         results = {
-            'total_keywords': len(keywords),
+            'total_keywords': len(normalized_keywords),
             'analysis_time': datetime.now().isoformat(),
             'keywords': [],
             'intent_summary': {},
             'market_insights': {},
-            'recommendations': []
+            'recommendations': [],
+            'processing_summary': {}
         }
-        
-        # 逐个分析关键词
-        for idx, keyword in enumerate(keywords):
-            print(f"🔍 分析关键词 ({idx+1}/{len(keywords)}): {keyword}")
-            
-            # 意图分析
-            intent_result = self._analyze_keyword_intent(keyword)
-            
-            # 市场分析
-            market_result = self._analyze_keyword_market(keyword)
+
+        if not normalized_keywords:
+            results['intent_summary'] = self._generate_intent_summary([])
+            results['market_insights'] = self._generate_market_insights([])
+            results['recommendations'] = []
+            results['processing_summary'] = {
+                'total_keywords': 0,
+                'unique_keywords': 0,
+                'intent_cache_hits': 0,
+                'intent_batches': 0,
+                'intent_computed': 0,
+                'market_cache_hits': 0,
+                'market_batches': 0,
+                'market_computed': 0
+            }
+            if output_dir:
+                output_path = self._save_analysis_results(results, output_dir)
+                results['output_path'] = output_path
+            return results
+
+        unique_keywords = list(dict.fromkeys(normalized_keywords))
+        intent_map, intent_stats = self._collect_intent_results(unique_keywords)
+        market_map, market_stats = self._collect_market_results(unique_keywords)
+
+        print(f"🧮 关键词批处理: 总计 {len(normalized_keywords)} 个，唯一 {len(unique_keywords)} 个")
+        print(
+            f"🧠 意图分析 → 缓存命中 {intent_stats['cache_hits']}，新计算 {intent_stats['computed']}，批次数 {intent_stats['batches']}"
+        )
+        print(
+            f"📊 市场分析 → 缓存命中 {market_stats['cache_hits']}，新计算 {market_stats['computed']}，批次数 {market_stats['batches']}"
+        )
+
+        for keyword in normalized_keywords:
+            intent_result = copy.deepcopy(intent_map.get(keyword, self._get_default_intent_result()))
+            market_result = copy.deepcopy(market_map.get(keyword, self._get_default_market_result(keyword)))
             serp_signals = market_result.get('serp_signals')
 
-            # 整合结果
             keyword_result = {
                 'keyword': keyword,
                 'intent': intent_result,
                 'market': market_result,
-                'opportunity_score': self._calculate_opportunity_score(intent_result, market_result, serp_signals, keyword),
+                'opportunity_score': self._calculate_opportunity_score(
+                    intent_result, market_result, serp_signals, keyword
+                ),
                 'execution_cost': market_result.get('execution_cost', 0.0)
             }
 
@@ -328,57 +398,393 @@ class KeywordManager(BaseManager):
                 keyword_result['serp_signals'] = serp_signals
 
             results['keywords'].append(keyword_result)
-        
-        # 生成摘要
+
         results['intent_summary'] = self._generate_intent_summary(results['keywords'])
         results['market_insights'] = self._generate_market_insights(results['keywords'])
         results['recommendations'] = self._generate_recommendations(results['keywords'])
-        
-        # 保存结果
+        results['processing_summary'] = {
+            'total_keywords': len(normalized_keywords),
+            'unique_keywords': len(unique_keywords),
+            'intent_cache_hits': intent_stats['cache_hits'],
+            'intent_batches': intent_stats['batches'],
+            'intent_computed': intent_stats['computed'],
+            'market_cache_hits': market_stats['cache_hits'],
+            'market_batches': market_stats['batches'],
+            'market_computed': market_stats['computed']
+        }
+
         if output_dir:
             output_path = self._save_analysis_results(results, output_dir)
             results['output_path'] = output_path
-        
+
+        if self._cache_enabled:
+            self._flush_caches()
+
         return results
-    
+
+    @staticmethod
+    def _prepare_keywords(keywords: List[str]) -> List[str]:
+        """清理输入关键词列表"""
+        prepared: List[str] = []
+        if not keywords:
+            return prepared
+
+        for keyword in keywords:
+            if keyword is None:
+                continue
+            text = str(keyword).strip()
+            if text:
+                prepared.append(text)
+        return prepared
+
+    def _collect_intent_results(self, keywords: List[str]) -> Tuple[Dict[str, Dict[str, Any]], Dict[str, int]]:
+        """批量收集意图分析结果，带缓存"""
+        results: Dict[str, Dict[str, Any]] = {}
+        stats = {'cache_hits': 0, 'computed': 0, 'batches': 0}
+
+        if not keywords:
+            return results, stats
+
+        pending: List[str] = []
+        for keyword in keywords:
+            cached = self._get_cached_intent_result(keyword)
+            if cached is not None:
+                results[keyword] = cached
+                stats['cache_hits'] += 1
+            else:
+                pending.append(keyword)
+
+        if not pending:
+            return results, stats
+
+        analyzer = self.intent_analyzer
+        if analyzer is None:
+            for keyword in pending:
+                results[keyword] = self._get_default_intent_result()
+            return results, stats
+
+        for batch in self._chunked(pending, self.intent_batch_size):
+            if not batch:
+                continue
+            stats['batches'] += 1
+            try:
+                df = pd.DataFrame({'query': batch})
+                payload = analyzer.analyze_keywords(df)
+            except Exception as exc:
+                print(f"⚠️ 意图分析批处理失败: {exc}")
+                payload = {}
+
+            batch_results = self._extract_intent_results(batch, payload)
+            stats['computed'] += len(batch)
+            for keyword, intent_result in batch_results.items():
+                results[keyword] = intent_result
+                self._set_cached_intent_result(keyword, intent_result)
+
+        return results, stats
+
+    def _extract_intent_results(self, batch: List[str], analyzer_payload: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
+        """从意图分析器返回值中提取结构化结果"""
+        normalized: Dict[str, Dict[str, Any]] = {}
+        payload = analyzer_payload or {}
+        raw_results = payload.get('results') if isinstance(payload, dict) else None
+        raw_results = raw_results or []
+
+        indexed: Dict[str, Dict[str, Any]] = {}
+        for item in raw_results:
+            if not isinstance(item, dict):
+                continue
+            query = item.get('query')
+            if not query:
+                continue
+            formatted = self._format_intent_result(item)
+            indexed[str(query)] = formatted
+
+        for keyword in batch:
+            normalized[keyword] = copy.deepcopy(indexed.get(keyword, self._get_default_intent_result()))
+
+        return normalized
+
+    def _format_intent_result(self, intent_data: Dict[str, Any]) -> Dict[str, Any]:
+        """格式化单个意图分析结果"""
+        if not isinstance(intent_data, dict):
+            return self._get_default_intent_result()
+
+        website_recs = intent_data.get('website_recommendations')
+        if not isinstance(website_recs, dict):
+            website_recs = {}
+
+        return {
+            'primary_intent': intent_data.get('intent_primary', 'Unknown') or 'Unknown',
+            'confidence': intent_data.get('probability', 0.0) or 0.0,
+            'secondary_intent': intent_data.get('intent_secondary') or None,
+            'intent_description': intent_data.get('intent_primary', 'Unknown') or 'Unknown',
+            'website_recommendations': {
+                'website_type': website_recs.get('website_type', intent_data.get('website_type', 'Unknown')),
+                'ai_tool_category': website_recs.get('ai_tool_category', intent_data.get('ai_tool_category', 'General')),
+                'domain_suggestions': website_recs.get('domain_suggestions', intent_data.get('domain_suggestions', [])),
+                'monetization_strategy': website_recs.get('monetization_strategy', intent_data.get('monetization_strategy', [])),
+                'technical_requirements': website_recs.get('technical_requirements', intent_data.get('technical_requirements', [])),
+                'competition_analysis': website_recs.get('competition_analysis', intent_data.get('competition_analysis', {})),
+                'development_priority': website_recs.get('development_priority', intent_data.get('development_priority', {})),
+                'content_strategy': website_recs.get('content_strategy', intent_data.get('content_strategy', []))
+            }
+        }
+
+    def _collect_market_results(self, keywords: List[str]) -> Tuple[Dict[str, Dict[str, Any]], Dict[str, int]]:
+        """批量收集市场分析结果，带缓存"""
+        results: Dict[str, Dict[str, Any]] = {}
+        stats = {'cache_hits': 0, 'computed': 0, 'batches': 0}
+
+        if not keywords:
+            return results, stats
+
+        pending: List[str] = []
+        for keyword in keywords:
+            cached = self._get_cached_market_result(keyword)
+            if cached is not None:
+                results[keyword] = cached
+                stats['cache_hits'] += 1
+            else:
+                pending.append(keyword)
+
+        if not pending:
+            return results, stats
+
+        analyzer = self.market_analyzer
+        if analyzer is None:
+            for keyword in pending:
+                results[keyword] = self._get_default_market_result(keyword)
+            return results, stats
+
+        for batch in self._chunked(pending, self.market_batch_size):
+            if not batch:
+                continue
+            stats['batches'] += 1
+            try:
+                base_payload = analyzer.analyze_market_data(batch)
+            except Exception as exc:
+                print(f"⚠️ 市场分析批处理失败: {exc}")
+                base_payload = {}
+
+            stats['computed'] += len(batch)
+            for keyword in batch:
+                raw_market = base_payload.get(keyword, {}) if isinstance(base_payload, dict) else {}
+                try:
+                    enriched = self._enrich_market_result(keyword, raw_market)
+                except Exception as exc:
+                    print(f"⚠️ 市场分析处理失败 ({keyword}): {exc}")
+                    enriched = self._get_default_market_result(keyword)
+                results[keyword] = enriched
+                self._set_cached_market_result(keyword, enriched)
+
+        return results, stats
+
+    def _enrich_market_result(self, keyword: str, market_data: Dict[str, Any]) -> Dict[str, Any]:
+        """补全市场分析信息（含 SERP 信号）"""
+        if not isinstance(market_data, dict):
+            market_data = {}
+
+        base_data = {
+            'search_volume': market_data.get('search_volume', 1000),
+            'competition': market_data.get('competition', 0.5),
+            'cpc': market_data.get('cpc', 2.0),
+            'trend': market_data.get('trend', 'stable'),
+            'seasonality': market_data.get('seasonality', 'low'),
+            'execution_cost': market_data.get('execution_cost', 0.3)
+        }
+
+        base_data.update({
+            'ai_bonus': self._calculate_ai_bonus(keyword),
+            'commercial_value': self._assess_commercial_value(keyword),
+            'opportunity_indicators': self._get_opportunity_indicators(keyword),
+            'keyword': keyword
+        })
+
+        serp_signals = market_data.get('serp_signals')
+        if not serp_signals:
+            serp_signals = self._gather_serp_signals(keyword)
+
+        if serp_signals:
+            base_data['serp_signals'] = serp_signals
+
+        return base_data
+
+    def _get_cached_intent_result(self, keyword: str) -> Optional[Dict[str, Any]]:
+        """读取意图缓存"""
+        if not self._cache_enabled:
+            return None
+
+        entry = self.intent_cache.get(keyword)
+        if entry is None or not self._is_cache_entry_valid(entry):
+            if entry is not None:
+                self.intent_cache.pop(keyword, None)
+                self._cache_dirty['intent'] = True
+            return None
+
+        return copy.deepcopy(entry.get('value'))
+
+    def _set_cached_intent_result(self, keyword: str, value: Dict[str, Any]) -> None:
+        """写入意图缓存"""
+        if not self._cache_enabled:
+            return
+
+        self.intent_cache[keyword] = {
+            'value': copy.deepcopy(value),
+            'timestamp': datetime.now().isoformat()
+        }
+        self._cache_dirty['intent'] = True
+
+    def _get_cached_market_result(self, keyword: str) -> Optional[Dict[str, Any]]:
+        """读取市场缓存"""
+        if not self._cache_enabled:
+            return None
+
+        entry = self.market_cache.get(keyword)
+        if entry is None or not self._is_cache_entry_valid(entry):
+            if entry is not None:
+                self.market_cache.pop(keyword, None)
+                self._cache_dirty['market'] = True
+            return None
+
+        return copy.deepcopy(entry.get('value'))
+
+    def _set_cached_market_result(self, keyword: str, value: Dict[str, Any]) -> None:
+        """写入市场缓存"""
+        if not self._cache_enabled:
+            return
+
+        self.market_cache[keyword] = {
+            'value': copy.deepcopy(value),
+            'timestamp': datetime.now().isoformat()
+        }
+        self._cache_dirty['market'] = True
+
+    def _is_cache_entry_valid(self, entry: Dict[str, Any]) -> bool:
+        """检查缓存条目是否在有效期内"""
+        if not isinstance(entry, dict) or 'value' not in entry:
+            return False
+
+        if not self.cache_ttl:
+            return True
+
+        timestamp = entry.get('timestamp')
+        if not timestamp:
+            return False
+
+        try:
+            cached_at = datetime.fromisoformat(timestamp)
+        except Exception:
+            return False
+
+        return datetime.now() - cached_at <= self.cache_ttl
+
+    def _load_caches(self) -> None:
+        """加载缓存文件"""
+        try:
+            self.cache_dir.mkdir(parents=True, exist_ok=True)
+        except Exception as exc:
+            print(f"⚠️ 无法创建缓存目录 {self.cache_dir}: {exc}")
+            self._cache_enabled = False
+            return
+
+        self.intent_cache = self._read_cache_file(self.intent_cache_path, 'intent')
+        self.market_cache = self._read_cache_file(self.market_cache_path, 'market')
+
+    def _read_cache_file(self, path: Path, cache_type: str) -> Dict[str, Any]:
+        """读取单个缓存文件"""
+        if not path.exists():
+            return {}
+
+        try:
+            with path.open('r', encoding='utf-8') as fh:
+                raw_data = json.load(fh)
+        except Exception as exc:
+            print(f"⚠️ 无法加载缓存 {path}: {exc}")
+            return {}
+
+        if not isinstance(raw_data, dict):
+            return {}
+
+        cleaned: Dict[str, Any] = {}
+        removed = False
+        for keyword, entry in raw_data.items():
+            if not isinstance(keyword, str) or not isinstance(entry, dict):
+                removed = True
+                continue
+            if not self._is_cache_entry_valid(entry):
+                removed = True
+                continue
+            cleaned[keyword] = entry
+
+        if removed:
+            self._cache_dirty[cache_type] = True
+
+        return cleaned
+
+    def _write_cache_file(self, path: Path, payload: Dict[str, Any]) -> None:
+        """写入缓存文件"""
+        try:
+            self.cache_dir.mkdir(parents=True, exist_ok=True)
+            with path.open('w', encoding='utf-8') as fh:
+                json.dump(payload, fh, ensure_ascii=False, indent=2)
+        except Exception as exc:
+            print(f"⚠️ 缓存写入失败 ({path}): {exc}")
+
+    def _flush_caches(self) -> None:
+        """将内存缓存写回磁盘"""
+        if not self._cache_enabled:
+            return
+
+        if self._cache_dirty.get('intent'):
+            self._write_cache_file(self.intent_cache_path, self.intent_cache)
+            self._cache_dirty['intent'] = False
+
+        if self._cache_dirty.get('market'):
+            self._write_cache_file(self.market_cache_path, self.market_cache)
+            self._cache_dirty['market'] = False
+
+    @staticmethod
+    def _chunked(items: List[str], chunk_size: int):
+        """按批次拆分列表"""
+        if not items:
+            return
+
+        try:
+            chunk_size = int(chunk_size)
+        except (TypeError, ValueError):
+            chunk_size = len(items)
+
+        if chunk_size <= 0:
+            chunk_size = len(items)
+
+        for idx in range(0, len(items), chunk_size):
+            yield items[idx: idx + chunk_size]
+
+    @staticmethod
+    def _get_default_market_result(keyword: str = '') -> Dict[str, Any]:
+        """获取默认市场分析结果"""
+        return {
+            'search_volume': 0,
+            'competition': 0.0,
+            'cpc': 0.0,
+            'trend': 'unknown',
+            'seasonality': 'unknown',
+            'execution_cost': 0.5,
+            'ai_bonus': 0,
+            'commercial_value': 0,
+            'opportunity_indicators': [],
+            'keyword': keyword
+        }
+
     def _analyze_keyword_intent(self, keyword: str) -> Dict[str, Any]:
         """分析关键词意图"""
         try:
-            if self.intent_analyzer is None:
-                return self._get_default_intent_result()
-            
-            # 创建包含关键词的DataFrame进行分析
-            df = pd.DataFrame({'query': [keyword]})
-            
-            # 使用意图分析器进行完整分析
-            result = self.intent_analyzer.analyze_keywords(df)
-            
-            # 处理意图分析结果
-            if result and 'results' in result and len(result['results']) > 0:
-                intent_data = result['results'][0]  # 获取第一个结果
-                return {
-                    'primary_intent': intent_data.get('intent_primary', 'Unknown'),
-                    'confidence': intent_data.get('probability', 0.0),
-                    'secondary_intent': intent_data.get('intent_secondary', ''),
-                    'intent_description': intent_data.get('intent_primary', 'Unknown'),
-                    'website_recommendations': {
-                        'website_type': intent_data.get('website_type', 'Unknown'),
-                        'ai_tool_category': intent_data.get('ai_tool_category', 'General'),
-                        'domain_suggestions': intent_data.get('domain_suggestions', []),
-                        'monetization_strategy': intent_data.get('monetization_strategy', []),
-                        'technical_requirements': intent_data.get('technical_requirements', []),
-                        'competition_analysis': intent_data.get('competition_analysis', {}),
-                        'development_priority': intent_data.get('development_priority', {}),
-                        'content_strategy': intent_data.get('content_strategy', [])
-                    }
-                }
-            else:
-                return self._get_default_intent_result()
-                
-        except Exception as e:
-            print(f"⚠️ 意图分析失败 ({keyword}): {e}")
+            intent_map, _ = self._collect_intent_results([keyword])
+            return intent_map.get(keyword, self._get_default_intent_result())
+        except Exception as exc:
+            print(f"⚠️ 意图分析失败 ({keyword}): {exc}")
             return self._get_default_intent_result()
-    
+
 
     def _gather_serp_signals(self, keyword: str) -> Dict[str, Any]:
         """提取SERP信号"""
@@ -409,50 +815,11 @@ class KeywordManager(BaseManager):
     def _analyze_keyword_market(self, keyword: str) -> Dict[str, Any]:
         """Analyze keyword market data"""
         try:
-            market_data: Dict[str, Any] = {}
-            try:
-                market_data = self.market_analyzer.analyze_market_data([keyword]).get(keyword, {})
-            except Exception:
-                market_data = {}
-
-            base_data = {
-                'search_volume': market_data.get('search_volume', 1000),
-                'competition': market_data.get('competition', 0.5),
-                'cpc': market_data.get('cpc', 2.0),
-                'trend': market_data.get('trend', 'stable'),
-                'seasonality': market_data.get('seasonality', 'low'),
-                'execution_cost': market_data.get('execution_cost', 0.3)
-            }
-
-            ai_bonus = self._calculate_ai_bonus(keyword)
-            commercial_value = self._assess_commercial_value(keyword)
-            serp_signals = self._gather_serp_signals(keyword)
-
-            base_data.update({
-                'ai_bonus': ai_bonus,
-                'commercial_value': commercial_value,
-                'opportunity_indicators': self._get_opportunity_indicators(keyword),
-                'keyword': keyword
-            })
-
-            if serp_signals:
-                base_data['serp_signals'] = serp_signals
-
-            return base_data
-
-        except Exception as e:
-            print(f"⚠️ 市场分析失败 ({keyword}): {e}")
-            return {
-                'search_volume': 0,
-                'competition': 0.0,
-                'cpc': 0.0,
-                'trend': 'unknown',
-                'seasonality': 'unknown',
-                'ai_bonus': 0,
-                'commercial_value': 0,
-                'opportunity_indicators': [],
-                'execution_cost': 0.5
-            }
+            market_map, _ = self._collect_market_results([keyword])
+            return market_map.get(keyword, self._get_default_market_result(keyword))
+        except Exception as exc:
+            print(f"⚠️ 市场分析失败 ({keyword}): {exc}")
+            return self._get_default_market_result(keyword)
 
     def _normalize_scoring_weights(self):
         """Ensure opportunity scoring weights are normalized"""

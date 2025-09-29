@@ -19,6 +19,8 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+from .request_rate_limiter import wait_for_next_request, register_rate_limit_event
+
 class GoogleTrendsSession:
     """Google Trends Session 管理类"""
     
@@ -127,14 +129,35 @@ class GoogleTrendsSession:
             
             # 先访问主页获取cookies
             main_page_url = 'https://trends.google.com/'
+            try:
+                wait_for_next_request()
+            except RuntimeError as limiter_error:
+                penalty = register_rate_limit_event('medium')
+                logger.error("❌ 会话初始化因频控限制被阻止: %s", limiter_error)
+                if penalty:
+                    logger.info("建议等待 %.1f 秒后重试会话初始化", penalty)
+                self.initialized = False
+                return
+
             response = self.session.get(main_page_url, timeout=self.timeout)
-            
+
             if response.status_code == 200:
                 # 再访问一个trends页面，确保session完全建立
                 time.sleep(3)
                 trends_page_url = 'https://trends.google.com/trends/explore?q=test'
+
+                try:
+                    wait_for_next_request()
+                except RuntimeError as limiter_error:
+                    penalty = register_rate_limit_event('medium')
+                    logger.error("❌ 会话初始化后续请求被限流: %s", limiter_error)
+                    if penalty:
+                        logger.info("建议等待 %.1f 秒后重试初始化流程", penalty)
+                    self.initialized = False
+                    return
+
                 trends_response = self.session.get(trends_page_url, timeout=self.timeout)
-                
+
                 if trends_response.status_code == 200:
                     self.initialized = True
                     logger.info("✅ Google Trends会话初始化成功")
@@ -142,7 +165,11 @@ class GoogleTrendsSession:
                     logger.warning(f"⚠️ Trends页面访问失败，状态码: {trends_response.status_code}")
                     self.initialized = False
             elif response.status_code == 429:
-                logger.error("❌ 遇到429错误，会话初始化失败")
+                penalty = register_rate_limit_event('high')
+                if penalty:
+                    logger.error("❌ 遇到429错误，会话初始化失败，建议等待 %.1f 秒", penalty)
+                else:
+                    logger.error("❌ 遇到429错误，会话初始化失败")
                 self.initialized = False
             else:
                 logger.warning(f"⚠️ 主页访问失败，状态码: {response.status_code}")

@@ -210,6 +210,9 @@ def _collect_trends_related_candidates(trends_collector, seed_keywords: List[str
     rows: List[Dict[str, Any]] = []
 
     for seed in unique_seeds:
+        if hasattr(trends_collector, 'is_in_cooldown') and trends_collector.is_in_cooldown():
+            print("⚠️ Google Trends 处于冷却期，终止相关查询采集")
+            break
         try:
             related_queries = trends_collector.get_related_queries(seed, geo=geo, timeframe=timeframe)
         except Exception as exc:
@@ -251,6 +254,10 @@ def _collect_trends_related_candidates(trends_collector, seed_keywords: List[str
         except Exception as exc:
             print(f"⚠️ 获取 {seed} 相关主题失败: {exc}")
             related_topics = {}
+
+        if hasattr(trends_collector, 'is_in_cooldown') and trends_collector.is_in_cooldown():
+            print("⚠️ Google Trends 冷却中，停止继续采集相关主题")
+            break
 
         topic_map = None
         if isinstance(related_topics, dict):

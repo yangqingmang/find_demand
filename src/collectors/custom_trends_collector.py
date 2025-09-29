@@ -76,6 +76,7 @@ class TrendsAPIClient:
         self.initialized = False
         self._retry_multiplier = 2.0
         self._retry_jitter = (0.75, 1.25)
+        self._rate_limit_callback: Optional[Callable[[float, str], None]] = None
 
         # 会话管理 - 使用全局session避免重复初始化
         from .google_trends_session import get_global_session
@@ -88,6 +89,18 @@ class TrendsAPIClient:
     
     # _init_session 方法已移至 GoogleTrendsSession 类中统一管理
     
+    def set_rate_limit_callback(self, callback: Callable[[float, str], None]) -> None:
+        """注册限流事件回调"""
+        self._rate_limit_callback = callback
+
+    def _notify_rate_limit(self, penalty: float, severity: str) -> None:
+        if self._rate_limit_callback is None:
+            return
+        try:
+            self._rate_limit_callback(penalty, severity)
+        except Exception as callback_error:
+            logger.warning(f"⚠️ 限流回调执行失败: {callback_error}")
+
     def _calculate_retry_delay(self, attempt: int, base_delay: Optional[float] = None) -> float:
         """计算指数退避等待时间"""
         if attempt <= 0:
@@ -143,6 +156,7 @@ class TrendsAPIClient:
                 if attempt < self.retries:
                     penalty = register_rate_limit_event('medium')
                     logger.debug(f"Session恢复，建议额外等待 {penalty:.1f} 秒")
+                    self._notify_rate_limit(penalty, 'medium')
                     continue
                 return {}
 
@@ -163,6 +177,7 @@ class TrendsAPIClient:
                 if attempt < self.retries:
                     penalty = register_rate_limit_event('medium')
                     logger.debug(f"请求异常后等待建议 {penalty:.1f} 秒")
+                    self._notify_rate_limit(penalty, 'medium')
                     continue
                 logger.error(f"请求最终失败: {request_error}")
                 return {}
@@ -173,6 +188,7 @@ class TrendsAPIClient:
                     logger.warning(f"🔗 请求URL: {url}")
                     penalty = register_rate_limit_event('high')
                     logger.warning(f"⏳ 节流提示，额外等待 {penalty:.1f} 秒")
+                    self._notify_rate_limit(penalty, 'high')
                     try:
                         from .google_trends_session import reset_global_session
                         reset_global_session()
@@ -182,7 +198,8 @@ class TrendsAPIClient:
                         logger.error(f"❌ 重置Session失败: {reset_error}")
                     continue
 
-                register_rate_limit_event('high')
+                penalty = register_rate_limit_event('high')
+                self._notify_rate_limit(penalty, 'high')
                 logger.error("❌ 多次遇到429错误，请求失败")
                 return {}
 
@@ -193,6 +210,7 @@ class TrendsAPIClient:
                 if attempt < self.retries:
                     penalty = register_rate_limit_event('medium')
                     logger.debug(f"HTTP错误后等待建议 {penalty:.1f} 秒")
+                    self._notify_rate_limit(penalty, 'medium')
                     continue
                 logger.error(f"请求最终失败: {http_error}")
                 return {}
