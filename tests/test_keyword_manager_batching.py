@@ -105,6 +105,8 @@ def test_perform_analysis_batches_and_preserves_order(tmp_path: Path):
     assert summary['market_computed'] == 2
     assert summary['intent_cache_hits'] == 0
     assert summary['market_cache_hits'] == 0
+    assert summary['analysis_dataframe_rows'] == len(results['keywords'])
+    assert summary['analysis_duplicates'] == 1
 
     first_entry = results['keywords'][0]
     duplicate_entry = results['keywords'][2]
@@ -133,6 +135,8 @@ def test_keyword_analysis_caching_hits_reduce_computation(tmp_path: Path):
     summary = second_results['processing_summary']
     assert summary['intent_cache_hits'] == 2
     assert summary['market_cache_hits'] == 2
+    assert summary['analysis_dataframe_rows'] == len(second_results['keywords'])
+    assert summary['analysis_duplicates'] == 0
 
     # 缓存应当落盘，方便跨进程复用
     assert manager.intent_cache_path.exists()

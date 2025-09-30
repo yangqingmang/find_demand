@@ -5,18 +5,22 @@
 整合Reddit、Hacker News、Product Hunt等平台的关键词发现
 """
 
-import requests
+import asyncio
 import json
-import time
 import random
 import re
-from datetime import datetime
-from typing import Dict, List, Any, Optional
-from urllib.parse import quote
-import pandas as pd
-from collections import Counter
-import sys
+import time
+import hashlib
 import os
+import sys
+from collections import Counter
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Awaitable, Callable, Dict, List, Optional
+from urllib.parse import quote, urlparse
+
+import aiohttp
+import pandas as pd
 
 # 添加config目录到路径
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'config'))
@@ -27,18 +31,101 @@ class MultiPlatformKeywordDiscovery:
     """多平台关键词发现工具"""
     
     def __init__(self):
-        self.session = requests.Session()
-        self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
-        })
-
-        self.request_timeout = 10
-        self.max_retries = 3
-        self.retry_backoff = (1, 3)
-        
         # 加载配置
         self.config = get_config()
-        
+
+        # 基础请求与并发控制
+        base_timeout = getattr(self.config, 'DISCOVERY_REQUEST_TIMEOUT', 12) or 12
+        base_max_retries = getattr(self.config, 'DISCOVERY_MAX_RETRIES', 3) or 3
+        base_backoff = getattr(self.config, 'DISCOVERY_RETRY_BACKOFF', (1, 3))
+        base_max_concurrency = getattr(self.config, 'DISCOVERY_MAX_CONCURRENCY', 5) or 5
+        base_default_rate_interval = getattr(self.config, 'DISCOVERY_DEFAULT_RATE_INTERVAL', 0.35) or 0.35
+        base_cache_dir = getattr(self.config, 'DISCOVERY_CACHE_DIR', 'output/cache/discovery') or 'output/cache/discovery'
+        base_cache_enabled = getattr(self.config, 'DISCOVERY_CACHE_ENABLED', True)
+        base_cache_ttl = getattr(self.config, 'DISCOVERY_CACHE_TTL', 3600)
+        rate_override = getattr(self.config, 'DISCOVERY_RATE_LIMITS', None)
+
+        runtime_cfg = self._load_discovery_runtime_config()
+        if isinstance(runtime_cfg, dict):
+            base_timeout = runtime_cfg.get('request_timeout', base_timeout)
+            base_max_retries = runtime_cfg.get('max_retries', base_max_retries)
+            if runtime_cfg.get('retry_backoff') is not None:
+                base_backoff = runtime_cfg.get('retry_backoff')
+            base_max_concurrency = runtime_cfg.get('max_concurrency', base_max_concurrency)
+            base_default_rate_interval = runtime_cfg.get('default_rate_interval', base_default_rate_interval)
+            base_cache_dir = runtime_cfg.get('cache_dir', base_cache_dir)
+            if 'cache_enabled' in runtime_cfg:
+                base_cache_enabled = runtime_cfg.get('cache_enabled')
+            base_cache_ttl = runtime_cfg.get('cache_ttl_seconds', base_cache_ttl)
+            if runtime_cfg.get('rate_limits') is not None:
+                rate_override = runtime_cfg.get('rate_limits')
+
+        embedding_cfg = {}
+        if isinstance(runtime_cfg, dict):
+            embedding_cfg = runtime_cfg.get('embeddings', {}) or {}
+        base_embedding_enabled = getattr(self.config, 'DISCOVERY_EMBEDDINGS_ENABLED', True)
+        base_embedding_min_keywords = getattr(self.config, 'DISCOVERY_EMBEDDINGS_MIN_KEYWORDS', 5)
+        base_embedding_model = getattr(self.config, 'DISCOVERY_EMBEDDINGS_MODEL', 'sentence-transformers/all-MiniLM-L6-v2')
+        self.embedding_enabled = bool(embedding_cfg.get('enabled', base_embedding_enabled))
+        try:
+            self.embedding_min_keywords = max(int(embedding_cfg.get('min_keywords', base_embedding_min_keywords)), 1)
+        except (TypeError, ValueError):
+            try:
+                self.embedding_min_keywords = max(int(base_embedding_min_keywords), 1)
+            except (TypeError, ValueError):
+                self.embedding_min_keywords = 5
+        self.embedding_model_name = str(embedding_cfg.get('model_name', base_embedding_model)) or base_embedding_model
+        self._embedding_model = None
+
+        self.user_agent = (
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
+            'AppleWebKit/537.36 (KHTML, like Gecko)'
+        )
+
+        try:
+            self.request_timeout = int(float(base_timeout))
+        except (TypeError, ValueError):
+            self.request_timeout = 12
+
+        try:
+            self.max_retries = max(int(base_max_retries), 1)
+        except (TypeError, ValueError):
+            self.max_retries = 3
+
+        backoff_cfg = base_backoff
+        if isinstance(backoff_cfg, (list, tuple)) and len(backoff_cfg) == 2:
+            try:
+                self.retry_backoff = (float(backoff_cfg[0]), float(backoff_cfg[1]))
+            except (TypeError, ValueError):
+                self.retry_backoff = (1.0, 3.0)
+        else:
+            self.retry_backoff = (1.0, 3.0)
+
+        try:
+            self.max_concurrency = max(int(base_max_concurrency), 1)
+        except (TypeError, ValueError):
+            self.max_concurrency = 5
+
+        try:
+            self.default_rate_interval = float(base_default_rate_interval)
+        except (TypeError, ValueError):
+            self.default_rate_interval = 0.35
+
+        cache_dir_value = str(base_cache_dir)
+        self.cache_dir = Path(cache_dir_value)
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
+
+        self._cache_enabled = bool(base_cache_enabled)
+        try:
+            self._cache_ttl = int(base_cache_ttl)
+        except (TypeError, ValueError):
+            self._cache_ttl = 3600
+        if self._cache_ttl <= 0:
+            self._cache_enabled = False
+
+        self._cache_store: Dict[str, Dict[str, Any]] = {}
+
+        self._per_host_rate_limits = self._build_rate_limit_map(rate_override)
         # 平台配置
         self.platforms = {
             'reddit': {
@@ -56,17 +143,15 @@ class MultiPlatformKeywordDiscovery:
                 'enabled': bool(self.config.PRODUCTHUNT_API_TOKEN)
             }
         }
-        
+
         # 设置ProductHunt认证头
+        self.ph_headers = {}
         if self.config.PRODUCTHUNT_API_TOKEN:
             self.ph_headers = {
                 'Authorization': f'Bearer {self.config.PRODUCTHUNT_API_TOKEN}',
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             }
-
-        # 请求控制参数
-        self._retry_enabled = True
 
         filters_cfg = self._load_discovery_filter_config()
         self.brand_filter_config = {
@@ -82,14 +167,14 @@ class MultiPlatformKeywordDiscovery:
         self.seed_profiles = seed_cfg.get('profiles', {}) if isinstance(seed_cfg.get('profiles'), dict) else {}
         self.default_seed_profile = seed_cfg.get('default_profile') or next(iter(self.seed_profiles.keys()), None)
         self.min_seed_terms = max(int(seed_cfg.get('min_terms', 3) or 0), 1)
-        
+
         # AI相关subreddit列表
         self.ai_subreddits = [
             'artificial', 'MachineLearning', 'deeplearning', 'ChatGPT',
             'OpenAI', 'artificial_intelligence', 'singularity', 'Futurology',
             'programming', 'webdev', 'entrepreneur', 'SaaS', 'startups'
         ]
-        
+
         # 关键词提取模式（用于论坛/新闻原始文本）
         self.keyword_patterns = [
             r'\b(?:ai|artificial intelligence|machine learning|deep learning|neural network)\b',
@@ -149,7 +234,6 @@ class MultiPlatformKeywordDiscovery:
         self._cleaning_config = CleaningConfig()
         self._brand_filter_notice_shown = False
         self._generic_filter_notice_shown = False
-
     def _load_discovery_filter_config(self) -> Dict[str, Any]:
         config_path = os.path.join(os.path.dirname(__file__), '../../../config/integrated_workflow_config.json')
         try:
@@ -158,6 +242,18 @@ class MultiPlatformKeywordDiscovery:
                     data = json.load(fh)
                 filters_cfg = data.get('discovery_filters', {})
                 return filters_cfg if isinstance(filters_cfg, dict) else {}
+        except Exception:
+            pass
+        return {}
+
+    def _load_discovery_runtime_config(self) -> Dict[str, Any]:
+        config_path = os.path.join(os.path.dirname(__file__), '../../../config/integrated_workflow_config.json')
+        try:
+            if os.path.exists(config_path):
+                with open(config_path, 'r', encoding='utf-8') as fh:
+                    data = json.load(fh)
+                runtime_cfg = data.get('discovery_runtime', {})
+                return runtime_cfg if isinstance(runtime_cfg, dict) else {}
         except Exception:
             pass
         return {}
@@ -269,142 +365,365 @@ class MultiPlatformKeywordDiscovery:
 
         return cleaned
 
-    def _request_with_retry(self, method: str, url: str, **kwargs) -> requests.Response:
-        """对外部请求增加超时与重试机制"""
-        kwargs.setdefault('timeout', self.request_timeout)
+    def _build_rate_limit_map(self, override: Optional[Any]) -> Dict[str, float]:
+        """合并默认与配置的速率限制"""
+        defaults = {
+            'www.reddit.com': 1.1,
+            'reddit.com': 1.1,
+            'hn.algolia.com': 0.6,
+            'news.ycombinator.com': 0.6,
+            'suggestqueries.google.com': 0.25,
+            'api.producthunt.com': 1.0,
+            'www.producthunt.com': 1.0,
+        }
+        defaults['*'] = max(self.default_rate_interval, 0.1)
+
+        if override:
+            payload = override
+            if isinstance(payload, str):
+                try:
+                    payload = json.loads(payload)
+                except Exception:
+                    payload = None
+            if isinstance(payload, dict):
+                for host, value in payload.items():
+                    try:
+                        interval = float(value)
+                    except (TypeError, ValueError):
+                        continue
+                    normalized_host = str(host).lower().strip()
+                    if normalized_host:
+                        defaults[normalized_host] = max(interval, 0.05)
+        return defaults
+
+    def _build_headers(self, extra: Optional[Dict[str, str]] = None) -> Dict[str, str]:
+        headers = {'User-Agent': self.user_agent}
+        if extra:
+            for key, value in extra.items():
+                if value:
+                    headers[key] = value
+        return headers
+
+    def _normalize_cache_key(self, raw_key: str) -> str:
+        normalized = re.sub(r'[^a-zA-Z0-9_-]+', '_', raw_key.lower()).strip('_')
+        hash_suffix = hashlib.sha1(raw_key.encode('utf-8')).hexdigest()[:10]
+        if normalized:
+            normalized = normalized[:60]
+            return f"{normalized}_{hash_suffix}"
+        return hash_suffix
+
+    def _cache_namespace_path(self, namespace: str) -> Path:
+        path = self.cache_dir / namespace
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    def _load_cached_payload(self, namespace: str, key: str):
+        if not self._cache_enabled:
+            return None
+        store = self._cache_store.setdefault(namespace, {})
+        entry = store.get(key)
+        now = time.time()
+        if entry:
+            timestamp = entry.get('timestamp', 0)
+            if self._cache_ttl <= 0 or now - timestamp <= self._cache_ttl:
+                return entry.get('payload')
+            store.pop(key, None)
+
+        path = self._cache_namespace_path(namespace) / f"{self._normalize_cache_key(key)}.json"
+        if not path.exists():
+            return None
+        try:
+            with path.open('r', encoding='utf-8') as fh:
+                data = json.load(fh)
+            timestamp = data.get('timestamp', 0)
+            if self._cache_ttl > 0 and now - timestamp > self._cache_ttl:
+                return None
+            payload = data.get('payload')
+            store[key] = {'payload': payload, 'timestamp': timestamp or now}
+            return payload
+        except Exception:
+            return None
+
+    def _save_cached_payload(self, namespace: str, key: str, payload: Any) -> None:
+        if not self._cache_enabled:
+            return
+        path = self._cache_namespace_path(namespace) / f"{self._normalize_cache_key(key)}.json"
+        timestamp = time.time()
+        try:
+            with path.open('w', encoding='utf-8') as fh:
+                json.dump({'timestamp': timestamp, 'payload': payload}, fh, ensure_ascii=False)
+            store = self._cache_store.setdefault(namespace, {})
+            store[key] = {'payload': payload, 'timestamp': timestamp}
+        except Exception as exc:
+            print(f"⚠️ 缓存写入失败 ({namespace}:{key}): {exc}")
+
+    def _run_async(self, coroutine):
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            return asyncio.run(coroutine)
+        if loop.is_running():
+            raise RuntimeError('discover_all_platforms 需在同步上下文调用，可直接使用 await 版本')
+        return loop.run_until_complete(coroutine)
+
+    async def _run_single_platform(
+        self,
+        builder: Callable[[aiohttp.ClientSession, asyncio.Semaphore, Dict[str, Any]], Awaitable[List[Dict[str, Any]]]]
+    ) -> List[Dict[str, Any]]:
+        semaphore = asyncio.Semaphore(self.max_concurrency)
+        rate_state: Dict[str, Any] = {}
+        async with aiohttp.ClientSession(headers=self._build_headers()) as session:
+            return await builder(session, semaphore, rate_state)
+
+    async def _throttle_host(self, host: str, rate_state: Dict[str, Any]) -> None:
+        normalized_host = (host or '').lower()
+        interval = self._per_host_rate_limits.get(
+            normalized_host,
+            self._per_host_rate_limits.get('*', self.default_rate_interval)
+        )
+        state = rate_state.get(normalized_host)
+        if state is None:
+            state = {'lock': asyncio.Lock(), 'last': 0.0}
+            rate_state[normalized_host] = state
+        async with state['lock']:
+            last_time = state['last']
+            now = time.monotonic()
+            wait_time = interval - (now - last_time)
+            if wait_time > 0:
+                await asyncio.sleep(wait_time)
+                now = time.monotonic()
+            state['last'] = now
+
+    async def _fetch_json(
+        self,
+        session: aiohttp.ClientSession,
+        semaphore: asyncio.Semaphore,
+        rate_state: Dict[str, Any],
+        method: str,
+        url: str,
+        *,
+        params: Optional[Dict[str, Any]] = None,
+        headers: Optional[Dict[str, str]] = None,
+        json_payload: Optional[Any] = None
+    ) -> Any:
         attempt = 0
+        host = urlparse(url).netloc
+        request_headers = self._build_headers(headers)
         while True:
             attempt += 1
             try:
-                request_func = getattr(self.session, method)
-                response = request_func(url, **kwargs)
-                response.raise_for_status()
-                return response
-            except requests.RequestException as exc:
-                if not self._retry_enabled or attempt >= self.max_retries:
-                    raise
-                sleep_for = random.uniform(*self.retry_backoff)
-                time.sleep(sleep_for)
+                await self._throttle_host(host, rate_state)
+                async with semaphore:
+                    async with session.request(
+                        method.upper(),
+                        url,
+                        params=params,
+                        headers=request_headers,
+                        json=json_payload,
+                        timeout=self.request_timeout
+                    ) as response:
+                        response.raise_for_status()
+                        return await response.json()
+            except (
+                aiohttp.ClientError,
+                asyncio.TimeoutError,
+                aiohttp.ContentTypeError,
+                json.JSONDecodeError
+            ) as exc:
+                if attempt >= self.max_retries:
+                    raise exc
+                await asyncio.sleep(random.uniform(*self.retry_backoff))
 
-    def discover_reddit_keywords(self, subreddit: str, limit: int = 100) -> List[Dict]:
-        """从Reddit发现关键词"""
+    async def _fetch_text(
+        self,
+        session: aiohttp.ClientSession,
+        semaphore: asyncio.Semaphore,
+        rate_state: Dict[str, Any],
+        method: str,
+        url: str,
+        *,
+        params: Optional[Dict[str, Any]] = None,
+        headers: Optional[Dict[str, str]] = None
+    ) -> str:
+        attempt = 0
+        host = urlparse(url).netloc
+        request_headers = self._build_headers(headers)
+        while True:
+            attempt += 1
+            try:
+                await self._throttle_host(host, rate_state)
+                async with semaphore:
+                    async with session.request(
+                        method.upper(),
+                        url,
+                        params=params,
+                        headers=request_headers,
+                        timeout=self.request_timeout
+                    ) as response:
+                        response.raise_for_status()
+                        return await response.text()
+            except (aiohttp.ClientError, asyncio.TimeoutError) as exc:
+                if attempt >= self.max_retries:
+                    raise exc
+                await asyncio.sleep(random.uniform(*self.retry_backoff))
+
+    def _get_embedding_model(self):
+        if getattr(self, '_embedding_model', None) is not None:
+            return self._embedding_model
+        from sentence_transformers import SentenceTransformer
+        model = SentenceTransformer(self.embedding_model_name)
+        self._embedding_model = model
+        return model
+
+    async def _discover_reddit_keywords_async(
+        self,
+        session: aiohttp.ClientSession,
+        semaphore: asyncio.Semaphore,
+        rate_state: Dict[str, Any],
+        subreddit: str,
+        limit: int = 100
+    ) -> List[Dict[str, Any]]:
+        cache_key = f"{subreddit.lower()}_{int(limit)}"
+        cached = self._load_cached_payload('reddit', cache_key)
+        if cached is not None:
+            print(f"⚡ Reddit r/{subreddit} 使用缓存结果")
+            return cached
+
         print(f"🔍 正在分析 Reddit r/{subreddit}...")
-        
-        keywords = []
-        
+        url = f"https://www.reddit.com/r/{subreddit}/hot.json"
+        params = {'limit': max(int(limit), 1)}
         try:
-            # 获取热门帖子
-            url = f"https://www.reddit.com/r/{subreddit}/hot.json?limit={limit}"
-            response = self._request_with_retry('get', url)
+            data = await self._fetch_json(session, semaphore, rate_state, 'GET', url, params=params)
+        except Exception as exc:
+            print(f"❌ Reddit r/{subreddit} 分析失败: {exc}")
+            return []
 
-            data = response.json()
-            posts = data.get('data', {}).get('children', [])
-            
-            for post in posts:
-                post_data = post.get('data', {})
-                title = post_data.get('title', '')
-                selftext = post_data.get('selftext', '')
-                score = post_data.get('score', 0)
-                num_comments = post_data.get('num_comments', 0)
-                
-                # 提取关键词
-                extracted_keywords = self._extract_keywords_from_text(title + ' ' + selftext)
-                
-                for keyword in extracted_keywords:
-                    keywords.append({
-                        'keyword': keyword,
-                        'source': f'reddit_r_{subreddit}',
-                        'title': title,
-                        'score': score,
-                        'comments': num_comments,
-                        'url': f"https://reddit.com{post_data.get('permalink', '')}",
-                        'platform': 'reddit'
-                    })
-            
-            time.sleep(1)  # 避免请求过快
-            
-        except Exception as e:
-            print(f"❌ Reddit r/{subreddit} 分析失败: {e}")
-        
+        posts = data.get('data', {}).get('children', [])
+        keywords: List[Dict[str, Any]] = []
+        for post in posts:
+            post_data = post.get('data', {})
+            title = post_data.get('title', '')
+            selftext = post_data.get('selftext', '')
+            score = post_data.get('score', 0)
+            num_comments = post_data.get('num_comments', 0)
+
+            extracted = self._extract_keywords_from_text(f"{title} {selftext}")
+            for keyword in extracted:
+                keywords.append({
+                    'keyword': keyword,
+                    'source': f'reddit_r_{subreddit}',
+                    'title': title,
+                    'score': score,
+                    'comments': num_comments,
+                    'url': f"https://reddit.com{post_data.get('permalink', '')}",
+                    'platform': 'reddit'
+                })
+
+        if keywords:
+            self._save_cached_payload('reddit', cache_key, keywords)
         return keywords
-    
-    def discover_hackernews_keywords(self, query: str = 'AI', days: int = 30) -> List[Dict]:
-        """从Hacker News发现关键词"""
+
+    def discover_reddit_keywords(self, subreddit: str, limit: int = 100) -> List[Dict[str, Any]]:
+        return self._run_async(
+            self._run_single_platform(
+                lambda session, semaphore, rate_state: self._discover_reddit_keywords_async(
+                    session, semaphore, rate_state, subreddit, limit
+                )
+            )
+        )
+
+    async def _discover_hackernews_keywords_async(
+        self,
+        session: aiohttp.ClientSession,
+        semaphore: asyncio.Semaphore,
+        rate_state: Dict[str, Any],
+        query: str = 'AI',
+        days: int = 30
+    ) -> List[Dict[str, Any]]:
+        cache_key = f"{query.lower()}_{int(days)}"
+        cached = self._load_cached_payload('hackernews', cache_key)
+        if cached is not None:
+            print(f"⚡ Hacker News (查询: {query}) 使用缓存结果")
+            return cached
+
         print(f"🔍 正在分析 Hacker News (查询: {query})...")
-        
-        keywords = []
-        
+        end_time = int(time.time())
+        start_time = end_time - (int(days) * 24 * 3600)
+        url = "https://hn.algolia.com/api/v1/search"
+        params = {
+            'query': query,
+            'tags': 'story',
+            'numericFilters': f'created_at_i>{start_time},created_at_i<{end_time}',
+            'hitsPerPage': 100
+        }
         try:
-            # 计算时间范围
-            end_time = int(time.time())
-            start_time = end_time - (days * 24 * 3600)
-            
-            # 搜索相关帖子
-            url = "https://hn.algolia.com/api/v1/search"
-            params = {
-                'query': query,
-                'tags': 'story',
-                'numericFilters': f'created_at_i>{start_time},created_at_i<{end_time}',
-                'hitsPerPage': 100
-            }
-            
-            response = self._request_with_retry('get', url, params=params)
+            data = await self._fetch_json(session, semaphore, rate_state, 'GET', url, params=params)
+        except Exception as exc:
+            print(f"❌ Hacker News 分析失败: {exc}")
+            return []
 
-            data = response.json()
-            hits = data.get('hits', [])
-            
-            for hit in hits:
-                title = hit.get('title', '')
-                url = hit.get('url', '')
-                points = hit.get('points', 0)
-                num_comments = hit.get('num_comments', 0)
-                
-                # 提取关键词
-                extracted_keywords = self._extract_keywords_from_text(title)
-                
-                for keyword in extracted_keywords:
-                    keywords.append({
-                        'keyword': keyword,
-                        'source': 'hackernews',
-                        'title': title,
-                        'score': points,
-                        'comments': num_comments,
-                        'url': url or f"https://news.ycombinator.com/item?id={hit.get('objectID')}",
-                        'platform': 'hackernews'
-                    })
-        
-        except Exception as e:
-            print(f"❌ Hacker News 分析失败: {e}")
-        
+        hits = data.get('hits', [])
+        keywords: List[Dict[str, Any]] = []
+        for hit in hits:
+            title = hit.get('title', '')
+            post_url = hit.get('url', '')
+            points = hit.get('points', 0)
+            num_comments = hit.get('num_comments', 0)
+            extracted = self._extract_keywords_from_text(title)
+            for keyword in extracted:
+                keywords.append({
+                    'keyword': keyword,
+                    'source': 'hackernews',
+                    'title': title,
+                    'score': points,
+                    'comments': num_comments,
+                    'url': post_url or f"https://news.ycombinator.com/item?id={hit.get('objectID')}",
+                    'platform': 'hackernews'
+                })
+
+        if keywords:
+            self._save_cached_payload('hackernews', cache_key, keywords)
         return keywords
-    
-    def discover_youtube_keywords(self, search_term: str) -> List[Dict]:
-        """从YouTube搜索建议发现关键词"""
-        print(f"🔍 正在分析 YouTube 搜索建议 (查询: {search_term})...")
-        
-        keywords = []
-        
-        try:
-            # YouTube搜索建议API (非官方)
-            url = "http://suggestqueries.google.com/complete/search"
-            params = {
-                'client': 'youtube',
-                'ds': 'yt',
-                'q': search_term
-            }
-            
-            response = self._request_with_retry('get', url, params=params)
 
-            # 解析响应 (JSONP格式)
-            content = response.text
-            if content.startswith('window.google.ac.h('):
-                json_str = content[19:-1]  # 移除JSONP包装
+    def discover_hackernews_keywords(self, query: str = 'AI', days: int = 30) -> List[Dict[str, Any]]:
+        return self._run_async(
+            self._run_single_platform(
+                lambda session, semaphore, rate_state: self._discover_hackernews_keywords_async(
+                    session, semaphore, rate_state, query, days
+                )
+            )
+        )
+
+    async def _discover_youtube_keywords_async(
+        self,
+        session: aiohttp.ClientSession,
+        semaphore: asyncio.Semaphore,
+        rate_state: Dict[str, Any],
+        search_term: str
+    ) -> List[Dict[str, Any]]:
+        cache_key = search_term.lower()
+        cached = self._load_cached_payload('youtube', cache_key)
+        if cached is not None:
+            print(f"⚡ YouTube 搜索建议 (查询: {search_term}) 使用缓存结果")
+            return cached
+
+        print(f"🔍 正在分析 YouTube 搜索建议 (查询: {search_term})...")
+        url = "https://suggestqueries.google.com/complete/search"
+        params = {'client': 'youtube', 'ds': 'yt', 'q': search_term}
+        try:
+            content = await self._fetch_text(session, semaphore, rate_state, 'GET', url, params=params)
+        except Exception as exc:
+            print(f"❌ YouTube 分析失败: {exc}")
+            return []
+
+        keywords: List[Dict[str, Any]] = []
+        if content.startswith('window.google.ac.h('):
+            json_str = content[19:-1]
+            try:
                 data = json.loads(json_str)
-                
                 suggestions = data[1] if len(data) > 1 else []
-                
                 for suggestion in suggestions:
-                    if isinstance(suggestion, list) and len(suggestion) > 0:
+                    if isinstance(suggestion, list) and suggestion:
                         keyword = suggestion[0]
                         keywords.append({
                             'keyword': keyword,
@@ -415,140 +734,344 @@ class MultiPlatformKeywordDiscovery:
                             'url': f'https://www.youtube.com/results?search_query={quote(keyword)}',
                             'platform': 'youtube'
                         })
-        
-        except Exception as e:
-            print(f"❌ YouTube 分析失败: {e}")
-        
-        return keywords
-    
-    def discover_google_suggestions(self, search_term: str) -> List[Dict]:
-        """从Google搜索建议发现关键词"""
-        print(f"🔍 正在分析 Google 搜索建议 (查询: {search_term})...")
-        
-        keywords = []
-        
-        try:
-            # Google搜索建议API
-            url = "http://suggestqueries.google.com/complete/search"
-            params = {
-                'client': 'firefox',
-                'q': search_term
-            }
-            
-            response = self._request_with_retry('get', url, params=params)
+            except Exception as exc:
+                print(f"⚠️ YouTube 建议解析失败: {exc}")
 
-            data = response.json()
-            suggestions = data[1] if len(data) > 1 else []
-            
-            for suggestion in suggestions:
-                keywords.append({
-                    'keyword': suggestion,
-                    'source': 'google_suggestions',
-                    'title': f'Google搜索建议: {suggestion}',
-                    'score': 0,
-                    'comments': 0,
-                    'url': f'https://www.google.com/search?q={quote(suggestion)}',
-                    'platform': 'google'
-                })
-        
-        except Exception as e:
-            print(f"❌ Google搜索建议分析失败: {e}")
-        
+        if keywords:
+            self._save_cached_payload('youtube', cache_key, keywords)
         return keywords
-    
-    def discover_producthunt_keywords(self, search_term: str = "AI", days: int = 30) -> List[Dict]:
-        """从ProductHunt发现关键词"""
-        print(f"🔍 正在分析 ProductHunt (查询: {search_term})...")
-        
-        keywords = []
-        
-        if not self.config.PRODUCTHUNT_API_TOKEN:
-            print("⚠️ ProductHunt API Token未配置，跳过ProductHunt分析")
-            return keywords
-        
+
+    def discover_youtube_keywords(self, search_term: str) -> List[Dict[str, Any]]:
+        return self._run_async(
+            self._run_single_platform(
+                lambda session, semaphore, rate_state: self._discover_youtube_keywords_async(
+                    session, semaphore, rate_state, search_term
+                )
+            )
+        )
+
+    async def _discover_google_suggestions_async(
+        self,
+        session: aiohttp.ClientSession,
+        semaphore: asyncio.Semaphore,
+        rate_state: Dict[str, Any],
+        search_term: str
+    ) -> List[Dict[str, Any]]:
+        cache_key = search_term.lower()
+        cached = self._load_cached_payload('google', cache_key)
+        if cached is not None:
+            print(f"⚡ Google 搜索建议 (查询: {search_term}) 使用缓存结果")
+            return cached
+
+        print(f"🔍 正在分析 Google 搜索建议 (查询: {search_term})...")
+        url = "https://suggestqueries.google.com/complete/search"
+        params = {'client': 'firefox', 'q': search_term}
         try:
-            # ProductHunt GraphQL查询
-            query = """
-            query($search: String!, $first: Int!) {
-              posts(search: $search, first: $first, order: VOTES) {
-                edges {
-                  node {
-                    id
-                    name
-                    tagline
-                    description
-                    votesCount
-                    commentsCount
-                    url
-                    topics {
-                      edges {
-                        node {
-                          name
-                        }
-                      }
+            data = await self._fetch_json(session, semaphore, rate_state, 'GET', url, params=params)
+        except Exception as exc:
+            print(f"❌ Google搜索建议分析失败: {exc}")
+            return []
+
+        suggestions = data[1] if isinstance(data, list) and len(data) > 1 else []
+        keywords: List[Dict[str, Any]] = []
+        for suggestion in suggestions:
+            keywords.append({
+                'keyword': suggestion,
+                'source': 'google_suggestions',
+                'title': f'Google搜索建议: {suggestion}',
+                'score': 0,
+                'comments': 0,
+                'url': f'https://www.google.com/search?q={quote(suggestion)}',
+                'platform': 'google'
+            })
+
+        if keywords:
+            self._save_cached_payload('google', cache_key, keywords)
+        return keywords
+
+    def discover_google_suggestions(self, search_term: str) -> List[Dict[str, Any]]:
+        return self._run_async(
+            self._run_single_platform(
+                lambda session, semaphore, rate_state: self._discover_google_suggestions_async(
+                    session, semaphore, rate_state, search_term
+                )
+            )
+        )
+
+    async def _discover_producthunt_keywords_async(
+        self,
+        session: aiohttp.ClientSession,
+        semaphore: asyncio.Semaphore,
+        rate_state: Dict[str, Any],
+        search_term: str = 'AI',
+        days: int = 30
+    ) -> List[Dict[str, Any]]:
+        if not self.platforms.get('producthunt', {}).get('enabled'):
+            return []
+
+        cache_key = f"{search_term.lower()}_{int(days)}"
+        cached = self._load_cached_payload('producthunt', cache_key)
+        if cached is not None:
+            print(f"⚡ ProductHunt (查询: {search_term}) 使用缓存结果")
+            return cached
+
+        print(f"🔍 正在分析 ProductHunt (查询: {search_term})...")
+        query = """
+        query($search: String!, $first: Int!) {
+          posts(search: $search, first: $first, order: VOTES) {
+            edges {
+              node {
+                id
+                name
+                tagline
+                description
+                votesCount
+                commentsCount
+                url
+                topics {
+                  edges {
+                    node {
+                      name
                     }
                   }
                 }
               }
             }
-            """
-            
-            variables = {
-                "search": search_term,
-                "first": 50
-            }
-            
-            response = self._request_with_retry(
-                'post',
+          }
+        }
+        """
+        variables = {
+            "search": search_term,
+            "first": 50
+        }
+        try:
+            data = await self._fetch_json(
+                session,
+                semaphore,
+                rate_state,
+                'POST',
                 self.platforms['producthunt']['base_url'],
-                headers=self.ph_headers,
-                json={
-                    'query': query,
-                    'variables': variables
-                }
+                json_payload={'query': query, 'variables': variables},
+                headers=self.ph_headers
             )
+        except Exception as exc:
+            print(f"❌ ProductHunt 分析失败: {exc}")
+            return []
 
-            data = response.json()
-            
-            if 'data' in data and 'posts' in data['data']:
-                posts = data['data']['posts']['edges']
-                
-                for post in posts:
-                    node = post['node']
-                    name = node.get('name', '')
-                    tagline = node.get('tagline', '')
-                    description = node.get('description', '')
-                    votes = node.get('votesCount', 0)
-                    comments = node.get('commentsCount', 0)
-                    url = node.get('url', '')
-                    
-                    # 从产品名称、标语和描述中提取关键词
-                    text_content = f"{name} {tagline} {description}"
-                    extracted_keywords = self._extract_keywords_from_text(text_content)
-                    
-                    # 添加主题标签作为关键词
-                    topics = node.get('topics', {}).get('edges', [])
-                    for topic in topics:
-                        topic_name = topic.get('node', {}).get('name', '')
-                        if topic_name:
-                            extracted_keywords.append(topic_name.lower())
-                    
-                    for keyword in extracted_keywords:
-                        keywords.append({
-                            'keyword': keyword,
-                            'source': 'producthunt',
-                            'title': name,
-                            'score': votes,
-                            'comments': comments,
-                            'url': url,
-                            'platform': 'producthunt'
-                        })
-        
-        except Exception as e:
-            print(f"❌ ProductHunt 分析失败: {e}")
-        
+        posts = ((data or {}).get('data') or {}).get('posts', {}).get('edges', [])
+        keywords: List[Dict[str, Any]] = []
+        for edge in posts:
+            node = edge.get('node', {})
+            name = node.get('name', '')
+            tagline = node.get('tagline', '')
+            description = node.get('description', '')
+            votes = node.get('votesCount', 0)
+            comments = node.get('commentsCount', 0)
+            url = node.get('url', '')
+            topics = [t.get('node', {}).get('name', '') for t in node.get('topics', {}).get('edges', [])]
+            combined_text = " ".join(filter(None, [name, tagline, description] + topics))
+            extracted = self._extract_keywords_from_text(combined_text)
+            for keyword in extracted:
+                keywords.append({
+                    'keyword': keyword,
+                    'source': 'producthunt',
+                    'title': name,
+                    'score': votes,
+                    'comments': comments,
+                    'url': url,
+                    'platform': 'producthunt'
+                })
+
+        if keywords:
+            self._save_cached_payload('producthunt', cache_key, keywords)
         return keywords
-    
+
+    def discover_producthunt_keywords(self, search_term: str = 'AI', days: int = 30) -> List[Dict[str, Any]]:
+        return self._run_async(
+            self._run_single_platform(
+                lambda session, semaphore, rate_state: self._discover_producthunt_keywords_async(
+                    session, semaphore, rate_state, search_term, days
+                )
+            )
+        )
+
+    async def _async_discover_all_platforms(self, search_terms: List[str]) -> pd.DataFrame:
+        print("🚀 开始多平台关键词发现...")
+        prepared_terms = self.prepare_search_terms(search_terms)
+        if not prepared_terms:
+            print("⚠️ 缺少有效的搜索词，无法执行多平台发现")
+            return pd.DataFrame(columns=['keyword', 'platform'])
+
+        semaphore = asyncio.Semaphore(self.max_concurrency)
+        rate_state: Dict[str, Any] = {}
+        tasks: List[Awaitable[List[Dict[str, Any]]]] = []
+
+        async with aiohttp.ClientSession(headers=self._build_headers()) as session:
+            for subreddit in self.ai_subreddits[:5]:
+                tasks.append(self._discover_reddit_keywords_async(session, semaphore, rate_state, subreddit, 50))
+
+            for term in prepared_terms:
+                tasks.append(self._discover_hackernews_keywords_async(session, semaphore, rate_state, term))
+                tasks.append(self._discover_youtube_keywords_async(session, semaphore, rate_state, term))
+                tasks.append(self._discover_google_suggestions_async(session, semaphore, rate_state, term))
+                if self.platforms.get('producthunt', {}).get('enabled'):
+                    tasks.append(self._discover_producthunt_keywords_async(session, semaphore, rate_state, term))
+
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        all_keywords: List[Dict[str, Any]] = []
+        for result in results:
+            if isinstance(result, Exception):
+                print(f"❌ 平台采集任务异常: {result}")
+                continue
+            if result:
+                all_keywords.extend(result)
+
+        return self._post_process_keywords(all_keywords)
+
+    def discover_all_platforms(self, search_terms: List[str]) -> pd.DataFrame:
+        return self._run_async(self._async_discover_all_platforms(search_terms))
+
+    def _post_process_keywords(self, records: List[Dict[str, Any]]) -> pd.DataFrame:
+        df = pd.DataFrame(records)
+        if 'keyword' not in df.columns:
+            print("⚠️ 结果缺少关键词字段")
+            return df
+
+        if df.empty:
+            return df
+
+        try:
+            df['keyword'] = df['keyword'].astype(str)
+            df['normalized_keyword'] = df['keyword'].apply(standardize_term)
+            df = df[df['normalized_keyword'].apply(lambda term: is_valid_term(term, self._cleaning_config))]
+            df = df.drop_duplicates(subset='normalized_keyword')
+            df['keyword'] = df['normalized_keyword']
+            df = df.drop(columns=['normalized_keyword'])
+        except Exception as exc:
+            print(f"⚠️ 关键词清洗失败: {exc}")
+            df['keyword'] = df['keyword'].astype(str)
+
+        if df.empty:
+            print("⚠️ 清洗后无有效关键词")
+            return df
+
+        if 'platform' not in df.columns:
+            df['platform'] = 'unknown'
+        else:
+            df['platform'] = df['platform'].fillna('unknown')
+
+        if self.brand_filter_config.get('enabled', True):
+            before_brand = len(df)
+            df = df[~df['keyword'].apply(self._is_brand_heavy)].reset_index(drop=True)
+            if len(df) < before_brand:
+                print(f"⚠️ 移除了 {before_brand - len(df)} 个品牌泛词")
+        elif not self._brand_filter_notice_shown:
+            print("ℹ️ 品牌词过滤已禁用，保留品牌相关关键词")
+            self._brand_filter_notice_shown = True
+
+        if df.empty:
+            return df
+
+        if self.generic_filter_config.get('enabled', True):
+            before_generic = len(df)
+            df = df[~df['keyword'].apply(self._is_underspecified_keyword)].reset_index(drop=True)
+            if len(df) < before_generic:
+                print(f"⚠️ 移除了 {before_generic - len(df)} 个泛化头部词")
+        elif not self._generic_filter_notice_shown:
+            print("ℹ️ 泛词过滤已禁用，将保留更广泛的热门词")
+            self._generic_filter_notice_shown = True
+
+        df = self._limit_brand_keywords(df)
+        if df.empty:
+            print("⚠️ 过滤后无有效关键词")
+            return df
+
+        try:
+            from datasketch import MinHash, MinHashLSH
+            from sklearn.cluster import AgglomerativeClustering
+            import numpy as np
+
+            texts = df['keyword'].tolist()
+
+            def shingles(s: str, k: int = 3):
+                s = s.replace(' ', '_')
+                return {s[i:i + k] for i in range(max(len(s) - k + 1, 1))}
+
+            mhashes = []
+            for text_value in texts:
+                mh = MinHash(num_perm=64)
+                for sh in shingles(text_value):
+                    mh.update(sh.encode('utf-8'))
+                mhashes.append(mh)
+
+            lsh = MinHashLSH(threshold=self.lsh_similarity_threshold, num_perm=64)
+            for idx, mh in enumerate(mhashes):
+                lsh.insert(str(idx), mh)
+
+            keep_idx = []
+            seen = set()
+            for idx, mh in enumerate(mhashes):
+                if idx in seen:
+                    continue
+                near = lsh.query(mh)
+                group = sorted(int(x) for x in near)
+                for member in group:
+                    seen.add(member)
+                keep_idx.append(group[0])
+
+            df = df.iloc[keep_idx].reset_index(drop=True)
+
+            embeddings = None
+            if self.embedding_enabled and len(df) >= self.embedding_min_keywords:
+                try:
+                    model = self._get_embedding_model()
+                    embeddings = model.encode(df['keyword'].tolist(), normalize_embeddings=True)
+                except Exception as exc:
+                    print(f"Embedding model load failed: {exc}")
+                    self.embedding_enabled = False
+            else:
+                if self.embedding_enabled and len(df) < self.embedding_min_keywords:
+                    print(f"Skipping embedding stage: {len(df)} keywords, threshold {self.embedding_min_keywords}")
+
+            if embeddings is not None and len(df) >= self.embedding_min_keywords:
+                clustering = AgglomerativeClustering(
+                    n_clusters=None,
+                    distance_threshold=self.cluster_distance_threshold,
+                    affinity='cosine',
+                    linkage='average'
+                )
+                labels = clustering.fit_predict(embeddings)
+                df['cluster_id'] = labels
+
+                representatives = []
+                for cluster_id in sorted(set(labels)):
+                    idxs = np.where(labels == cluster_id)[0]
+                    subset = embeddings[idxs]
+                    center = subset.mean(axis=0, keepdims=True)
+                    sims = (subset @ center.T).ravel()
+                    representative = idxs[int(np.argmax(sims))]
+                    representatives.append(representative)
+                df = df.iloc[sorted(set(representatives))].reset_index(drop=True)
+            else:
+                if 'cluster_id' not in df.columns:
+                    df['cluster_id'] = 0
+        except Exception as exc:
+            print(f"Keyword clustering failed: {exc}")
+            if 'cluster_id' not in df.columns:
+                df['cluster_id'] = 0
+            pass
+
+        if 'score' not in df.columns:
+            df['score'] = 0
+        df['long_tail_score'] = df['keyword'].apply(self._calculate_long_tail_score)
+        df['weighted_score'] = df['score'] * df['long_tail_score']
+        df = df.sort_values('weighted_score', ascending=False)
+        df['discovered_at'] = datetime.now().isoformat()
+        print(f"✅ 发现 {len(df)} 个关键词")
+
+        return df
+
     def _extract_keywords_from_text(self, text: str) -> List[str]:
         """从文本中提取关键词（论坛/新闻名词短语抽取 + 模式词）"""
         keywords = []
@@ -751,163 +1274,6 @@ class MultiPlatformKeywordDiscovery:
                 brand_counts[brand] = count + 1
 
         return df.loc[keep_indices].reset_index(drop=True)
-    
-    def discover_all_platforms(self, search_terms: List[str]) -> pd.DataFrame:
-        """从所有平台发现关键词"""
-        print("🚀 开始多平台关键词发现...")
-        
-        search_terms = self.prepare_search_terms(search_terms)
-        if not search_terms:
-            print("⚠️ 缺少有效的搜索词，无法执行多平台发现")
-            return pd.DataFrame(columns=['keyword', 'platform'])
-
-        all_keywords = []
-
-        # Reddit分析
-        for subreddit in self.ai_subreddits[:5]:  # 限制数量避免请求过多
-            reddit_keywords = self.discover_reddit_keywords(subreddit, limit=50)
-            all_keywords.extend(reddit_keywords)
-        
-        # Hacker News分析
-        for term in search_terms:
-            hn_keywords = self.discover_hackernews_keywords(term)
-            all_keywords.extend(hn_keywords)
-        
-        # YouTube搜索建议
-        for term in search_terms:
-            youtube_keywords = self.discover_youtube_keywords(term)
-            all_keywords.extend(youtube_keywords)
-        
-        # Google搜索建议
-        # Google搜索建议
-        for term in search_terms:
-            google_keywords = self.discover_google_suggestions(term)
-            all_keywords.extend(google_keywords)
-        
-        # ProductHunt分析
-        if self.platforms['producthunt']['enabled']:
-            for term in search_terms:
-                ph_keywords = self.discover_producthunt_keywords(term)
-                all_keywords.extend(ph_keywords)
-        
-        # 转换为DataFrame
-        df = pd.DataFrame(all_keywords)
-        
-        if 'keyword' not in df.columns:
-            print("⚠️ 结果缺少关键词字段")
-            return df
-
-        if not df.empty:
-            try:
-                df['keyword'] = df['keyword'].astype(str)
-                df['normalized_keyword'] = df['keyword'].apply(standardize_term)
-                df = df[df['normalized_keyword'].apply(lambda term: is_valid_term(term, self._cleaning_config))]
-                df = df.drop_duplicates(subset='normalized_keyword')
-                df['keyword'] = df['normalized_keyword']
-                df = df.drop(columns=['normalized_keyword'])
-            except Exception as exc:
-                print(f"⚠️ 关键词清洗失败: {exc}")
-                df['keyword'] = df['keyword'].astype(str)
-
-            if df.empty:
-                print("⚠️ 清洗后无有效关键词")
-            else:
-                if 'platform' not in df.columns:
-                    df['platform'] = 'unknown'
-                else:
-                    df['platform'] = df['platform'].fillna('unknown')
-
-                if self.brand_filter_config.get('enabled', True):
-                    before_brand = len(df)
-                    df = df[~df['keyword'].apply(self._is_brand_heavy)].reset_index(drop=True)
-                    if len(df) < before_brand:
-                        print(f"⚠️ 移除了 {before_brand - len(df)} 个品牌泛词")
-                elif not self._brand_filter_notice_shown:
-                    print("ℹ️ 品牌词过滤已禁用，保留品牌相关关键词")
-                    self._brand_filter_notice_shown = True
-
-                if self.generic_filter_config.get('enabled', True):
-                    before_generic = len(df)
-                    df = df[~df['keyword'].apply(self._is_underspecified_keyword)].reset_index(drop=True)
-                    if len(df) < before_generic:
-                        print(f"⚠️ 移除了 {before_generic - len(df)} 个泛化头部词")
-                elif not self._generic_filter_notice_shown:
-                    print("ℹ️ 泛词过滤已禁用，将保留更广泛的热门词")
-                    self._generic_filter_notice_shown = True
-
-                df = self._limit_brand_keywords(df)
-
-                if df.empty:
-                    print("⚠️ 过滤后无有效关键词")
-                else:
-                    try:
-                        from datasketch import MinHash, MinHashLSH
-                        from sklearn.cluster import AgglomerativeClustering
-                        from sentence_transformers import SentenceTransformer
-                        import numpy as np
-
-                        texts = df['keyword'].tolist()
-
-                        def shingles(s, k=3):
-                            s = s.replace(' ', '_')
-                            return {s[i:i+k] for i in range(max(len(s) - k + 1, 1))}
-
-                        mhashes = []
-                        for t in texts:
-                            mh = MinHash(num_perm=64)
-                            for sh in shingles(t):
-                                mh.update(sh.encode('utf-8'))
-                            mhashes.append(mh)
-                        lsh = MinHashLSH(threshold=self.lsh_similarity_threshold, num_perm=64)
-                        for idx, mh in enumerate(mhashes):
-                            lsh.insert(str(idx), mh)
-                        keep_idx = []
-                        seen = set()
-                        for i, mh in enumerate(mhashes):
-                            if i in seen:
-                                continue
-                            near = lsh.query(mh)
-                            grp = sorted(int(x) for x in near)
-                            for j in grp:
-                                seen.add(j)
-                            keep_idx.append(grp[0])
-                        df = df.iloc[keep_idx].reset_index(drop=True)
-
-                        model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
-                        emb = model.encode(df['keyword'].tolist(), normalize_embeddings=True)
-                        if len(df) >= 5:
-                            clustering = AgglomerativeClustering(
-                                n_clusters=None,
-                                distance_threshold=self.cluster_distance_threshold,
-                                affinity='cosine',
-                                linkage='average'
-                            )
-                            labels = clustering.fit_predict(emb)
-                            df['cluster_id'] = labels
-                            reps = []
-                            for c in sorted(set(labels)):
-                                idxs = np.where(labels == c)[0]
-                                sub = emb[idxs]
-                                center = sub.mean(axis=0, keepdims=True)
-                                sims = (sub @ center.T).ravel()
-                                rep = idxs[int(np.argmax(sims))]
-                                reps.append(rep)
-                            df = df.iloc[sorted(set(reps))].reset_index(drop=True)
-                        else:
-                            df['cluster_id'] = 0
-                    except Exception:
-                        pass
-
-                    df['score'] = 0 if 'score' not in df.columns else df['score']
-                    df['long_tail_score'] = df['keyword'].apply(self._calculate_long_tail_score)
-                    df['weighted_score'] = df['score'] * df['long_tail_score']
-                    df = df.sort_values('weighted_score', ascending=False)
-                    df['discovered_at'] = datetime.now().isoformat()
-                    print(f"✅ 发现 {len(df)} 个关键词")
-        else:
-            print("⚠️ 未发现任何关键词")
-
-        return df
     
     def analyze_keyword_trends(self, df: pd.DataFrame) -> Dict[str, Any]:
         """分析关键词趋势"""
@@ -1154,3 +1520,7 @@ if __name__ == "__main__":
 #    
 #    # 使用结果进行后续处理
 #    top_keywords = df.head(20)
+
+
+
+

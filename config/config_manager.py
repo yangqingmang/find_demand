@@ -7,7 +7,7 @@
 
 import os
 import json
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional, Tuple
 from dataclasses import dataclass
 try:
     from .crypto_manager import ConfigCrypto
@@ -66,6 +66,19 @@ class ConfigData:
     # 应用配置 - 这些值将从配置文件中读取
     DEBUG: bool = False
     LOG_LEVEL: str = "INFO"
+    DISCOVERY_CACHE_ENABLED: bool = True
+    DISCOVERY_CACHE_TTL: int = 3600
+    DISCOVERY_CACHE_DIR: str = "output/cache/discovery"
+    DISCOVERY_MAX_CONCURRENCY: int = 5
+    DISCOVERY_DEFAULT_RATE_INTERVAL: float = 0.35
+    DISCOVERY_MAX_RETRIES: int = 3
+    DISCOVERY_REQUEST_TIMEOUT: int = 12
+    DISCOVERY_RETRY_BACKOFF: Tuple[float, float] = (1.0, 3.0)
+    DISCOVERY_RATE_LIMITS: Optional[Dict[str, float]] = None
+    DISCOVERY_EMBEDDINGS_ENABLED: bool = True
+    DISCOVERY_EMBEDDINGS_MIN_KEYWORDS: int = 5
+    DISCOVERY_EMBEDDINGS_MODEL: str = 'sentence-transformers/all-MiniLM-L6-v2'
+
     OUTPUT_DIR: str = "data/results"
 
 

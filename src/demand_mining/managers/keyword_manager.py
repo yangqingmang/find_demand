@@ -12,7 +12,7 @@ import copy
 import pandas as pd
 from pathlib import Path
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 from src.demand_mining.analyzers.intent_analyzer_v2 import IntentAnalyzerV2 as IntentAnalyzer
 from src.demand_mining.analyzers.market_analyzer import MarketAnalyzer
 from src.demand_mining.analyzers.keyword_analyzer import KeywordAnalyzer
@@ -336,91 +336,198 @@ class KeywordManager(BaseManager):
         return self._perform_analysis(keywords, output_dir)
     
     def _perform_analysis(self, keywords: List[str], output_dir: str = None) -> Dict[str, Any]:
-        """执行关键词分析"""
+        """Run keyword analysis in batched mode"""
         normalized_keywords = self._prepare_keywords(keywords)
-        results = {
-            'total_keywords': len(normalized_keywords),
-            'analysis_time': datetime.now().isoformat(),
-            'keywords': [],
-            'intent_summary': {},
-            'market_insights': {},
-            'recommendations': [],
-            'processing_summary': {}
-        }
+        analysis_time = datetime.now().isoformat()
 
         if not normalized_keywords:
-            results['intent_summary'] = self._generate_intent_summary([])
-            results['market_insights'] = self._generate_market_insights([])
-            results['recommendations'] = []
-            results['processing_summary'] = {
+            empty_results = {
                 'total_keywords': 0,
-                'unique_keywords': 0,
-                'intent_cache_hits': 0,
-                'intent_batches': 0,
-                'intent_computed': 0,
-                'market_cache_hits': 0,
-                'market_batches': 0,
-                'market_computed': 0
+                'analysis_time': analysis_time,
+                'keywords': [],
+                'intent_summary': self._generate_intent_summary([]),
+                'market_insights': self._generate_market_insights([]),
+                'recommendations': [],
+                'processing_summary': {
+                    'total_keywords': 0,
+                    'unique_keywords': 0,
+                    'intent_cache_hits': 0,
+                    'intent_batches': 0,
+                    'intent_computed': 0,
+                    'market_cache_hits': 0,
+                    'market_batches': 0,
+                    'market_computed': 0,
+                    'analysis_dataframe_rows': 0,
+                    'analysis_duplicates': 0
+                }
             }
             if output_dir:
-                output_path = self._save_analysis_results(results, output_dir)
-                results['output_path'] = output_path
-            return results
+                output_path = self._save_analysis_results(empty_results, output_dir, analysis_df=None)
+                empty_results['output_path'] = output_path
+            return empty_results
 
         unique_keywords = list(dict.fromkeys(normalized_keywords))
         intent_map, intent_stats = self._collect_intent_results(unique_keywords)
         market_map, market_stats = self._collect_market_results(unique_keywords)
 
-        print(f"🧮 关键词批处理: 总计 {len(normalized_keywords)} 个，唯一 {len(unique_keywords)} 个")
-        print(
-            f"🧠 意图分析 → 缓存命中 {intent_stats['cache_hits']}，新计算 {intent_stats['computed']}，批次数 {intent_stats['batches']}"
-        )
-        print(
-            f"📊 市场分析 → 缓存命中 {market_stats['cache_hits']}，新计算 {market_stats['computed']}，批次数 {market_stats['batches']}"
-        )
+        print(f"[analysis] total keywords {len(normalized_keywords)}, unique {len(unique_keywords)}")
+        print(f"[analysis] intent cache {intent_stats['cache_hits']} | new {intent_stats['computed']} | batches {intent_stats['batches']}")
+        print(f"[analysis] market cache {market_stats['cache_hits']} | new {market_stats['computed']} | batches {market_stats['batches']}")
 
-        for keyword in normalized_keywords:
-            intent_result = copy.deepcopy(intent_map.get(keyword, self._get_default_intent_result()))
-            market_result = copy.deepcopy(market_map.get(keyword, self._get_default_market_result(keyword)))
-            serp_signals = market_result.get('serp_signals')
-
-            keyword_result = {
-                'keyword': keyword,
-                'intent': intent_result,
-                'market': market_result,
-                'opportunity_score': self._calculate_opportunity_score(
-                    intent_result, market_result, serp_signals, keyword
-                ),
-                'execution_cost': market_result.get('execution_cost', 0.0)
-            }
-
-            if serp_signals:
-                keyword_result['serp_signals'] = serp_signals
-
-            results['keywords'].append(keyword_result)
-
-        results['intent_summary'] = self._generate_intent_summary(results['keywords'])
-        results['market_insights'] = self._generate_market_insights(results['keywords'])
-        results['recommendations'] = self._generate_recommendations(results['keywords'])
-        results['processing_summary'] = {
+        analysis_df = self._build_analysis_dataframe(normalized_keywords, intent_map, market_map)
+        results = {
             'total_keywords': len(normalized_keywords),
-            'unique_keywords': len(unique_keywords),
-            'intent_cache_hits': intent_stats['cache_hits'],
-            'intent_batches': intent_stats['batches'],
-            'intent_computed': intent_stats['computed'],
-            'market_cache_hits': market_stats['cache_hits'],
-            'market_batches': market_stats['batches'],
-            'market_computed': market_stats['computed']
+            'analysis_time': analysis_time,
+            'keywords': self._dataframe_to_keyword_records(analysis_df),
+            'intent_summary': self._generate_intent_summary(analysis_df),
+            'market_insights': self._generate_market_insights(analysis_df),
+            'recommendations': self._generate_recommendations(analysis_df),
+            'processing_summary': {
+                'total_keywords': len(normalized_keywords),
+                'unique_keywords': len(unique_keywords),
+                'intent_cache_hits': intent_stats['cache_hits'],
+                'intent_batches': intent_stats['batches'],
+                'intent_computed': intent_stats['computed'],
+                'market_cache_hits': market_stats['cache_hits'],
+                'market_batches': market_stats['batches'],
+                'market_computed': market_stats['computed'],
+                'analysis_dataframe_rows': int(len(analysis_df)),
+                'analysis_duplicates': int(max(len(analysis_df) - analysis_df['keyword'].nunique(), 0))
+            }
         }
 
+        self._log_analysis_highlights(analysis_df)
+
         if output_dir:
-            output_path = self._save_analysis_results(results, output_dir)
+            output_path = self._save_analysis_results(results, output_dir, analysis_df=analysis_df)
             results['output_path'] = output_path
 
         if self._cache_enabled:
             self._flush_caches()
 
         return results
+
+    def _build_analysis_dataframe(self, ordered_keywords: List[str], intent_map: Dict[str, Dict[str, Any]], market_map: Dict[str, Dict[str, Any]]) -> pd.DataFrame:
+        """Assemble a flattened dataframe for downstream summarisation."""
+        if not ordered_keywords:
+            return pd.DataFrame(columns=[
+                'keyword', 'intent', 'market', 'opportunity_score', 'execution_cost',
+                'serp_signals', 'intent_primary', 'intent_secondary', 'intent_confidence',
+                'market_search_volume', 'market_competition', 'market_cpc',
+                'market_ai_bonus', 'market_execution_cost'
+            ])
+
+        records: List[Dict[str, Any]] = []
+        for keyword in ordered_keywords:
+            intent_result = copy.deepcopy(intent_map.get(keyword, self._get_default_intent_result()))
+            market_result = copy.deepcopy(market_map.get(keyword, self._get_default_market_result(keyword)))
+            serp_signals = market_result.get('serp_signals') or None
+
+            opportunity_score = self._calculate_opportunity_score(
+                intent_result,
+                market_result,
+                serp_signals,
+                keyword
+            )
+
+            record: Dict[str, Any] = {
+                'keyword': keyword,
+                'intent': intent_result,
+                'market': market_result,
+                'opportunity_score': opportunity_score,
+                'execution_cost': market_result.get('execution_cost', 0.0),
+                'serp_signals': serp_signals,
+                'intent_primary': intent_result.get('primary_intent', 'Unknown'),
+                'intent_secondary': intent_result.get('secondary_intent'),
+                'intent_confidence': intent_result.get('confidence', 0.0),
+                'market_search_volume': market_result.get('search_volume', 0),
+                'market_competition': market_result.get('competition', 0.0),
+                'market_cpc': market_result.get('cpc', 0.0),
+                'market_ai_bonus': market_result.get('ai_bonus', 0.0),
+                'market_execution_cost': market_result.get('execution_cost', 0.0)
+            }
+            records.append(record)
+
+        return pd.DataFrame(records)
+
+    @staticmethod
+    def _dataframe_to_keyword_records(df: pd.DataFrame) -> List[Dict[str, Any]]:
+        """Convert analysis dataframe back to legacy keyword dictionary records."""
+        if df.empty:
+            return []
+
+        base_columns = ['keyword', 'intent', 'market', 'opportunity_score', 'execution_cost']
+        if 'serp_signals' in df.columns:
+            base_columns.append('serp_signals')
+        subset = df[base_columns].copy()
+        return subset.to_dict('records')
+
+    @staticmethod
+    def _ensure_keywords_dataframe(keywords: Union[List[Dict[str, Any]], pd.DataFrame]) -> pd.DataFrame:
+        """Normalise keywords payload into the flattened dataframe format."""
+        if isinstance(keywords, pd.DataFrame):
+            df = keywords.copy()
+        else:
+            if not keywords:
+                return pd.DataFrame(columns=[
+                    'keyword', 'intent', 'market', 'opportunity_score', 'execution_cost',
+                    'serp_signals', 'intent_primary', 'intent_secondary', 'intent_confidence',
+                    'market_search_volume', 'market_competition', 'market_cpc',
+                    'market_ai_bonus', 'market_execution_cost'
+                ])
+            normalised: List[Dict[str, Any]] = []
+            for item in keywords:
+                intent = item.get('intent', {}) if isinstance(item, dict) else {}
+                market = item.get('market', {}) if isinstance(item, dict) else {}
+                execution_cost = item.get('execution_cost') if isinstance(item, dict) else None
+                if execution_cost is None:
+                    execution_cost = market.get('execution_cost', 0.0)
+                normalised.append({
+                    'keyword': item.get('keyword') if isinstance(item, dict) else None,
+                    'intent': intent,
+                    'market': market,
+                    'opportunity_score': item.get('opportunity_score', 0.0) if isinstance(item, dict) else 0.0,
+                    'execution_cost': execution_cost,
+                    'serp_signals': item.get('serp_signals') if isinstance(item, dict) else None,
+                    'intent_primary': intent.get('primary_intent', 'Unknown'),
+                    'intent_secondary': intent.get('secondary_intent'),
+                    'intent_confidence': intent.get('confidence', 0.0),
+                    'market_search_volume': market.get('search_volume', 0),
+                    'market_competition': market.get('competition', 0.0),
+                    'market_cpc': market.get('cpc', 0.0),
+                    'market_ai_bonus': market.get('ai_bonus', 0.0),
+                    'market_execution_cost': execution_cost
+                })
+            df = pd.DataFrame(normalised)
+
+        if 'market_execution_cost' not in df.columns:
+            df['market_execution_cost'] = df.get('execution_cost', 0.0)
+        if 'market_ai_bonus' not in df.columns:
+            df['market_ai_bonus'] = 0.0
+        if 'intent_primary' not in df.columns:
+            df['intent_primary'] = 'Unknown'
+        if 'intent_confidence' not in df.columns:
+            df['intent_confidence'] = 0.0
+        if 'opportunity_score' not in df.columns:
+            df['opportunity_score'] = 0.0
+        if 'keyword' not in df.columns:
+            df['keyword'] = None
+
+        return df
+
+    @staticmethod
+    def _log_analysis_highlights(analysis_df: pd.DataFrame) -> None:
+        """Emit a short summary for the operator."""
+        if analysis_df.empty:
+            print("[analysis] no valid keywords after processing")
+            return
+
+        top_rows = analysis_df.sort_values('opportunity_score', ascending=False).head(5)
+        preview = ", ".join(
+            f"{row.keyword} ({row.opportunity_score:.1f})" for row in top_rows.itertuples()
+            if isinstance(row.keyword, str)
+        )
+        print(f"[analysis] top opportunities: {preview}")
 
     @staticmethod
     def _prepare_keywords(keywords: List[str]) -> List[str]:
@@ -1104,102 +1211,127 @@ class KeywordManager(BaseManager):
         return indicators
     
     @staticmethod
-    def _generate_intent_summary(keywords: List[Dict]) -> Dict[str, Any]:
-        """生成意图摘要"""
-        intent_counts = {}
-        total_keywords = len(keywords)
-        
-        for kw in keywords:
-            intent = kw['intent']['primary_intent']
-            intent_counts[intent] = intent_counts.get(intent, 0) + 1
-        
+    def _generate_intent_summary(keywords: Union[List[Dict[str, Any]], pd.DataFrame]) -> Dict[str, Any]:
+        """Generate intent distribution summary."""
+        df = KeywordManager._ensure_keywords_dataframe(keywords)
+        total = int(len(df))
+        if total == 0:
+            return {
+                'total_keywords': 0,
+                'intent_distribution': {},
+                'intent_percentages': {},
+                'dominant_intent': 'Unknown'
+            }
+
+        intent_counts = (
+            df['intent_primary']
+            .fillna('Unknown')
+            .value_counts()
+            .to_dict()
+        )
         intent_percentages = {
-            intent: round(count / total_keywords * 100, 1)
+            intent: round(count / total * 100, 1)
             for intent, count in intent_counts.items()
         }
-        
+        dominant_intent = max(intent_counts.items(), key=lambda x: x[1])[0] if intent_counts else 'Unknown'
         return {
-            'total_keywords': total_keywords,
+            'total_keywords': total,
             'intent_distribution': intent_counts,
             'intent_percentages': intent_percentages,
-            'dominant_intent': max(intent_counts.items(), key=lambda x: x[1])[0] if intent_counts else 'Unknown'
+            'dominant_intent': dominant_intent
         }
 
     @staticmethod
-    def _generate_market_insights(keywords: List[Dict]) -> Dict[str, Any]:
-        """Generate market insight summary"""
-        high_opportunity = [kw for kw in keywords if kw['opportunity_score'] >= 70]
-        medium_opportunity = [kw for kw in keywords if 40 <= kw['opportunity_score'] < 70]
-        low_opportunity = [kw for kw in keywords if kw['opportunity_score'] < 40]
+    def _generate_market_insights(keywords: Union[List[Dict[str, Any]], pd.DataFrame]) -> Dict[str, Any]:
+        """Generate market insight summary."""
+        df = KeywordManager._ensure_keywords_dataframe(keywords)
+        if df.empty:
+            return {
+                'high_opportunity_count': 0,
+                'medium_opportunity_count': 0,
+                'low_opportunity_count': 0,
+                'top_opportunities': [],
+                'avg_opportunity_score': 0,
+                'avg_execution_cost': 0,
+                'low_cost_candidates': []
+            }
 
-        avg_cost = 0.0
-        if keywords:
-            total_cost = sum((kw.get('execution_cost') or kw.get('market', {}).get('execution_cost', 0.0)) for kw in keywords)
-            avg_cost = round(total_cost / len(keywords), 2)
+        high_opportunity = df[df['opportunity_score'] >= 70]
+        medium_opportunity = df[(df['opportunity_score'] >= 40) & (df['opportunity_score'] < 70)]
+        low_opportunity = df[df['opportunity_score'] < 40]
 
-        low_cost_keywords = [
-            kw for kw in keywords
-            if (kw.get('execution_cost') or kw.get('market', {}).get('execution_cost', 1.0)) <= 0.35
-        ]
+        avg_opportunity_score = round(df['opportunity_score'].mean(), 2) if not df.empty else 0
+        avg_execution_cost = round(df['market_execution_cost'].mean(), 2) if 'market_execution_cost' in df else 0
+
+        top_opportunities_df = df.sort_values('opportunity_score', ascending=False).head(10)
+        low_cost_df = df[df['market_execution_cost'] <= 0.35].sort_values('opportunity_score', ascending=False).head(5)
 
         return {
-            'high_opportunity_count': len(high_opportunity),
-            'medium_opportunity_count': len(medium_opportunity),
-            'low_opportunity_count': len(low_opportunity),
-            'top_opportunities': sorted(keywords, key=lambda x: x['opportunity_score'], reverse=True)[:10],
-            'avg_opportunity_score': round(sum(kw['opportunity_score'] for kw in keywords) / len(keywords), 2) if keywords else 0,
-            'avg_execution_cost': avg_cost,
-            'low_cost_candidates': low_cost_keywords[:5]
+            'high_opportunity_count': int(len(high_opportunity)),
+            'medium_opportunity_count': int(len(medium_opportunity)),
+            'low_opportunity_count': int(len(low_opportunity)),
+            'top_opportunities': KeywordManager._dataframe_to_keyword_records(top_opportunities_df),
+            'avg_opportunity_score': avg_opportunity_score,
+            'avg_execution_cost': avg_execution_cost,
+            'low_cost_candidates': KeywordManager._dataframe_to_keyword_records(low_cost_df)
         }
 
     @staticmethod
-    def _generate_recommendations(keywords: List[Dict]) -> List[str]:
-        """生成建议"""
-        recommendations = []
-        
-        # 分析关键词分布
-        high_opportunity = [kw for kw in keywords if kw['opportunity_score'] >= 70]
-        ai_keywords = [kw for kw in keywords if kw['market'].get('ai_bonus', 0) > 0]
-        
-        # 高机会关键词建议
-        if high_opportunity:
+    def _generate_recommendations(keywords: Union[List[Dict[str, Any]], pd.DataFrame]) -> List[str]:
+        """Generate simple strategy recommendations based on the analysis frame."""
+        df = KeywordManager._ensure_keywords_dataframe(keywords)
+        if df.empty:
+            return []
+
+        recommendations: List[str] = []
+        high_opportunity = df[df['opportunity_score'] >= 70]
+        if not high_opportunity.empty:
             recommendations.append(f"🎯 发现 {len(high_opportunity)} 个高机会关键词，建议立即开发MVP产品")
-            top_3 = sorted(high_opportunity, key=lambda x: x['opportunity_score'], reverse=True)[:3]
-            for i, kw in enumerate(top_3, 1):
-                recommendations.append(f"   {i}. {kw['keyword']} (机会分数: {kw['opportunity_score']})")
-        
-        # AI相关建议
-        if ai_keywords:
+            top_three = high_opportunity.sort_values('opportunity_score', ascending=False).head(3)
+            for idx, row in enumerate(top_three.itertuples(), 1):
+                recommendations.append(f"   {idx}. {row.keyword} (机会分数: {row.opportunity_score:.1f})")
+
+        ai_keywords = df[df['market_ai_bonus'] > 0]
+        if not ai_keywords.empty:
             recommendations.append(f"🤖 发现 {len(ai_keywords)} 个AI相关关键词，符合出海AI工具方向")
-        
+
         return recommendations
-    
+
     @staticmethod
-    def _save_analysis_results(results: Dict[str, Any], output_dir: str) -> str:
+    def _save_analysis_results(results: Dict[str, Any], output_dir: str, analysis_df: Optional[pd.DataFrame] = None) -> str:
         """保存分析结果"""
         from src.utils.file_utils import save_results_with_timestamp
-        
-        # 保存JSON格式
+
         json_path = save_results_with_timestamp(results, output_dir, 'keyword_analysis')
-        
-        # 保存CSV格式（关键词详情）
+
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         csv_path = os.path.join(output_dir, f'keywords_detail_{timestamp}.csv')
-        keywords_df = pd.DataFrame([
-            {
-                'keyword': kw['keyword'],
-                'primary_intent': kw['intent']['primary_intent'],
-                'confidence': kw['intent']['confidence'],
-                'search_volume': kw['market']['search_volume'],
-                'competition': kw['market']['competition'],
-                'opportunity_score': kw['opportunity_score']
-            }
-            for kw in results['keywords']
-        ])
-        keywords_df.to_csv(csv_path, index=False, encoding='utf-8-sig')
-        
+
+        if analysis_df is None or analysis_df.empty:
+            keywords_payload = results.get('keywords', [])
+            analysis_df = KeywordManager._ensure_keywords_dataframe(keywords_payload)
+
+        export_columns = [
+            'keyword',
+            'intent_primary',
+            'intent_confidence',
+            'intent_secondary',
+            'market_search_volume',
+            'market_competition',
+            'market_cpc',
+            'opportunity_score',
+            'market_execution_cost'
+        ]
+        export_df = analysis_df.copy()
+        for column in export_columns:
+            if column not in export_df.columns:
+                export_df[column] = None
+
+        export_df = export_df[export_columns]
+        export_df.to_csv(csv_path, index=False, encoding='utf-8-sig')
+
         return json_path
-    
+
     def _comprehensive_analyze(self, input_source: str, analysis_type: str, output_dir: str = None) -> Dict[str, Any]:
         """使用综合分析器进行全面分析"""
         print("🔧 启动综合分析模式...")
@@ -1343,3 +1475,4 @@ class KeywordManager(BaseManager):
         legacy_result['recommendations'] = recommendations
         
         return legacy_result
+

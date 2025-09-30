@@ -107,6 +107,28 @@
     }
   },
   
+  "discovery_runtime": {
+    "cache_enabled": true,
+    "cache_ttl_seconds": 3600,
+    "cache_dir": "output/cache/discovery",
+    "max_concurrency": 5,
+    "default_rate_interval": 0.35,
+    "request_timeout": 12,
+    "max_retries": 3,
+    "retry_backoff": [1, 3],
+    "rate_limits": {
+      "www.reddit.com": 1.1,
+      "hn.algolia.com": 0.6,
+      "suggestqueries.google.com": 0.25,
+      "api.producthunt.com": 1.0
+    },
+    "embeddings": {
+      "enabled": true,
+      "min_keywords": 5,
+      "model_name": "sentence-transformers/all-MiniLM-L6-v2"
+    }
+  },
+  
   "intent_analysis": {
     "confidence_threshold": 0.6,
     "enable_serp_analysis": true,
