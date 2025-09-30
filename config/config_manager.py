@@ -80,6 +80,9 @@ class ConfigData:
     DISCOVERY_EMBEDDINGS_MODEL: str = 'sentence-transformers/all-MiniLM-L6-v2'
 
     OUTPUT_DIR: str = "data/results"
+    WORKFLOW_CACHE_ENABLED: bool = True
+    WORKFLOW_CACHE_TTL_HOURS: float = 12.0
+    WORKFLOW_CACHE_DIR: str = "output/workflow_cache"
 
 
 class ConfigManager:
@@ -225,7 +228,14 @@ class ConfigManager:
             'GOOGLE_ADS_CUSTOMER_ID', 'GOOGLE_ADS_API_VERSION',
             'SERP_API_KEY', 'SERPAPI_KEY', 'AHREFS_API_KEY',
             'PRODUCTHUNT_API_TOKEN',
-            'DEBUG', 'LOG_LEVEL', 'OUTPUT_DIR'
+            'DEBUG', 'LOG_LEVEL', 'OUTPUT_DIR',
+            'DISCOVERY_CACHE_ENABLED', 'DISCOVERY_CACHE_TTL', 'DISCOVERY_CACHE_DIR',
+            'DISCOVERY_MAX_CONCURRENCY', 'DISCOVERY_DEFAULT_RATE_INTERVAL',
+            'DISCOVERY_MAX_RETRIES', 'DISCOVERY_REQUEST_TIMEOUT', 'DISCOVERY_RETRY_BACKOFF',
+            'DISCOVERY_RATE_LIMITS',
+            'DISCOVERY_EMBEDDINGS_ENABLED', 'DISCOVERY_EMBEDDINGS_MIN_KEYWORDS',
+            'DISCOVERY_EMBEDDINGS_MODEL',
+            'WORKFLOW_CACHE_ENABLED', 'WORKFLOW_CACHE_TTL_HOURS', 'WORKFLOW_CACHE_DIR'
         ]
         
         for key in env_keys:

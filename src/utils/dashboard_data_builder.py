@@ -172,6 +172,14 @@ def generate_dashboard_payload(source_dir: Path, history_size: int = 20) -> Dict
         "history": history,
         "discovered_keywords": _read_discovered_keywords(files.discovered) if files.discovered else [],
     }
+
+    telemetry_path = source_dir / "telemetry.json"
+    if telemetry_path.exists():
+        try:
+            with telemetry_path.open("r", encoding="utf-8") as fh:
+                payload["telemetry"] = json.load(fh)
+        except Exception as exc:  # pragma: no cover - best effort
+            payload["telemetry"] = {"error": f"failed_to_load: {exc}"}
     return payload
 
 

@@ -20,6 +20,7 @@ from src.command_handlers import (
     handle_discover_analysis, handle_enhanced_features, handle_hot_keywords,
     handle_all_workflow, handle_demand_validation, refresh_dashboard_data
 )
+from src.utils.telemetry import telemetry_manager
 
 
 def main():
@@ -34,6 +35,8 @@ def main():
     
     # 显示分析参数
     display_analysis_parameters(args)
+    telemetry_manager.reset(metadata={"args": vars(args)})
+    telemetry_manager.log_event('session', 'start', {'args': vars(args)})
     
     try:
         # 创建集成需求挖掘管理器

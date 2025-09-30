@@ -18,6 +18,7 @@ from src.demand_mining.analyzers.market_analyzer import MarketAnalyzer
 from src.demand_mining.analyzers.keyword_analyzer import KeywordAnalyzer
 from src.demand_mining.analyzers.comprehensive_analyzer import ComprehensiveAnalyzer
 from src.demand_mining.analyzers.serp_analyzer import SerpAnalyzer
+from src.utils.telemetry import telemetry_manager
 
 # 添加项目根目录到路径
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -337,75 +338,113 @@ class KeywordManager(BaseManager):
     
     def _perform_analysis(self, keywords: List[str], output_dir: str = None) -> Dict[str, Any]:
         """Run keyword analysis in batched mode"""
-        normalized_keywords = self._prepare_keywords(keywords)
-        analysis_time = datetime.now().isoformat()
+        telemetry_context = telemetry_manager.start_stage(
+            "keyword_analysis.perform",
+            metadata={
+                "input_keywords": len(keywords) if keywords else 0,
+                "output_dir": output_dir,
+            }
+        )
+        try:
+            normalized_keywords = self._prepare_keywords(keywords)
+            analysis_time = datetime.now().isoformat()
 
-        if not normalized_keywords:
-            empty_results = {
-                'total_keywords': 0,
-                'analysis_time': analysis_time,
-                'keywords': [],
-                'intent_summary': self._generate_intent_summary([]),
-                'market_insights': self._generate_market_insights([]),
-                'recommendations': [],
-                'processing_summary': {
+            if not normalized_keywords:
+                empty_results = {
                     'total_keywords': 0,
-                    'unique_keywords': 0,
-                    'intent_cache_hits': 0,
-                    'intent_batches': 0,
-                    'intent_computed': 0,
-                    'market_cache_hits': 0,
-                    'market_batches': 0,
-                    'market_computed': 0,
-                    'analysis_dataframe_rows': 0,
-                    'analysis_duplicates': 0
+                    'analysis_time': analysis_time,
+                    'keywords': [],
+                    'intent_summary': self._generate_intent_summary([]),
+                    'market_insights': self._generate_market_insights([]),
+                    'recommendations': [],
+                    'processing_summary': {
+                        'total_keywords': 0,
+                        'unique_keywords': 0,
+                        'intent_cache_hits': 0,
+                        'intent_batches': 0,
+                        'intent_computed': 0,
+                        'market_cache_hits': 0,
+                        'market_batches': 0,
+                        'market_computed': 0,
+                        'analysis_dataframe_rows': 0,
+                        'analysis_duplicates': 0
+                    }
+                }
+                if output_dir:
+                    output_path = self._save_analysis_results(empty_results, output_dir, analysis_df=None)
+                    empty_results['output_path'] = output_path
+                telemetry_manager.end_stage(
+                    telemetry_context,
+                    extra={'total_keywords': 0, 'unique_keywords': 0, 'cache_enabled': self._cache_enabled}
+                )
+                telemetry_manager.increment_counter('keyword_analysis.empty_runs')
+                return empty_results
+
+            unique_keywords = list(dict.fromkeys(normalized_keywords))
+            intent_map, intent_stats = self._collect_intent_results(unique_keywords)
+            market_map, market_stats = self._collect_market_results(unique_keywords)
+
+            print(f"[analysis] total keywords {len(normalized_keywords)}, unique {len(unique_keywords)}")
+            print(f"[analysis] intent cache {intent_stats['cache_hits']} | new {intent_stats['computed']} | batches {intent_stats['batches']}")
+            print(f"[analysis] market cache {market_stats['cache_hits']} | new {market_stats['computed']} | batches {market_stats['batches']}")
+
+            analysis_df = self._build_analysis_dataframe(normalized_keywords, intent_map, market_map)
+            results = {
+                'total_keywords': len(normalized_keywords),
+                'analysis_time': analysis_time,
+                'keywords': self._dataframe_to_keyword_records(analysis_df),
+                'intent_summary': self._generate_intent_summary(analysis_df),
+                'market_insights': self._generate_market_insights(analysis_df),
+                'recommendations': self._generate_recommendations(analysis_df),
+                'processing_summary': {
+                    'total_keywords': len(normalized_keywords),
+                    'unique_keywords': len(unique_keywords),
+                    'intent_cache_hits': intent_stats['cache_hits'],
+                    'intent_batches': intent_stats['batches'],
+                    'intent_computed': intent_stats['computed'],
+                    'market_cache_hits': market_stats['cache_hits'],
+                    'market_batches': market_stats['batches'],
+                    'market_computed': market_stats['computed'],
+                    'analysis_dataframe_rows': int(len(analysis_df)),
+                    'analysis_duplicates': int(max(len(analysis_df) - analysis_df['keyword'].nunique(), 0))
                 }
             }
+
+            self._log_analysis_highlights(analysis_df)
+
             if output_dir:
-                output_path = self._save_analysis_results(empty_results, output_dir, analysis_df=None)
-                empty_results['output_path'] = output_path
-            return empty_results
+                output_path = self._save_analysis_results(results, output_dir, analysis_df=analysis_df)
+                results['output_path'] = output_path
 
-        unique_keywords = list(dict.fromkeys(normalized_keywords))
-        intent_map, intent_stats = self._collect_intent_results(unique_keywords)
-        market_map, market_stats = self._collect_market_results(unique_keywords)
+            if self._cache_enabled:
+                self._flush_caches()
+                telemetry_cache_state = 'enabled'
+            else:
+                telemetry_cache_state = 'disabled'
 
-        print(f"[analysis] total keywords {len(normalized_keywords)}, unique {len(unique_keywords)}")
-        print(f"[analysis] intent cache {intent_stats['cache_hits']} | new {intent_stats['computed']} | batches {intent_stats['batches']}")
-        print(f"[analysis] market cache {market_stats['cache_hits']} | new {market_stats['computed']} | batches {market_stats['batches']}")
+            telemetry_manager.increment_counter('keyword_analysis.runs')
+            telemetry_manager.set_gauge('keyword_analysis.last_total_keywords', len(normalized_keywords))
+            telemetry_manager.set_gauge('keyword_analysis.last_unique_keywords', len(unique_keywords))
+            telemetry_manager.set_gauge('keyword_analysis.intent_cache_hits', intent_stats['cache_hits'])
+            telemetry_manager.set_gauge('keyword_analysis.market_cache_hits', market_stats['cache_hits'])
+            telemetry_manager.end_stage(
+                telemetry_context,
+                extra={
+                    'total_keywords': len(normalized_keywords),
+                    'unique_keywords': len(unique_keywords),
+                    'analysis_dataframe_rows': int(len(analysis_df)),
+                    'cache_state': telemetry_cache_state,
+                }
+            )
 
-        analysis_df = self._build_analysis_dataframe(normalized_keywords, intent_map, market_map)
-        results = {
-            'total_keywords': len(normalized_keywords),
-            'analysis_time': analysis_time,
-            'keywords': self._dataframe_to_keyword_records(analysis_df),
-            'intent_summary': self._generate_intent_summary(analysis_df),
-            'market_insights': self._generate_market_insights(analysis_df),
-            'recommendations': self._generate_recommendations(analysis_df),
-            'processing_summary': {
-                'total_keywords': len(normalized_keywords),
-                'unique_keywords': len(unique_keywords),
-                'intent_cache_hits': intent_stats['cache_hits'],
-                'intent_batches': intent_stats['batches'],
-                'intent_computed': intent_stats['computed'],
-                'market_cache_hits': market_stats['cache_hits'],
-                'market_batches': market_stats['batches'],
-                'market_computed': market_stats['computed'],
-                'analysis_dataframe_rows': int(len(analysis_df)),
-                'analysis_duplicates': int(max(len(analysis_df) - analysis_df['keyword'].nunique(), 0))
-            }
-        }
-
-        self._log_analysis_highlights(analysis_df)
-
-        if output_dir:
-            output_path = self._save_analysis_results(results, output_dir, analysis_df=analysis_df)
-            results['output_path'] = output_path
-
-        if self._cache_enabled:
-            self._flush_caches()
-
-        return results
+            return results
+        except Exception as exc:
+            telemetry_manager.end_stage(
+                telemetry_context,
+                status='failed',
+                error=str(exc),
+            )
+            raise
 
     def _build_analysis_dataframe(self, ordered_keywords: List[str], intent_map: Dict[str, Dict[str, Any]], market_map: Dict[str, Dict[str, Any]]) -> pd.DataFrame:
         """Assemble a flattened dataframe for downstream summarisation."""

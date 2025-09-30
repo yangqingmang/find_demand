@@ -21,6 +21,120 @@ from urllib.parse import quote, urlparse
 
 import aiohttp
 import pandas as pd
+from threading import Lock
+
+from src.utils.telemetry import telemetry_manager
+
+
+_EMBEDDING_MODEL_CACHE: Dict[str, Any] = {}
+_EMBEDDING_MODEL_LOCK = Lock()
+
+
+class _AsyncRateLimiter:
+    """Simple per-host async rate limiter using monotonic clocks."""
+
+    def __init__(self, rate_limits: Dict[str, float], default_interval: float) -> None:
+        self._rate_limits = {str(host).lower(): float(interval) for host, interval in rate_limits.items()}
+        self._default_interval = max(float(default_interval), 0.0)
+        self._locks: Dict[str, asyncio.Lock] = {}
+        self._last_hit: Dict[str, float] = {}
+
+    def _get_interval(self, host: str) -> float:
+        normalized = (host or '').lower()
+        interval = self._rate_limits.get(normalized)
+        if interval is None:
+            interval = self._rate_limits.get('*', self._default_interval)
+        return max(float(interval), 0.0)
+
+    async def throttle(self, host: str) -> None:
+        interval = self._get_interval(host)
+        if interval <= 0:
+            return
+
+        key = (host or '*').lower()
+        lock = self._locks.setdefault(key, asyncio.Lock())
+        async with lock:
+            now = time.monotonic()
+            last_time = self._last_hit.get(key, 0.0)
+            wait_time = interval - (now - last_time)
+            if wait_time > 0:
+                await asyncio.sleep(wait_time)
+                now = time.monotonic()
+            self._last_hit[key] = now
+
+
+class _TTLCache:
+    """Disk-backed TTL cache used by keyword discovery."""
+
+    def __init__(
+        self,
+        cache_dir: Path,
+        ttl_seconds: int,
+        enabled: bool,
+        cache_store: Dict[str, Dict[str, Any]],
+        normalizer: Callable[[str], str],
+    ) -> None:
+        self.cache_dir = Path(cache_dir)
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
+        self.ttl_seconds = max(int(ttl_seconds), 0)
+        self.enabled = bool(enabled) and self.ttl_seconds != 0
+        self._store = cache_store
+        self._normalize = normalizer
+
+    def _namespace_path(self, namespace: str) -> Path:
+        path = self.cache_dir / namespace
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    def get(self, namespace: str, key: str):
+        if not self.enabled:
+            return None
+
+        now = time.time()
+        store = self._store.setdefault(namespace, {})
+        entry = store.get(key)
+        if entry:
+            timestamp = entry.get('timestamp', 0.0)
+            if self.ttl_seconds <= 0 or now - timestamp <= self.ttl_seconds:
+                return entry.get('payload')
+            store.pop(key, None)
+
+        path = self._namespace_path(namespace) / f"{self._normalize(key)}.json"
+        if not path.exists():
+            return None
+
+        try:
+            with path.open('r', encoding='utf-8') as fh:
+                data = json.load(fh)
+        except Exception:
+            return None
+
+        timestamp = data.get('timestamp', 0.0)
+        if self.ttl_seconds > 0 and now - timestamp > self.ttl_seconds:
+            try:
+                path.unlink()
+            except Exception:
+                pass
+            return None
+
+        payload = data.get('payload')
+        store[key] = {'payload': payload, 'timestamp': timestamp or now}
+        return payload
+
+    def set(self, namespace: str, key: str, payload: Any) -> None:
+        if not self.enabled:
+            return
+
+        timestamp = time.time()
+        store = self._store.setdefault(namespace, {})
+        store[key] = {'payload': payload, 'timestamp': timestamp}
+
+        path = self._namespace_path(namespace) / f"{self._normalize(key)}.json"
+        try:
+            with path.open('w', encoding='utf-8') as fh:
+                json.dump({'timestamp': timestamp, 'payload': payload}, fh, ensure_ascii=False)
+        except Exception as exc:
+            print(f"⚠️ 缓存写入失败 ({namespace}:{key}): {exc}")
 
 # 添加config目录到路径
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'config'))
@@ -124,8 +238,10 @@ class MultiPlatformKeywordDiscovery:
             self._cache_enabled = False
 
         self._cache_store: Dict[str, Dict[str, Any]] = {}
+        self._reconfigure_cache_backend()
 
         self._per_host_rate_limits = self._build_rate_limit_map(rate_override)
+        self._rate_limiter = _AsyncRateLimiter(self._per_host_rate_limits, self.default_rate_interval)
         # 平台配置
         self.platforms = {
             'reddit': {
@@ -412,50 +528,35 @@ class MultiPlatformKeywordDiscovery:
             return f"{normalized}_{hash_suffix}"
         return hash_suffix
 
-    def _cache_namespace_path(self, namespace: str) -> Path:
-        path = self.cache_dir / namespace
-        path.mkdir(parents=True, exist_ok=True)
-        return path
+    def _reconfigure_cache_backend(self) -> None:
+        self._cache_backend = _TTLCache(
+            self.cache_dir,
+            self._cache_ttl,
+            self._cache_enabled,
+            self._cache_store,
+            self._normalize_cache_key,
+        )
+
+    def _ensure_cache_backend_current(self) -> None:
+        target_dir = Path(self.cache_dir)
+        target_ttl = max(int(self._cache_ttl), 0)
+        target_enabled = bool(self._cache_enabled) and target_ttl != 0
+        backend = getattr(self, '_cache_backend', None)
+        if backend is None or backend.cache_dir != target_dir or backend.ttl_seconds != target_ttl or backend.enabled != target_enabled:
+            self._cache_ttl = target_ttl
+            self._cache_enabled = target_enabled
+            self._reconfigure_cache_backend()
+        else:
+            backend.ttl_seconds = target_ttl
+            backend.enabled = target_enabled
 
     def _load_cached_payload(self, namespace: str, key: str):
-        if not self._cache_enabled:
-            return None
-        store = self._cache_store.setdefault(namespace, {})
-        entry = store.get(key)
-        now = time.time()
-        if entry:
-            timestamp = entry.get('timestamp', 0)
-            if self._cache_ttl <= 0 or now - timestamp <= self._cache_ttl:
-                return entry.get('payload')
-            store.pop(key, None)
-
-        path = self._cache_namespace_path(namespace) / f"{self._normalize_cache_key(key)}.json"
-        if not path.exists():
-            return None
-        try:
-            with path.open('r', encoding='utf-8') as fh:
-                data = json.load(fh)
-            timestamp = data.get('timestamp', 0)
-            if self._cache_ttl > 0 and now - timestamp > self._cache_ttl:
-                return None
-            payload = data.get('payload')
-            store[key] = {'payload': payload, 'timestamp': timestamp or now}
-            return payload
-        except Exception:
-            return None
+        self._ensure_cache_backend_current()
+        return self._cache_backend.get(namespace, key)
 
     def _save_cached_payload(self, namespace: str, key: str, payload: Any) -> None:
-        if not self._cache_enabled:
-            return
-        path = self._cache_namespace_path(namespace) / f"{self._normalize_cache_key(key)}.json"
-        timestamp = time.time()
-        try:
-            with path.open('w', encoding='utf-8') as fh:
-                json.dump({'timestamp': timestamp, 'payload': payload}, fh, ensure_ascii=False)
-            store = self._cache_store.setdefault(namespace, {})
-            store[key] = {'payload': payload, 'timestamp': timestamp}
-        except Exception as exc:
-            print(f"⚠️ 缓存写入失败 ({namespace}:{key}): {exc}")
+        self._ensure_cache_backend_current()
+        self._cache_backend.set(namespace, key, payload)
 
     def _run_async(self, coroutine):
         try:
@@ -468,37 +569,16 @@ class MultiPlatformKeywordDiscovery:
 
     async def _run_single_platform(
         self,
-        builder: Callable[[aiohttp.ClientSession, asyncio.Semaphore, Dict[str, Any]], Awaitable[List[Dict[str, Any]]]]
+        builder: Callable[[aiohttp.ClientSession, asyncio.Semaphore], Awaitable[List[Dict[str, Any]]]]
     ) -> List[Dict[str, Any]]:
         semaphore = asyncio.Semaphore(self.max_concurrency)
-        rate_state: Dict[str, Any] = {}
         async with aiohttp.ClientSession(headers=self._build_headers()) as session:
-            return await builder(session, semaphore, rate_state)
-
-    async def _throttle_host(self, host: str, rate_state: Dict[str, Any]) -> None:
-        normalized_host = (host or '').lower()
-        interval = self._per_host_rate_limits.get(
-            normalized_host,
-            self._per_host_rate_limits.get('*', self.default_rate_interval)
-        )
-        state = rate_state.get(normalized_host)
-        if state is None:
-            state = {'lock': asyncio.Lock(), 'last': 0.0}
-            rate_state[normalized_host] = state
-        async with state['lock']:
-            last_time = state['last']
-            now = time.monotonic()
-            wait_time = interval - (now - last_time)
-            if wait_time > 0:
-                await asyncio.sleep(wait_time)
-                now = time.monotonic()
-            state['last'] = now
+            return await builder(session, semaphore)
 
     async def _fetch_json(
         self,
         session: aiohttp.ClientSession,
         semaphore: asyncio.Semaphore,
-        rate_state: Dict[str, Any],
         method: str,
         url: str,
         *,
@@ -511,9 +591,12 @@ class MultiPlatformKeywordDiscovery:
         request_headers = self._build_headers(headers)
         while True:
             attempt += 1
+            recorded_failure = False
+            start_ts = None
             try:
-                await self._throttle_host(host, rate_state)
+                await self._rate_limiter.throttle(host)
                 async with semaphore:
+                    start_ts = time.perf_counter()
                     async with session.request(
                         method.upper(),
                         url,
@@ -522,14 +605,47 @@ class MultiPlatformKeywordDiscovery:
                         json=json_payload,
                         timeout=self.request_timeout
                     ) as response:
-                        response.raise_for_status()
-                        return await response.json()
+                        elapsed = time.perf_counter() - start_ts
+                        status = response.status
+                        if status >= 400:
+                            recorded_failure = True
+                            telemetry_manager.record_request(
+                                host=host,
+                                method=method.upper(),
+                                url=url,
+                                status=status,
+                                ok=False,
+                                elapsed=elapsed,
+                            )
+                            response.raise_for_status()
+
+                        data = await response.json()
+                        telemetry_manager.record_request(
+                            host=host,
+                            method=method.upper(),
+                            url=url,
+                            status=status,
+                            ok=True,
+                            elapsed=elapsed,
+                        )
+                        return data
             except (
                 aiohttp.ClientError,
                 asyncio.TimeoutError,
                 aiohttp.ContentTypeError,
                 json.JSONDecodeError
             ) as exc:
+                status = getattr(exc, 'status', None)
+                elapsed = time.perf_counter() - start_ts if start_ts is not None else None
+                if not recorded_failure:
+                    telemetry_manager.record_request(
+                        host=host,
+                        method=method.upper(),
+                        url=url,
+                        status=status,
+                        ok=False,
+                        elapsed=elapsed,
+                    )
                 if attempt >= self.max_retries:
                     raise exc
                 await asyncio.sleep(random.uniform(*self.retry_backoff))
@@ -538,7 +654,6 @@ class MultiPlatformKeywordDiscovery:
         self,
         session: aiohttp.ClientSession,
         semaphore: asyncio.Semaphore,
-        rate_state: Dict[str, Any],
         method: str,
         url: str,
         *,
@@ -550,9 +665,12 @@ class MultiPlatformKeywordDiscovery:
         request_headers = self._build_headers(headers)
         while True:
             attempt += 1
+            recorded_failure = False
+            start_ts = None
             try:
-                await self._throttle_host(host, rate_state)
+                await self._rate_limiter.throttle(host)
                 async with semaphore:
+                    start_ts = time.perf_counter()
                     async with session.request(
                         method.upper(),
                         url,
@@ -560,26 +678,72 @@ class MultiPlatformKeywordDiscovery:
                         headers=request_headers,
                         timeout=self.request_timeout
                     ) as response:
-                        response.raise_for_status()
-                        return await response.text()
+                        elapsed = time.perf_counter() - start_ts
+                        status = response.status
+                        if status >= 400:
+                            recorded_failure = True
+                            telemetry_manager.record_request(
+                                host=host,
+                                method=method.upper(),
+                                url=url,
+                                status=status,
+                                ok=False,
+                                elapsed=elapsed,
+                            )
+                            response.raise_for_status()
+
+                        content = await response.text()
+                        telemetry_manager.record_request(
+                            host=host,
+                            method=method.upper(),
+                            url=url,
+                            status=status,
+                            ok=True,
+                            elapsed=elapsed,
+                        )
+                        return content
             except (aiohttp.ClientError, asyncio.TimeoutError) as exc:
+                status = getattr(exc, 'status', None)
+                elapsed = time.perf_counter() - start_ts if start_ts is not None else None
+                if not recorded_failure:
+                    telemetry_manager.record_request(
+                        host=host,
+                        method=method.upper(),
+                        url=url,
+                        status=status,
+                        ok=False,
+                        elapsed=elapsed,
+                    )
                 if attempt >= self.max_retries:
                     raise exc
                 await asyncio.sleep(random.uniform(*self.retry_backoff))
 
     def _get_embedding_model(self):
-        if getattr(self, '_embedding_model', None) is not None:
-            return self._embedding_model
-        from sentence_transformers import SentenceTransformer
-        model = SentenceTransformer(self.embedding_model_name)
-        self._embedding_model = model
-        return model
+        cached = getattr(self, '_embedding_model', None)
+        if cached is not None:
+            return cached
+
+        model_name = self.embedding_model_name
+        shared = _EMBEDDING_MODEL_CACHE.get(model_name)
+        if shared is not None:
+            self._embedding_model = shared
+            return shared
+
+        with _EMBEDDING_MODEL_LOCK:
+            shared = _EMBEDDING_MODEL_CACHE.get(model_name)
+            if shared is None:
+                from sentence_transformers import SentenceTransformer
+
+                shared = SentenceTransformer(model_name)
+                _EMBEDDING_MODEL_CACHE[model_name] = shared
+
+        self._embedding_model = shared
+        return shared
 
     async def _discover_reddit_keywords_async(
         self,
         session: aiohttp.ClientSession,
         semaphore: asyncio.Semaphore,
-        rate_state: Dict[str, Any],
         subreddit: str,
         limit: int = 100
     ) -> List[Dict[str, Any]]:
@@ -593,7 +757,7 @@ class MultiPlatformKeywordDiscovery:
         url = f"https://www.reddit.com/r/{subreddit}/hot.json"
         params = {'limit': max(int(limit), 1)}
         try:
-            data = await self._fetch_json(session, semaphore, rate_state, 'GET', url, params=params)
+            data = await self._fetch_json(session, semaphore, 'GET', url, params=params)
         except Exception as exc:
             print(f"❌ Reddit r/{subreddit} 分析失败: {exc}")
             return []
@@ -626,8 +790,8 @@ class MultiPlatformKeywordDiscovery:
     def discover_reddit_keywords(self, subreddit: str, limit: int = 100) -> List[Dict[str, Any]]:
         return self._run_async(
             self._run_single_platform(
-                lambda session, semaphore, rate_state: self._discover_reddit_keywords_async(
-                    session, semaphore, rate_state, subreddit, limit
+                lambda session, semaphore: self._discover_reddit_keywords_async(
+                    session, semaphore, subreddit, limit
                 )
             )
         )
@@ -636,7 +800,6 @@ class MultiPlatformKeywordDiscovery:
         self,
         session: aiohttp.ClientSession,
         semaphore: asyncio.Semaphore,
-        rate_state: Dict[str, Any],
         query: str = 'AI',
         days: int = 30
     ) -> List[Dict[str, Any]]:
@@ -657,7 +820,7 @@ class MultiPlatformKeywordDiscovery:
             'hitsPerPage': 100
         }
         try:
-            data = await self._fetch_json(session, semaphore, rate_state, 'GET', url, params=params)
+            data = await self._fetch_json(session, semaphore, 'GET', url, params=params)
         except Exception as exc:
             print(f"❌ Hacker News 分析失败: {exc}")
             return []
@@ -688,8 +851,8 @@ class MultiPlatformKeywordDiscovery:
     def discover_hackernews_keywords(self, query: str = 'AI', days: int = 30) -> List[Dict[str, Any]]:
         return self._run_async(
             self._run_single_platform(
-                lambda session, semaphore, rate_state: self._discover_hackernews_keywords_async(
-                    session, semaphore, rate_state, query, days
+                lambda session, semaphore: self._discover_hackernews_keywords_async(
+                    session, semaphore, query, days
                 )
             )
         )
@@ -698,7 +861,6 @@ class MultiPlatformKeywordDiscovery:
         self,
         session: aiohttp.ClientSession,
         semaphore: asyncio.Semaphore,
-        rate_state: Dict[str, Any],
         search_term: str
     ) -> List[Dict[str, Any]]:
         cache_key = search_term.lower()
@@ -711,7 +873,7 @@ class MultiPlatformKeywordDiscovery:
         url = "https://suggestqueries.google.com/complete/search"
         params = {'client': 'youtube', 'ds': 'yt', 'q': search_term}
         try:
-            content = await self._fetch_text(session, semaphore, rate_state, 'GET', url, params=params)
+            content = await self._fetch_text(session, semaphore, 'GET', url, params=params)
         except Exception as exc:
             print(f"❌ YouTube 分析失败: {exc}")
             return []
@@ -744,8 +906,8 @@ class MultiPlatformKeywordDiscovery:
     def discover_youtube_keywords(self, search_term: str) -> List[Dict[str, Any]]:
         return self._run_async(
             self._run_single_platform(
-                lambda session, semaphore, rate_state: self._discover_youtube_keywords_async(
-                    session, semaphore, rate_state, search_term
+                lambda session, semaphore: self._discover_youtube_keywords_async(
+                    session, semaphore, search_term
                 )
             )
         )
@@ -754,7 +916,6 @@ class MultiPlatformKeywordDiscovery:
         self,
         session: aiohttp.ClientSession,
         semaphore: asyncio.Semaphore,
-        rate_state: Dict[str, Any],
         search_term: str
     ) -> List[Dict[str, Any]]:
         cache_key = search_term.lower()
@@ -767,7 +928,7 @@ class MultiPlatformKeywordDiscovery:
         url = "https://suggestqueries.google.com/complete/search"
         params = {'client': 'firefox', 'q': search_term}
         try:
-            data = await self._fetch_json(session, semaphore, rate_state, 'GET', url, params=params)
+            data = await self._fetch_json(session, semaphore, 'GET', url, params=params)
         except Exception as exc:
             print(f"❌ Google搜索建议分析失败: {exc}")
             return []
@@ -792,8 +953,8 @@ class MultiPlatformKeywordDiscovery:
     def discover_google_suggestions(self, search_term: str) -> List[Dict[str, Any]]:
         return self._run_async(
             self._run_single_platform(
-                lambda session, semaphore, rate_state: self._discover_google_suggestions_async(
-                    session, semaphore, rate_state, search_term
+                lambda session, semaphore: self._discover_google_suggestions_async(
+                    session, semaphore, search_term
                 )
             )
         )
@@ -802,7 +963,6 @@ class MultiPlatformKeywordDiscovery:
         self,
         session: aiohttp.ClientSession,
         semaphore: asyncio.Semaphore,
-        rate_state: Dict[str, Any],
         search_term: str = 'AI',
         days: int = 30
     ) -> List[Dict[str, Any]]:
@@ -848,7 +1008,6 @@ class MultiPlatformKeywordDiscovery:
             data = await self._fetch_json(
                 session,
                 semaphore,
-                rate_state,
                 'POST',
                 self.platforms['producthunt']['base_url'],
                 json_payload={'query': query, 'variables': variables},
@@ -889,45 +1048,75 @@ class MultiPlatformKeywordDiscovery:
     def discover_producthunt_keywords(self, search_term: str = 'AI', days: int = 30) -> List[Dict[str, Any]]:
         return self._run_async(
             self._run_single_platform(
-                lambda session, semaphore, rate_state: self._discover_producthunt_keywords_async(
-                    session, semaphore, rate_state, search_term, days
+                lambda session, semaphore: self._discover_producthunt_keywords_async(
+                    session, semaphore, search_term, days
                 )
             )
         )
 
     async def _async_discover_all_platforms(self, search_terms: List[str]) -> pd.DataFrame:
-        print("🚀 开始多平台关键词发现...")
-        prepared_terms = self.prepare_search_terms(search_terms)
-        if not prepared_terms:
-            print("⚠️ 缺少有效的搜索词，无法执行多平台发现")
-            return pd.DataFrame(columns=['keyword', 'platform'])
+        telemetry_stage = telemetry_manager.start_stage(
+            "discovery.multi_platform",
+            metadata={
+                "input_terms": len(search_terms),
+                "platforms": [p for p, cfg in self.platforms.items() if cfg.get('enabled', True)],
+            }
+        )
+        try:
+            print("🚀 开始多平台关键词发现...")
+            prepared_terms = self.prepare_search_terms(search_terms)
+            if not prepared_terms:
+                print("⚠️ 缺少有效的搜索词，无法执行多平台发现")
+                telemetry_manager.end_stage(
+                    telemetry_stage,
+                    extra={'result_keywords': 0, 'prepared_terms': 0, 'tasks': 0}
+                )
+                return pd.DataFrame(columns=['keyword', 'platform'])
 
-        semaphore = asyncio.Semaphore(self.max_concurrency)
-        rate_state: Dict[str, Any] = {}
-        tasks: List[Awaitable[List[Dict[str, Any]]]] = []
+            semaphore = asyncio.Semaphore(self.max_concurrency)
+            tasks: List[Awaitable[List[Dict[str, Any]]]] = []
 
-        async with aiohttp.ClientSession(headers=self._build_headers()) as session:
-            for subreddit in self.ai_subreddits[:5]:
-                tasks.append(self._discover_reddit_keywords_async(session, semaphore, rate_state, subreddit, 50))
+            async with aiohttp.ClientSession(headers=self._build_headers()) as session:
+                for subreddit in self.ai_subreddits[:5]:
+                    tasks.append(self._discover_reddit_keywords_async(session, semaphore, subreddit, 50))
 
-            for term in prepared_terms:
-                tasks.append(self._discover_hackernews_keywords_async(session, semaphore, rate_state, term))
-                tasks.append(self._discover_youtube_keywords_async(session, semaphore, rate_state, term))
-                tasks.append(self._discover_google_suggestions_async(session, semaphore, rate_state, term))
-                if self.platforms.get('producthunt', {}).get('enabled'):
-                    tasks.append(self._discover_producthunt_keywords_async(session, semaphore, rate_state, term))
+                for term in prepared_terms:
+                    tasks.append(self._discover_hackernews_keywords_async(session, semaphore, term))
+                    tasks.append(self._discover_youtube_keywords_async(session, semaphore, term))
+                    tasks.append(self._discover_google_suggestions_async(session, semaphore, term))
+                    if self.platforms.get('producthunt', {}).get('enabled'):
+                        tasks.append(self._discover_producthunt_keywords_async(session, semaphore, term))
 
-            results = await asyncio.gather(*tasks, return_exceptions=True)
+                results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        all_keywords: List[Dict[str, Any]] = []
-        for result in results:
-            if isinstance(result, Exception):
-                print(f"❌ 平台采集任务异常: {result}")
-                continue
-            if result:
-                all_keywords.extend(result)
+            all_keywords: List[Dict[str, Any]] = []
+            for result in results:
+                if isinstance(result, Exception):
+                    print(f"❌ 平台采集任务异常: {result}")
+                    telemetry_manager.log_event(
+                        'discovery.error',
+                        'platform_task_failed',
+                        {'error': str(result)},
+                    )
+                    continue
+                if result:
+                    all_keywords.extend(result)
 
-        return self._post_process_keywords(all_keywords)
+            telemetry_manager.increment_counter('discovery.multi_platform_runs')
+            telemetry_manager.set_gauge('discovery.multi_platform.last_result_count', len(all_keywords))
+            telemetry_manager.end_stage(
+                telemetry_stage,
+                extra={
+                    'result_keywords': len(all_keywords),
+                    'prepared_terms': len(prepared_terms),
+                    'tasks': len(tasks),
+                }
+            )
+
+            return self._post_process_keywords(all_keywords)
+        except Exception as exc:
+            telemetry_manager.end_stage(telemetry_stage, status='failed', error=str(exc))
+            raise
 
     def discover_all_platforms(self, search_terms: List[str]) -> pd.DataFrame:
         return self._run_async(self._async_discover_all_platforms(search_terms))
@@ -1520,7 +1709,3 @@ if __name__ == "__main__":
 #    
 #    # 使用结果进行后续处理
 #    top_keywords = df.head(20)
-
-
-
-

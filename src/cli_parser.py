@@ -114,6 +114,8 @@ def setup_argument_parser():
     parser.add_argument('--seed-profile', help='指定配置中的种子关键词档案（用于多平台发现）')
     parser.add_argument('--seed-limit', type=int, help='限制多平台发现阶段使用的种子关键词数量')
     parser.add_argument('--min-seed-terms', type=int, help='确保至少使用的种子关键词数量')
+    parser.add_argument('--resume', action='store_true', help='复用完整流程缓存，跳过已完成阶段')
+    parser.add_argument('--reset-workflow-cache', action='store_true', help='运行前清空完整流程缓存')
 
     return parser
 
@@ -130,6 +132,10 @@ def display_analysis_parameters(args):
         if getattr(args, 'seed_profile', None):
             print(f"🌱 种子配置: {args.seed_profile}")
         print(f"📂 输出目录: {args.output}")
+        if getattr(args, 'resume', False):
+            print("♻️ 启用流程缓存复用 (--resume)")
+        if getattr(args, 'reset_workflow_cache', False):
+            print("🧹 将在运行前清空流程缓存")
         print("")
 
 

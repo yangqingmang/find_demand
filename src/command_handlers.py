@@ -26,6 +26,8 @@ from src.utils.enhanced_features import (
 from src.demand_mining.tools.multi_platform_keyword_discovery import MultiPlatformKeywordDiscovery
 from src.collectors.suggestion_sources import SuggestionCollector
 from src.collectors.rss_hotspot_collector import RSSHotspotCollector
+from src.utils.telemetry import telemetry_manager
+from src.utils.workflow_cache import WorkflowCacheManager
 
 
 def handle_stats_display(manager, args):
@@ -900,143 +902,227 @@ def handle_all_workflow(manager, args):
     hot_result = None
     trends_collector = None
 
+    workflow_cache_cfg = manager.config.get('workflow_cache', {}) if isinstance(manager.config, dict) else {}
+    configured_cache_dir = workflow_cache_cfg.get('directory')
+    output_base = Path(args.output or getattr(manager.keyword_manager, 'output_dir', args.output)).resolve()
+    project_root = Path.cwd()
+    if configured_cache_dir:
+        cache_dir_path = Path(configured_cache_dir)
+        if not cache_dir_path.is_absolute():
+            cache_dir_path = project_root / cache_dir_path
+    else:
+        cache_dir_path = output_base.parent / 'workflow_cache'
+
+    cache_manager = WorkflowCacheManager(
+        cache_dir_path,
+        enabled=bool(workflow_cache_cfg.get('enabled', True)),
+        ttl_hours=workflow_cache_cfg.get('ttl_hours', 12),
+        verbose=bool(workflow_cache_cfg.get('verbose', False)) or getattr(args, 'verbose', False),
+    )
+
+    if getattr(args, 'reset_workflow_cache', False) and cache_manager.enabled:
+        cache_manager.clear_all()
+
+    resume_enabled = bool(getattr(args, 'resume', False) and cache_manager.enabled)
+
+    trending_df = None
+    seed_pool: List[str] = []
+    seed_keywords: List[str] = []
+    prepared_seeds: List[str] = []
+    trending_from_cache = False
+    hot_from_cache = False
+    discovery_from_cache = False
+    cached_discovery_payload: Optional[Dict[str, Any]] = None
+    cached_discovery_record: Optional[Dict[str, Any]] = None
+
+    if resume_enabled:
+        cached_trending = cache_manager.load_stage(WorkflowCacheManager.STAGE_TRENDING)
+        if cached_trending:
+            trending_payload = cached_trending.get('payload', {})
+            records = trending_payload.get('records') or []
+            if records:
+                trending_df = pd.DataFrame(records)
+            seed_pool = list(trending_payload.get('seed_pool', []))
+            trending_from_cache = trending_df is not None and not trending_df.empty
+            if trending_from_cache and not args.quiet:
+                print(f"♻️ 复用缓存的热门关键词 (生成于 {cached_trending.get('cached_at')})")
+                telemetry_manager.log_event(
+                    'workflow_cache',
+                    'resume_trending_hit',
+                    {'cached_at': cached_trending.get('cached_at')},
+                )
+
+        cached_hot = cache_manager.load_stage(WorkflowCacheManager.STAGE_HOT_ANALYSIS)
+        if cached_hot:
+            hot_payload = cached_hot.get('payload', {})
+            hot_result = hot_payload.get('result')
+            seed_keywords = list(hot_payload.get('seed_candidates', []))
+            if trending_df is None and hot_payload.get('trending_records'):
+                trending_df = pd.DataFrame(hot_payload.get('trending_records'))
+            if not seed_pool and hot_payload.get('seed_pool'):
+                seed_pool = list(hot_payload.get('seed_pool'))
+            hot_from_cache = bool(hot_result)
+            if hot_from_cache and not args.quiet:
+                print(f"♻️ 复用缓存的热门关键词分析结果 (生成于 {cached_hot.get('cached_at')})")
+                telemetry_manager.log_event(
+                    'workflow_cache',
+                    'resume_hot_analysis_hit',
+                    {'cached_at': cached_hot.get('cached_at')},
+                )
+
+        cached_discovery_record = cache_manager.load_stage(WorkflowCacheManager.STAGE_DISCOVERY)
+        if cached_discovery_record:
+            cached_discovery_payload = cached_discovery_record.get('payload', {})
+
+    if resume_enabled and not args.quiet:
+        print("♻️ 启用断点恢复 (--resume)")
+
     try:
         # 第一步：获取热门关键词 - 整合多个数据源
-        all_trending_keywords = []
-        
+        all_trending_keywords: List[pd.DataFrame] = []
+
         # 1.1 获取 Google Trends Rising Queries
-        if not args.quiet:
-            print("🔍 正在获取 Google Trends Rising Queries...")
-        
-        try:
-            from src.collectors.trends_singleton import get_trends_collector
-            trends_collector = get_trends_collector()
-            rising_queries = trends_collector.fetch_rising_queries()
-            
-            # 处理 Google Trends 数据
-            if isinstance(rising_queries, pd.DataFrame):
-                trending_df = rising_queries.head(15)  # 减少到15个为TrendingKeywords留空间
-                if 'query' not in trending_df.columns:
-                    if 'title' in trending_df.columns:
-                        trending_df = trending_df.rename(columns={'title': 'query'})
-                    elif len(trending_df.columns) > 0:
-                        trending_df = trending_df.rename(columns={trending_df.columns[0]: 'query'})
-            elif rising_queries and len(rising_queries) > 0:
-                if isinstance(rising_queries[0], str):
-                    trending_df = pd.DataFrame([
-                        {'query': query, 'source': 'Google Trends'}
-                        for query in rising_queries[:15]
-                    ])
-                elif isinstance(rising_queries[0], dict):
-                    trending_df = pd.DataFrame([
-                        {
-                            'query': item.get('query', item.get('keyword', str(item))),
-                            'value': item.get('value', item.get('interest', 0)),
-                            'source': 'Google Trends'
-                        }
-                        for item in rising_queries[:15]
-                    ])
-                else:
-                    trending_df = pd.DataFrame([
-                        {'query': str(query), 'source': 'Google Trends'}
-                        for query in rising_queries[:15]
-                    ])
-            else:
-                trending_df = pd.DataFrame(columns=['query', 'source'])
-            
-            if not trending_df.empty:
-                all_trending_keywords.append(trending_df)
-                if not args.quiet:
-                    print(f"✅ Google Trends: 获取到 {len(trending_df)} 个关键词")
-            
-        except Exception as e:
+        if trending_df is None:
             if not args.quiet:
-                print(f"⚠️ Google Trends 获取失败: {e}")
-        
-        # 1.2 获取 TrendingKeywords.net 数据
-        if not args.quiet:
-            print("🔍 正在获取 TrendingKeywords.net 数据...")
-
-        try:
-            from src.collectors.trending_keywords_collector import TrendingKeywordsCollector
-            
-            tk_collector = TrendingKeywordsCollector()
-            tk_df = tk_collector.get_trending_keywords_for_analysis(max_keywords=15)
-            
-            if not tk_df.empty:
-                # 添加数据源标识
-                tk_df['source'] = 'TrendingKeywords.net'
-                all_trending_keywords.append(tk_df)
-                if not args.quiet:
-                    print(f"✅ TrendingKeywords.net: 获取到 {len(tk_df)} 个关键词")
-            
-        except Exception as e:
-            if not args.quiet:
-                print(f"⚠️ TrendingKeywords.net 获取失败: {e}")
-
-        # 1.3 获取 RSS 热点数据
-        if not args.quiet:
-            print("🔍 正在抓取 RSS 热点...")
-
-        try:
-            rss_collector = RSSHotspotCollector()
-            rss_df = rss_collector.collect(max_items=20)
-            if not rss_df.empty:
-                all_trending_keywords.append(rss_df)
-                if not args.quiet:
-                    print(f"✅ RSS 热点: 获取到 {len(rss_df)} 个热点词")
-        except Exception as e:
-            if not args.quiet:
-                print(f"⚠️ RSS 热点抓取失败: {e}")
-
-        # 基于现有数据源扩展相关词与组合词
-        seed_pool: List[str] = []
-        for df_candidate in all_trending_keywords:
-            if isinstance(df_candidate, pd.DataFrame) and 'query' in df_candidate.columns:
-                seed_pool.extend(df_candidate['query'].dropna().astype(str).tolist())
-
-        if seed_pool and trends_collector:
-            related_candidates = _collect_trends_related_candidates(trends_collector, seed_pool)
-            if not related_candidates.empty:
-                all_trending_keywords.append(related_candidates)
-                if not args.quiet:
-                    print(f"✅ Google Trends 关联扩展: 新增 {len(related_candidates)} 个候选关键词")
-
-        suggestion_collector: Optional[SuggestionCollector] = None
-        if seed_pool:
-            combo_candidates = _generate_keyword_combinations(seed_pool, manager)
-            if not combo_candidates.empty:
-                all_trending_keywords.append(combo_candidates)
-                if not args.quiet:
-                    print(f"✅ 组合生成: 新增 {len(combo_candidates)} 个候选关键词")
+                print("🔍 正在获取 Google Trends Rising Queries...")
 
             try:
-                suggestion_collector = SuggestionCollector()
-                suggestion_records = suggestion_collector.collect(seed_pool, per_seed_limit=4)
-            except Exception as exc:
-                if not args.quiet:
-                    print(f"⚠️ Suggestion 收集器初始化失败: {exc}")
-                suggestion_records = []
+                from src.collectors.trends_singleton import get_trends_collector
+                trends_collector = get_trends_collector()
+                rising_queries = trends_collector.fetch_rising_queries()
 
-            if suggestion_records:
-                suggestion_df = pd.DataFrame([
-                    {
-                        'query': item.term,
-                        'source': f"Suggestions/{item.source}",
-                        'seed': item.seed
-                    }
-                    for item in suggestion_records
-                    if item.term
-                ])
-                if not suggestion_df.empty:
-                    all_trending_keywords.append(suggestion_df)
+                # 处理 Google Trends 数据
+                if isinstance(rising_queries, pd.DataFrame):
+                    trending_df = rising_queries.head(15)  # 减少到15个为TrendingKeywords留空间
+                    if 'query' not in trending_df.columns:
+                        if 'title' in trending_df.columns:
+                            trending_df = trending_df.rename(columns={'title': 'query'})
+                        elif len(trending_df.columns) > 0:
+                            trending_df = trending_df.rename(columns={trending_df.columns[0]: 'query'})
+                elif rising_queries and len(rising_queries) > 0:
+                    if isinstance(rising_queries[0], str):
+                        trending_df = pd.DataFrame([
+                            {'query': query, 'source': 'Google Trends'}
+                            for query in rising_queries[:15]
+                        ])
+                    elif isinstance(rising_queries[0], dict):
+                        trending_df = pd.DataFrame([
+                            {
+                                'query': item.get('query', item.get('keyword', str(item))),
+                                'value': item.get('value', item.get('interest', 0)),
+                                'source': 'Google Trends'
+                            }
+                            for item in rising_queries[:15]
+                        ])
+                    else:
+                        trending_df = pd.DataFrame([
+                            {'query': str(query), 'source': 'Google Trends'}
+                            for query in rising_queries[:15]
+                        ])
+                else:
+                    trending_df = pd.DataFrame(columns=['query', 'source'])
+
+                if not trending_df.empty:
+                    all_trending_keywords.append(trending_df)
                     if not args.quiet:
-                        print(f"✅ 热门联想: 新增 {len(suggestion_df)} 个候选关键词")
-                        if suggestion_collector is not None:
-                            stats = suggestion_collector.get_last_stats()
-                            print(
-                                f"   • 联想摘要: 种子 {stats['seeds_processed']}/{stats['seeds_total']} | 请求 {stats['requests_sent']} | 建议 {stats['suggestions_collected']}"
-                            )
+                        print(f"✅ Google Trends: 获取到 {len(trending_df)} 个关键词")
+
+            except Exception as e:
+                if not args.quiet:
+                    print(f"⚠️ Google Trends 获取失败: {e}")
+        else:
+            trends_collector = None
+            if not args.quiet and trending_from_cache:
+                print(f"✅ 使用缓存的 {len(trending_df)} 条热门关键词数据")
+        
+        if not trending_from_cache:
+            # 1.2 获取 TrendingKeywords.net 数据
+            if not args.quiet:
+                print("🔍 正在获取 TrendingKeywords.net 数据...")
+
+            try:
+                from src.collectors.trending_keywords_collector import TrendingKeywordsCollector
+
+                tk_collector = TrendingKeywordsCollector()
+                tk_df = tk_collector.get_trending_keywords_for_analysis(max_keywords=15)
+
+                if not tk_df.empty:
+                    # 添加数据源标识
+                    tk_df['source'] = 'TrendingKeywords.net'
+                    all_trending_keywords.append(tk_df)
+                    if not args.quiet:
+                        print(f"✅ TrendingKeywords.net: 获取到 {len(tk_df)} 个关键词")
+
+            except Exception as e:
+                if not args.quiet:
+                    print(f"⚠️ TrendingKeywords.net 获取失败: {e}")
+
+            # 1.3 获取 RSS 热点数据
+            if not args.quiet:
+                print("🔍 正在抓取 RSS 热点...")
+
+            try:
+                rss_collector = RSSHotspotCollector()
+                rss_df = rss_collector.collect(max_items=20)
+                if not rss_df.empty:
+                    all_trending_keywords.append(rss_df)
+                    if not args.quiet:
+                        print(f"✅ RSS 热点: 获取到 {len(rss_df)} 个热点词")
+            except Exception as e:
+                if not args.quiet:
+                    print(f"⚠️ RSS 热点抓取失败: {e}")
+
+            # 基于现有数据源扩展相关词与组合词
+            seed_pool = []
+            for df_candidate in all_trending_keywords:
+                if isinstance(df_candidate, pd.DataFrame) and 'query' in df_candidate.columns:
+                    seed_pool.extend(df_candidate['query'].dropna().astype(str).tolist())
+
+            if seed_pool and trends_collector:
+                related_candidates = _collect_trends_related_candidates(trends_collector, seed_pool)
+                if not related_candidates.empty:
+                    all_trending_keywords.append(related_candidates)
+                    if not args.quiet:
+                        print(f"✅ Google Trends 关联扩展: 新增 {len(related_candidates)} 个候选关键词")
+
+            suggestion_collector: Optional[SuggestionCollector] = None
+            if seed_pool:
+                combo_candidates = _generate_keyword_combinations(seed_pool, manager)
+                if not combo_candidates.empty:
+                    all_trending_keywords.append(combo_candidates)
+                    if not args.quiet:
+                        print(f"✅ 组合生成: 新增 {len(combo_candidates)} 个候选关键词")
+
+                try:
+                    suggestion_collector = SuggestionCollector()
+                    suggestion_records = suggestion_collector.collect(seed_pool, per_seed_limit=4)
+                except Exception as exc:
+                    if not args.quiet:
+                        print(f"⚠️ Suggestion 收集器初始化失败: {exc}")
+                    suggestion_records = []
+
+                if suggestion_records:
+                    suggestion_df = pd.DataFrame([
+                        {
+                            'query': item.term,
+                            'source': f"Suggestions/{item.source}",
+                            'seed': item.seed
+                        }
+                        for item in suggestion_records
+                        if item.term
+                    ])
+                    if not suggestion_df.empty:
+                        all_trending_keywords.append(suggestion_df)
+                        if not args.quiet:
+                            print(f"✅ 热门联想: 新增 {len(suggestion_df)} 个候选关键词")
+                            if suggestion_collector is not None:
+                                stats = suggestion_collector.get_last_stats()
+                                print(
+                                    f"   • 联想摘要: 种子 {stats['seeds_processed']}/{stats['seeds_total']} | 请求 {stats['requests_sent']} | 建议 {stats['suggestions_collected']}"
+                                )
+        else:
+            if not seed_pool and trending_df is not None and 'query' in trending_df.columns:
+                seed_pool = trending_df['query'].dropna().astype(str).tolist()
 
         # 合并所有数据源
         if all_trending_keywords:
@@ -1091,57 +1177,83 @@ def handle_all_workflow(manager, args):
                     return True
                 trending_df = pd.DataFrame({'query': cleaned_terms})
 
+            if trending_df is not None and not trending_df.empty:
+                seed_pool = trending_df['query'].dropna().astype(str).tolist()
+
+            if not trending_from_cache and cache_manager.enabled and trending_df is not None:
+                cache_manager.store_stage(
+                    WorkflowCacheManager.STAGE_TRENDING,
+                    {
+                        'records': trending_df.where(pd.notnull(trending_df), None).to_dict('records'),
+                        'seed_pool': seed_pool,
+                    }
+                )
+
+        if hot_result is None:
             if not args.quiet:
                 print(f"🔍 第一步: 对 {len(trending_df)} 个热门关键词进行需求挖掘...")
 
-            # 执行需求挖掘分析
             original_new_word_flag = getattr(manager, 'new_word_detection_available', True)
-            hot_result = None
             try:
                 manager.new_word_detection_available = False
                 hot_result = manager.analyze_keywords(trending_df, args.output, enable_serp=False)
             finally:
                 manager.new_word_detection_available = original_new_word_flag
 
-            if not hot_result:
-                print("⚠️ 热门关键词分析未返回结果，流程终止。")
-                return True
+        if not hot_result:
+            print("⚠️ 热门关键词分析未返回结果，流程终止。")
+            return True
 
+        if not seed_keywords:
+            seed_candidates: List[str] = []
+            if isinstance(hot_result, dict) and hot_result.get('keywords'):
+                sorted_keywords = sorted(
+                    (kw for kw in hot_result['keywords'] if kw.get('keyword')),
+                    key=lambda kw: kw.get('opportunity_score', 0),
+                    reverse=True
+                )
+                seed_candidates = [kw['keyword'] for kw in sorted_keywords[:max_seed_keywords]]
+
+            if len(seed_candidates) < max_seed_keywords and trending_df is not None and 'query' in trending_df.columns:
+                fallback_candidates = [
+                    kw for kw in trending_df['query'].tolist()
+                    if kw and kw not in seed_candidates
+                ]
+                seed_candidates.extend(fallback_candidates[:max_seed_keywords - len(seed_candidates)])
+
+            seed_keywords = [kw for kw in seed_candidates if kw][:max_seed_keywords]
+
+        if not seed_keywords:
             if not args.quiet:
+                print("⚠️ 未找到有效的种子关键词，跳过多平台关键词发现。")
+                print("💡 建议检查第一步结果，或使用 --input 指定本地关键词文件。")
+            return True
+
+        if not hot_from_cache and cache_manager.enabled:
+            cache_manager.store_stage(
+                WorkflowCacheManager.STAGE_HOT_ANALYSIS,
+                {
+                    'result': hot_result,
+                    'seed_candidates': seed_keywords,
+                    'trending_records': trending_df.to_dict('records') if trending_df is not None else [],
+                    'seed_pool': seed_pool,
+                }
+            )
+
+        if not args.quiet:
+            if hot_from_cache:
+                print(f"✅ 第一步（缓存）: 复用 {hot_result['total_keywords']} 个热门关键词分析结果")
+            else:
                 print(f"✅ 第一步完成! 分析了 {hot_result['total_keywords']} 个热门关键词")
-                print(f"📊 发现 {hot_result['market_insights']['high_opportunity_count']} 个高机会关键词")
-                _print_new_word_summary(hot_result.get('new_word_summary'))
-                _print_top_new_words(hot_result)
-                print("\n🌐 第二步: 基于热门关键词进行多平台关键词发现...")
-                
-                # 选取机会分最高的关键词作为种子
-                seed_keywords: List[str] = []
-                if isinstance(hot_result, dict) and hot_result.get('keywords'):
-                    sorted_keywords = sorted(
-                        (kw for kw in hot_result['keywords'] if kw.get('keyword')),
-                        key=lambda kw: kw.get('opportunity_score', 0),
-                        reverse=True
-                    )
-                    seed_keywords = [kw['keyword'] for kw in sorted_keywords[:max_seed_keywords]]
+            print(f"📊 发现 {hot_result['market_insights']['high_opportunity_count']} 个高机会关键词")
+            _print_new_word_summary(hot_result.get('new_word_summary'))
+            _print_top_new_words(hot_result)
+            print("\n🌐 第二步: 基于热门关键词进行多平台关键词发现...")
 
-                if len(seed_keywords) < max_seed_keywords and 'query' in trending_df.columns:
-                    fallback_candidates: List[str] = [
-                        kw for kw in trending_df['query'].tolist()
-                        if kw and kw not in seed_keywords
-                    ]
-                    seed_keywords.extend(fallback_candidates[:max_seed_keywords - len(seed_keywords)])
-
-                seed_keywords = [kw for kw in seed_keywords if kw][:max_seed_keywords]
-                if not seed_keywords:
-                    if not args.quiet:
-                        print("⚠️ 未找到有效的种子关键词，跳过多平台关键词发现。")
-                        print("💡 建议检查第一步结果，或使用 --input 指定本地关键词文件。")
-                    return True
-
-                discovery_tool = MultiPlatformKeywordDiscovery()
-                seed_profile = getattr(args, 'seed_profile', None)
-                seed_limit_arg = getattr(args, 'seed_limit', None)
-                if isinstance(seed_limit_arg, int) and seed_limit_arg <= 0:
+        discovery_tool = MultiPlatformKeywordDiscovery()
+        seed_profile = getattr(args, 'seed_profile', None)
+        seed_limit_arg = getattr(args, 'seed_limit', None)
+        if isinstance(seed_limit_arg, int) and seed_limit_arg <= 0:
                     seed_limit_arg = None
                 min_seed_terms = getattr(args, 'min_seed_terms', None)
                 if isinstance(min_seed_terms, int) and min_seed_terms <= 0:
@@ -1154,34 +1266,58 @@ def handle_all_workflow(manager, args):
                     min_terms=min_seed_terms
                 )
 
-                if not prepared_seeds:
-                    if not args.quiet:
-                        print("⚠️ 无有效种子关键词可用于多平台发现，流程终止。")
-                    return True
+        if not prepared_seeds:
+            if not args.quiet:
+                print("⚠️ 无有效种子关键词可用于多平台发现，流程终止。")
+            return True
 
-                if not args.quiet:
-                    extra_seed_count = len([kw for kw in prepared_seeds if kw not in seed_keywords])
-                    if extra_seed_count > 0:
-                        print(f"ℹ️ 已追加 {extra_seed_count} 个配置种子关键词以满足发现需求")
-                    print(f"🔍 正在发现与 {len(prepared_seeds)} 个关键词相关的关键词...")
+        if cached_discovery_payload and cached_discovery_payload.get('seed_terms') == prepared_seeds:
+            discovery_from_cache = True
+            df = pd.DataFrame(cached_discovery_payload.get('records', []))
+            if not args.quiet:
+                print(f"♻️ 复用缓存的多平台发现结果 ({len(df)} 条记录)")
+            telemetry_manager.log_event(
+                'workflow_cache',
+                'resume_discovery_hit',
+                {'cached_at': cached_discovery_record.get('cached_at') if cached_discovery_record else None}
+            )
+        else:
+            if cached_discovery_payload and cached_discovery_payload.get('seed_terms') != prepared_seeds:
+                cache_manager.clear_stage(WorkflowCacheManager.STAGE_DISCOVERY)
+                cached_discovery_payload = None
+                cached_discovery_record = None
+            if not args.quiet:
+                extra_seed_count = len([kw for kw in prepared_seeds if kw not in seed_keywords])
+                if extra_seed_count > 0:
+                    print(f"ℹ️ 已追加 {extra_seed_count} 个配置种子关键词以满足发现需求")
+                print(f"🔍 正在发现与 {len(prepared_seeds)} 个关键词相关的关键词...")
 
-                df = discovery_tool.discover_all_platforms(prepared_seeds)
-                
-                unique_keywords = []
-                prioritized_df = None
-                if not df.empty and 'keyword' in df.columns:
-                    keyword_series = df['keyword'].dropna().astype(str)
-                    if 'score' in df.columns:
-                        prioritized_df = df[['keyword', 'score']].dropna(subset=['keyword'])
-                        prioritized_df = prioritized_df.sort_values('score', ascending=False)
-                        prioritized_df = prioritized_df.drop_duplicates(subset=['keyword'], keep='first')
-                    else:
-                        counts = keyword_series.value_counts().reset_index()
-                        counts.columns = ['keyword', 'score']
-                        prioritized_df = counts
-                    prioritized_df['score'] = prioritized_df['score'].fillna(0)
-                    prioritized_df['keyword'] = prioritized_df['keyword'].astype(str)
-                    unique_keywords = prioritized_df['keyword'].head(max_discovered_keywords).tolist()
+            df = discovery_tool.discover_all_platforms(prepared_seeds)
+
+            if cache_manager.enabled:
+                cache_manager.store_stage(
+                    WorkflowCacheManager.STAGE_DISCOVERY,
+                    {
+                        'records': df.where(pd.notnull(df), None).to_dict('records'),
+                        'seed_terms': prepared_seeds,
+                    }
+                )
+
+        unique_keywords = []
+        prioritized_df = None
+        if not df.empty and 'keyword' in df.columns:
+            keyword_series = df['keyword'].dropna().astype(str)
+            if 'score' in df.columns:
+                prioritized_df = df[['keyword', 'score']].dropna(subset=['keyword'])
+                prioritized_df = prioritized_df.sort_values('score', ascending=False)
+                prioritized_df = prioritized_df.drop_duplicates(subset=['keyword'], keep='first')
+            else:
+                counts = keyword_series.value_counts().reset_index()
+                counts.columns = ['keyword', 'score']
+                prioritized_df = counts
+            prioritized_df['score'] = prioritized_df['score'].fillna(0)
+            prioritized_df['keyword'] = prioritized_df['keyword'].astype(str)
+            unique_keywords = prioritized_df['keyword'].head(max_discovered_keywords).tolist()
 
                 if unique_keywords:
                     if not args.quiet and prioritized_df is not None and len(prioritized_df) > len(unique_keywords):
@@ -1394,7 +1530,9 @@ def refresh_dashboard_data(output_dir: str, history_size: int = 20) -> None:
         target_dir = Path(output_dir or get_reports_dir()).resolve()
         ensure_directory_exists(str(target_dir))
 
+        telemetry_path = telemetry_manager.write_snapshot(target_dir / "telemetry.json")
         payload = generate_dashboard_payload(target_dir, history_size=history_size)
+        payload.setdefault('telemetry_path', str(telemetry_path))
         dashboard_path = target_dir / "dashboard_data.json"
         with dashboard_path.open("w", encoding="utf-8") as f:
             json.dump(payload, f, ensure_ascii=False, indent=2)
