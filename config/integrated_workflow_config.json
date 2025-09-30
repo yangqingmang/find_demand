@@ -176,6 +176,21 @@
     "directory": "output/workflow_cache",
     "verbose": false
   },
+
+  "reddit_api": {
+    "enabled": false,
+    "use_rss": true,
+    "credentials_encrypted": {
+      "_ENCRYPTED_KEY": "",
+      "client_id": "",
+      "client_secret": "",
+      "username": "",
+      "password": "",
+      "user_agent": ""
+    },
+    "token_cache_path": "output/cache/reddit_token.json",
+    "token_refresh_margin": 300
+  },
   
   "notification": {
     "email_notifications": false,

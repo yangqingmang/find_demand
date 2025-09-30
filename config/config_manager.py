@@ -83,6 +83,7 @@ class ConfigData:
     WORKFLOW_CACHE_ENABLED: bool = True
     WORKFLOW_CACHE_TTL_HOURS: float = 12.0
     WORKFLOW_CACHE_DIR: str = "output/workflow_cache"
+    REDDIT_API: Dict[str, Any] = None
 
 
 class ConfigManager:
@@ -274,7 +275,8 @@ class ConfigManager:
         
         # 字段名映射
         field_mapping = {
-            'SERPAPI_KEY': 'SERP_API_KEY'  # 兼容旧的字段名
+            'SERPAPI_KEY': 'SERP_API_KEY',  # 兼容旧的字段名
+            'reddit_api': 'REDDIT_API'
         }
         
         for key, value in config_dict.items():

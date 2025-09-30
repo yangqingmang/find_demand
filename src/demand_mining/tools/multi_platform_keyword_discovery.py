@@ -24,6 +24,8 @@ import pandas as pd
 from threading import Lock
 
 from src.utils.telemetry import telemetry_manager
+from src.utils.reddit_client import RedditOAuthClient
+from src.utils.rss_parser import parse_rss
 
 
 _EMBEDDING_MODEL_CACHE: Dict[str, Any] = {}
@@ -139,6 +141,7 @@ class _TTLCache:
 # 添加config目录到路径
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'config'))
 from config.config_manager import get_config
+from config.crypto_manager import ConfigCrypto
 from src.pipeline.cleaning.cleaner import standardize_term, is_valid_term, CleaningConfig
 
 class MultiPlatformKeywordDiscovery:
@@ -268,6 +271,34 @@ class MultiPlatformKeywordDiscovery:
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             }
+
+        reddit_api_cfg = getattr(self.config, 'REDDIT_API', {}) if hasattr(self.config, 'REDDIT_API') else {}
+        self.reddit_use_rss = bool(reddit_api_cfg.get('use_rss', True))
+        self.reddit_client: Optional[RedditOAuthClient] = None
+        if isinstance(reddit_api_cfg, dict) and reddit_api_cfg.get('enabled', False) and not self.reddit_use_rss:
+            encrypted_payload = reddit_api_cfg.get('credentials_encrypted')
+            decrypted_credentials = None
+            if encrypted_payload:
+                try:
+                    decrypted_credentials = ConfigCrypto().decrypt_config(encrypted_payload)
+                except Exception as exc:
+                    print(f"⚠️ Reddit 凭证解密失败: {exc}")
+            if isinstance(decrypted_credentials, dict):
+                credentials = {k: v for k, v in decrypted_credentials.items() if v}
+                user_agent_override = reddit_api_cfg.get('user_agent')
+                if user_agent_override:
+                    credentials.setdefault('user_agent', user_agent_override)
+                token_cache_path = reddit_api_cfg.get('token_cache_path') or os.path.join(self.cache_dir, 'reddit_token.json')
+                refresh_margin = int(reddit_api_cfg.get('token_refresh_margin', 300) or 300)
+                try:
+                    self.reddit_client = RedditOAuthClient(
+                        credentials,
+                        token_cache_path=Path(token_cache_path),
+                        refresh_margin=refresh_margin,
+                        verbose=bool(reddit_api_cfg.get('verbose', False))
+                    )
+                except Exception as exc:
+                    print(f"⚠️ Reddit OAuth 初始化失败: {exc}")
 
         filters_cfg = self._load_discovery_filter_config()
         self.brand_filter_config = {
@@ -754,12 +785,77 @@ class MultiPlatformKeywordDiscovery:
             return cached
 
         print(f"🔍 正在分析 Reddit r/{subreddit}...")
-        url = f"https://www.reddit.com/r/{subreddit}/hot.json"
+
+        if self.reddit_use_rss or self.reddit_client is None:
+            feed_url = f"https://www.reddit.com/r/{subreddit}/.rss"
+            try:
+                feed_text = await self._fetch_text(session, semaphore, 'GET', feed_url)
+            except Exception as exc:
+                print(f"❌ Reddit r/{subreddit} RSS 获取失败: {exc}")
+                return []
+
+            items: List[Dict[str, Any]] = []
+            try:
+                for entry in parse_rss(feed_text):
+                    if not entry.get('title'):
+                        continue
+                    items.append({
+                        'keyword': entry['title'],
+                        'source': f'reddit_r_{subreddit}',
+                        'title': entry['title'],
+                        'score': 0,
+                        'comments': 0,
+                        'url': entry.get('link') or entry.get('guid') or '',
+                        'platform': 'reddit',
+                        'metadata': {
+                            'published_at': entry.get('published'),
+                            'author': entry.get('author'),
+                        }
+                    })
+            except Exception as exc:
+                print(f"❌ Reddit r/{subreddit} RSS 解析失败: {exc}")
+                return []
+
+            self._save_cached_payload('reddit', cache_key, items)
+            return items
+
         params = {'limit': max(int(limit), 1)}
-        try:
-            data = await self._fetch_json(session, semaphore, 'GET', url, params=params)
-        except Exception as exc:
-            print(f"❌ Reddit r/{subreddit} 分析失败: {exc}")
+        base_public_url = f"https://www.reddit.com/r/{subreddit}/hot.json"
+        base_oauth_url = f"https://oauth.reddit.com/r/{subreddit}/hot.json"
+        data = None
+        for attempt in range(2):
+            headers: Optional[Dict[str, str]] = None
+            current_url = base_public_url
+            if self.reddit_client:
+                force_refresh = attempt == 1
+                token = await self.reddit_client.get_token(session, force_refresh=force_refresh)
+                if token:
+                    current_url = base_oauth_url
+                    headers = {
+                        'Authorization': f"Bearer {token}",
+                        'User-Agent': self.reddit_client.credentials.user_agent,
+                    }
+            try:
+                data = await self._fetch_json(
+                    session,
+                    semaphore,
+                    'GET',
+                    current_url,
+                    params=params,
+                    headers=headers,
+                )
+                break
+            except aiohttp.ClientResponseError as exc:
+                if self.reddit_client and exc.status in (401, 403) and attempt == 0:
+                    await self.reddit_client.invalidate_token()
+                    continue
+                print(f"❌ Reddit r/{subreddit} 分析失败: {exc}")
+                return []
+            except Exception as exc:
+                print(f"❌ Reddit r/{subreddit} 分析失败: {exc}")
+                return []
+
+        if data is None:
             return []
 
         posts = data.get('data', {}).get('children', [])
