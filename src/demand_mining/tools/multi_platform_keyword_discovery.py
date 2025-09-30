@@ -273,6 +273,8 @@ class MultiPlatformKeywordDiscovery:
             }
 
         reddit_api_cfg = getattr(self.config, 'REDDIT_API', {}) if hasattr(self.config, 'REDDIT_API') else {}
+        if not isinstance(reddit_api_cfg, dict):
+            reddit_api_cfg = {}
         self.reddit_use_rss = bool(reddit_api_cfg.get('use_rss', True))
         self.reddit_client: Optional[RedditOAuthClient] = None
         if isinstance(reddit_api_cfg, dict) and reddit_api_cfg.get('enabled', False) and not self.reddit_use_rss:

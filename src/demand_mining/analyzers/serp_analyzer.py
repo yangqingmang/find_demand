@@ -361,11 +361,18 @@ class SerpAnalyzer:
             self._serp_usage = {'month': month_key, 'request_count': 0, 'failure_count': 0, 'disabled_until': None}
         self._serp_usage['failure_count'] = int(self._serp_usage.get('failure_count', 0)) + 1
         limit = max(int(self.serp_failure_limit), 0) if self.serp_failure_limit else 0
+        monthly_limit = max(int(self.serp_monthly_limit), 0) if self.serp_monthly_limit else 0
+        request_count = int(self._serp_usage.get('request_count', 0))
         if limit and self._serp_usage['failure_count'] >= limit:
             disable_days = max(int(self.serp_failure_disable_days), 1)
             until = datetime.utcnow() + timedelta(days=disable_days)
             self._serp_usage['disabled_until'] = until.isoformat()
             self._warn_once('serp_api_failure_lock', f"⚠️ SERP API 连续失败次数过多，已暂停 {disable_days} 天")
+            if monthly_limit and request_count < monthly_limit:
+                self._warn_once(
+                    'serp_api_failure_without_quota',
+                    '⚠️ SERP API 多次失败但尚未达到月度配额，请检查 SerpAPI 配额或凭证状态'
+                )
         self._save_serp_usage_state()
 
     def _warn_once(self, key: str, message: str) -> None:

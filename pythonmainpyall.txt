@@ -12,26 +12,26 @@
 
 🔍 关键词管理器初始化完成
 🔍 发现管理器初始化完成
-2025-09-30 11:21:04 - config.proxy_config_loader - INFO - ✅ 加载了 0 个有效代理
-2025-09-30 11:21:04 - config.proxy_config_loader - INFO - ✅ 代理配置加载成功，环境: development
-2025-09-30 11:21:04 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
-2025-09-30 11:21:04 - src.collectors.google_trends_session - INFO - Session初始化成功
-2025-09-30 11:21:04 - src.collectors.google_trends_session - INFO - 🔧 正在初始化Google Trends会话...
-2025-09-30 11:21:09 - src.collectors.request_rate_limiter - INFO - 🚦 初始化请求频率控制器: 最小间隔3.0秒, 每分钟最多15次请求
-2025-09-30 11:21:09 - src.collectors.request_rate_limiter - INFO - 🆕 创建全局请求频率控制器
-2025-09-30 11:21:15 - src.collectors.google_trends_session - INFO - ✅ Google Trends会话初始化成功
-2025-09-30 11:21:15 - root - INFO - Session初始化成功
-2025-09-30 11:21:15 - src.collectors.trends_singleton - INFO - 🆕 创建新的TrendsCollector实例
-2025-09-30 11:21:15 - src.demand_mining.root_word_trends_analyzer - INFO - TrendsCollector单例获取成功
-2025-09-30 11:21:15 - root - WARNING - 代理管理器不可用，将使用直接请求
-2025-09-30 11:21:15 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
-2025-09-30 11:21:15 - root - INFO - 趋势收集器初始化成功
-2025-09-30 11:21:15 - src.demand_mining.root_word_trends_analyzer - INFO - NewWordDetector单例获取成功
-2025-09-30 11:21:15 - src.demand_mining.core.trends_cache - INFO - 缓存数据库初始化完成
-2025-09-30 11:21:15 - src.demand_mining.core.trends_cache - INFO - 趋势缓存初始化完成，缓存目录: output/reports\trends_cache
+2025-09-30 15:06:33 - config.proxy_config_loader - INFO - ✅ 加载了 0 个有效代理
+2025-09-30 15:06:33 - config.proxy_config_loader - INFO - ✅ 代理配置加载成功，环境: development
+2025-09-30 15:06:33 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
+2025-09-30 15:06:33 - src.collectors.google_trends_session - INFO - Session初始化成功
+2025-09-30 15:06:33 - src.collectors.google_trends_session - INFO - 🔧 正在初始化Google Trends会话...
+2025-09-30 15:06:38 - src.collectors.request_rate_limiter - INFO - 🚦 初始化请求频率控制器: 最小间隔3.0秒, 每分钟最多15次请求
+2025-09-30 15:06:38 - src.collectors.request_rate_limiter - INFO - 🆕 创建全局请求频率控制器
+2025-09-30 15:06:44 - src.collectors.google_trends_session - INFO - ✅ Google Trends会话初始化成功
+2025-09-30 15:06:44 - root - INFO - Session初始化成功
+2025-09-30 15:06:44 - src.collectors.trends_singleton - INFO - 🆕 创建新的TrendsCollector实例
+2025-09-30 15:06:44 - src.demand_mining.root_word_trends_analyzer - INFO - TrendsCollector单例获取成功
+2025-09-30 15:06:44 - root - WARNING - 代理管理器不可用，将使用直接请求
+2025-09-30 15:06:44 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
+2025-09-30 15:06:44 - root - INFO - 趋势收集器初始化成功
+2025-09-30 15:06:44 - src.demand_mining.root_word_trends_analyzer - INFO - NewWordDetector单例获取成功
+2025-09-30 15:06:44 - src.demand_mining.core.trends_cache - INFO - 缓存数据库初始化完成
+2025-09-30 15:06:44 - src.demand_mining.core.trends_cache - INFO - 趋势缓存初始化完成，缓存目录: output/reports\trends_cache
 📈 趋势管理器初始化完成（已启用缓存）
-2025-09-30 11:21:15 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
-2025-09-30 11:21:15 - root - INFO - 趋势收集器初始化成功
+2025-09-30 15:06:44 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
+2025-09-30 15:06:44 - root - INFO - 趋势收集器初始化成功
 ✅ 新词检测器初始化成功
 🚀 集成需求挖掘管理器初始化完成
 📊 已加载关键词管理器、发现管理器、趋势管理器
@@ -40,59 +40,66 @@
    第一步: 搜索热门关键词 (Google Trends + TrendingKeywords.net)
    第二步: 基于热门关键词进行多平台发现
 🔍 正在获取 Google Trends Rising Queries...
-2025-09-30 11:21:15 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
-2025-09-30 11:21:18 - root - INFO - 📄 原始响应详细: ')]}\'\n{"widgets":[{"r'
-2025-09-30 11:21:18 - root - INFO - 找到JSON开始位置: 5
-2025-09-30 11:21:18 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
-2025-09-30 11:21:18 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
-2025-09-30 11:21:18 - root - INFO - ✅ 成功解析JSON数据
-2025-09-30 11:21:18 - root - INFO - 📊 数据结构: ['widgets', 'keywords', 'timeRanges', 'shareText', 'shouldShowMultiHeatMapMessage']
-2025-09-30 11:21:18 - root - INFO - 🔍 Widget类型: RELATED_TOPICS
-2025-09-30 11:21:18 - root - INFO - 🔍 Widget类型: RELATED_QUERIES
-2025-09-30 11:21:18 - root - INFO - 🎯 找到RELATED_QUERIES token: APP6_UEAAAAAaNyeMOu1...
-2025-09-30 11:21:18 - root - INFO - 🔍 正在请求related_searches接口...
-2025-09-30 11:21:22 - root - INFO - ✅ 成功获取related searches数据
-2025-09-30 11:21:22 - root - INFO - 📊 Related data结构: ['default']
-2025-09-30 11:21:22 - root - INFO - 🎯 解析到 47 个真实关键词
+2025-09-30 15:06:44 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
+2025-09-30 15:06:46 - root - INFO - 📄 原始响应详细: ')]}\'\n{"widgets":[{"r'
+2025-09-30 15:06:46 - root - INFO - 找到JSON开始位置: 5
+2025-09-30 15:06:46 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
+2025-09-30 15:06:46 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
+2025-09-30 15:06:46 - root - INFO - ✅ 成功解析JSON数据
+2025-09-30 15:06:46 - root - INFO - 📊 数据结构: ['widgets', 'keywords', 'timeRanges', 'shareText', 'shouldShowMultiHeatMapMessage']
+2025-09-30 15:06:46 - root - INFO - 🔍 Widget类型: RELATED_TOPICS
+2025-09-30 15:06:46 - root - INFO - 🔍 Widget类型: RELATED_QUERIES
+2025-09-30 15:06:46 - root - INFO - 🎯 找到RELATED_QUERIES token: APP6_UEAAAAAaNzTCgO1...
+2025-09-30 15:06:46 - root - INFO - 🔍 正在请求related_searches接口...
+2025-09-30 15:06:51 - root - INFO - ✅ 成功获取related searches数据
+2025-09-30 15:06:51 - root - INFO - 📊 Related data结构: ['default']
+2025-09-30 15:06:51 - root - INFO - 🎯 解析到 49 个真实关键词
 ✅ Google Trends: 获取到 15 个关键词
 🔍 正在获取 TrendingKeywords.net 数据...
-2025-09-30 11:21:22 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 1 页...
-2025-09-30 11:21:22 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
-2025-09-30 11:21:24 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
-2025-09-30 11:21:24 - src.collectors.trending_keywords_collector - INFO - 第 1 页获取到 18 个关键词
-2025-09-30 11:21:26 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 2 页...
-2025-09-30 11:21:26 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
-2025-09-30 11:21:28 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
-2025-09-30 11:21:28 - src.collectors.trending_keywords_collector - INFO - 第 2 页获取到 18 个关键词
-2025-09-30 11:21:29 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 3 页...
-2025-09-30 11:21:29 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
-2025-09-30 11:21:30 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
-2025-09-30 11:21:30 - src.collectors.trending_keywords_collector - INFO - 第 3 页获取到 18 个关键词
-2025-09-30 11:21:30 - src.collectors.trending_keywords_collector - INFO - 总共获取到 54 个关键词
+2025-09-30 15:06:51 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 1 页...
+2025-09-30 15:06:51 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
+2025-09-30 15:06:52 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
+2025-09-30 15:06:52 - src.collectors.trending_keywords_collector - INFO - 第 1 页获取到 18 个关键词
+2025-09-30 15:06:55 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 2 页...
+2025-09-30 15:06:55 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
+2025-09-30 15:06:56 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
+2025-09-30 15:06:56 - src.collectors.trending_keywords_collector - INFO - 第 2 页获取到 18 个关键词
+2025-09-30 15:06:57 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 3 页...
+2025-09-30 15:06:57 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
+2025-09-30 15:06:58 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
+2025-09-30 15:06:58 - src.collectors.trending_keywords_collector - INFO - 第 3 页获取到 18 个关键词
+2025-09-30 15:06:58 - src.collectors.trending_keywords_collector - INFO - 总共获取到 54 个关键词
 ✅ TrendingKeywords.net: 获取到 1 个关键词
 🔍 正在抓取 RSS 热点...
 ✅ RSS 热点: 获取到 20 个热点词
-2025-09-30 11:21:58 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 80% (12/15)
-2025-09-30 11:23:00 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 93% (14/15)
+2025-09-30 15:07:25 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 80% (12/15)
+2025-09-30 15:07:31 - src.collectors.custom_trends_collector - WARNING - ⚠️ 遇到429错误，第1次重试
+2025-09-30 15:07:31 - src.collectors.custom_trends_collector - WARNING - 🔗 请求URL: https://trends.google.com/trends/api/widgetdata/relatedsearches
+2025-09-30 15:07:31 - src.collectors.request_rate_limiter - WARNING - ⚠️ 收到high级节流信号，最小间隔调整为 7.2 秒，额外冷却 60.0 秒
+2025-09-30 15:07:31 - src.collectors.custom_trends_collector - WARNING - ⏳ 节流提示，额外等待 60.0 秒
+2025-09-30 15:07:31 - src.collectors.custom_trends_collector - WARNING - ⚠️ 限流回调执行失败: Logger.warning() takes 2 positional arguments but 3 were given
+2025-09-30 15:07:31 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
+2025-09-30 15:07:31 - src.collectors.google_trends_session - INFO - 全局Session已重置
+2025-09-30 15:07:31 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
+2025-09-30 15:07:31 - src.collectors.google_trends_session - INFO - 🔧 正在初始化Google Trends会话...
+2025-09-30 15:08:39 - src.collectors.google_trends_session - INFO - ✅ Google Trends会话初始化成功
 ✅ Google Trends 关联扩展: 新增 64 个候选关键词
-2025-09-30 11:28:57 - src.collectors.suggestion_sources - INFO - SuggestionCollector: 本次收集结束，处理 36/36 个种子，发送 180 次请求，获得 170 条建议
-✅ 热门联想: 新增 170 个候选关键词
-   • 联想摘要: 种子 36/36 | 请求 180 | 建议 170
-[Filter] 已过滤 25 条低质量热门词
-🎯 合并后总计: 35 个关键词
+2025-09-30 15:15:04 - src.collectors.suggestion_sources - INFO - SuggestionCollector: 本次收集结束，处理 36/36 个种子，发送 180 次请求，获得 156 条建议
+✅ 热门联想: 新增 156 个候选关键词
+   • 联想摘要: 种子 36/36 | 请求 180 | 建议 156
+[Filter] 已过滤 26 条低质量热门词
+🎯 合并后总计: 34 个关键词
 📊 数据源分布:
-   • RSS/Google News AI: 16 个
+   • RSS/Google News AI: 15 个
    • Google Trends Suggestion: 5 个
    • Google Trends Related Rising: 4 个
    • TrendingKeywords.net: 1 个
 🔍 第一步: 对 5 个热门关键词进行需求挖掘...
 🚀 开始关键词分析 - 类型: keywords, 综合分析: False
 ✅ 接收到 5 个关键词
-2025-09-30 11:28:57 - root - INFO - 开始搜索意图V2分析，共 5 个关键词
-提示: 当前代理配置已禁用代理，SERP 分析器将使用直连模式
 [analysis] total keywords 5, unique 5
-[analysis] intent cache 0 | new 5 | batches 1
-[analysis] market cache 0 | new 5 | batches 1
+[analysis] intent cache 5 | new 0 | batches 0
+[analysis] market cache 5 | new 0 | batches 0
 [analysis] top opportunities: the wedding people a novel (38.3), weathertech (31.1), weatherguard (29.7), hix bypass (27.5), chatgpt (25.2)
 ✅ 第一步完成! 分析了 5 个热门关键词
 📊 发现 0 个高机会关键词
@@ -125,90 +132,154 @@
 🔍 正在分析 YouTube 搜索建议 (查询: chatgpt)...
 🔍 正在分析 Google 搜索建议 (查询: chatgpt)...
 🔍 正在分析 ProductHunt (查询: chatgpt)...
-❌ Google搜索建议分析失败: 200, message='Attempt to decode JSON with unexpected mimetype: text/javascript; charset=utf-8', url='https://suggestqueries.google.com/complete/search?client=firefox&q=weathertech'
-❌ Google搜索建议分析失败: 200, message='Attempt to decode JSON with unexpected mimetype: text/javascript; charset=utf-8', url='https://suggestqueries.google.com/complete/search?client=firefox&q=weatherguard'
-❌ Google搜索建议分析失败: 200, message='Attempt to decode JSON with unexpected mimetype: text/javascript; charset=utf-8', url='https://suggestqueries.google.com/complete/search?client=firefox&q=hix+bypass'
-❌ Google搜索建议分析失败: 200, message='Attempt to decode JSON with unexpected mimetype: text/javascript; charset=utf-8', url='https://suggestqueries.google.com/complete/search?client=firefox&q=chatgpt'
-❌ Reddit r/artificial 分析失败: 403, message='Blocked', url='https://www.reddit.com/r/artificial/hot.json?limit=50'
-❌ Reddit r/ChatGPT 分析失败: 403, message='Blocked', url='https://www.reddit.com/r/ChatGPT/hot.json?limit=50'
-❌ Reddit r/OpenAI 分析失败: 403, message='Blocked', url='https://www.reddit.com/r/OpenAI/hot.json?limit=50'
-❌ Google搜索建议分析失败: 200, message='Attempt to decode JSON with unexpected mimetype: text/javascript; charset=utf-8', url='https://suggestqueries.google.com/complete/search?client=firefox&q=the+wedding+people+a+novel'
-❌ Reddit r/deeplearning 分析失败: 403, message='Blocked', url='https://www.reddit.com/r/deeplearning/hot.json?limit=50'
-❌ Reddit r/MachineLearning 分析失败:
-⚠️ 移除了 2 个品牌泛词
-⚠️ 移除了 31 个泛化头部词
-2025-09-30 11:30:08 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
-2025-09-30 11:30:08 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
-Batches: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 10.68it/s]
-Keyword clustering failed: AgglomerativeClustering.__init__() got an unexpected keyword argument 'affinity'
-✅ 发现 8 个关键词
-🎯 发现了 8 个相关关键词
-📁 发现的关键词已保存到: output/reports\discovered_keywords_20250930_113016.csv
+⚠️ 移除了 4 个品牌泛词
+⚠️ 移除了 52 个泛化头部词
+2025-09-30 15:15:18 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-09-30 15:15:18 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+Batches: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  7.38it/s]
+✅ 发现 15 个关键词
+🎯 发现了 15 个相关关键词
+📁 发现的关键词已保存到: output/reports\discovered_keywords_20250930_151526.csv
 
 🔍 第三步: 对发现的关键词进行需求挖掘分析...
 🚀 开始关键词分析 - 类型: file, 综合分析: False
-✅ 成功读取 8 条关键词数据
-2025-09-30 11:30:16 - root - INFO - 开始搜索意图V2分析，共 7 个关键词
-[analysis] total keywords 8, unique 8
-[analysis] intent cache 1 | new 7 | batches 1
-[analysis] market cache 1 | new 7 | batches 1
-[analysis] top opportunities: chatgpt pro (34.9), chatgpt 4o (31.5), weathertech (31.1), chatgpt pulse (31.0), weathertech floorliner (30.5)
+✅ 成功读取 15 条关键词数据
+2025-09-30 15:15:26 - root - INFO - 开始搜索意图V2分析，共 6 个关键词
+提示: 当前代理配置已禁用代理，SERP 分析器将使用直连模式
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+store&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+store&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weathertech+store&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 weathertech store 的 SERP 数据，返回空结果
+2025-09-30 15:16:12 - urllib3.connectionpool - WARNING - Retrying (Retry(total=2, connect=2, read=2, redirect=None, status=None)) after connection broken by 'ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x0000018BA8DAE850>, 'Connection to serpapi.com timed out. (connect timeout=30)')': /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+roofing&engine=google&num=10
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+roofing&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+roofing&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+roofing&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 weatherguard roofing 的 SERP 数据，返回空结果
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+paint&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+paint&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+paint&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 weatherguard paint 的 SERP 数据，返回空结果
+2025-09-30 15:17:24 - urllib3.connectionpool - WARNING - Retrying (Retry(total=2, connect=2, read=2, redirect=None, status=None)) after connection broken by 'ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x0000018BE4CC9950>, 'Connection to serpapi.com timed out. (connect timeout=30)')': /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+windows&engine=google&num=10
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+windows&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+windows&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=weatherguard+windows&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 weatherguard windows 的 SERP 数据，返回空结果
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+how+to+use&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+how+to+use&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+how+to+use&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 hix bypass how to use 的 SERP 数据，返回空结果
+⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+agent&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
+⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+agent&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
+SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=chatgpt+agent&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
+⚠️ 未能获取 chatgpt agent 的 SERP 数据，返回空结果
+[analysis] total keywords 15, unique 15
+[analysis] intent cache 9 | new 6 | batches 1
+[analysis] market cache 9 | new 6 | batches 1
+[analysis] top opportunities: hix bypass how to use (48.5), chatgpt pro (34.9), chatgpt 4o (31.5), weatherguard paint (31.2), weathertech (31.1)
 🔍 正在进行新词检测...
-2025-09-30 11:30:42 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-30 11:30:42 - root - INFO -    关键词: ['weathertech']
-2025-09-30 11:30:42 - root - INFO -    时间范围: today 12-m
-2025-09-30 11:30:42 - root - INFO -    地理位置:
-2025-09-30 11:30:46 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-30 11:30:46 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-30 11:30:46 - root - INFO -    关键词: ['weathertech sunshade']
-2025-09-30 11:30:46 - root - INFO -    时间范围: today 12-m
-2025-09-30 11:30:46 - root - INFO -    地理位置:
-2025-09-30 11:30:52 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-30 11:30:52 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-30 11:30:52 - root - INFO -    关键词: ['weathertech championship']
-2025-09-30 11:30:52 - root - INFO -    时间范围: today 12-m
-2025-09-30 11:30:52 - root - INFO -    地理位置:
-2025-09-30 11:30:58 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-30 11:30:58 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-30 11:30:58 - root - INFO -    关键词: ['weathertech floorliner']
-2025-09-30 11:30:58 - root - INFO -    时间范围: today 12-m
-2025-09-30 11:30:58 - root - INFO -    地理位置:
-2025-09-30 11:31:04 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-30 11:31:04 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-30 11:31:04 - root - INFO -    关键词: ['chatgpt5']
-2025-09-30 11:31:04 - root - INFO -    时间范围: today 12-m
-2025-09-30 11:31:04 - root - INFO -    地理位置:
-2025-09-30 11:31:10 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-30 11:31:10 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-30 11:31:10 - root - INFO -    关键词: ['chatgpt pulse']
-2025-09-30 11:31:10 - root - INFO -    时间范围: today 12-m
-2025-09-30 11:31:10 - root - INFO -    地理位置:
-2025-09-30 11:31:16 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-30 11:31:16 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-30 11:31:16 - root - INFO -    关键词: ['chatgpt 4o']
-2025-09-30 11:31:16 - root - INFO -    时间范围: today 12-m
-2025-09-30 11:31:16 - root - INFO -    地理位置:
-2025-09-30 11:31:16 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 80% (12/15)
-2025-09-30 11:31:22 - root - INFO - ✅ 成功获取到 53 条趋势数据
-2025-09-30 11:31:22 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-09-30 11:31:22 - root - INFO -    关键词: ['chatgpt pro']
-2025-09-30 11:31:22 - root - INFO -    时间范围: today 12-m
-2025-09-30 11:31:22 - root - INFO -    地理位置:
-2025-09-30 11:31:43 - root - INFO - ✅ 成功获取到 53 条趋势数据
-✅ 新词检测完成: 发现 1 个新词 (0 个高置信度, 7 个 Breakout)
+2025-09-30 15:18:35 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-30 15:18:35 - root - INFO -    关键词: ['weathertech']
+2025-09-30 15:18:35 - root - INFO -    时间范围: today 12-m
+2025-09-30 15:18:35 - root - INFO -    地理位置:
+2025-09-30 15:18:35 - src.collectors.request_rate_limiter - INFO - ✅ 节流冷却结束，最小间隔回落至 5.0 秒
+2025-09-30 15:18:36 - src.collectors.request_rate_limiter - INFO - ✅ 节流冷却结束，最小间隔回落至 3.5 秒
+2025-09-30 15:18:38 - src.collectors.request_rate_limiter - INFO - ✅ 节流冷却结束，最小间隔回落至 3.0 秒
+2025-09-30 15:18:42 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-30 15:18:42 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-30 15:18:42 - root - INFO -    关键词: ['weathertech sunshade']
+2025-09-30 15:18:42 - root - INFO -    时间范围: today 12-m
+2025-09-30 15:18:42 - root - INFO -    地理位置:
+2025-09-30 15:18:48 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-30 15:18:48 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-30 15:18:48 - root - INFO -    关键词: ['weathertech championship']
+2025-09-30 15:18:48 - root - INFO -    时间范围: today 12-m
+2025-09-30 15:18:48 - root - INFO -    地理位置:
+2025-09-30 15:18:54 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-30 15:18:54 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-30 15:18:54 - root - INFO -    关键词: ['weathertech floorliner']
+2025-09-30 15:18:54 - root - INFO -    时间范围: today 12-m
+2025-09-30 15:18:54 - root - INFO -    地理位置:
+2025-09-30 15:19:00 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-30 15:19:00 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-30 15:19:00 - root - INFO -    关键词: ['weathertech store']
+2025-09-30 15:19:00 - root - INFO -    时间范围: today 12-m
+2025-09-30 15:19:00 - root - INFO -    地理位置:
+2025-09-30 15:19:06 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-30 15:19:06 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-30 15:19:06 - root - INFO -    关键词: ['weatherguard']
+2025-09-30 15:19:06 - root - INFO -    时间范围: today 12-m
+2025-09-30 15:19:06 - root - INFO -    地理位置:
+2025-09-30 15:19:12 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-30 15:19:12 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-30 15:19:12 - root - INFO -    关键词: ['weatherguard roofing']
+2025-09-30 15:19:12 - root - INFO -    时间范围: today 12-m
+2025-09-30 15:19:12 - root - INFO -    地理位置:
+2025-09-30 15:19:12 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 80% (12/15)
+2025-09-30 15:19:18 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-30 15:19:19 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-30 15:19:19 - root - INFO -    关键词: ['weatherguard paint']
+2025-09-30 15:19:19 - root - INFO -    时间范围: today 12-m
+2025-09-30 15:19:19 - root - INFO -    地理位置:
+2025-09-30 15:19:35 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-30 15:19:36 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-30 15:19:36 - root - INFO -    关键词: ['weatherguard windows']
+2025-09-30 15:19:36 - root - INFO -    时间范围: today 12-m
+2025-09-30 15:19:36 - root - INFO -    地理位置:
+2025-09-30 15:19:45 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-30 15:19:45 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-30 15:19:45 - root - INFO -    关键词: ['hix bypass how to use']
+2025-09-30 15:19:45 - root - INFO -    时间范围: today 12-m
+2025-09-30 15:19:45 - root - INFO -    地理位置:
+2025-09-30 15:19:51 - root - WARNING - 未获取到关键词 ['hix bypass how to use'] 的 Google Trends 数据
+2025-09-30 15:19:51 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['hix bypass how to use'] 的 Google Trends 数据
+2025-09-30 15:19:51 - root - ERROR -    请求参数: keywords=['hix bypass how to use'], timeframe=today 12-m, geo=
+2025-09-30 15:19:51 - root - WARNING - 获取 hix bypass how to use (today 12-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['hix bypass how to use'] 的 Google Trends 数据
+2025-09-30 15:19:51 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-30 15:19:51 - root - INFO -    关键词: ['hix bypass how to use']
+2025-09-30 15:19:51 - root - INFO -    时间范围: today 3-m
+2025-09-30 15:19:51 - root - INFO -    地理位置:
+2025-09-30 15:19:57 - root - INFO - ✅ 成功获取到 93 条趋势数据
+2025-09-30 15:19:57 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-30 15:19:57 - root - INFO -    关键词: ['chatgpt5']
+2025-09-30 15:19:57 - root - INFO -    时间范围: today 12-m
+2025-09-30 15:19:57 - root - INFO -    地理位置:
+2025-09-30 15:20:03 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-30 15:20:03 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-30 15:20:03 - root - INFO -    关键词: ['chatgpt pulse']
+2025-09-30 15:20:03 - root - INFO -    时间范围: today 12-m
+2025-09-30 15:20:03 - root - INFO -    地理位置:
+2025-09-30 15:20:09 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-30 15:20:09 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-30 15:20:09 - root - INFO -    关键词: ['chatgpt 4o']
+2025-09-30 15:20:09 - root - INFO -    时间范围: today 12-m
+2025-09-30 15:20:09 - root - INFO -    地理位置:
+2025-09-30 15:20:14 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 93% (14/15)
+2025-09-30 15:20:15 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-30 15:20:15 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-30 15:20:15 - root - INFO -    关键词: ['chatgpt pro']
+2025-09-30 15:20:15 - root - INFO -    时间范围: today 12-m
+2025-09-30 15:20:15 - root - INFO -    地理位置:
+2025-09-30 15:20:21 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-09-30 15:20:21 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-09-30 15:20:21 - root - INFO -    关键词: ['chatgpt agent']
+2025-09-30 15:20:21 - root - INFO -    时间范围: today 12-m
+2025-09-30 15:20:21 - root - INFO -    地理位置:
+2025-09-30 15:20:42 - root - INFO - ✅ 成功获取到 53 条趋势数据
+⚠️ 关键词 hix bypass how to use 最近趋势量级几乎为0，建议补充流量验证。
+✅ 新词检测完成: 发现 3 个新词 (0 个高置信度, 12 个 Breakout)
 
 🎉 完整工作流程完成!
 📊 热门关键词分析: 5 个关键词
-🌐 多平台发现: 8 个相关关键词
-🎯 最终分析: 8 个关键词
+🌐 多平台发现: 15 个相关关键词
+🎯 最终分析: 15 个关键词
 🏆 总计高机会关键词: 0 个
-📈 平均机会分数: 31.09
+📈 平均机会分数: 32.0
 
 🏆 Top 5 最终机会关键词:
-   1. chatgpt pro (分数: 34.88, 意图: I)
-   2. chatgpt 4o (分数: 31.5, 意图: I)
-   3. weathertech (分数: 31.14, 意图: I)
-   4. chatgpt pulse (分数: 30.96, 意图: I)
-   5. weathertech floorliner (分数: 30.5, 意图: I)
+   1. hix bypass how to use (分数: 48.55, 意图: I)
+   2. chatgpt pro (分数: 34.88, 意图: I)
+   3. chatgpt 4o (分数: 31.5, 意图: I)
+   4. weatherguard paint (分数: 31.2, 意图: I)
+   5. weathertech (分数: 31.14, 意图: I)
 [Dashboard] 数据已刷新: D:\VscodeWorkspace\find_demand\output\reports\dashboard_data.json
 (.venv) PS D:\VscodeWorkspace\find_demand>

@@ -84,6 +84,7 @@ class ConfigData:
     WORKFLOW_CACHE_TTL_HOURS: float = 12.0
     WORKFLOW_CACHE_DIR: str = "output/workflow_cache"
     REDDIT_API: Dict[str, Any] = None
+    SERP_API_MONTHLY_LIMIT: int = 400
 
 
 class ConfigManager:
@@ -236,7 +237,8 @@ class ConfigManager:
             'DISCOVERY_RATE_LIMITS',
             'DISCOVERY_EMBEDDINGS_ENABLED', 'DISCOVERY_EMBEDDINGS_MIN_KEYWORDS',
             'DISCOVERY_EMBEDDINGS_MODEL',
-            'WORKFLOW_CACHE_ENABLED', 'WORKFLOW_CACHE_TTL_HOURS', 'WORKFLOW_CACHE_DIR'
+            'WORKFLOW_CACHE_ENABLED', 'WORKFLOW_CACHE_TTL_HOURS', 'WORKFLOW_CACHE_DIR',
+            'SERP_API_MONTHLY_LIMIT'
         ]
         
         for key in env_keys:

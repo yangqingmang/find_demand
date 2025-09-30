@@ -191,6 +191,8 @@
     "token_cache_path": "output/cache/reddit_token.json",
     "token_refresh_margin": 300
   },
+
+  "serp_api_monthly_limit": 250,
   
   "notification": {
     "email_notifications": false,
