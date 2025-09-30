@@ -928,9 +928,19 @@ class MultiPlatformKeywordDiscovery:
         url = "https://suggestqueries.google.com/complete/search"
         params = {'client': 'firefox', 'q': search_term}
         try:
-            data = await self._fetch_json(session, semaphore, 'GET', url, params=params)
+            raw_text = await self._fetch_text(session, semaphore, 'GET', url, params=params)
         except Exception as exc:
             print(f"❌ Google搜索建议分析失败: {exc}")
+            return []
+
+        payload_text = raw_text.strip()
+        if payload_text.startswith(")]}'"):
+            payload_text = payload_text[4:]
+
+        try:
+            data = json.loads(payload_text)
+        except Exception as exc:
+            print(f"❌ Google搜索建议解析失败: {exc}")
             return []
 
         suggestions = data[1] if isinstance(data, list) and len(data) > 1 else []
@@ -1224,12 +1234,20 @@ class MultiPlatformKeywordDiscovery:
                     print(f"Skipping embedding stage: {len(df)} keywords, threshold {self.embedding_min_keywords}")
 
             if embeddings is not None and len(df) >= self.embedding_min_keywords:
-                clustering = AgglomerativeClustering(
-                    n_clusters=None,
-                    distance_threshold=self.cluster_distance_threshold,
-                    affinity='cosine',
-                    linkage='average'
-                )
+                try:
+                    clustering = AgglomerativeClustering(
+                        n_clusters=None,
+                        distance_threshold=self.cluster_distance_threshold,
+                        metric='cosine',
+                        linkage='average'
+                    )
+                except TypeError:
+                    clustering = AgglomerativeClustering(
+                        n_clusters=None,
+                        distance_threshold=self.cluster_distance_threshold,
+                        affinity='cosine',
+                        linkage='average'
+                    )
                 labels = clustering.fit_predict(embeddings)
                 df['cluster_id'] = labels
 
