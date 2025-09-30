@@ -1254,17 +1254,17 @@ def handle_all_workflow(manager, args):
         seed_profile = getattr(args, 'seed_profile', None)
         seed_limit_arg = getattr(args, 'seed_limit', None)
         if isinstance(seed_limit_arg, int) and seed_limit_arg <= 0:
-                    seed_limit_arg = None
-                min_seed_terms = getattr(args, 'min_seed_terms', None)
-                if isinstance(min_seed_terms, int) and min_seed_terms <= 0:
-                    min_seed_terms = None
-                effective_limit = seed_limit_arg or max_seed_keywords
-                prepared_seeds = discovery_tool.prepare_search_terms(
-                    seeds=seed_keywords,
-                    profile=seed_profile,
-                    limit=effective_limit,
-                    min_terms=min_seed_terms
-                )
+            seed_limit_arg = None
+        min_seed_terms = getattr(args, 'min_seed_terms', None)
+        if isinstance(min_seed_terms, int) and min_seed_terms <= 0:
+            min_seed_terms = None
+        effective_limit = seed_limit_arg or max_seed_keywords
+        prepared_seeds = discovery_tool.prepare_search_terms(
+            seeds=seed_keywords,
+            profile=seed_profile,
+            limit=effective_limit,
+            min_terms=min_seed_terms
+        )
 
         if not prepared_seeds:
             if not args.quiet:
@@ -1319,48 +1319,48 @@ def handle_all_workflow(manager, args):
             prioritized_df['keyword'] = prioritized_df['keyword'].astype(str)
             unique_keywords = prioritized_df['keyword'].head(max_discovered_keywords).tolist()
 
-                if unique_keywords:
-                    if not args.quiet and prioritized_df is not None and len(prioritized_df) > len(unique_keywords):
-                        print(f"⚖️ 已按得分筛选前 {len(unique_keywords)} 个关键词用于最终分析 (上限 {max_discovered_keywords})")
-                    # 创建发现关键词的CSV文件
-                    discovered_df = pd.DataFrame([
-                        {'keyword': kw} for kw in unique_keywords
-                    ])
-                    
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    discovered_file = os.path.join(args.output, f"discovered_keywords_{timestamp}.csv")
-                    os.makedirs(args.output, exist_ok=True)
-                    discovered_df.to_csv(discovered_file, index=False, encoding='utf-8')
-                    
-                    if not args.quiet:
-                        print(f"🎯 发现了 {len(unique_keywords)} 个相关关键词")
-                        print(f"📁 发现的关键词已保存到: {discovered_file}")
-                    
-                    # 对发现的关键词进行需求挖掘分析
-                    if not args.quiet:
-                        print(f"\n🔍 第三步: 对发现的关键词进行需求挖掘分析...")
-                    
-                    discovery_result = manager.analyze_keywords(discovered_file, args.output, enable_serp=False)
-                    
-                    # 显示最终结果
-                    if args.quiet:
-                        print_quiet_summary(discovery_result)
-                    else:
-                        print(f"\n🎉 完整工作流程完成!")
-                        print(f"📊 热门关键词分析: {hot_result['total_keywords']} 个关键词")
-                        print(f"🌐 多平台发现: {len(unique_keywords)} 个相关关键词")
-                        print(f"🎯 最终分析: {discovery_result['total_keywords']} 个关键词")
-                        print(f"🏆 总计高机会关键词: {discovery_result['market_insights']['high_opportunity_count']} 个")
-                        print(f"📈 平均机会分数: {discovery_result['market_insights']['avg_opportunity_score']}")
-                        
-                        # 显示Top 5机会关键词
-                        top_keywords = discovery_result['market_insights']['top_opportunities'][:5]
-                        if top_keywords:
-                            print("\n🏆 Top 5 最终机会关键词:")
-                            for i, kw in enumerate(top_keywords, 1):
-                                intent_desc = kw['intent']['intent_description']
-                                score = kw['opportunity_score']
-                                print(f"   {i}. {kw['keyword']} (分数: {score}, 意图: {intent_desc})")
+        if unique_keywords:
+            if not args.quiet and prioritized_df is not None and len(prioritized_df) > len(unique_keywords):
+                print(f"⚖️ 已按得分筛选前 {len(unique_keywords)} 个关键词用于最终分析 (上限 {max_discovered_keywords})")
+            # 创建发现关键词的CSV文件
+            discovered_df = pd.DataFrame([
+                {'keyword': kw} for kw in unique_keywords
+            ])
+
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            discovered_file = os.path.join(args.output, f"discovered_keywords_{timestamp}.csv")
+            os.makedirs(args.output, exist_ok=True)
+            discovered_df.to_csv(discovered_file, index=False, encoding='utf-8')
+
+            if not args.quiet:
+                print(f"🎯 发现了 {len(unique_keywords)} 个相关关键词")
+                print(f"📁 发现的关键词已保存到: {discovered_file}")
+
+            # 对发现的关键词进行需求挖掘分析
+            if not args.quiet:
+                print(f"\n🔍 第三步: 对发现的关键词进行需求挖掘分析...")
+
+            discovery_result = manager.analyze_keywords(discovered_file, args.output, enable_serp=False)
+
+            # 显示最终结果
+            if args.quiet:
+                print_quiet_summary(discovery_result)
+            else:
+                print(f"\n🎉 完整工作流程完成!")
+                print(f"📊 热门关键词分析: {hot_result['total_keywords']} 个关键词")
+                print(f"🌐 多平台发现: {len(unique_keywords)} 个相关关键词")
+                print(f"🎯 最终分析: {discovery_result['total_keywords']} 个关键词")
+                print(f"🏆 总计高机会关键词: {discovery_result['market_insights']['high_opportunity_count']} 个")
+                print(f"📈 平均机会分数: {discovery_result['market_insights']['avg_opportunity_score']}")
+
+                # 显示Top 5机会关键词
+                top_keywords = discovery_result['market_insights']['top_opportunities'][:5]
+                if top_keywords:
+                    print("\n🏆 Top 5 最终机会关键词:")
+                    for i, kw in enumerate(top_keywords, 1):
+                        intent_desc = kw['intent']['intent_description']
+                        score = kw['opportunity_score']
+                        print(f"   {i}. {kw['keyword']} (分数: {score}, 意图: {intent_desc})")
                 
                 else:
                     if not args.quiet:
