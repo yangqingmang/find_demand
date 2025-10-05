@@ -42,15 +42,17 @@ class KeywordManager(BaseManager):
         
         print("🔍 关键词管理器初始化完成")
         default_weights = {
-            'intent_confidence': 0.17,
-            'search_volume': 0.18,
-            'competition': 0.14,
-            'ai_bonus': 0.07,
-            'commercial_value': 0.16,
+            'intent_confidence': 0.15,
+            'intent_clarity': 0.10,
+            'search_volume': 0.14,
+            'competition': 0.10,
+            'ai_bonus': 0.06,
+            'commercial_value': 0.13,
             'serp_purchase_intent': 0.05,
-            'serp_ads_presence': 0.05,
-            'long_tail': 0.1,
-            'brand_penalty': 0.08
+            'serp_weakness': 0.10,
+            'monetization_path': 0.12,
+            'long_tail': 0.03,
+            'brand_penalty': 0.02
         }
 
         keyword_scoring_cfg = {}
@@ -88,6 +90,28 @@ class KeywordManager(BaseManager):
             except Exception:
                 pass
         self.cost_penalty = max(0.0, min(default_cost_penalty, 1.0))
+
+        self.manual_feedback_bonus = float(keyword_scoring_cfg.get('manual_feedback_bonus', 6))
+        self.manual_feedback_watch = float(keyword_scoring_cfg.get('manual_feedback_watch', 2))
+        self.manual_feedback_penalty = float(keyword_scoring_cfg.get('manual_feedback_penalty', -10))
+
+        manual_review_cfg = self.config.get('manual_review', {}) if isinstance(self.config, dict) else {}
+        if not isinstance(manual_review_cfg, dict):
+            manual_review_cfg = {}
+        self.manual_review_cfg = manual_review_cfg
+        self.manual_sample_threshold = float(manual_review_cfg.get('serp_sample_threshold', 65) or 65)
+        self.manual_sample_size = max(int(manual_review_cfg.get('serp_sample_size', 12) or 12), 0)
+        self.manual_sample_random = max(int(manual_review_cfg.get('serp_sample_random', 3) or 0), 0)
+
+        manual_review_output = manual_review_cfg.get('output_dir') or 'output/manual_review'
+        review_path = Path(manual_review_output)
+        if not review_path.is_absolute():
+            review_path = Path(self.output_dir).parent / manual_review_output
+        review_path.mkdir(parents=True, exist_ok=True)
+        self.manual_review_output_dir = review_path
+
+        feedback_file = manual_review_cfg.get('feedback_file')
+        self.manual_feedback_map = self._load_manual_feedback(feedback_file)
 
         filters_cfg = self.config.get('keyword_filters', {}) if isinstance(self.config, dict) else {}
 
@@ -412,6 +436,10 @@ class KeywordManager(BaseManager):
 
             self._log_analysis_highlights(analysis_df)
 
+            manual_review_summary = self._export_manual_review(analysis_df, output_dir)
+            if manual_review_summary:
+                results['manual_review'] = manual_review_summary
+
             if output_dir:
                 output_path = self._save_analysis_results(results, output_dir, analysis_df=analysis_df)
                 results['output_path'] = output_path
@@ -452,8 +480,9 @@ class KeywordManager(BaseManager):
             return pd.DataFrame(columns=[
                 'keyword', 'intent', 'market', 'opportunity_score', 'execution_cost',
                 'serp_signals', 'intent_primary', 'intent_secondary', 'intent_confidence',
-                'market_search_volume', 'market_competition', 'market_cpc',
-                'market_ai_bonus', 'market_execution_cost'
+                'intent_clarity_score', 'market_search_volume', 'market_competition',
+                'market_cpc', 'market_ai_bonus', 'market_execution_cost',
+                'serp_weakness_score', 'monetization_score', 'manual_feedback_label'
             ])
 
         records: List[Dict[str, Any]] = []
@@ -462,11 +491,30 @@ class KeywordManager(BaseManager):
             market_result = copy.deepcopy(market_map.get(keyword, self._get_default_market_result(keyword)))
             serp_signals = market_result.get('serp_signals') or None
 
+            feedback_entry = self._lookup_manual_feedback(keyword)
+            feedback_label = None
+            if feedback_entry:
+                feedback_label = feedback_entry.get('label') or feedback_entry.get('status') or None
+
+            intent_clarity = self._assess_intent_clarity(keyword, intent_result)
+            intent_result['clarity_score'] = intent_clarity
+
+            serp_weakness = self._assess_serp_weakness(serp_signals)
+            if serp_signals is not None and 'weak_competitiveness_score' not in serp_signals:
+                serp_signals['weak_competitiveness_score'] = serp_weakness
+
+            monetization_score = self._assess_monetization_path(keyword, market_result, serp_signals)
+            market_result['monetization_score'] = monetization_score
+
             opportunity_score = self._calculate_opportunity_score(
                 intent_result,
                 market_result,
                 serp_signals,
-                keyword
+                keyword,
+                intent_clarity=intent_clarity,
+                serp_weakness=serp_weakness,
+                monetization_score=monetization_score,
+                feedback_label=feedback_label
             )
 
             record: Dict[str, Any] = {
@@ -479,11 +527,15 @@ class KeywordManager(BaseManager):
                 'intent_primary': intent_result.get('primary_intent', 'Unknown'),
                 'intent_secondary': intent_result.get('secondary_intent'),
                 'intent_confidence': intent_result.get('confidence', 0.0),
+                'intent_clarity_score': round(intent_clarity * 100, 2),
                 'market_search_volume': market_result.get('search_volume', 0),
                 'market_competition': market_result.get('competition', 0.0),
                 'market_cpc': market_result.get('cpc', 0.0),
                 'market_ai_bonus': market_result.get('ai_bonus', 0.0),
-                'market_execution_cost': market_result.get('execution_cost', 0.0)
+                'market_execution_cost': market_result.get('execution_cost', 0.0),
+                'serp_weakness_score': round(serp_weakness * 100, 2),
+                'monetization_score': round(monetization_score * 100, 2),
+                'manual_feedback_label': feedback_label
             }
             records.append(record)
 
@@ -498,6 +550,9 @@ class KeywordManager(BaseManager):
         base_columns = ['keyword', 'intent', 'market', 'opportunity_score', 'execution_cost']
         if 'serp_signals' in df.columns:
             base_columns.append('serp_signals')
+        for extra_col in ('intent_clarity_score', 'serp_weakness_score', 'monetization_score', 'manual_feedback_label'):
+            if extra_col in df.columns and extra_col not in base_columns:
+                base_columns.append(extra_col)
         subset = df[base_columns].copy()
         return subset.to_dict('records')
 
@@ -511,8 +566,9 @@ class KeywordManager(BaseManager):
                 return pd.DataFrame(columns=[
                     'keyword', 'intent', 'market', 'opportunity_score', 'execution_cost',
                     'serp_signals', 'intent_primary', 'intent_secondary', 'intent_confidence',
-                    'market_search_volume', 'market_competition', 'market_cpc',
-                    'market_ai_bonus', 'market_execution_cost'
+                    'intent_clarity_score', 'market_search_volume', 'market_competition',
+                    'market_cpc', 'market_ai_bonus', 'market_execution_cost',
+                    'serp_weakness_score', 'monetization_score', 'manual_feedback_label'
                 ])
             normalised: List[Dict[str, Any]] = []
             for item in keywords:
@@ -521,6 +577,22 @@ class KeywordManager(BaseManager):
                 execution_cost = item.get('execution_cost') if isinstance(item, dict) else None
                 if execution_cost is None:
                     execution_cost = market.get('execution_cost', 0.0)
+                clarity_pct = 0.0
+                if isinstance(intent, dict):
+                    clarity_pct = float(intent.get('clarity_score', 0.0) or 0.0) * 100
+                serp_payload = item.get('serp_signals') if isinstance(item, dict) else None
+                weakness_pct = 0.0
+                monetization_pct = 0.0
+                if isinstance(serp_payload, dict):
+                    try:
+                        weakness_pct = float(serp_payload.get('weak_competitiveness_score', 0.0) or 0.0) * 100
+                    except (TypeError, ValueError):
+                        weakness_pct = 0.0
+                if isinstance(market, dict):
+                    try:
+                        monetization_pct = float(market.get('monetization_score', 0.0) or 0.0) * 100
+                    except (TypeError, ValueError):
+                        monetization_pct = 0.0
                 normalised.append({
                     'keyword': item.get('keyword') if isinstance(item, dict) else None,
                     'intent': intent,
@@ -531,11 +603,15 @@ class KeywordManager(BaseManager):
                     'intent_primary': intent.get('primary_intent', 'Unknown'),
                     'intent_secondary': intent.get('secondary_intent'),
                     'intent_confidence': intent.get('confidence', 0.0),
+                    'intent_clarity_score': clarity_pct,
                     'market_search_volume': market.get('search_volume', 0),
                     'market_competition': market.get('competition', 0.0),
                     'market_cpc': market.get('cpc', 0.0),
                     'market_ai_bonus': market.get('ai_bonus', 0.0),
-                    'market_execution_cost': execution_cost
+                    'market_execution_cost': execution_cost,
+                    'serp_weakness_score': weakness_pct,
+                    'monetization_score': monetization_pct,
+                    'manual_feedback_label': item.get('manual_feedback_label') if isinstance(item, dict) else None
                 })
             df = pd.DataFrame(normalised)
 
@@ -547,8 +623,16 @@ class KeywordManager(BaseManager):
             df['intent_primary'] = 'Unknown'
         if 'intent_confidence' not in df.columns:
             df['intent_confidence'] = 0.0
+        if 'intent_clarity_score' not in df.columns:
+            df['intent_clarity_score'] = 0.0
         if 'opportunity_score' not in df.columns:
             df['opportunity_score'] = 0.0
+        if 'serp_weakness_score' not in df.columns:
+            df['serp_weakness_score'] = 0.0
+        if 'monetization_score' not in df.columns:
+            df['monetization_score'] = 0.0
+        if 'manual_feedback_label' not in df.columns:
+            df['manual_feedback_label'] = None
         if 'keyword' not in df.columns:
             df['keyword'] = None
 
@@ -922,6 +1006,55 @@ class KeywordManager(BaseManager):
             'keyword': keyword
         }
 
+    def _load_manual_feedback(self, feedback_file: Optional[str]) -> Dict[str, Dict[str, Any]]:
+        mapping: Dict[str, Dict[str, Any]] = {}
+        if not feedback_file:
+            return mapping
+
+        feedback_path = Path(feedback_file)
+        if not feedback_path.is_absolute():
+            feedback_path = Path(__file__).resolve().parents[3] / feedback_file
+        if not feedback_path.exists():
+            return mapping
+
+        try:
+            with feedback_path.open('r', encoding='utf-8') as fh:
+                payload = json.load(fh)
+        except Exception as exc:
+            print(f"⚠️ 人工反馈文件解析失败: {exc}")
+            return mapping
+
+        entries: Dict[str, Any] = {}
+        if isinstance(payload, dict) and 'keywords' in payload and isinstance(payload['keywords'], dict):
+            entries = payload['keywords']
+        elif isinstance(payload, dict):
+            entries = payload
+
+        for raw_keyword, value in entries.items():
+            if not isinstance(raw_keyword, str):
+                continue
+            keyword_lower = raw_keyword.strip().lower()
+            if not keyword_lower:
+                continue
+            if isinstance(value, dict):
+                label = value.get('label') or value.get('status') or value.get('decision') or ''
+                notes = value.get('notes') or value.get('comment')
+                mapping[keyword_lower] = {
+                    'label': str(label).strip().lower() if label else '',
+                    'notes': notes
+                }
+            else:
+                mapping[keyword_lower] = {
+                    'label': str(value).strip().lower(),
+                    'notes': None
+                }
+        return mapping
+
+    def _lookup_manual_feedback(self, keyword: str) -> Optional[Dict[str, Any]]:
+        if not keyword:
+            return None
+        return self.manual_feedback_map.get(keyword.lower())
+
     def _analyze_keyword_intent(self, keyword: str) -> Dict[str, Any]:
         """分析关键词意图"""
         try:
@@ -985,20 +1118,33 @@ class KeywordManager(BaseManager):
             total = 1.0
         self.scoring_weights = {k: (v / total) for k, v in self.scoring_weights.items()}
 
-    def _calculate_opportunity_score(self, intent_result: Dict, market_result: Dict, serp_signals: Optional[Dict] = None, keyword: Optional[str] = None) -> float:
+    def _calculate_opportunity_score(
+        self,
+        intent_result: Dict,
+        market_result: Dict,
+        serp_signals: Optional[Dict] = None,
+        keyword: Optional[str] = None,
+        *,
+        intent_clarity: Optional[float] = None,
+        serp_weakness: Optional[float] = None,
+        monetization_score: Optional[float] = None,
+        feedback_label: Optional[str] = None
+    ) -> float:
         """Calculate overall opportunity score"""
         try:
             serp_signals = serp_signals or market_result.get('serp_signals') or {}
             weights = getattr(self, 'scoring_weights', None) or {
-                'intent_confidence': 0.17,
-                'search_volume': 0.18,
-                'competition': 0.14,
-                'ai_bonus': 0.07,
-                'commercial_value': 0.16,
+                'intent_confidence': 0.15,
+                'intent_clarity': 0.1,
+                'search_volume': 0.14,
+                'competition': 0.1,
+                'ai_bonus': 0.06,
+                'commercial_value': 0.13,
                 'serp_purchase_intent': 0.05,
-                'serp_ads_presence': 0.05,
-                'long_tail': 0.1,
-                'brand_penalty': 0.08
+                'serp_weakness': 0.1,
+                'monetization_path': 0.12,
+                'long_tail': 0.03,
+                'brand_penalty': 0.02
             }
 
             def _weight(key: str, default: float = 0.0) -> float:
@@ -1008,6 +1154,10 @@ class KeywordManager(BaseManager):
                     return default
 
             intent_score = intent_result.get('confidence', 0) * 100
+            clarity_baseline = intent_result.get('clarity_score', None)
+            if clarity_baseline is None:
+                clarity_baseline = intent_clarity
+            clarity_score = (clarity_baseline or 0.0) * 100
             volume_score = min(market_result.get('search_volume', 0) / 800, 1) * 100
             competition_raw = market_result.get('competition', 1)
             competition_score = max(0.0, min(1 - competition_raw, 1)) * 100
@@ -1028,14 +1178,27 @@ class KeywordManager(BaseManager):
             ads_reference = max(serp_signals.get('ads_reference_window', 4), 1)
             serp_ads_score = min((ads_count / ads_reference) * 100, 100) if ads_reference else 0.0
 
+            weakness_baseline = serp_weakness
+            if weakness_baseline is None:
+                weakness_baseline = serp_signals.get('weak_competitiveness_score')
+            serp_weakness_score = min(max((weakness_baseline or 0.0), 0.0), 1.0) * 100
+
+            monetization_baseline = monetization_score
+            if monetization_baseline is None:
+                monetization_baseline = market_result.get('monetization_score')
+            monetization_path_score = min(max((monetization_baseline or 0.0), 0.0), 1.0) * 100
+
             total_score = (
                 intent_score * _weight('intent_confidence') +
+                clarity_score * _weight('intent_clarity') +
                 volume_score * _weight('search_volume') +
                 competition_score * _weight('competition') +
                 ai_bonus_score * _weight('ai_bonus') +
                 commercial_value_score * _weight('commercial_value') +
                 serp_purchase_score * _weight('serp_purchase_intent') +
-                serp_ads_score * _weight('serp_ads_presence')
+                serp_ads_score * _weight('serp_ads_presence') +
+                serp_weakness_score * _weight('serp_weakness') +
+                monetization_path_score * _weight('monetization_path')
             )
 
             keyword_text = (keyword or market_result.get('keyword') or '').lower()
@@ -1060,6 +1223,17 @@ class KeywordManager(BaseManager):
                     normalized_cost = 0.0
                 total_score -= normalized_cost * cost_penalty_weight * 100
 
+            if feedback_label:
+                label = feedback_label.lower()
+                if label in {'promote', 'ship', 'launch', 'prioritize', 'green'}:
+                    total_score += self.manual_feedback_bonus
+                elif label in {'watch', 'monitor', 'review', 'observe', 'pending'}:
+                    total_score += self.manual_feedback_watch
+                elif label in {'drop', 'reject', 'ignore', 'blacklist', 'red'}:
+                    total_score += self.manual_feedback_penalty
+                elif label in {'hold', 'pause', 'deprioritize'}:
+                    total_score += self.manual_feedback_penalty / 2
+
             return round(max(0.0, min(total_score, 100.0)), 2)
 
         except Exception as e:
@@ -1076,6 +1250,111 @@ class KeywordManager(BaseManager):
             'intent_description': '分析失败',
             'website_recommendations': {}
         }
+
+    def _assess_intent_clarity(self, keyword: str, intent_result: Dict[str, Any]) -> float:
+        keyword_lower = (keyword or '').lower()
+        if not keyword_lower:
+            return 0.0
+
+        score = 0.0
+        tokens = [token for token in keyword_lower.replace('-', ' ').split() if token]
+        token_count = len(tokens)
+        if token_count >= 4:
+            score += 0.25
+        elif token_count == 3:
+            score += 0.18
+        elif token_count == 2:
+            score += 0.1
+
+        question_prefixes = (
+            'how to', 'how do', 'how can', 'what is', 'what are', 'why',
+            'best way', 'step by step', 'should i'
+        )
+        if any(keyword_lower.startswith(prefix) for prefix in question_prefixes):
+            score += 0.3
+
+        action_modifiers = {'automation', 'workflow', 'template', 'checklist', 'playbook', 'framework', 'strategy', 'process', 'guide'}
+        if any(term in tokens for term in action_modifiers):
+            score += 0.2
+
+        persona_markers = (' for ', ' to ', ' vs ', ' without ', ' with ')
+        if any(marker in keyword_lower for marker in persona_markers):
+            score += 0.1
+
+        intent_confidence = intent_result.get('confidence', 0.0) or 0.0
+        score += min(intent_confidence * 0.35, 0.35)
+
+        return min(1.0, score)
+
+    def _assess_serp_weakness(self, serp_signals: Optional[Dict[str, Any]]) -> float:
+        if not serp_signals:
+            return 0.3
+        raw_value = serp_signals.get('weak_competitiveness_score')
+        if raw_value is not None:
+            try:
+                return min(max(float(raw_value), 0.0), 1.0)
+            except (TypeError, ValueError):
+                pass
+
+        community_ratio = serp_signals.get('community_ratio', 0.0) or 0.0
+        try:
+            community_ratio = float(community_ratio)
+        except (TypeError, ValueError):
+            community_ratio = 0.0
+        avg_authority = serp_signals.get('avg_domain_authority', 60) or 60
+        try:
+            avg_authority = float(avg_authority)
+        except (TypeError, ValueError):
+            avg_authority = 60
+        authority_gap = max(0.0, 1 - (avg_authority / 100))
+        weak_ratio = serp_signals.get('weak_category_ratio', None)
+        if weak_ratio is None:
+            weak_ratio = community_ratio
+        try:
+            weak_ratio = float(weak_ratio)
+        except (TypeError, ValueError):
+            weak_ratio = community_ratio
+        return min(1.0, weak_ratio * 0.6 + authority_gap * 0.4)
+
+    def _assess_monetization_path(self, keyword: str, market_result: Dict[str, Any], serp_signals: Optional[Dict[str, Any]]) -> float:
+        keyword_lower = (keyword or '').lower()
+        score = 0.0
+
+        monetization_terms = {
+            'pricing', 'price', 'plan', 'plans', 'subscription', 'trial', 'license',
+            'template', 'automation', 'service', 'software', 'tool', 'workflow'
+        }
+        if any(term in keyword_lower for term in monetization_terms):
+            score += 0.25
+
+        commercial_raw = market_result.get('commercial_value', 0.0) or 0.0
+        try:
+            commercial_norm = min(max(float(commercial_raw) / 50.0, 0.0), 1.0)
+        except (TypeError, ValueError):
+            commercial_norm = 0.0
+        score += commercial_norm * 0.35
+
+        if serp_signals:
+            ratio = serp_signals.get('purchase_intent_ratio')
+            if ratio is None:
+                hits = serp_signals.get('purchase_intent_hits', 0)
+                analyzed = serp_signals.get('analyzed_results', 0) or 0
+                ratio = (hits / analyzed) if analyzed else 0.0
+            try:
+                purchase_ratio = min(max(float(ratio), 0.0), 1.0)
+            except (TypeError, ValueError):
+                purchase_ratio = 0.0
+
+            monetization_indicator = serp_signals.get('monetization_indicator') or 0.0
+            try:
+                monetization_indicator = min(max(float(monetization_indicator), 0.0), 1.0)
+            except (TypeError, ValueError):
+                monetization_indicator = 0.0
+
+            score += purchase_ratio * 0.25
+            score += monetization_indicator * 0.15
+
+        return min(1.0, score)
 
     @staticmethod
     def _calculate_ai_bonus(keyword: str) -> float:
@@ -1301,6 +1580,9 @@ class KeywordManager(BaseManager):
 
         avg_opportunity_score = round(df['opportunity_score'].mean(), 2) if not df.empty else 0
         avg_execution_cost = round(df['market_execution_cost'].mean(), 2) if 'market_execution_cost' in df else 0
+        avg_intent_clarity = round(df['intent_clarity_score'].mean(), 2) if 'intent_clarity_score' in df else 0
+        avg_serp_weakness = round(df['serp_weakness_score'].mean(), 2) if 'serp_weakness_score' in df else 0
+        avg_monetization_score = round(df['monetization_score'].mean(), 2) if 'monetization_score' in df else 0
 
         top_opportunities_df = df.sort_values('opportunity_score', ascending=False).head(10)
         low_cost_df = df[df['market_execution_cost'] <= 0.35].sort_values('opportunity_score', ascending=False).head(5)
@@ -1312,6 +1594,9 @@ class KeywordManager(BaseManager):
             'top_opportunities': KeywordManager._dataframe_to_keyword_records(top_opportunities_df),
             'avg_opportunity_score': avg_opportunity_score,
             'avg_execution_cost': avg_execution_cost,
+            'avg_intent_clarity': avg_intent_clarity,
+            'avg_serp_weakness': avg_serp_weakness,
+            'avg_monetization_score': avg_monetization_score,
             'low_cost_candidates': KeywordManager._dataframe_to_keyword_records(low_cost_df)
         }
 
@@ -1354,12 +1639,16 @@ class KeywordManager(BaseManager):
             'keyword',
             'intent_primary',
             'intent_confidence',
+            'intent_clarity_score',
             'intent_secondary',
             'market_search_volume',
             'market_competition',
             'market_cpc',
             'opportunity_score',
-            'market_execution_cost'
+            'market_execution_cost',
+            'serp_weakness_score',
+            'monetization_score',
+            'manual_feedback_label'
         ]
         export_df = analysis_df.copy()
         for column in export_columns:
@@ -1370,6 +1659,101 @@ class KeywordManager(BaseManager):
         export_df.to_csv(csv_path, index=False, encoding='utf-8-sig')
 
         return json_path
+
+    def _export_manual_review(self, analysis_df: Optional[pd.DataFrame], output_dir: Optional[str]) -> Optional[Dict[str, Any]]:
+        if analysis_df is None or analysis_df.empty:
+            return None
+
+        threshold = self.manual_sample_threshold
+        sample_size = self.manual_sample_size
+        random_pick = self.manual_sample_random
+        community_alert_ratio = float(self.manual_review_cfg.get('community_alert_ratio', 0.4) or 0.4)
+
+        candidate_df = analysis_df[analysis_df['opportunity_score'] >= threshold] if threshold else analysis_df.copy()
+        if candidate_df.empty:
+            candidate_df = analysis_df.copy()
+
+        sort_columns = []
+        if 'serp_weakness_score' in candidate_df.columns:
+            sort_columns.append('serp_weakness_score')
+        sort_columns.append('opportunity_score')
+        candidate_df = candidate_df.sort_values(sort_columns, ascending=False)
+
+        selected_df = pd.DataFrame()
+        if sample_size > 0:
+            selected_df = candidate_df.head(sample_size)
+        if random_pick > 0 and len(candidate_df) > len(selected_df):
+            random_df = candidate_df.iloc[len(selected_df):]
+            if not random_df.empty:
+                random_sample = random_df.sample(n=min(random_pick, len(random_df)), random_state=42)
+                selected_df = pd.concat([selected_df, random_sample])
+        if selected_df.empty:
+            fallback_size = max(sample_size, 5) or min(len(candidate_df), 5)
+            selected_df = candidate_df.head(fallback_size)
+        if selected_df.empty:
+            return None
+
+        selected_df = selected_df.drop_duplicates(subset=['keyword']).reset_index(drop=True)
+
+        if output_dir:
+            review_dir = Path(output_dir) / 'manual_review'
+        else:
+            review_dir = self.manual_review_output_dir
+        review_dir.mkdir(parents=True, exist_ok=True)
+
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        json_path = review_dir / f'serp_samples_{timestamp}.json'
+
+        export_payload: List[Dict[str, Any]] = []
+        for row in selected_df.itertuples():
+            payload_item = {
+                'keyword': row.keyword,
+                'opportunity_score': round(row.opportunity_score, 2),
+                'intent_primary': row.intent_primary,
+                'intent_confidence': round(row.intent_confidence, 2) if hasattr(row, 'intent_confidence') else None,
+                'intent_clarity_score': round(getattr(row, 'intent_clarity_score', 0.0), 2),
+                'serp_weakness_score': round(getattr(row, 'serp_weakness_score', 0.0), 2),
+                'monetization_score': round(getattr(row, 'monetization_score', 0.0), 2),
+                'manual_feedback_label': getattr(row, 'manual_feedback_label', None),
+                'serp_signals': getattr(row, 'serp_signals', None)
+            }
+            export_payload.append(payload_item)
+
+        try:
+            with json_path.open('w', encoding='utf-8') as fh:
+                json.dump(export_payload, fh, ensure_ascii=False, indent=2)
+        except Exception as exc:
+            print(f"⚠️ 写入人工复核样本失败: {exc}")
+            return None
+
+        telemetry_manager.set_gauge('manual_review.serp_samples', len(export_payload))
+
+        high_community_keywords: List[str] = []
+        if 'serp_signals' in selected_df.columns:
+            for row in selected_df.itertuples():
+                signals = getattr(row, 'serp_signals', None)
+                if isinstance(signals, dict):
+                    ratio = signals.get('community_ratio')
+                    try:
+                        ratio = float(ratio)
+                    except (TypeError, ValueError):
+                        ratio = 0.0
+                    if ratio >= community_alert_ratio:
+                        high_community_keywords.append(row.keyword)
+
+        summary = {
+            'sampled_keywords': int(len(export_payload)),
+            'serp_sample_path': str(json_path),
+            'community_ratio_threshold': community_alert_ratio,
+            'high_community_keywords': high_community_keywords,
+            'avg_serp_weakness': round(selected_df['serp_weakness_score'].mean(), 2) if 'serp_weakness_score' in selected_df.columns else None
+        }
+
+        telemetry_manager.set_gauge('manual_review.sampled_keywords', summary['sampled_keywords'])
+        if summary.get('avg_serp_weakness') is not None:
+            telemetry_manager.set_gauge('manual_review.avg_serp_weakness', summary['avg_serp_weakness'])
+
+        return summary
 
     def _comprehensive_analyze(self, input_source: str, analysis_type: str, output_dir: str = None) -> Dict[str, Any]:
         """使用综合分析器进行全面分析"""
@@ -1514,4 +1898,3 @@ class KeywordManager(BaseManager):
         legacy_result['recommendations'] = recommendations
         
         return legacy_result
-

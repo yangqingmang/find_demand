@@ -16,7 +16,7 @@ import sys
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Awaitable, Callable, Dict, List, Optional
+from typing import Any, Awaitable, Callable, Dict, List, Optional, Tuple
 from urllib.parse import quote, urlparse
 
 import aiohttp
@@ -30,6 +30,43 @@ from src.utils.rss_parser import parse_rss
 
 _EMBEDDING_MODEL_CACHE: Dict[str, Any] = {}
 _EMBEDDING_MODEL_LOCK = Lock()
+
+
+_DEFAULT_BRAND_PHRASES = {
+    'chatgpt', 'openai', 'gpt', 'gpt-4', 'gpt-3.5', 'claude', 'anthropic',
+    'midjourney', 'deepseek', 'stable diffusion', 'runwayml', 'runway',
+    'perplexity ai', 'perplexity', 'janitor ai', 'hix bypass', 'undetectable ai',
+    'turnitin', 'google gemini', 'gemini ai', 'bard ai', 'character ai',
+    'microsoft copilot', 'bing copilot', 'copilot', 'notion', 'notion ai',
+    'zapier', 'make.com', 'ifttt', 'adobe', 'photoshop', 'illustrator', 'canva',
+    'figma', 'loom', 'descript', 'salesforce', 'hubspot', 'oracle', 'sap', 'aws',
+    'aws bedrock', 'azure', 'azure openai', 'google cloud', 'meta ai', 'tesla',
+    'bmw', 'mercedes', 'toyota', 'volkswagen', 'nio', 'xpeng', 'xiaomi',
+    'huawei', 'apple', 'iphone', 'macbook', 'samsung', 'sony', 'dji', 'nvidia',
+    'geforce', 'rtx', 'playstation', 'xbox', 'openpilot', 'gpt4', 'gpt5'
+}
+
+_DEFAULT_BRAND_MODIFIERS = {
+    'lifetime deal', 'affiliate', 'pricing plan', 'pricing', 'free trial',
+    'discount', 'discount code', 'coupon', 'coupon code', 'redeem', 'official',
+    'official site', 'review', 'reviews', 'vs', 'alternative', 'alternatives',
+    'compare', 'comparison', 'login', 'sign up', 'signup', 'account',
+    'download', 'downloads', 'app', 'apps', 'premium', 'pro', 'plus',
+    'enterprise', 'pricing tier', 'pricing tiers', 'starter plan', 'plan',
+    'plans', 'lifetime', 'promo', 'deal', 'black friday', 'cyber monday'
+}
+
+_DEFAULT_BRAND_TOKENS = {
+    'chatgpt', 'openai', 'gpt', 'gpt4', 'gpt-4', 'gpt5', 'gpt-5', 'gpt3',
+    'gpt-3', 'claude', 'anthropic', 'midjourney', 'deepseek', 'runwayml',
+    'runway', 'perplexity', 'janitor', 'turnitin', 'hix', 'bypass',
+    'undetectable', 'gemini', 'bard', 'character', 'copilot', 'notion', 'zapier',
+    'ifttt', 'adobe', 'photoshop', 'illustrator', 'canva', 'figma', 'loom',
+    'descript', 'salesforce', 'hubspot', 'oracle', 'sap', 'aws', 'azure',
+    'tesla', 'bmw', 'mercedes', 'toyota', 'volkswagen', 'nio', 'xpeng',
+    'xiaomi', 'huawei', 'apple', 'iphone', 'macbook', 'samsung', 'sony', 'dji',
+    'nvidia', 'geforce', 'rtx', 'playstation', 'xbox', 'openpilot'
+}
 
 
 class _AsyncRateLimiter:
@@ -303,19 +340,119 @@ class MultiPlatformKeywordDiscovery:
                     print(f"⚠️ Reddit OAuth 初始化失败: {exc}")
 
         filters_cfg = self._load_discovery_filter_config()
+
+        def _extract_filter_terms(payload: Any) -> List[str]:
+            terms: List[str] = []
+            if isinstance(payload, dict):
+                for key in ('terms', 'values', 'items', 'entries', 'list', 'data'):
+                    value = payload.get(key)
+                    if isinstance(value, (list, tuple, set)):
+                        terms.extend(value)
+                if isinstance(payload.get('value'), str):
+                    terms.append(payload['value'])
+            elif isinstance(payload, (list, tuple, set)):
+                terms.extend(payload)
+            elif isinstance(payload, str):
+                terms.append(payload)
+            normalized: List[str] = []
+            for term in terms:
+                if isinstance(term, str):
+                    cleaned = term.strip().lower()
+                    if cleaned:
+                        normalized.append(cleaned)
+            return normalized
+
+        def _resolve_filter_terms(defaults: set, list_key: str, mode_key: str) -> set:
+            raw_values = filters_cfg.get(list_key)
+            mode_candidate = filters_cfg.get(mode_key, 'extend')
+            if isinstance(raw_values, dict) and 'mode' in raw_values:
+                mode_candidate = raw_values.get('mode', mode_candidate)
+            mode = str(mode_candidate).lower() if isinstance(mode_candidate, str) else 'extend'
+            if mode not in ('extend', 'replace', 'disable'):
+                mode = 'extend'
+            if mode == 'disable':
+                return set()
+            resolved = set()
+            if mode == 'extend':
+                resolved.update(term.lower() for term in defaults if isinstance(term, str))
+            values = _extract_filter_terms(raw_values)
+            if mode == 'replace':
+                resolved.clear()
+            resolved.update(values)
+            return {term for term in resolved if term}
+
         self.brand_filter_config = {
             'enabled': bool(filters_cfg.get('brand_filter_enabled', True)),
             'strict_brand_modifiers': bool(filters_cfg.get('strict_brand_modifiers', False)),
-            'min_non_brand_tokens': max(int(filters_cfg.get('min_non_brand_tokens', 1) or 0), 0)
+            'min_non_brand_tokens': max(int(filters_cfg.get('min_non_brand_tokens', 2) or 0), 0),
+            'hard_exclude_brand_seeds': bool(filters_cfg.get('hard_exclude_brand_seeds', True)),
         }
         self.generic_filter_config = {
             'enabled': bool(filters_cfg.get('generic_filter_enabled', True))
         }
 
+        resolved_brand_phrases = _resolve_filter_terms(_DEFAULT_BRAND_PHRASES, 'brand_phrases', 'brand_phrases_mode')
+        if self.brand_filter_config.get('enabled', True) and not resolved_brand_phrases:
+            resolved_brand_phrases = {term.lower() for term in _DEFAULT_BRAND_PHRASES}
+        self.brand_phrases = resolved_brand_phrases
+
+        resolved_brand_modifiers = _resolve_filter_terms(_DEFAULT_BRAND_MODIFIERS, 'brand_modifiers', 'brand_modifiers_mode')
+        if self.brand_filter_config.get('enabled', True) and not resolved_brand_modifiers:
+            resolved_brand_modifiers = {term.lower() for term in _DEFAULT_BRAND_MODIFIERS}
+        self.brand_modifier_tokens = resolved_brand_modifiers
+
+        brand_tokens = {str(token).strip().lower() for token in _DEFAULT_BRAND_TOKENS}
+        generic_token_stops = {
+            'ai', 'app', 'apps', 'plan', 'plans', 'code', 'codes', 'deal', 'deals',
+            'free', 'trial', 'official', 'site', 'pricing', 'price', 'pro', 'plus',
+            'vs', 'compare', 'comparison', 'review', 'reviews', 'login', 'signup',
+            'sign', 'account', 'the', 'for', 'and', 'with', 'tool', 'tools',
+            'software', 'platform', 'service', 'services'
+        }
+        for phrase in self.brand_phrases:
+            normalized_phrase = phrase.strip().lower()
+            if not normalized_phrase:
+                continue
+            if ' ' not in normalized_phrase:
+                brand_tokens.add(normalized_phrase)
+            for token in re.split(r'[^a-z0-9]+', normalized_phrase):
+                token = token.strip()
+                if len(token) < 3:
+                    continue
+                if token in generic_token_stops:
+                    continue
+                brand_tokens.add(token)
+        self.brand_tokens = brand_tokens
+
         seed_cfg = self._load_discovery_seed_config()
         self.seed_profiles = seed_cfg.get('profiles', {}) if isinstance(seed_cfg.get('profiles'), dict) else {}
         self.default_seed_profile = seed_cfg.get('default_profile') or next(iter(self.seed_profiles.keys()), None)
         self.min_seed_terms = max(int(seed_cfg.get('min_terms', 3) or 0), 1)
+        enrichment_cfg = seed_cfg.get('enrichment', {}) if isinstance(seed_cfg, dict) else {}
+        if not isinstance(enrichment_cfg, dict):
+            enrichment_cfg = {}
+        self.seed_enrichment_cfg = enrichment_cfg
+        self.brand_ratio_limit = float(enrichment_cfg.get('brand_ratio_limit', 0.3) or 0.3)
+        self.manual_seed_backfill = max(int(enrichment_cfg.get('manual_seed_backfill', 5) or 0), 0)
+        self.priority_seed_limit = int(enrichment_cfg.get('priority_seed_limit', 5) or 0)
+        if self.priority_seed_limit < 0:
+            self.priority_seed_limit = 0
+        self.min_manual_seed_on_shortage = max(int(enrichment_cfg.get('min_manual_seed_on_shortage', 0) or 0), 0)
+
+        manual_seed_source = enrichment_cfg.get('manual_seed_file') or enrichment_cfg.get('manual_terms')
+        positive_seed_source = enrichment_cfg.get('positive_seed_file') or enrichment_cfg.get('positive_terms')
+        self.manual_seed_terms = self._load_seed_source(
+            manual_seed_source,
+            fallback=enrichment_cfg.get('manual_terms'),
+            label='手动种子',
+            metrics_prefix='discovery.seeds.preload.manual'
+        )
+        self.positive_seed_terms = self._load_seed_source(
+            positive_seed_source,
+            fallback=enrichment_cfg.get('positive_terms'),
+            label='正例种子',
+            metrics_prefix='discovery.seeds.preload.positive'
+        )
 
         # AI相关subreddit列表
         self.ai_subreddits = [
@@ -330,23 +467,6 @@ class MultiPlatformKeywordDiscovery:
             r'\b(?:tool|software|app|platform|service|solution)\b'
         ]
 
-        self.brand_phrases = {
-            'chatgpt', 'openai', 'gpt', 'gpt-4', 'gpt4', 'gpt5', 'claude',
-            'midjourney', 'deepseek', 'hix bypass', 'undetectable ai', 'turnitin',
-            'copilot'
-        }
-        self.brand_tokens = {token for phrase in self.brand_phrases for token in phrase.split()}
-        self.brand_tokens.update({'chatgpt', 'openai', 'gpt', 'claude', 'midjourney', 'deepseek', 'hix', 'bypass', 'turnitin', 'copilot'})
-        self.brand_modifier_tokens = {
-            'login', 'logins', 'signup', 'sign', 'account', 'app', 'apps',
-            'download', 'downloads', 'premium', 'price', 'prices', 'pricing',
-            'cost', 'costs', 'free', 'trial', 'promo', 'discount', 'code',
-            'codes', 'coupon', 'review', 'reviews', 'vs', 'versus', 'alternative',
-            'alternatives', 'compare', 'comparison', 'checker', 'detector',
-            'essay', 'humanizer', 'turnitin', 'unlimited', 'pro', 'plus', 'plan',
-            'plans', 'tier', 'tiers', 'lifetime', 'prompt', 'prompts', 'price',
-            'pricing'
-        }
         self.generic_head_terms = {
             'service', 'services', 'software', 'platform', 'platforms', 'solution',
             'solutions', 'application', 'applications', 'tool', 'tools',
@@ -383,6 +503,7 @@ class MultiPlatformKeywordDiscovery:
         self._cleaning_config = CleaningConfig()
         self._brand_filter_notice_shown = False
         self._generic_filter_notice_shown = False
+
     def _load_discovery_filter_config(self) -> Dict[str, Any]:
         config_path = os.path.join(os.path.dirname(__file__), '../../../config/integrated_workflow_config.json')
         try:
@@ -419,11 +540,146 @@ class MultiPlatformKeywordDiscovery:
             pass
         return {}
 
+    def _load_seed_source(
+        self,
+        source: Any,
+        *,
+        fallback: Optional[Any] = None,
+        label: str = '外部种子',
+        metrics_prefix: Optional[str] = None
+    ) -> List[str]:
+        resolved_terms: List[str] = []
+
+        def _collect(payload: Any) -> None:
+            if payload is None:
+                return
+            if isinstance(payload, str):
+                cleaned = payload.strip()
+                if cleaned:
+                    resolved_terms.append(cleaned)
+            elif isinstance(payload, (list, tuple, set)):
+                for item in payload:
+                    _collect(item)
+            elif isinstance(payload, dict):
+                for item in payload.values():
+                    _collect(item)
+
+        path_candidate: Optional[Path] = None
+        if isinstance(source, str):
+            path_candidate = Path(source)
+            if not path_candidate.is_absolute():
+                project_root = Path(__file__).resolve().parents[3]
+                path_candidate = project_root / source
+            if path_candidate.exists():
+                try:
+                    with path_candidate.open('r', encoding='utf-8') as fh:
+                        data = json.load(fh)
+                    _collect(data)
+                except Exception as exc:
+                    print(f"⚠️ {label}文件解析失败: {exc}")
+            else:
+                print(f"⚠️ {label}文件未找到: {path_candidate}")
+        else:
+            _collect(source)
+
+        if not resolved_terms and fallback is not None:
+            _collect(fallback)
+
+        deduped: List[str] = []
+        seen: set = set()
+        for term in resolved_terms:
+            lowered = term.lower()
+            if lowered not in seen:
+                deduped.append(term)
+                seen.add(lowered)
+
+        filtered_terms, removed = self._filter_brand_terms(
+            deduped,
+            f'{label}阶段',
+            log=False,
+            metrics_prefix=metrics_prefix
+        )
+        if filtered_terms and metrics_prefix:
+            telemetry_manager.set_gauge(f'{metrics_prefix}.retained', len(filtered_terms))
+        if removed:
+            telemetry_manager.increment_counter('discovery.seeds.preload.brand_filtered', len(removed))
+        return filtered_terms
+
+    def _filter_brand_terms(
+        self,
+        terms: List[str],
+        context: str,
+        *,
+        log: bool = True,
+        metrics_prefix: Optional[str] = None
+    ) -> Tuple[List[str], List[str]]:
+        """Remove brand-heavy seed terms and optionally log the removal."""
+        sanitized: List[str] = []
+        filtered_out: List[str] = []
+
+        if not terms:
+            if metrics_prefix:
+                telemetry_manager.set_gauge(f'{metrics_prefix}.total', 0)
+                telemetry_manager.set_gauge(f'{metrics_prefix}.removed', 0)
+                telemetry_manager.set_gauge(f'{metrics_prefix}.removed_ratio', 0.0)
+            return sanitized, filtered_out
+
+        # Normalize input values first
+        for term in terms:
+            if isinstance(term, str):
+                normalized = term.strip()
+                if normalized:
+                    sanitized.append(normalized)
+
+        total_candidates = len(sanitized)
+
+        if not sanitized:
+            if metrics_prefix:
+                telemetry_manager.set_gauge(f'{metrics_prefix}.total', 0)
+                telemetry_manager.set_gauge(f'{metrics_prefix}.removed', 0)
+                telemetry_manager.set_gauge(f'{metrics_prefix}.removed_ratio', 0.0)
+            return sanitized, filtered_out
+
+        if not self.brand_filter_config.get('enabled', True) or not self.brand_filter_config.get('hard_exclude_brand_seeds', True):
+            if metrics_prefix:
+                telemetry_manager.set_gauge(f'{metrics_prefix}.total', total_candidates)
+                telemetry_manager.set_gauge(f'{metrics_prefix}.removed', 0)
+                telemetry_manager.set_gauge(f'{metrics_prefix}.removed_ratio', 0.0)
+            return sanitized, filtered_out
+
+        retained: List[str] = []
+        for term in sanitized:
+            if self._is_brand_heavy(term):
+                filtered_out.append(term)
+            else:
+                retained.append(term)
+
+        removed_count = len(filtered_out)
+
+        if filtered_out and log:
+            preview = ', '.join(filtered_out[:5])
+            if len(filtered_out) > 5:
+                preview += '...'
+            print(f"🚫 {context}拦截 {len(filtered_out)} 个品牌种子: {preview}")
+
+        if metrics_prefix:
+            telemetry_manager.set_gauge(f'{metrics_prefix}.total', total_candidates)
+            telemetry_manager.set_gauge(f'{metrics_prefix}.removed', removed_count)
+            ratio = removed_count / total_candidates if total_candidates else 0.0
+            telemetry_manager.set_gauge(f'{metrics_prefix}.removed_ratio', ratio)
+
+        return retained, filtered_out
+
     def get_seed_profiles(self) -> List[str]:
         """返回可用的种子关键词配置名称列表"""
         return list(self.seed_profiles.keys())
 
-    def get_seed_terms(self, profile: Optional[str] = None, limit: Optional[int] = None) -> List[str]:
+    def get_seed_terms(self,
+                        profile: Optional[str] = None,
+                        limit: Optional[int] = None,
+                        *,
+                        apply_brand_filter: bool = True,
+                        log_context: Optional[str] = None) -> List[str]:
         """根据配置获取种子关键词列表"""
         profile_name = profile or self.default_seed_profile
         terms: List[str] = []
@@ -466,52 +722,151 @@ class MultiPlatformKeywordDiscovery:
                 seen.add(lower_term)
 
         if limit and limit > 0:
-            return unique_terms[:limit]
+            unique_terms = unique_terms[:limit]
+
+        if apply_brand_filter:
+            filtered_terms, removed = self._filter_brand_terms(
+                unique_terms,
+                log_context or '配置种子阶段',
+                log=bool(log_context),
+                metrics_prefix='discovery.seeds.profile'
+            )
+            unique_terms = filtered_terms
+            if log_context and removed:
+                telemetry_manager.increment_counter('discovery.seeds.brand_filtered', len(removed))
+
         return unique_terms
 
     def prepare_search_terms(self,
                               seeds: Optional[List[str]] = None,
                               profile: Optional[str] = None,
                               limit: Optional[int] = None,
-                              min_terms: Optional[int] = None) -> List[str]:
+                              min_terms: Optional[int] = None,
+                              *,
+                              log_input_filter: bool = True) -> List[str]:
         """组合输入的种子关键词与配置中的默认种子"""
         cleaned: List[str] = []
         seen: set = set()
 
-        def _append(term: str):
+        def _append(term: str) -> bool:
             lower_term = term.lower()
             if lower_term not in seen:
                 cleaned.append(term)
                 seen.add(lower_term)
+                return True
+            return False
 
-        if seeds:
-            for term in seeds:
-                if isinstance(term, str):
-                    normalized = term.strip()
-                    if normalized:
-                        _append(normalized)
+        def _prepend(term: str) -> bool:
+            lower_term = term.lower()
+            if lower_term not in seen:
+                cleaned.insert(0, term)
+                seen.add(lower_term)
+                return True
+            return False
+
+        def _add_manual_seeds(reason_key: str, count: Optional[int] = None, message: Optional[str] = None) -> int:
+            added = 0
+            if not self.manual_seed_terms:
+                return 0
+            for term in self.manual_seed_terms:
+                if count is not None and added >= count:
+                    break
+                if _append(term):
+                    added += 1
+            if added:
+                telemetry_manager.increment_counter('discovery.seeds.manual_added', added)
+                telemetry_manager.increment_counter(f'discovery.seeds.manual_added.{reason_key}', added)
+                if message:
+                    print(message.format(count=added))
+            return added
+
+        brand_checked_total = 0
+        brand_removed_total = 0
+
+        input_terms = seeds or []
+        filtered_seeds, removed = self._filter_brand_terms(
+            list(input_terms),
+            '输入种子阶段',
+            log=log_input_filter,
+            metrics_prefix='discovery.seeds.input'
+        )
+        brand_checked_total += len(filtered_seeds) + len(removed)
+        brand_removed_total += len(removed)
+        for term in filtered_seeds:
+            _append(term)
 
         target_min = max(min_terms or self.min_seed_terms, 1)
         if len(cleaned) < target_min:
-            fallback_terms = self.get_seed_terms(profile=profile)
+            fallback_terms_raw = self.get_seed_terms(
+                profile=profile,
+                limit=None,
+                apply_brand_filter=False
+            )
+            fallback_terms, removed = self._filter_brand_terms(
+                fallback_terms_raw,
+                '配置种子阶段',
+                log=True,
+                metrics_prefix='discovery.seeds.profile'
+            )
+            brand_checked_total += len(fallback_terms) + len(removed)
+            brand_removed_total += len(removed)
             for term in fallback_terms:
-                _append(term)
-                if limit and len(cleaned) >= limit:
+                if _append(term) and limit and len(cleaned) >= limit:
                     break
 
         if len(cleaned) < target_min:
-            additional_terms = self.get_seed_terms(profile=self.default_seed_profile)
+            additional_terms_raw = self.get_seed_terms(
+                profile=self.default_seed_profile,
+                limit=None,
+                apply_brand_filter=False
+            )
+            additional_terms, removed = self._filter_brand_terms(
+                additional_terms_raw,
+                '默认种子阶段',
+                log=True,
+                metrics_prefix='discovery.seeds.profile.default'
+            )
+            brand_checked_total += len(additional_terms) + len(removed)
+            brand_removed_total += len(removed)
             for term in additional_terms:
-                _append(term)
-                if limit and len(cleaned) >= limit:
+                if _append(term) and limit and len(cleaned) >= limit:
                     break
-            if len(cleaned) < target_min and not additional_terms:
-                # 仍不足时，至少保留已有值
-                pass
 
-        if limit and limit > 0:
+        if self.positive_seed_terms and self.priority_seed_limit != 0:
+            prioritized: List[str] = []
+            for term in self.positive_seed_terms:
+                lower = term.lower()
+                if lower in seen:
+                    continue
+                prioritized.append(term)
+                if 0 < self.priority_seed_limit <= len(prioritized):
+                    break
+            if prioritized:
+                for term in reversed(prioritized):
+                    _prepend(term)
+                telemetry_manager.increment_counter('discovery.seeds.positive_prioritized', len(prioritized))
+
+        if len(cleaned) < target_min and self.manual_seed_terms:
+            shortage_needed = max(target_min - len(cleaned), self.min_manual_seed_on_shortage)
+            if shortage_needed > 0:
+                _add_manual_seeds('shortage', shortage_needed, message='ℹ️ 种子数量不足，追加 {count} 个痛点手动种子')
+
+        brand_ratio = 0.0
+        if brand_checked_total > 0:
+            brand_ratio = brand_removed_total / brand_checked_total
+        telemetry_manager.set_gauge('discovery.seeds.brand_filtered_ratio', brand_ratio)
+
+        if brand_ratio > self.brand_ratio_limit and self.manual_seed_terms:
+            added = _add_manual_seeds(
+                'brand_ratio',
+                self.manual_seed_backfill or None,
+                message=f"ℹ️ 品牌过滤命中率 {brand_ratio:.2%} 超出阈值 {self.brand_ratio_limit:.0%}，追加 {{count}} 个痛点手动种子"
+            )
+
+        if limit and limit > 0 and len(cleaned) > limit:
             cleaned = cleaned[:limit]
 
+        telemetry_manager.set_gauge('discovery.seeds.final_count', len(cleaned))
         return cleaned
 
     def _build_rate_limit_map(self, override: Optional[Any]) -> Dict[str, float]:
@@ -1172,7 +1527,20 @@ class MultiPlatformKeywordDiscovery:
         )
         try:
             print("🚀 开始多平台关键词发现...")
-            prepared_terms = self.prepare_search_terms(search_terms)
+            sanitized_terms, _ = self._filter_brand_terms(
+                list(search_terms or []),
+                '输入种子阶段',
+                log=True,
+                metrics_prefix='discovery.seeds.runtime.input'
+            )
+            prepared_terms = self.prepare_search_terms(sanitized_terms, log_input_filter=False)
+            prepared_terms, _ = self._filter_brand_terms(
+                prepared_terms,
+                '多平台执行阶段',
+                log=True,
+                metrics_prefix='discovery.seeds.runtime.final'
+            )
+
             if not prepared_terms:
                 print("⚠️ 缺少有效的搜索词，无法执行多平台发现")
                 telemetry_manager.end_stage(

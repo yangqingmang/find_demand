@@ -100,9 +100,29 @@ class SerpAnalyzer:
         self._serp_backoff_until = 0.0
         self._serp_request_history = deque()
         self._warned_messages: set[str] = set()
-        self.serp_monthly_limit = getattr(config, 'SERP_API_MONTHLY_LIMIT', 400)
-        self.serp_failure_limit = getattr(config, 'SERP_API_FAILURE_LIMIT', 12)
-        self.serp_failure_disable_days = getattr(config, 'SERP_API_FAILURE_DISABLE_DAYS', 1)
+
+        self._integrated_config = self._load_integrated_config()
+        self._config_field_defaults = self._extract_config_defaults()
+
+        self.serp_api_enabled = bool(self._resolve_config_value('SERP_API_ENABLED', 'serp_api_enabled', True))
+        self.serp_monthly_limit = int(self._resolve_config_value('SERP_API_MONTHLY_LIMIT', 'serp_api_monthly_limit', 250))
+        self.serp_failure_limit = int(self._resolve_config_value('SERP_API_FAILURE_LIMIT', 'serp_api_failure_limit', 5))
+        self.serp_skip_on_failure = bool(self._resolve_config_value('SERP_API_SKIP_ON_FAILURE', 'serp_api_skip_on_failure', False))
+
+        raw_cooldown = self._resolve_config_value('SERP_API_FAILURE_COOLDOWN_HOURS', 'serp_api_failure_cooldown_hours', None)
+        if raw_cooldown is None:
+            raw_cooldown = getattr(config, 'SERP_API_FAILURE_DISABLE_DAYS', None)
+            if raw_cooldown is not None:
+                try:
+                    raw_cooldown = float(raw_cooldown) * 24.0
+                except (TypeError, ValueError):
+                    raw_cooldown = None
+        try:
+            cooldown_hours = float(raw_cooldown) if raw_cooldown is not None else 12.0
+        except (TypeError, ValueError):
+            cooldown_hours = 12.0
+        self.serp_failure_cooldown_hours = max(cooldown_hours, 0.0)
+        self.serp_failure_disable_days = max(self.serp_failure_cooldown_hours / 24.0, 0.0)
 
         # 凭证可用性检测
         self._serp_api_available, self._serp_api_reason = self._evaluate_key(self.serp_api_key, 'SERP API Key')
@@ -176,6 +196,44 @@ class SerpAnalyzer:
             'stackoverflow.com': 87, 'medium.com': 82, 'quora.com': 80
         }
 
+        self._domain_category_overrides = {
+            'reddit.com': 'community',
+            'quora.com': 'qa',
+            'stackoverflow.com': 'qa',
+            'stackexchange.com': 'qa',
+            'superuser.com': 'qa',
+            'github.com': 'developer_hub',
+            'gist.github.com': 'developer_hub',
+            'medium.com': 'blog',
+            'substack.com': 'newsletter',
+            'producthunt.com': 'community',
+            'news.ycombinator.com': 'community',
+            'discord.com': 'community',
+            't.me': 'community',
+            'facebook.com': 'social',
+            'twitter.com': 'social',
+            'x.com': 'social',
+            'linkedin.com': 'social',
+            'youtube.com': 'video',
+            'vimeo.com': 'video',
+            'notion.so': 'docs',
+            'support.google.com': 'docs',
+            'help.apple.com': 'docs'
+        }
+
+        self._domain_category_keywords = {
+            'community': ['community', 'forum', 'board', 'discourse', 'discord', 'club'],
+            'qa': ['stack', 'qa', 'answers', 'ask'],
+            'docs': ['docs', 'help', 'support', 'manual', 'guide', 'kb'],
+            'blog': ['blog', 'medium', 'substack', 'newsletter'],
+            'review': ['review', 'compare', 'vs', 'top', 'best'],
+            'video': ['youtube', 'vimeo', 'video'],
+            'marketplace': ['appsumo', 'gumroad', 'shopify', 'kickstarter', 'amazon']
+        }
+
+        self._weak_categories = {'community', 'qa', 'blog', 'review', 'forum', 'newsletter', 'social'}
+        self._serp_sample_limit = 5
+
     def _create_serp_session(self) -> requests.Session:
         """Create a session with retry-aware adapters for SERP API calls."""
         session = requests.Session()
@@ -195,6 +253,104 @@ class SerpAnalyzer:
             'User-Agent': 'Mozilla/5.0 (SERPAnalyzer/1.0)'
         })
         return session
+
+    @staticmethod
+    def _normalize_domain(domain: str) -> str:
+        if not domain:
+            return ''
+        lowered = domain.lower()
+        if lowered.startswith('www.'):
+            lowered = lowered[4:]
+        parts = lowered.split('.')
+        if len(parts) >= 3:
+            # Heuristic: keep last two parts unless subdomain is informative (e.g. github.io)
+            if parts[-2] in {'co', 'com', 'gov', 'edu', 'net', 'org'} and len(parts) >= 3:
+                return '.'.join(parts[-3:])
+            return '.'.join(parts[-2:])
+        return lowered
+
+    def _classify_domain_category(self, domain: str) -> str:
+        normalized = self._normalize_domain(domain)
+        if not normalized:
+            return 'unknown'
+        if normalized in self._domain_category_overrides:
+            return self._domain_category_overrides[normalized]
+
+        for category, keywords in self._domain_category_keywords.items():
+            if any(keyword in normalized for keyword in keywords):
+                return category
+
+        return 'official'
+
+    def _estimate_domain_authority(self, domain: str) -> int:
+        normalized = self._normalize_domain(domain)
+        if normalized in self.domain_authority_db:
+            return self.domain_authority_db[normalized]
+        if '.' in normalized:
+            root = normalized.split('.', 1)[-1]
+            if root in self.domain_authority_db:
+                return self.domain_authority_db[root]
+        return 45
+
+    def _load_integrated_config(self) -> Dict[str, Any]:
+        config_path = Path(__file__).resolve().parents[3] / 'config' / 'integrated_workflow_config.json'
+        if not config_path.exists():
+            return {}
+        try:
+            with config_path.open('r', encoding='utf-8') as fh:
+                data = json.load(fh)
+            return data if isinstance(data, dict) else {}
+        except Exception as exc:
+            print(f"⚠️ 读取集成配置失败: {exc}")
+            return {}
+
+    def _extract_config_defaults(self) -> Dict[str, Any]:
+        try:
+            from config.config_manager import ConfigData  # type: ignore
+            if hasattr(ConfigData, '__dataclass_fields__'):
+                return {name: field.default for name, field in ConfigData.__dataclass_fields__.items()}
+        except Exception:
+            pass
+        return {}
+
+    def _resolve_config_value(self, attr_name: str, integrated_key: str, default: Any) -> Any:
+        field_default = self._config_field_defaults.get(attr_name)
+        value = getattr(config, attr_name, None)
+        if isinstance(value, str):
+            value = value.strip()
+            if value == '':
+                value = None
+
+        if value is not None and value != field_default:
+            return value
+
+        integrated_value: Any = None
+        if self._integrated_config:
+            integrated_value = self._integrated_config.get(integrated_key)
+            if isinstance(integrated_value, str):
+                normalized = integrated_value.strip()
+                integrated_value = normalized if normalized != '' else None
+
+        if integrated_value is not None:
+            return integrated_value
+
+        if value is not None:
+            return value
+
+        return default
+
+    def _should_abort_after_failure(self) -> bool:
+        reason = self._serp_usage.get('disabled_reason')
+        if reason != 'failure':
+            return False
+        disabled_until = self._serp_usage.get('disabled_until')
+        if not disabled_until:
+            return True
+        try:
+            until_dt = datetime.fromisoformat(disabled_until)
+        except ValueError:
+            return True
+        return datetime.utcnow() <= until_dt
 
     def _reset_serp_session(self) -> None:
         """Reset the SERP session after persistent TLS or network failures."""
@@ -291,7 +447,14 @@ class SerpAnalyzer:
 
     def _load_serp_usage_state(self) -> Dict[str, Any]:
         month = datetime.utcnow().strftime('%Y-%m')
-        state = {'month': month, 'request_count': 0, 'failure_count': 0, 'disabled_until': None}
+        state = {
+            'month': month,
+            'request_count': 0,
+            'failure_count': 0,
+            'consecutive_failures': 0,
+            'disabled_until': None,
+            'disabled_reason': None
+        }
         if not self.serp_state_path:
             return state
         try:
@@ -299,7 +462,7 @@ class SerpAnalyzer:
                 with self.serp_state_path.open('r', encoding='utf-8') as fh:
                     payload = json.load(fh)
                 if payload.get('month') == month:
-                    for key in ('request_count', 'failure_count', 'disabled_until'):
+                    for key in ('request_count', 'failure_count', 'consecutive_failures', 'disabled_until', 'disabled_reason'):
                         if key in payload:
                             state[key] = payload[key]
         except Exception as exc:
@@ -325,7 +488,14 @@ class SerpAnalyzer:
         now = datetime.utcnow()
         month_key = now.strftime('%Y-%m')
         if self._serp_usage.get('month') != month_key:
-            self._serp_usage = {'month': month_key, 'request_count': 0, 'failure_count': 0, 'disabled_until': None}
+            self._serp_usage = {
+                'month': month_key,
+                'request_count': 0,
+                'failure_count': 0,
+                'consecutive_failures': 0,
+                'disabled_until': None,
+                'disabled_reason': None
+            }
             self._save_serp_usage_state()
         disabled_until = self._serp_usage.get('disabled_until')
         if disabled_until:
@@ -336,11 +506,13 @@ class SerpAnalyzer:
             if until_dt and now < until_dt:
                 return False, f"SERP API 已暂停至 {until_dt.strftime('%Y-%m-%d %H:%M UTC')}"
             self._serp_usage['disabled_until'] = None
+            self._serp_usage['disabled_reason'] = None
             self._save_serp_usage_state()
         limit = max(int(self.serp_monthly_limit), 0) if self.serp_monthly_limit else 0
         if limit and self._serp_usage.get('request_count', 0) >= limit:
             next_month = self._next_month_start()
             self._serp_usage['disabled_until'] = next_month.isoformat()
+            self._serp_usage['disabled_reason'] = 'quota'
             self._save_serp_usage_state()
             return False, 'SERP API 月度额度已用完，本月将跳过 SERP 请求'
         return True, None
@@ -348,8 +520,20 @@ class SerpAnalyzer:
     def _record_serp_api_success(self) -> None:
         month_key = datetime.utcnow().strftime('%Y-%m')
         if self._serp_usage.get('month') != month_key:
-            self._serp_usage = {'month': month_key, 'request_count': 0, 'failure_count': 0, 'disabled_until': None}
+            self._serp_usage = {
+                'month': month_key,
+                'request_count': 0,
+                'failure_count': 0,
+                'consecutive_failures': 0,
+                'disabled_until': None,
+                'disabled_reason': None
+            }
         self._serp_usage['request_count'] = int(self._serp_usage.get('request_count', 0)) + 1
+        self._serp_usage['consecutive_failures'] = 0
+        prev_reason = self._serp_usage.get('disabled_reason')
+        self._serp_usage['disabled_reason'] = None
+        if self._serp_usage.get('disabled_until') and prev_reason != 'quota':
+            self._serp_usage['disabled_until'] = None
         self._save_serp_usage_state()
         limit = max(int(self.serp_monthly_limit), 0) if self.serp_monthly_limit else 0
         if limit and self._serp_usage['request_count'] >= limit:
@@ -358,16 +542,41 @@ class SerpAnalyzer:
     def _record_serp_api_failure(self, reason: str = '') -> None:
         month_key = datetime.utcnow().strftime('%Y-%m')
         if self._serp_usage.get('month') != month_key:
-            self._serp_usage = {'month': month_key, 'request_count': 0, 'failure_count': 0, 'disabled_until': None}
+            self._serp_usage = {
+                'month': month_key,
+                'request_count': 0,
+                'failure_count': 0,
+                'consecutive_failures': 0,
+                'disabled_until': None,
+                'disabled_reason': None
+            }
         self._serp_usage['failure_count'] = int(self._serp_usage.get('failure_count', 0)) + 1
+        consecutive = int(self._serp_usage.get('consecutive_failures', 0)) + 1
+        self._serp_usage['consecutive_failures'] = consecutive
         limit = max(int(self.serp_failure_limit), 0) if self.serp_failure_limit else 0
         monthly_limit = max(int(self.serp_monthly_limit), 0) if self.serp_monthly_limit else 0
         request_count = int(self._serp_usage.get('request_count', 0))
-        if limit and self._serp_usage['failure_count'] >= limit:
-            disable_days = max(int(self.serp_failure_disable_days), 1)
-            until = datetime.utcnow() + timedelta(days=disable_days)
-            self._serp_usage['disabled_until'] = until.isoformat()
-            self._warn_once('serp_api_failure_lock', f"⚠️ SERP API 连续失败次数过多，已暂停 {disable_days} 天")
+        if limit and consecutive >= limit:
+            if self.serp_skip_on_failure:
+                until = self._next_month_start()
+                self._serp_usage['disabled_until'] = until.isoformat()
+                self._warn_once('serp_api_failure_lock', '⚠️ SERP API 连续失败次数过多，已暂停至下个计费周期')
+            else:
+                cooldown_hours = self.serp_failure_cooldown_hours
+                if cooldown_hours > 0:
+                    until = datetime.utcnow() + timedelta(hours=cooldown_hours)
+                    self._serp_usage['disabled_until'] = until.isoformat()
+                    if cooldown_hours >= 1:
+                        humanized_hours = f"{cooldown_hours:.1f}".rstrip('0').rstrip('.')
+                        humanized = f"{humanized_hours} 小时"
+                    else:
+                        minutes = max(int(round(cooldown_hours * 60)), 1)
+                        humanized = f"{minutes} 分钟"
+                    self._warn_once('serp_api_failure_lock', f"⚠️ SERP API 连续失败次数过多，已暂停 {humanized}")
+                else:
+                    self._serp_usage['disabled_until'] = datetime.utcnow().isoformat()
+            self._serp_usage['disabled_reason'] = 'failure'
+            self._serp_usage['consecutive_failures'] = 0
             if monthly_limit and request_count < monthly_limit:
                 self._warn_once(
                     'serp_api_failure_without_quota',
@@ -399,6 +608,10 @@ class SerpAnalyzer:
 
     def _search_with_serpapi(self, query: str) -> Optional[Dict]:
         """使用 SERP API 搜索"""
+        if not self.serp_api_enabled:
+            self._warn_once('serp_api_disabled', 'ℹ️ SERP API 已通过配置禁用，跳过 SERP API 查询')
+            return None
+
         if not self._serp_api_available:
             reason = self._serp_api_reason or 'SERP API Key 未配置'
             self._warn_once('serp_api_unavailable', f"⚠️ {reason}，跳过 SERP API 查询")
@@ -461,6 +674,8 @@ class SerpAnalyzer:
                     )
                     self._record_serp_api_failure('rate_limit')
                     failure_recorded = True
+                    if self._should_abort_after_failure():
+                        break
                     time.sleep(cooldown)
                     continue
 
@@ -477,6 +692,8 @@ class SerpAnalyzer:
                 if attempt == self.max_retries:
                     self._record_serp_api_failure('request_exception')
                     failure_recorded = True
+                    if self._should_abort_after_failure():
+                        break
 
             if attempt < self.max_retries:
                 base_delay = max(self.request_delay, 0.5)
@@ -488,6 +705,8 @@ class SerpAnalyzer:
                 if not failure_recorded:
                     self._record_serp_api_failure('exhausted')
                     failure_recorded = True
+                if self._should_abort_after_failure():
+                    break
 
         if self._google_api_available:
             self._warn_once('serp_api_fallback', 'ℹ️ SERP API 不可用，回退到 Google Custom Search API')
@@ -568,6 +787,62 @@ class SerpAnalyzer:
         purchase_hits = 0
         analyzed_results = 0
 
+        domain_categories: List[Dict[str, Any]] = []
+        sampled_results: List[Dict[str, Any]] = []
+        community_count = 0
+        weak_count = 0
+        authority_scores: List[int] = []
+        monetization_hits = 0
+
+        def _process_result(result: Dict[str, Any], position: int) -> None:
+            nonlocal analyzed_results, purchase_hits, community_count, weak_count, monetization_hits
+
+            link = result.get('link') or result.get('url') or ''
+            domain = urlparse(link).netloc if link else ''
+            category = self._classify_domain_category(domain)
+            authority = self._estimate_domain_authority(domain)
+            authority_scores.append(authority)
+            normalized_domain = self._normalize_domain(domain)
+
+            if category in self._weak_categories:
+                weak_count += 1
+            if category in {'community', 'qa', 'forum', 'newsletter', 'social'}:
+                community_count += 1
+
+            text_parts = [
+                result.get('title', ''),
+                result.get('snippet', ''),
+                result.get('description', ''),
+                result.get('htmlSnippet', '')
+            ]
+            text = ' '.join(part for part in text_parts if part).strip().lower()
+            if text:
+                analyzed_results += 1
+                matched = {term for term in purchase_terms if term in text}
+                if matched:
+                    purchase_hits += 1
+                    matched_terms.update(matched)
+                if any(term in text for term in ('pricing', 'plan', 'buy', 'purchase', 'subscribe', 'trial', 'template', 'workflow', 'automation')):
+                    monetization_hits += 1
+
+            domain_categories.append({
+                'domain': domain,
+                'normalized_domain': normalized_domain,
+                'category': category,
+                'authority': authority,
+                'position': position
+            })
+
+            if position <= self._serp_sample_limit:
+                sampled_results.append({
+                    'title': result.get('title', ''),
+                    'url': link,
+                    'domain': domain,
+                    'category': category,
+                    'authority': authority,
+                    'snippet': result.get('snippet') or result.get('description') or result.get('htmlSnippet') or ''
+                })
+
         if 'organic_results' in search_result:
             organic_results = search_result.get('organic_results', [])
             features['total_results'] = len(organic_results)
@@ -582,27 +857,11 @@ class SerpAnalyzer:
             features['ads_count'] = len(search_result.get('ads') or []) + len(search_result.get('shopping_results') or [])
 
             domains = []
-            for result in organic_results[:5]:
+            for idx, result in enumerate(organic_results[:10], start=1):
                 if 'link' in result:
-                    domain = urlparse(result['link']).netloc
-                    domains.append(domain)
-            features['top_domains'] = domains
-
-            for result in organic_results[:10]:
-                text_parts = [
-                    result.get('title', ''),
-                    result.get('snippet', ''),
-                    result.get('description', '')
-                ]
-                text = ' '.join(part for part in text_parts if part).strip().lower()
-                if not text:
-                    continue
-                analyzed_results += 1
-                matched = {term for term in purchase_terms if term in text}
-                if matched:
-                    purchase_hits += 1
-                    matched_terms.update(matched)
-
+                    domains.append(urlparse(result['link']).netloc)
+                _process_result(result, idx)
+            features['top_domains'] = domains[:5]
             features['ads_reference_window'] = max(features['ads_count'], len(organic_results), 4)
 
         elif 'items' in search_result:
@@ -612,34 +871,46 @@ class SerpAnalyzer:
             features['ads_count'] = len(search_result.get('promotions') or [])
 
             domains = []
-            for item in items[:5]:
-                if 'link' in item:
-                    domain = urlparse(item['link']).netloc
-                    domains.append(domain)
-            features['top_domains'] = domains
-
-            for item in items[:10]:
-                text_parts = [
-                    item.get('title', ''),
-                    item.get('snippet', ''),
-                    item.get('htmlSnippet', '')
-                ]
-                text = ' '.join(part for part in text_parts if part).strip().lower()
-                if not text:
-                    continue
-                analyzed_results += 1
-                matched = {term for term in purchase_terms if term in text}
-                if matched:
-                    purchase_hits += 1
-                    matched_terms.update(matched)
-
+            for idx, item in enumerate(items[:10], start=1):
+                link = item.get('link') or item.get('formattedUrl')
+                if link:
+                    domains.append(urlparse(link).netloc)
+                _process_result(item, idx)
+            features['top_domains'] = domains[:5]
             features['ads_reference_window'] = max(features['ads_count'], len(items), 4)
+
+        total_domains = len(domain_categories) or max(len(features['top_domains']), 1)
+        avg_authority = sum(authority_scores) / len(authority_scores) if authority_scores else 60
+        community_ratio = community_count / total_domains if total_domains else 0.0
+        weak_ratio = weak_count / total_domains if total_domains else 0.0
+        authority_gap = max(0.0, 1 - (avg_authority / 100))
+        serp_weakness = min(1.0, weak_ratio * 0.6 + authority_gap * 0.4)
+        monetization_ratio = monetization_hits / total_domains if total_domains else 0.0
 
         if analyzed_results:
             features['purchase_intent_ratio'] = round(purchase_hits / analyzed_results, 4)
         features['purchase_intent_hits'] = purchase_hits
         features['purchase_intent_terms'] = sorted(matched_terms)
         features['analyzed_results'] = analyzed_results
+        features['domain_categories'] = domain_categories
+        features['sampled_results'] = sampled_results
+        features['sampling_timestamp'] = datetime.utcnow().isoformat()
+        features['community_ratio'] = round(community_ratio, 3)
+        features['weak_competitiveness_score'] = round(serp_weakness, 3)
+        features['weak_category_ratio'] = round(weak_ratio, 3)
+        features['avg_domain_authority'] = round(avg_authority, 1)
+        features['monetization_indicator'] = round(monetization_ratio, 3)
+
+        notes: List[str] = []
+        if community_ratio >= 0.4:
+            notes.append('社区/问答结果占比高，竞争相对弱')
+        if avg_authority <= 55:
+            notes.append('主流结果权威度偏低，可尝试切入长尾内容')
+        if monetization_ratio <= 0.15:
+            notes.append('购买意图信号偏弱，可补充引导型内容')
+        if not notes:
+            notes.append('SERP 竞争强度中等，可结合差异化定位')
+        features['serp_quality_notes'] = notes
 
         return features
     

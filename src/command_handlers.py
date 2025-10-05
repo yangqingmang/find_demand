@@ -409,6 +409,15 @@ def handle_input_file_analysis(manager, args):
             print(f"   高置信度SERP: {serp_summary['high_confidence_serp']} 个")
             print(f"   商业意图关键词: {serp_summary['commercial_intent_keywords']} 个")
 
+        manual_review = result.get('manual_review') or {}
+        sample_path = manual_review.get('serp_sample_path')
+        if sample_path:
+            print(f"\n📝 人工复核: 已输出 {manual_review.get('sampled_keywords', 0)} 个 SERP 样本 -> {sample_path}")
+            community_keywords = manual_review.get('high_community_keywords') or []
+            if community_keywords:
+                threshold = manual_review.get('community_ratio_threshold', 0.4)
+                print(f"   社区占比 ≥ {threshold:.0%} 的关键词: {', '.join(community_keywords)}")
+
         # 显示Top 5关键词
         top_keywords = result['market_insights']['top_opportunities'][:5]
         if top_keywords:
@@ -450,6 +459,10 @@ def handle_keywords_analysis(manager, args):
             score = kw_result['opportunity_score']
             intent = kw_result['intent']['intent_description']
             print(f"   • {keyword}: 机会分数 {score}, 意图: {intent}")
+        manual_review = result.get('manual_review') or {}
+        sample_path = manual_review.get('serp_sample_path')
+        if sample_path:
+            print(f"\n📝 人工复核: 已输出 {manual_review.get('sampled_keywords', 0)} 个 SERP 样本 -> {sample_path}")
     return True
 
 

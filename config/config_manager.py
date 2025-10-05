@@ -84,7 +84,12 @@ class ConfigData:
     WORKFLOW_CACHE_TTL_HOURS: float = 12.0
     WORKFLOW_CACHE_DIR: str = "output/workflow_cache"
     REDDIT_API: Dict[str, Any] = None
-    SERP_API_MONTHLY_LIMIT: int = 400
+    SERP_API_ENABLED: bool = True
+    SERP_API_MONTHLY_LIMIT: int = 250
+    SERP_API_FAILURE_LIMIT: int = 5
+    SERP_API_SKIP_ON_FAILURE: bool = False
+    SERP_API_FAILURE_COOLDOWN_HOURS: float = 12.0
+    SERP_API_FAILURE_DISABLE_DAYS: int = 1
 
 
 class ConfigManager:
