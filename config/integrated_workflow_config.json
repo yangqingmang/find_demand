@@ -451,6 +451,7 @@
 
   "serp_api_enabled": true,
   "serp_api_monthly_limit": 250,
+  "serp_api_renewal_day": 26,
   "serp_api_failure_limit": 5,
   "serp_api_failure_cooldown_hours": 12,
   "serp_api_skip_on_failure": false,

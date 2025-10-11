@@ -86,6 +86,7 @@ class ConfigData:
     REDDIT_API: Dict[str, Any] = None
     SERP_API_ENABLED: bool = True
     SERP_API_MONTHLY_LIMIT: int = 250
+    SERP_API_RENEWAL_DAY: int = 1
     SERP_API_FAILURE_LIMIT: int = 5
     SERP_API_SKIP_ON_FAILURE: bool = False
     SERP_API_FAILURE_COOLDOWN_HOURS: float = 12.0

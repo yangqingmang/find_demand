@@ -5,6 +5,7 @@ SERP 分析工具 - SERP Analyzer
 用于分析搜索引擎结果页面特征
 """
 
+import calendar
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -106,6 +107,12 @@ class SerpAnalyzer:
 
         self.serp_api_enabled = bool(self._resolve_config_value('SERP_API_ENABLED', 'serp_api_enabled', True))
         self.serp_monthly_limit = int(self._resolve_config_value('SERP_API_MONTHLY_LIMIT', 'serp_api_monthly_limit', 250))
+        renewal_raw = self._resolve_config_value('SERP_API_RENEWAL_DAY', 'serp_api_renewal_day', 1)
+        try:
+            renewal_day = int(renewal_raw)
+        except (TypeError, ValueError):
+            renewal_day = 1
+        self.serp_renewal_day = min(max(renewal_day, 1), 31)
         self.serp_failure_limit = int(self._resolve_config_value('SERP_API_FAILURE_LIMIT', 'serp_api_failure_limit', 5))
         self.serp_skip_on_failure = bool(self._resolve_config_value('SERP_API_SKIP_ON_FAILURE', 'serp_api_skip_on_failure', False))
 
@@ -444,11 +451,30 @@ class SerpAnalyzer:
         """记录 SERP API 请求时间"""
         self._serp_request_history.append(time.time())
 
+    def _cycle_day_for_month(self, year: int, month: int) -> int:
+        renewal_day = min(max(int(self.serp_renewal_day), 1), 31)
+        last_day = calendar.monthrange(year, month)[1]
+        return min(renewal_day, last_day)
+
+    def _current_cycle_start(self, now: Optional[datetime] = None) -> datetime:
+        now = now or datetime.utcnow()
+        day_this_month = self._cycle_day_for_month(now.year, now.month)
+        if now.day >= day_this_month:
+            return now.replace(day=day_this_month, hour=0, minute=0, second=0, microsecond=0)
+        previous_month = (now.replace(day=1) - timedelta(days=1))
+        day_prev_month = self._cycle_day_for_month(previous_month.year, previous_month.month)
+        return previous_month.replace(day=day_prev_month, hour=0, minute=0, second=0, microsecond=0)
+
+    def _next_cycle_start(self, reference: Optional[datetime] = None) -> datetime:
+        current_start = self._current_cycle_start(reference)
+        next_month_anchor = (current_start.replace(day=1) + timedelta(days=32)).replace(day=1)
+        day_next = self._cycle_day_for_month(next_month_anchor.year, next_month_anchor.month)
+        return next_month_anchor.replace(day=day_next, hour=0, minute=0, second=0, microsecond=0)
 
     def _load_serp_usage_state(self) -> Dict[str, Any]:
-        month = datetime.utcnow().strftime('%Y-%m')
+        cycle_start = self._current_cycle_start()
         state = {
-            'month': month,
+            'cycle_start': cycle_start.isoformat(),
             'request_count': 0,
             'failure_count': 0,
             'consecutive_failures': 0,
@@ -461,7 +487,20 @@ class SerpAnalyzer:
             if self.serp_state_path.exists():
                 with self.serp_state_path.open('r', encoding='utf-8') as fh:
                     payload = json.load(fh)
-                if payload.get('month') == month:
+                stored_start: Optional[datetime] = None
+                stored_cycle = payload.get('cycle_start')
+                if stored_cycle:
+                    try:
+                        stored_start = datetime.fromisoformat(stored_cycle)
+                    except ValueError:
+                        stored_start = None
+                if stored_start is None and payload.get('month'):
+                    try:
+                        stored_start = datetime.strptime(payload['month'] + '-01', '%Y-%m-%d')
+                    except ValueError:
+                        stored_start = None
+                if stored_start and stored_start == cycle_start:
+                    state['cycle_start'] = stored_start.isoformat()
                     for key in ('request_count', 'failure_count', 'consecutive_failures', 'disabled_until', 'disabled_reason'):
                         if key in payload:
                             state[key] = payload[key]
@@ -474,22 +513,27 @@ class SerpAnalyzer:
             return
         try:
             payload = dict(self._serp_usage)
+            cycle_start_str = payload.get('cycle_start')
+            if not cycle_start_str:
+                cycle_start_str = self._current_cycle_start().isoformat()
+                payload['cycle_start'] = cycle_start_str
+            try:
+                cycle_dt = datetime.fromisoformat(cycle_start_str)
+                payload['month'] = cycle_dt.strftime('%Y-%m')
+            except ValueError:
+                payload['month'] = datetime.utcnow().strftime('%Y-%m')
             with self.serp_state_path.open('w', encoding='utf-8') as fh:
                 json.dump(payload, fh)
         except Exception as exc:
             print(f"⚠️ 写入 SERP 使用状态失败: {exc}")
 
-    def _next_month_start(self) -> datetime:
-        now = datetime.utcnow()
-        first = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        return (first + timedelta(days=32)).replace(day=1)
-
     def _serp_api_quota_available(self) -> Tuple[bool, Optional[str]]:
         now = datetime.utcnow()
-        month_key = now.strftime('%Y-%m')
-        if self._serp_usage.get('month') != month_key:
+        cycle_start = self._current_cycle_start(now)
+        cycle_key = cycle_start.isoformat()
+        if self._serp_usage.get('cycle_start') != cycle_key:
             self._serp_usage = {
-                'month': month_key,
+                'cycle_start': cycle_key,
                 'request_count': 0,
                 'failure_count': 0,
                 'consecutive_failures': 0,
@@ -510,24 +554,26 @@ class SerpAnalyzer:
             self._save_serp_usage_state()
         limit = max(int(self.serp_monthly_limit), 0) if self.serp_monthly_limit else 0
         if limit and self._serp_usage.get('request_count', 0) >= limit:
-            next_month = self._next_month_start()
-            self._serp_usage['disabled_until'] = next_month.isoformat()
+            next_cycle = self._next_cycle_start(cycle_start)
+            self._serp_usage['disabled_until'] = next_cycle.isoformat()
             self._serp_usage['disabled_reason'] = 'quota'
             self._save_serp_usage_state()
-            return False, 'SERP API 月度额度已用完，本月将跳过 SERP 请求'
+            return False, 'SERP API 当前计费周期额度已用完，本周期将跳过 SERP 请求'
         return True, None
 
     def _record_serp_api_success(self) -> None:
-        month_key = datetime.utcnow().strftime('%Y-%m')
-        if self._serp_usage.get('month') != month_key:
+        cycle_start = self._current_cycle_start()
+        cycle_key = cycle_start.isoformat()
+        if self._serp_usage.get('cycle_start') != cycle_key:
             self._serp_usage = {
-                'month': month_key,
+                'cycle_start': cycle_key,
                 'request_count': 0,
                 'failure_count': 0,
                 'consecutive_failures': 0,
                 'disabled_until': None,
                 'disabled_reason': None
             }
+        self._serp_usage['cycle_start'] = cycle_key
         self._serp_usage['request_count'] = int(self._serp_usage.get('request_count', 0)) + 1
         self._serp_usage['consecutive_failures'] = 0
         prev_reason = self._serp_usage.get('disabled_reason')
@@ -537,19 +583,21 @@ class SerpAnalyzer:
         self._save_serp_usage_state()
         limit = max(int(self.serp_monthly_limit), 0) if self.serp_monthly_limit else 0
         if limit and self._serp_usage['request_count'] >= limit:
-            self._warn_once('serp_api_monthly_limit_hit', 'ℹ️ SERP API 月度额度已达上限，后续将自动暂停')
+            self._warn_once('serp_api_monthly_limit_hit', 'ℹ️ SERP API 当前周期额度已达上限，后续将自动暂停')
 
     def _record_serp_api_failure(self, reason: str = '') -> None:
-        month_key = datetime.utcnow().strftime('%Y-%m')
-        if self._serp_usage.get('month') != month_key:
+        cycle_start = self._current_cycle_start()
+        cycle_key = cycle_start.isoformat()
+        if self._serp_usage.get('cycle_start') != cycle_key:
             self._serp_usage = {
-                'month': month_key,
+                'cycle_start': cycle_key,
                 'request_count': 0,
                 'failure_count': 0,
                 'consecutive_failures': 0,
                 'disabled_until': None,
                 'disabled_reason': None
             }
+        self._serp_usage['cycle_start'] = cycle_key
         self._serp_usage['failure_count'] = int(self._serp_usage.get('failure_count', 0)) + 1
         consecutive = int(self._serp_usage.get('consecutive_failures', 0)) + 1
         self._serp_usage['consecutive_failures'] = consecutive
@@ -558,7 +606,7 @@ class SerpAnalyzer:
         request_count = int(self._serp_usage.get('request_count', 0))
         if limit and consecutive >= limit:
             if self.serp_skip_on_failure:
-                until = self._next_month_start()
+                until = self._next_cycle_start(cycle_start)
                 self._serp_usage['disabled_until'] = until.isoformat()
                 self._warn_once('serp_api_failure_lock', '⚠️ SERP API 连续失败次数过多，已暂停至下个计费周期')
             else:
@@ -580,7 +628,7 @@ class SerpAnalyzer:
             if monthly_limit and request_count < monthly_limit:
                 self._warn_once(
                     'serp_api_failure_without_quota',
-                    '⚠️ SERP API 多次失败但尚未达到月度配额，请检查 SerpAPI 配额或凭证状态'
+                    '⚠️ SERP API 多次失败但尚未达到当前周期配额，请检查 SerpAPI 配额或凭证状态'
                 )
         self._save_serp_usage_state()
 
