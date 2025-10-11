@@ -64,6 +64,7 @@ class TrendsCollector:
         except Exception as e:
             self.logger.error(f"Session初始化失败: {e}")
             self.trends_collector = None
+            raise RuntimeError(f"Google Trends会话初始化失败: {e}") from e
             
         if self.trends_collector and hasattr(self.trends_collector, 'set_rate_limit_callback'):
             try:

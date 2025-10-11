@@ -1,1 +1,1 @@
-{"month": "2025-09", "request_count": 133, "failure_count": 6, "disabled_until": null}
+{"month": "2025-10", "request_count": 0, "failure_count": 10, "consecutive_failures": 0, "disabled_until": "2025-10-11T17:25:51.181226", "disabled_reason": "failure"}

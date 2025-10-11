@@ -2,12 +2,15 @@
 # -*- coding: utf-8 -*-
 """Google Trends Session 管理模块"""
 
-import requests
 import json
-import os
 import logging
+import os
 import threading
+import time
+from http.cookiejar import MozillaCookieJar
 from typing import Dict, Optional
+
+import requests
 
 # 导入代理管理器
 try:
@@ -31,13 +34,20 @@ class GoogleTrendsSession:
         self.initialized = False
         self.use_proxy = use_proxy
         self.proxy_manager = None
+        self._cookie_lock = threading.Lock()
+
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        cookie_dir = os.path.join(project_root, 'output', 'tmp')
+        os.makedirs(cookie_dir, exist_ok=True)
+        self.cookie_path = os.path.join(cookie_dir, 'google_trends_cookie.txt')
+        self.cookie_jar = MozillaCookieJar(self.cookie_path)
+        self._load_cookie_jar()
         
         # 初始化代理管理器
         if self.use_proxy and get_proxy_manager:
             try:
                 # 检查代理配置是否启用
                 import sys
-                import os
                 project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
                 if project_root not in sys.path:
                     sys.path.insert(0, project_root)
@@ -85,6 +95,30 @@ class GoogleTrendsSession:
                 'Sec-Ch-Ua-Mobile': '?0',
                 'Sec-Ch-Ua-Platform': '"macOS"'
             }
+
+    def _load_cookie_jar(self) -> None:
+        """尝试从磁盘加载已有cookie"""
+        if not os.path.exists(self.cookie_path):
+            return
+
+        try:
+            if os.path.getsize(self.cookie_path) == 0:
+                return
+        except OSError as os_error:
+            logger.debug(f"读取cookie文件失败: {os_error}")
+            return
+
+        with self._cookie_lock:
+            try:
+                self.cookie_jar.load(ignore_discard=True, ignore_expires=True)
+                logger.debug("已从磁盘载入 Google Trends cookies")
+            except Exception as load_error:
+                logger.warning(f"加载cookie失败，将重新生成: {load_error}")
+                try:
+                    os.remove(self.cookie_path)
+                except OSError:
+                    pass
+                self.cookie_jar = MozillaCookieJar(self.cookie_path)
     
     def get_session(self) -> requests.Session:
         """获取已初始化的session"""
@@ -93,40 +127,71 @@ class GoogleTrendsSession:
         
         if not self.initialized:
             self._init_session()
-            
+            if not self.initialized:
+                raise RuntimeError("Google Trends会话初始化失败，请在执行任何 API 请求前检查网络或代理配置")
+
         return self.session
     
     def _create_session(self) -> None:
         """创建新的session"""
         self.session = requests.Session()
         self.session.headers.update(self.headers)
+        self._apply_cookies_to_session()
         logger.debug("创建新的Google Trends session")
+
+    def _apply_cookies_to_session(self) -> None:
+        """将持久化cookie写入session"""
+        if not self.session:
+            return
+        with self._cookie_lock:
+            for cookie in list(self.cookie_jar):
+                try:
+                    self.session.cookies.set_cookie(cookie)
+                except Exception as cookie_error:
+                    logger.debug(f"写入cookie失败，已忽略: {cookie_error}")
+
+    def _persist_session_cookies(self) -> None:
+        """将当前session cookie持久化到磁盘"""
+        if not self.session:
+            return
+
+        with self._cookie_lock:
+            jar = MozillaCookieJar(self.cookie_path)
+            for cookie in self.session.cookies:
+                try:
+                    jar.set_cookie(cookie)
+                except Exception as cookie_error:
+                    logger.debug(f"持久化cookie失败，已忽略: {cookie_error}")
+            try:
+                jar.save(ignore_discard=True, ignore_expires=True)
+                self.cookie_jar = jar
+                logger.debug("已刷新 Google Trends cookies 到磁盘")
+            except Exception as save_error:
+                logger.warning(f"保存cookie失败: {save_error}")
     
     def _init_session(self) -> None:
         """初始化会话，获取必要的cookies"""
         try:
             logger.info("🔧 正在初始化Google Trends会话...")
-            
-            # 添加更长的延迟避免429错误
-            import time
-            time.sleep(5)
-            
-            # 更新headers，模拟真实浏览器
-            self.session.headers.update({
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+
+            bootstrap_headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
                 'Accept-Language': 'en-US,en;q=0.9',
-                'Accept-Encoding': 'gzip, deflate, br',
-                'DNT': '1',
-                'Connection': 'keep-alive',
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache',
                 'Upgrade-Insecure-Requests': '1',
                 'Sec-Fetch-Dest': 'document',
                 'Sec-Fetch-Mode': 'navigate',
                 'Sec-Fetch-Site': 'none',
                 'Sec-Fetch-User': '?1',
-                'Cache-Control': 'max-age=0'
-            })
-            
+                'Sec-Ch-Ua': '"Not?A_Brand";v="8", "Chromium";v="141", "Google Chrome";v="141"',
+                'Sec-Ch-Ua-Mobile': '?0',
+                'Sec-Ch-Ua-Platform': '"Windows"'
+            }
+
+            time.sleep(3)
+
             # 先访问主页获取cookies
             main_page_url = 'https://trends.google.com/'
             try:
@@ -139,42 +204,78 @@ class GoogleTrendsSession:
                 self.initialized = False
                 return
 
-            response = self.session.get(main_page_url, timeout=self.timeout)
+            response = self.session.get(main_page_url, headers=bootstrap_headers, timeout=self.timeout)
+            self._persist_session_cookies()
 
-            if response.status_code == 200:
-                # 再访问一个trends页面，确保session完全建立
-                time.sleep(3)
-                trends_page_url = 'https://trends.google.com/trends/explore?q=test'
-
+            if response.status_code == 429:
+                logger.warning("⚠️ 首次访问主页遇到429，尝试使用新cookie重试")
+                time.sleep(2)
                 try:
                     wait_for_next_request()
                 except RuntimeError as limiter_error:
-                    penalty = register_rate_limit_event('medium')
-                    logger.error("❌ 会话初始化后续请求被限流: %s", limiter_error)
+                    penalty = register_rate_limit_event('high')
+                    logger.error("❌ 重试前被限流: %s", limiter_error)
                     if penalty:
                         logger.info("建议等待 %.1f 秒后重试初始化流程", penalty)
                     self.initialized = False
                     return
 
-                trends_response = self.session.get(trends_page_url, timeout=self.timeout)
+                response = self.session.get(main_page_url, headers=bootstrap_headers, timeout=self.timeout)
+                self._persist_session_cookies()
 
-                if trends_response.status_code == 200:
-                    self.initialized = True
-                    logger.info("✅ Google Trends会话初始化成功")
-                else:
-                    logger.warning(f"⚠️ Trends页面访问失败，状态码: {trends_response.status_code}")
-                    self.initialized = False
-            elif response.status_code == 429:
+            if response.status_code != 200:
                 penalty = register_rate_limit_event('high')
                 if penalty:
-                    logger.error("❌ 遇到429错误，会话初始化失败，建议等待 %.1f 秒", penalty)
+                    logger.error("❌ 主页访问失败，状态码: %s，建议等待 %.1f 秒", response.status_code, penalty)
                 else:
-                    logger.error("❌ 遇到429错误，会话初始化失败")
+                    logger.error(f"❌ 主页访问失败，状态码: {response.status_code}")
                 self.initialized = False
+                return
+
+            # 再访问一个trends explore页面，确保session完全建立
+            time.sleep(2)
+            trends_page_url = 'https://trends.google.com/trends/explore?q=automation'
+
+            try:
+                wait_for_next_request()
+            except RuntimeError as limiter_error:
+                penalty = register_rate_limit_event('medium')
+                logger.error("❌ 会话初始化后续请求被限流: %s", limiter_error)
+                if penalty:
+                    logger.info("建议等待 %.1f 秒后重试初始化流程", penalty)
+                self.initialized = False
+                return
+
+            trends_response = self.session.get(trends_page_url, headers=bootstrap_headers, timeout=self.timeout)
+            self._persist_session_cookies()
+
+            if trends_response.status_code == 429:
+                logger.warning("⚠️ explore 页面返回429，尝试携带cookie再次访问")
+                time.sleep(2)
+                try:
+                    wait_for_next_request()
+                except RuntimeError as limiter_error:
+                    penalty = register_rate_limit_event('high')
+                    logger.error("❌ explore 重试前被限流: %s", limiter_error)
+                    if penalty:
+                        logger.info("建议等待 %.1f 秒后重试初始化流程", penalty)
+                    self.initialized = False
+                    return
+
+                trends_response = self.session.get(trends_page_url, headers=bootstrap_headers, timeout=self.timeout)
+                self._persist_session_cookies()
+
+            if trends_response.status_code == 200:
+                self.initialized = True
+                logger.info("✅ Google Trends会话初始化成功")
             else:
-                logger.warning(f"⚠️ 主页访问失败，状态码: {response.status_code}")
+                penalty = register_rate_limit_event('high')
+                if penalty:
+                    logger.error("❌ explore 页面访问失败，状态码: %s，建议等待 %.1f 秒", trends_response.status_code, penalty)
+                else:
+                    logger.error(f"❌ explore 页面访问失败，状态码: {trends_response.status_code}")
                 self.initialized = False
-                
+
         except Exception as e:
             logger.error(f"❌ 会话初始化失败: {e}")
             self.initialized = False
@@ -186,6 +287,8 @@ class GoogleTrendsSession:
                 self.session.close()
             self._create_session()
             self._init_session()
+            if not self.initialized:
+                raise RuntimeError("Google Trends会话重置失败，未获得有效会话")
             logger.info("会话已重置")
         except Exception as e:
             logger.error(f"重置会话失败: {e}")
@@ -221,6 +324,12 @@ class GoogleTrendsSession:
                 # 使用代理管理器发送请求
                 response = self.proxy_manager.make_request(url, method, **kwargs)
                 if response:
+                    if self.session and response.cookies:
+                        try:
+                            self.session.cookies.update(response.cookies)
+                        except Exception as cookie_error:
+                            logger.debug(f"代理响应cookie合并失败: {cookie_error}")
+                    self._persist_session_cookies()
                     return response
                 else:
                     logger.warning("⚠️ 代理请求失败，尝试直接请求")
@@ -238,6 +347,7 @@ class GoogleTrendsSession:
             
         # 发送请求
         response = session.request(method, url, **kwargs)
+        self._persist_session_cookies()
         return response
     
     def get(self, url: str, **kwargs) -> requests.Response:
@@ -273,7 +383,7 @@ def get_global_session() -> GoogleTrendsSession:
         with _session_lock:
             if _global_session is None:
                 _global_session = GoogleTrendsSession()
-                logger.info("Session初始化成功")
+                logger.debug("创建Google Trends会话管理器实例")
     return _global_session
 
 def reset_global_session() -> None:

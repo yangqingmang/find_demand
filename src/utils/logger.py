@@ -64,18 +64,18 @@ class Logger:
     def __init__(self, name: str = None):
         self.logger = setup_logger(name)
     
-    def info(self, message: str):
+    def info(self, message: str, *args, **kwargs):
         """记录信息级别日志"""
-        self.logger.info(message)
+        self.logger.info(message, *args, **kwargs)
     
-    def warning(self, message: str):
+    def warning(self, message: str, *args, **kwargs):
         """记录警告级别日志"""
-        self.logger.warning(message)
+        self.logger.warning(message, *args, **kwargs)
     
-    def error(self, message: str):
+    def error(self, message: str, *args, **kwargs):
         """记录错误级别日志"""
-        self.logger.error(message)
+        self.logger.error(message, *args, **kwargs)
     
-    def debug(self, message: str):
+    def debug(self, message: str, *args, **kwargs):
         """记录调试级别日志"""
-        self.logger.debug(message)
+        self.logger.debug(message, *args, **kwargs)
