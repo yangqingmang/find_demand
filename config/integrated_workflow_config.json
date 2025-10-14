@@ -452,9 +452,9 @@
   "serp_api_enabled": true,
   "serp_api_monthly_limit": 250,
   "serp_api_renewal_day": 26,
-  "serp_api_failure_limit": 5,
-  "serp_api_failure_cooldown_hours": 12,
-  "serp_api_skip_on_failure": false,
+  "serp_api_failure_limit": 1,
+  "serp_api_failure_cooldown_hours": 24,
+  "serp_api_skip_on_failure": true,
   
   "notification": {
     "email_notifications": false,
