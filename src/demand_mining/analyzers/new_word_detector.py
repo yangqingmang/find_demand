@@ -195,12 +195,14 @@ class NewWordDetector(BaseAnalyzer):
         seen: Set[Tuple[str, str]] = set()
         last_exception: Optional[Exception] = None
 
+        attempt_count = 0
         for geo_candidate in geo_candidates:
             for timeframe_candidate in timeframe_candidates:
                 combo = (timeframe_candidate, geo_candidate)
                 if combo in seen:
                     continue
                 seen.add(combo)
+                attempt_count += 1
                 try:
                     df = self.trends_collector.get_trends_data([keyword], timeframe=timeframe_candidate, geo=geo_candidate)
                     if not df.empty:
@@ -209,6 +211,14 @@ class NewWordDetector(BaseAnalyzer):
                             'geo': geo_candidate,
                             'attempts': attempts_log
                         }
+                    attempts_log.append({
+                        'timeframe': timeframe_candidate,
+                        'geo': geo_candidate,
+                        'error': 'empty_result'
+                    })
+                    self.logger.warning(
+                        f"获取 {keyword} ({timeframe_candidate}, {geo_candidate or 'GLOBAL'}) 趋势数据返回空结果，终止后续尝试"
+                    )
                 except Exception as exc:
                     last_exception = exc
                     attempts_log.append({
@@ -217,9 +227,10 @@ class NewWordDetector(BaseAnalyzer):
                         'error': str(exc)
                     })
                     self.logger.warning(
-                        f"获取 {keyword} ({timeframe_candidate}, {geo_candidate or 'GLOBAL'}) 趋势数据失败: {exc}"
+                        f"获取 {keyword} ({timeframe_candidate}, {geo_candidate or 'GLOBAL'}) 趋势数据失败: {exc}，终止后续尝试"
                     )
-                time.sleep(0.6)
+                # 无论是异常还是空结果，按照要求不再继续其它timeframe/geo
+                return pd.DataFrame(), {'timeframe': None, 'geo': None, 'attempts': attempts_log}
 
         if last_exception:
             self.logger.warning(

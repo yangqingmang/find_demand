@@ -130,8 +130,8 @@ class RequestRateLimiter:
     def register_throttle(self, severity: str = 'medium') -> float:
         """记录一次节流事件并返回建议等待时间"""
         severity_key = (severity or 'medium').lower()
-        multiplier_map = {'low': 1.3, 'medium': 1.6, 'high': 2.4}
-        cooldown_map = {'low': 20.0, 'medium': 45.0, 'high': 120.0}
+        multiplier_map = {'low': 1.3, 'medium': 1.6, 'high': 1.8}
+        cooldown_map = {'low': 20.0, 'medium': 45.0, 'high': 45.0}
         multiplier = multiplier_map.get(severity_key, multiplier_map['medium'])
         cooldown = cooldown_map.get(severity_key, cooldown_map['medium'])
 

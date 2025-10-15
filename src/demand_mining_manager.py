@@ -10,7 +10,7 @@ import sys
 import json
 import pandas as pd
 from datetime import datetime
-from typing import Dict, Any, List, Union, Sequence
+from typing import Dict, Any, List, Union, Sequence, Tuple, Optional
 
 # 添加src目录到Python路径
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
@@ -94,24 +94,68 @@ class IntegratedDemandMiningManager:
     ) -> Dict[str, Any]:
         """分析关键词输入（可接受文件路径、序列或DataFrame）"""
 
-        keywords_df: pd.DataFrame
+        keywords_df: Optional[pd.DataFrame] = None
+        source_payload: List[str] = []
+
+        def _extract_keywords(df: pd.DataFrame) -> List[str]:
+            for col in ['query', 'keyword', 'term']:
+                if col in df.columns:
+                    return df[col].dropna().astype(str).tolist()
+            return []
+
+        analyze_mode: Tuple[str, Union[str, List[str]]]
 
         if isinstance(input_data, pd.DataFrame):
             keywords_df = input_data.copy()
-            source_payload = keywords_df.get('query', pd.Series(dtype=str)).astype(str).tolist()
-            result = self.keyword_manager.analyze(source_payload, 'keywords', output_dir)
+            source_payload = _extract_keywords(keywords_df)
+            analyze_mode = ('keywords', source_payload)
         elif isinstance(input_data, (list, tuple, set)):
             source_payload = [str(item) for item in input_data if str(item).strip()]
             keywords_df = pd.DataFrame({'query': source_payload})
-            result = self.keyword_manager.analyze(source_payload, 'keywords', output_dir)
+            analyze_mode = ('keywords', source_payload)
         else:
-            # 默认为文件路径
-            result = self.keyword_manager.analyze(input_data, 'file', output_dir)
-            try:
-                keywords_df = pd.read_csv(input_data)
-            except Exception as read_err:
-                print(f"⚠️ 无法读取关键词文件用于新词检测: {read_err}")
+            analyze_mode = ('file', input_data)
+            if isinstance(input_data, str):
+                try:
+                    if input_data.endswith('.csv'):
+                        keywords_df = pd.read_csv(input_data)
+                    elif input_data.endswith('.json'):
+                        keywords_df = pd.read_json(input_data)
+                    else:
+                        keywords_df = pd.DataFrame(columns=['query'])
+                except Exception as read_err:
+                    print(f"⚠️ 无法读取关键词文件用于趋势检测: {read_err}")
+                    keywords_df = pd.DataFrame(columns=['query'])
+            else:
                 keywords_df = pd.DataFrame(columns=['query'])
+            source_payload = _extract_keywords(keywords_df)
+
+        new_word_results: Optional[pd.DataFrame] = None
+        penalty_lookup: Dict[str, Dict[str, Any]] = {}
+        if self.new_word_detection_available and keywords_df is not None and not keywords_df.empty:
+            try:
+                print("🔍 正在进行新词检测...")
+                new_word_results = self.new_word_detector.detect_new_words(keywords_df)
+                penalty_lookup = self._build_trend_penalty_lookup(new_word_results)
+            except Exception as detect_err:
+                print(f"⚠️ 新词检测失败: {detect_err}")
+                new_word_results = None
+                penalty_lookup = {}
+        else:
+            new_word_results = None
+            penalty_lookup = {}
+
+        if penalty_lookup:
+            print(f"⚠️ 趋势惩罚: {len(penalty_lookup)} 个关键词将降权")
+        self.keyword_manager.set_trend_penalty_lookup(penalty_lookup)
+
+        if analyze_mode[0] == 'keywords':
+            result = self.keyword_manager.analyze(analyze_mode[1], 'keywords', output_dir)
+        else:
+            result = self.keyword_manager.analyze(analyze_mode[1], 'file', output_dir)
+
+        # 重置趋势惩罚映射，避免影响后续分析
+        self.keyword_manager.set_trend_penalty_lookup({})
 
         # 如果启用SERP分析，执行SERP分析
         if enable_serp:
@@ -128,11 +172,10 @@ class IntegratedDemandMiningManager:
             try:
                 print("🔍 正在进行新词检测...")
 
-                if keywords_df.empty:
-                    raise ValueError("关键词数据为空，无法执行新词检测")
-
-                # 执行新词检测
-                new_word_results = self.new_word_detector.detect_new_words(keywords_df)
+                if new_word_results is None:
+                    if keywords_df.empty:
+                        raise ValueError("关键词数据为空，无法执行新词检测")
+                    new_word_results = self.new_word_detector.detect_new_words(keywords_df)
 
                 # 将新词检测结果合并到分析结果中
                 if 'keywords' in result:
@@ -143,6 +186,16 @@ class IntegratedDemandMiningManager:
                     recent_threshold = max(min_recent_threshold, 1.0)
                     baseline_threshold = max(baseline_threshold_raw, recent_threshold) if baseline_threshold_raw else recent_threshold
                     historical_threshold = max(historical_threshold_raw, baseline_threshold) if historical_threshold_raw else baseline_threshold
+
+                    new_word_lookup = {}
+                    try:
+                        for _, row in new_word_results.iterrows():
+                            key = str(row.get('keyword', '')).strip().lower()
+                            if key:
+                                new_word_lookup[key] = row
+                    except Exception:
+                        new_word_lookup = {}
+
                     volume_summary = {
                         'total_keywords': len(result['keywords']),
                         'status_counts': {'sufficient': 0, 'needs_review': 0, 'insufficient': 0, 'not_evaluated': 0},
@@ -154,9 +207,12 @@ class IntegratedDemandMiningManager:
                             'historical_threshold': historical_threshold
                         }
                     }
-                    for i, keyword_data in enumerate(result['keywords']):
-                        if i < len(new_word_results):
-                            row = new_word_results.iloc[i]
+                    for keyword_data in result['keywords']:
+                        keyword_str = str(keyword_data.get('keyword', '') or '').strip()
+                        row_series = new_word_lookup.get(keyword_str.lower())
+
+                        if row_series is not None:
+                            row = row_series.to_dict()
                             keyword_data['new_word_detection'] = {
                                 'is_new_word': bool(row.get('is_new_word', False)),
                                 'new_word_score': float(row.get('new_word_score', 0)),
@@ -184,6 +240,7 @@ class IntegratedDemandMiningManager:
                             avg_30d = float(row.get('avg_30d', 0.0) or 0.0)
                             avg_90d = float(row.get('avg_90d', 0.0) or 0.0)
                             avg_12m = float(row.get('avg_12m', 0.0) or 0.0)
+                            growth_rate_7d_vs_30d = float(row.get('growth_rate_7d_vs_30d', 0.0) or 0.0)
 
                             meets_recent = avg_7d >= recent_threshold if recent_threshold > 0 else avg_7d > 0
                             meets_baseline = avg_30d >= baseline_threshold if baseline_threshold > 0 else avg_30d > 0
@@ -218,6 +275,37 @@ class IntegratedDemandMiningManager:
                             keyword_data['volume_validation'] = volume_info
                             volume_summary['status_counts'].setdefault(volume_status, 0)
                             volume_summary['status_counts'][volume_status] += 1
+
+                            penalty_meta = penalty_lookup.get(keyword_str.lower()) if penalty_lookup else None
+                            if penalty_meta:
+                                penalty_meta = dict(penalty_meta)
+                                market_data = keyword_data.get('market') or {}
+                                confidence = penalty_meta.get('confidence')
+                                if confidence:
+                                    market_data['trend_confidence'] = confidence
+                                labels = penalty_meta.get('labels') or []
+                                if labels:
+                                    indicators = list(market_data.get('opportunity_indicators', []) or [])
+                                    for label in labels:
+                                        if label and label not in indicators:
+                                            indicators.append(label)
+                                    market_data['opportunity_indicators'] = indicators
+
+                                multiplier = penalty_meta.get('multiplier', 1.0)
+                                try:
+                                    multiplier = float(multiplier)
+                                except Exception:
+                                    multiplier = 1.0
+                                multiplier = max(0.0, min(multiplier, 1.0))
+
+                                original_score = float(keyword_data.get('opportunity_score', 0.0) or 0.0)
+                                if multiplier < 1.0 and original_score > 0:
+                                    adjusted_score = max(0.0, round(original_score * multiplier, 2))
+                                    penalty_meta['original_score'] = original_score
+                                    penalty_meta['adjusted_score'] = adjusted_score
+                                    keyword_data['opportunity_score'] = adjusted_score
+                                keyword_data['trend_penalty'] = penalty_meta
+                                keyword_data['market'] = market_data
 
                             if volume_status == 'insufficient':
                                 volume_summary['insufficient_keywords'].append({
@@ -274,7 +362,95 @@ class IntegratedDemandMiningManager:
                     'new_words_detected': 0
                 }
 
+        self._refresh_market_summary(result)
         return result
+
+    @staticmethod
+    def _refresh_market_summary(result: Dict[str, Any]) -> None:
+        """根据最新机会分刷新市场洞察"""
+        keywords = result.get('keywords') or []
+        insights = result.get('market_insights')
+        if not insights or not keywords:
+            return
+
+        scores = [float(k.get('opportunity_score', 0.0) or 0.0) for k in keywords]
+        execution_costs = [float(k.get('execution_cost', 0.0) or 0.0) for k in keywords if k.get('execution_cost') is not None]
+        clarity_scores = [float(k.get('intent_clarity_score', 0.0) or 0.0) for k in keywords if k.get('intent_clarity_score') is not None]
+        serp_weakness = [float(k.get('serp_weakness_score', 0.0) or 0.0) for k in keywords if k.get('serp_weakness_score') is not None]
+        monetization_scores = [float(k.get('monetization_score', 0.0) or 0.0) for k in keywords if k.get('monetization_score') is not None]
+
+        high = sum(1 for score in scores if score >= 70)
+        medium = sum(1 for score in scores if 40 <= score < 70)
+        low = max(len(scores) - high - medium, 0)
+
+        insights['high_opportunity_count'] = high
+        insights['medium_opportunity_count'] = medium
+        insights['low_opportunity_count'] = low
+        insights['avg_opportunity_score'] = round(sum(scores) / len(scores), 2) if scores else 0.0
+        if execution_costs:
+            insights['avg_execution_cost'] = round(sum(execution_costs) / len(execution_costs), 2)
+        if clarity_scores:
+            insights['avg_intent_clarity'] = round(sum(clarity_scores) / len(clarity_scores), 2)
+        if serp_weakness:
+            insights['avg_serp_weakness'] = round(sum(serp_weakness) / len(serp_weakness), 2)
+        if monetization_scores:
+            insights['avg_monetization_score'] = round(sum(monetization_scores) / len(monetization_scores), 2)
+
+        sorted_keywords = sorted(keywords, key=lambda k: float(k.get('opportunity_score', 0.0) or 0.0), reverse=True)
+        top_count = max(len(insights.get('top_opportunities', []) or []), 5)
+        insights['top_opportunities'] = sorted_keywords[:top_count]
+
+        low_cost_candidates = [kw for kw in sorted_keywords if float(kw.get('execution_cost', 0.0) or 0.0) <= 0.35]
+        candidate_count = max(len(insights.get('low_cost_candidates', []) or []), 5)
+        insights['low_cost_candidates'] = low_cost_candidates[:candidate_count]
+
+    def _build_trend_penalty_lookup(self, new_word_results: Optional[pd.DataFrame]) -> Dict[str, Dict[str, Any]]:
+        """根据新词检测结果构建趋势惩罚映射"""
+        if new_word_results is None or new_word_results.empty:
+            return {}
+
+        penalty_lookup: Dict[str, Dict[str, Any]] = {}
+
+        for _, row in new_word_results.iterrows():
+            keyword = str(row.get('keyword', '')).strip().lower()
+            if not keyword:
+                continue
+
+            def _to_float(value, default: float = 0.0) -> float:
+                try:
+                    return float(value)
+                except Exception:
+                    return default
+
+            avg_7d = _to_float(row.get('avg_7d'))
+            avg_30d = _to_float(row.get('avg_30d'))
+            avg_12m = _to_float(row.get('avg_12m'))
+            growth_rate = _to_float(row.get('growth_rate_7d_vs_30d'))
+
+            multiplier = 1.0
+            labels: List[str] = []
+            confidence = 'medium'
+
+            if avg_7d < 20.0 or avg_30d < 10.0 or avg_12m < 3.0:
+                multiplier = min(multiplier, 0.3)
+                labels.append('趋势量级过低')
+                confidence = 'low'
+
+            if growth_rate > 500.0 and avg_7d < 15.0:
+                multiplier = min(multiplier, 0.5)
+                if '趋势波动异常' not in labels:
+                    labels.append('趋势波动异常')
+                if confidence != 'low':
+                    confidence = 'volatile'
+
+            if multiplier < 1.0:
+                penalty_lookup[keyword] = {
+                    'multiplier': multiplier,
+                    'confidence': confidence,
+                    'labels': labels
+                }
+
+        return penalty_lookup
 
     def _perform_serp_analysis(self, result: Dict[str, Any], input_data: Union[str, Sequence[str], pd.DataFrame]) -> Dict[str, Any]:
         """执行SERP分析"""

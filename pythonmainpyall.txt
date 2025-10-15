@@ -1,4 +1,4 @@
-v) PS D:\VscodeWorkspace\find_demand> python main.py --all
+(.venv) PS D:\VscodeWorkspace\find_demand> python main.py --all
 正在加载配置...
 ✓ 已加载公开配置
 ✓ 从 file 成功加载私钥
@@ -12,25 +12,25 @@ v) PS D:\VscodeWorkspace\find_demand> python main.py --all
 
 🔍 关键词管理器初始化完成
 🔍 发现管理器初始化完成
-2025-10-14 18:00:12 - config.proxy_config_loader - INFO - ✅ 加载了 0 个有效代理
-2025-10-14 18:00:12 - config.proxy_config_loader - INFO - ✅ 代理配置加载成功，环境: development
-2025-10-14 18:00:12 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
-2025-10-14 18:00:12 - src.collectors.google_trends_session - INFO - 🔧 正在初始化Google Trends会话...
-2025-10-14 18:00:15 - src.collectors.request_rate_limiter - INFO - 🚦 初始化请求频率控制器: 最小间隔3.0秒, 每分钟最多15次请求
-2025-10-14 18:00:15 - src.collectors.request_rate_limiter - INFO - 🆕 创建全局请求频率控制器
-2025-10-14 18:00:20 - src.collectors.google_trends_session - INFO - ✅ Google Trends会话初始化成功
-2025-10-14 18:00:20 - root - INFO - Session初始化成功
-2025-10-14 18:00:20 - src.collectors.trends_singleton - INFO - 🆕 创建新的TrendsCollector实例
-2025-10-14 18:00:20 - src.demand_mining.root_word_trends_analyzer - INFO - TrendsCollector单例获取成功
-2025-10-14 18:00:20 - root - WARNING - 代理管理器不可用，将使用直接请求
-2025-10-14 18:00:20 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
-2025-10-14 18:00:20 - root - INFO - 趋势收集器初始化成功
-2025-10-14 18:00:20 - src.demand_mining.root_word_trends_analyzer - INFO - NewWordDetector单例获取成功
-2025-10-14 18:00:20 - src.demand_mining.core.trends_cache - INFO - 缓存数据库初始化完成
-2025-10-14 18:00:20 - src.demand_mining.core.trends_cache - INFO - 趋势缓存初始化完成，缓存目录: output/reports\trends_cache
+2025-10-15 14:13:30 - config.proxy_config_loader - INFO - ✅ 加载了 0 个有效代理
+2025-10-15 14:13:30 - config.proxy_config_loader - INFO - ✅ 代理配置加载成功，环境: development
+2025-10-15 14:13:30 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
+2025-10-15 14:13:30 - src.collectors.google_trends_session - INFO - 🔧 正在初始化Google Trends会话...
+2025-10-15 14:13:33 - src.collectors.request_rate_limiter - INFO - 🚦 初始化请求频率控制器: 最小间隔3.0秒, 每分钟最多15次请求
+2025-10-15 14:13:33 - src.collectors.request_rate_limiter - INFO - 🆕 创建全局请求频率控制器
+2025-10-15 14:13:38 - src.collectors.google_trends_session - INFO - ✅ Google Trends会话初始化成功
+2025-10-15 14:13:38 - root - INFO - Session初始化成功
+2025-10-15 14:13:38 - src.collectors.trends_singleton - INFO - 🆕 创建新的TrendsCollector实例
+2025-10-15 14:13:38 - src.demand_mining.root_word_trends_analyzer - INFO - TrendsCollector单例获取成功
+2025-10-15 14:13:38 - root - WARNING - 代理管理器不可用，将使用直接请求
+2025-10-15 14:13:38 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
+2025-10-15 14:13:38 - root - INFO - 趋势收集器初始化成功
+2025-10-15 14:13:38 - src.demand_mining.root_word_trends_analyzer - INFO - NewWordDetector单例获取成功
+2025-10-15 14:13:38 - src.demand_mining.core.trends_cache - INFO - 缓存数据库初始化完成
+2025-10-15 14:13:38 - src.demand_mining.core.trends_cache - INFO - 趋势缓存初始化完成，缓存目录: output/reports\trends_cache
 📈 趋势管理器初始化完成（已启用缓存）
-2025-10-14 18:00:20 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
-2025-10-14 18:00:20 - root - INFO - 趋势收集器初始化成功
+2025-10-15 14:13:38 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
+2025-10-15 14:13:38 - root - INFO - 趋势收集器初始化成功
 ✅ 新词检测器初始化成功
 🚀 集成需求挖掘管理器初始化完成
 📊 已加载关键词管理器、发现管理器、趋势管理器
@@ -39,95 +39,75 @@ v) PS D:\VscodeWorkspace\find_demand> python main.py --all
    第一步: 搜索热门关键词 (Google Trends + TrendingKeywords.net)
    第二步: 基于热门关键词进行多平台发现
 🔍 正在获取 Google Trends Rising Queries...
-2025-10-14 18:00:20 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
-2025-10-14 18:00:23 - root - INFO - 📄 原始响应详细: ')]}\'\n{"widgets":[{"r'
-2025-10-14 18:00:23 - root - INFO - 找到JSON开始位置: 5
-2025-10-14 18:00:23 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
-2025-10-14 18:00:23 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
-2025-10-14 18:00:23 - root - INFO - ✅ 成功解析JSON数据
-2025-10-14 18:00:23 - root - INFO - 📊 数据结构: ['widgets', 'keywords', 'timeRanges', 'shareText', 'shouldShowMultiHeatMapMessage']
-2025-10-14 18:00:23 - root - INFO - 🔍 Widget类型: RELATED_TOPICS
-2025-10-14 18:00:23 - root - INFO - 🔍 Widget类型: RELATED_QUERIES
-2025-10-14 18:00:23 - root - INFO - 🎯 找到RELATED_QUERIES token: APP6_UEAAAAAaO9wt3pY...
-2025-10-14 18:00:23 - root - INFO - 🔍 正在请求related_searches接口...
-2025-10-14 18:00:26 - src.collectors.request_rate_limiter - WARNING - ⚠️ 收到high级节流信号，最小间隔调整为 7.2 秒，额外冷却 60.0 秒
-2025-10-14 18:00:26 - root - WARNING - ⏳ TrendsCollector 进入冷却，剩余 60.0 秒
-2025-10-14 18:00:26 - root - ERROR - ❌ related_searches 命中 429，冷却 60.0 秒
+2025-10-15 14:13:38 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
+2025-10-15 14:13:40 - root - INFO - 📄 原始响应详细: ')]}\'\n{"widgets":[{"r'
+2025-10-15 14:13:40 - root - INFO - 找到JSON开始位置: 5
+2025-10-15 14:13:40 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
+2025-10-15 14:13:40 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
+2025-10-15 14:13:40 - root - INFO - ✅ 成功解析JSON数据
+2025-10-15 14:13:40 - root - INFO - 📊 数据结构: ['widgets', 'keywords', 'timeRanges', 'shareText', 'shouldShowMultiHeatMapMessage']
+2025-10-15 14:13:40 - root - INFO - 🔍 Widget类型: RELATED_TOPICS
+2025-10-15 14:13:40 - root - INFO - 🔍 Widget类型: RELATED_QUERIES
+2025-10-15 14:13:40 - root - INFO - 🎯 找到RELATED_QUERIES token: APP6_UEAAAAAaPCNFsBm...
+2025-10-15 14:13:40 - root - INFO - 🔍 正在请求related_searches接口...
+2025-10-15 14:13:43 - src.collectors.request_rate_limiter - WARNING - ⚠️ 收到high级节流信号，最小间隔调整为 5.4 秒，额外冷却 45.0 秒
+2025-10-15 14:13:43 - src.collectors.google_trends_session - WARNING - ⚠️ Google Trends 返回429，重置会话并等待建议 45.0 秒
+2025-10-15 14:13:43 - src.collectors.google_trends_session - INFO - 🔧 正在初始化Google Trends会话...
+2025-10-15 14:14:34 - src.collectors.google_trends_session - INFO - ✅ Google Trends会话初始化成功
+2025-10-15 14:14:34 - src.collectors.google_trends_session - INFO - 会话已重置
+2025-10-15 14:14:39 - src.collectors.request_rate_limiter - WARNING - ⚠️ 收到high级节流信号，最小间隔调整为 9.7 秒，额外冷却 45.0 秒
+2025-10-15 14:14:39 - root - WARNING - ⏳ TrendsCollector 进入冷却，剩余 45.0 秒
+2025-10-15 14:14:39 - root - ERROR - ❌ related_searches 命中 429，冷却 45.0 秒
 🔍 正在获取 TrendingKeywords.net 数据...
-2025-10-14 18:00:26 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 1 页...
-2025-10-14 18:00:26 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
-2025-10-14 18:00:36 - urllib3.connectionpool - WARNING - Retrying (Retry(total=2, connect=2, read=2, redirect=None, status=None)) after connection broken by 'ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x0000026B223A9950>, 'Connection to trendingkeywords.net timed out. (connect timeout=10)')': /
-2025-10-14 18:00:37 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
-2025-10-14 18:00:37 - src.collectors.trending_keywords_collector - INFO - 第 1 页获取到 18 个关键词
-2025-10-14 18:00:40 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 2 页...
-2025-10-14 18:00:40 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
-2025-10-14 18:00:41 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
-2025-10-14 18:00:41 - src.collectors.trending_keywords_collector - INFO - 第 2 页获取到 18 个关键词
-2025-10-14 18:00:42 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 3 页...
-2025-10-14 18:00:42 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
-2025-10-14 18:00:43 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
-2025-10-14 18:00:43 - src.collectors.trending_keywords_collector - INFO - 第 3 页获取到 18 个关键词
-2025-10-14 18:00:43 - src.collectors.trending_keywords_collector - INFO - 总共获取到 54 个关键词
+2025-10-15 14:14:39 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 1 页...
+2025-10-15 14:14:39 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
+2025-10-15 14:14:41 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
+2025-10-15 14:14:41 - src.collectors.trending_keywords_collector - INFO - 第 1 页获取到 18 个关键词
+2025-10-15 14:14:43 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 2 页...
+2025-10-15 14:14:43 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
+2025-10-15 14:14:44 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
+2025-10-15 14:14:44 - src.collectors.trending_keywords_collector - INFO - 第 2 页获取到 18 个关键词
+2025-10-15 14:14:45 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 3 页...
+2025-10-15 14:14:45 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
+2025-10-15 14:14:46 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
+2025-10-15 14:14:46 - src.collectors.trending_keywords_collector - INFO - 第 3 页获取到 18 个关键词
+2025-10-15 14:14:46 - src.collectors.trending_keywords_collector - INFO - 总共获取到 54 个关键词
 ✅ TrendingKeywords.net: 获取到 1 个关键词
 🔍 正在抓取 RSS 热点...
 ✅ RSS 热点: 获取到 20 个热点词
 ⚠️ Google Trends 处于冷却期，终止相关查询采集
-2025-10-14 18:02:37 - src.collectors.suggestion_sources - INFO - SuggestionCollector: 本次收集结束，处理 21/21 个种子，发送 105 次请求，获得 48 条建议
-✅ 热门联想: 新增 48 个候选关键词
-   • 联想摘要: 种子 21/21 | 请求 105 | 建议 48
-[Filter] 已过滤 6 条低质量热门词
-🎯 合并后总计: 54 个关键词
+2025-10-15 14:16:17 - src.collectors.suggestion_sources - INFO - SuggestionCollector: 本次收集结束，处理 21/21 个种子，发送 105 次请求，获得 76 条建议
+✅ 热门联想: 新增 76 个候选关键词
+   • 联想摘要: 种子 21/21 | 请求 105 | 建议 76
+[Filter] 已过滤 8 条低质量热门词
+🎯 合并后总计: 52 个关键词
 📊 数据源分布:
-   • Suggestions/Reddit Suggestions: 31 个
+   • Suggestions/Reddit Suggestions: 29 个
    • RSS/Google News AI: 17 个
    • Suggestions/Google Autocomplete: 3 个
    • Suggestions/Google Autocomplete Cn: 2 个
    • TrendingKeywords.net: 1 个
-🔍 第一步: 对 12 个热门关键词进行需求挖掘...
+🔍 第一步: 对 11 个热门关键词进行需求挖掘...
 🚀 开始关键词分析 - 类型: keywords, 综合分析: False
-✅ 接收到 12 个关键词
-2025-10-14 18:02:37 - root - INFO - 开始搜索意图V2分析，共 12 个关键词
+✅ 接收到 11 个关键词
+2025-10-15 14:16:17 - root - INFO - 开始搜索意图V2分析，共 5 个关键词
 提示: 当前代理配置已禁用代理，SERP 分析器将使用直连模式
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-⚠️ 未能获取 hix bypass 的 SERP 数据，返回空结果
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+ai+humanizer+free&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+ai+humanizer+free&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+ai+humanizer+free&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-⚠️ 未能获取 hix bypass ai humanizer free 的 SERP 数据，返回空结果
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+ai&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+ai&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+ai&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-⚠️ 未能获取 hix bypass ai 的 SERP 数据，返回空结果
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+free&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+free&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+free&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))
-⚠️ 未能获取 hix bypass free 的 SERP 数据，返回空结果
-⚠️ SERP API 第 1 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+humanize&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，0.50 秒后重试
-⚠️ SERP API 第 2 次尝试失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max retries exceeded with url: /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+humanize&engine=google&num=10 (Caused by ResponseError('too many 429 error responses'))，1.00 秒后重试
-2025-10-14 18:04:51 - urllib3.connectionpool - WARNING - Retrying (Retry(total=2, connect=2, read=2, redirect=None, status=None)) after connection broken by 'ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x0000026B223AAE90>, 'Connection to serpapi.com timed out. (connect timeout=30)')': /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+humanize&engine=google&num=10
-2025-10-14 18:05:13 - urllib3.connectionpool - WARNING - Retrying (Retry(total=1, connect=1, read=2, redirect=None, status=None)) after connection broken by 'ConnectTimeoutError(<urllib3.connection.HTTPSConnection object at 0x0000026B223A8F50>, 'Connection to serpapi.com timed out. (connect timeout=30)')': /search?api_key=e3ad2f0f6b3191e91d3ec56983ee56e783b1ac54cae9c869007078d7becd66be&q=hix+bypass+humanize&engine=google&num=10
-⚠️ SERP API 连续失败次数过多，已暂停 12 小时
-⚠️ SERP API 多次失败但尚未达到当前周期配额，请检查 SerpAPI 配额或凭证状态
-⚠️ 未能获取 hix bypass humanize 的 SERP 数据，返回空结果
-⚠️ SERP API 已暂停至 2025-10-14 22:05 UTC
-⚠️ 未能获取 hix bypass review 的 SERP 数据，返回空结果
-⚠️ 未能获取 dkr leviathan glam 的 SERP 数据，返回空结果
-⚠️ 未能获取 fb find - energy subwoofer 40 的 SERP 数据，返回空结果
-⚠️ 未能获取 my life is a disaster 的 SERP 数据，返回空结果
-⚠️ 未能获取 french fries in the haunted forest 的 SERP 数据，返回空结果
-⚠️ 未能获取 i knew it 的 SERP 数据，返回空结果
-⚠️ 未能获取 macbook or not 的 SERP 数据，返回空结果
-[analysis] total keywords 12, unique 12
-[analysis] intent cache 0 | new 12 | batches 1
-[analysis] market cache 0 | new 12 | batches 1
-[analysis] top opportunities: hix bypass review (39.4), hix bypass ai humanizer free (35.9), fb find - energy subwoofer 40 (33.2), french fries in the haunted forest (33.2), my life is a disaster (33.2)
-✅ 第一步完成! 分析了 12 个热门关键词
+⚠️ SERP API 已暂停至 2025-10-26 00:00 UTC
+⚠️ 未能获取 swap pack question new album 的 SERP 数据，返回空结果
+⚠️ 未能获取 lessons from a 5k self-released project 的 SERP 数据，返回空结果
+⚠️ 未能获取 horrible 2nd date 的 SERP 数据，返回空结果
+⚠️ 未能获取 fat and chronically ill/chronic pain 的 SERP 数据，返回空结果
+⚠️ 未能获取 this new tank meta is insane 的 SERP 数据，返回空结果
+[analysis] total keywords 11, unique 11
+[analysis] intent cache 6 | new 5 | batches 1
+[analysis] market cache 6 | new 5 | batches 1
+[analysis] top opportunities: lessons from a 5k self-released project (40.1), hix bypass review (39.4), hix bypass ai humanizer free (35.9), fat and chronically ill/chronic pain (34.2), swap pack question new album (33.2)
+✅ 第一步完成! 分析了 11 个热门关键词
 📊 发现 0 个高机会关键词
 
 🌐 第二步: 基于热门关键词进行多平台关键词发现...
-🚫 输入种子阶段拦截 3 个品牌种子: hix bypass review, hix bypass humanize, hix bypass ai
+🚫 输入种子阶段拦截 4 个品牌种子: hix bypass review, hix bypass humanize, hix bypass ai, hix bypass
+ℹ️ 品牌过滤命中率 40.00% 超出阈值 30%，追加 5 个痛点手动种子
 ℹ️ 已追加 5 个配置种子关键词以满足发现需求
 🔍 正在发现与 10 个关键词相关的关键词...
 🚀 开始多平台关键词发现...
@@ -168,111 +148,44 @@ SERP API 搜索失败: HTTPSConnectionPool(host='serpapi.com', port=443): Max re
 🔍 正在分析 YouTube 搜索建议 (查询: support ticket triage automation)...
 🔍 正在分析 Google 搜索建议 (查询: support ticket triage automation)...
 🔍 正在分析 ProductHunt (查询: support ticket triage automation)...
+🔍 正在分析 Hacker News (查询: lessons from a 5k self-released project)...
+🔍 正在分析 YouTube 搜索建议 (查询: lessons from a 5k self-released project)...
+🔍 正在分析 Google 搜索建议 (查询: lessons from a 5k self-released project)...
+🔍 正在分析 ProductHunt (查询: lessons from a 5k self-released project)...
 🔍 正在分析 Hacker News (查询: hix bypass ai humanizer free)...
 🔍 正在分析 YouTube 搜索建议 (查询: hix bypass ai humanizer free)...
 🔍 正在分析 Google 搜索建议 (查询: hix bypass ai humanizer free)...
 🔍 正在分析 ProductHunt (查询: hix bypass ai humanizer free)...
-🔍 正在分析 Hacker News (查询: fb find - energy subwoofer 40)...
-🔍 正在分析 YouTube 搜索建议 (查询: fb find - energy subwoofer 40)...
-🔍 正在分析 Google 搜索建议 (查询: fb find - energy subwoofer 40)...
-🔍 正在分析 ProductHunt (查询: fb find - energy subwoofer 40)...
-🔍 正在分析 Hacker News (查询: my life is a disaster)...
-🔍 正在分析 YouTube 搜索建议 (查询: my life is a disaster)...
-🔍 正在分析 Google 搜索建议 (查询: my life is a disaster)...
-🔍 正在分析 ProductHunt (查询: my life is a disaster)...
-🔍 正在分析 Hacker News (查询: french fries in the haunted forest)...
-🔍 正在分析 YouTube 搜索建议 (查询: french fries in the haunted forest)...
-🔍 正在分析 Google 搜索建议 (查询: french fries in the haunted forest)...
-🔍 正在分析 ProductHunt (查询: french fries in the haunted forest)...
-🔍 正在分析 Hacker News (查询: dkr leviathan glam)...
-🔍 正在分析 YouTube 搜索建议 (查询: dkr leviathan glam)...
-🔍 正在分析 Google 搜索建议 (查询: dkr leviathan glam)...
-🔍 正在分析 ProductHunt (查询: dkr leviathan glam)...
-⚠️ 移除了 15 个泛化头部词
+🔍 正在分析 Hacker News (查询: fat and chronically ill/chronic pain)...
+🔍 正在分析 YouTube 搜索建议 (查询: fat and chronically ill/chronic pain)...
+🔍 正在分析 Google 搜索建议 (查询: fat and chronically ill/chronic pain)...
+🔍 正在分析 ProductHunt (查询: fat and chronically ill/chronic pain)...
+🔍 正在分析 Hacker News (查询: swap pack question new album)...
+🔍 正在分析 YouTube 搜索建议 (查询: swap pack question new album)...
+🔍 正在分析 Google 搜索建议 (查询: swap pack question new album)...
+🔍 正在分析 ProductHunt (查询: swap pack question new album)...
+🔍 正在分析 Hacker News (查询: this new tank meta is insane)...
+🔍 正在分析 YouTube 搜索建议 (查询: this new tank meta is insane)...
+🔍 正在分析 Google 搜索建议 (查询: this new tank meta is insane)...
+🔍 正在分析 ProductHunt (查询: this new tank meta is insane)...
+⚠️ 移除了 7 个泛化头部词
 Skipping embedding stage: 2 keywords, threshold 5
 ✅ 发现 2 个关键词
 🎯 发现了 2 个相关关键词
-📁 发现的关键词已保存到: output/reports\discovered_keywords_20251014_180531.csv
+📁 发现的关键词已保存到: output/reports\discovered_keywords_20251015_141631.csv
 
 🔍 第三步: 对发现的关键词进行需求挖掘分析...
 🚀 开始关键词分析 - 类型: file, 综合分析: False
 ✅ 成功读取 2 条关键词数据
-2025-10-14 18:05:31 - root - INFO - 开始搜索意图V2分析，共 2 个关键词
-⚠️ 未能获取 process mining 的 SERP 数据，返回空结果
-⚠️ 未能获取 content repurposing automation soplay 的 SERP 数据，返回空结果
 [analysis] total keywords 2, unique 2
-[analysis] intent cache 0 | new 2 | batches 1
-[analysis] market cache 0 | new 2 | batches 1
+[analysis] intent cache 2 | new 0 | batches 0
+[analysis] market cache 2 | new 0 | batches 0
 [analysis] top opportunities: content repurposing automation soplay (45.7), process mining (37.7)
 🔍 正在进行新词检测...
-2025-10-14 18:05:31 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-10-14 18:05:31 - root - INFO -    关键词: ['process mining']
-2025-10-14 18:05:31 - root - INFO -    时间范围: today 12-m
-2025-10-14 18:05:31 - root - INFO -    地理位置:
-2025-10-14 18:05:31 - src.collectors.request_rate_limiter - INFO - ✅ 节流冷却结束，最小间隔回落至 5.0 秒
-2025-10-14 18:05:32 - src.collectors.request_rate_limiter - INFO - ✅ 节流冷却结束，最小间隔回落至 3.5 秒
-2025-10-14 18:05:34 - src.collectors.request_rate_limiter - INFO - ✅ 节流冷却结束，最小间隔回落至 3.0 秒
-2025-10-14 18:05:38 - src.collectors.custom_trends_collector - WARNING - ⚠️ 遇到429错误，第1次重试
-2025-10-14 18:05:38 - src.collectors.custom_trends_collector - WARNING - 🔗 请求URL: https://trends.google.com/trends/api/widgetdata/multiline
-2025-10-14 18:05:38 - src.collectors.request_rate_limiter - WARNING - ⚠️ 收到high级节流信号，最小间隔调整为 7.2 秒，额外冷却 60.0 秒
-2025-10-14 18:05:38 - src.collectors.custom_trends_collector - WARNING - ⏳ 节流提示，额外等待 60.0 秒
-2025-10-14 18:05:38 - root - WARNING - ⏳ TrendsCollector 进入冷却，剩余 60.0 秒
-2025-10-14 18:05:38 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
-2025-10-14 18:05:38 - src.collectors.google_trends_session - INFO - 全局Session已重置
-2025-10-14 18:05:38 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
-2025-10-14 18:05:38 - src.collectors.google_trends_session - INFO - 🔧 正在初始化Google Trends会话...
-2025-10-14 18:06:46 - src.collectors.google_trends_session - INFO - ✅ Google Trends会话初始化成功
-2025-10-14 18:06:53 - src.collectors.request_rate_limiter - WARNING - ⚠️ 收到high级节流信号，最小间隔调整为 17.3 秒，额外冷却 60.0 秒
-2025-10-14 18:06:53 - root - WARNING - ⏳ TrendsCollector 进入冷却，剩余 60.0 秒
-2025-10-14 18:06:53 - src.collectors.custom_trends_collector - ERROR - ❌ 多次遇到429错误，请求失败
-2025-10-14 18:06:53 - src.collectors.custom_trends_collector - ERROR - 无法获取时间序列数据
-2025-10-14 18:06:53 - root - WARNING - 未获取到关键词 ['process mining'] 的 Google Trends 数据
-2025-10-14 18:06:53 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['process mining'] 的 Google Trends 数据
-2025-10-14 18:06:53 - root - ERROR -    请求参数: keywords=['process mining'], timeframe=today 12-m, geo=
-2025-10-14 18:06:53 - root - WARNING - 获取 process mining (today 12-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['process mining'] 的 Google Trends 数据
-2025-10-14 18:06:54 - root - WARNING - ⏸ Google Trends 冷却中 (59.4 秒)，跳过 兴趣度数据请求
-2025-10-14 18:06:54 - root - WARNING - 获取 process mining (today 3-m, GLOBAL) 趋势数据失败: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:06:55 - root - WARNING - 获取 process mining (now 7-d, GLOBAL) 趋势数据失败: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:06:55 - root - WARNING - ⏸ Google Trends 冷却中 (58.2 秒)，跳过 兴趣度数据请求
-2025-10-14 18:06:55 - root - WARNING - 获取 process mining (now 1-d, GLOBAL) 趋势数据失败: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:06:56 - root - WARNING - 获取 process mining (today 12-m, US) 趋势数据失败: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:06:56 - root - WARNING - ⏸ Google Trends 冷却中 (57.0 秒)，跳过 兴趣度数据请求
-2025-10-14 18:06:56 - root - WARNING - 获取 process mining (today 3-m, US) 趋势数据失败: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:06:57 - root - WARNING - 获取 process mining (now 7-d, US) 趋势数据失败: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:06:58 - root - WARNING - ⏸ Google Trends 冷却中 (55.8 秒)，跳过 兴趣度数据请求
-2025-10-14 18:06:58 - root - WARNING - 获取 process mining (now 1-d, US) 趋势数据失败: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:06:58 - root - WARNING - 获取 process mining (today 12-m, GB) 趋势数据失败: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:06:59 - root - WARNING - ⏸ Google Trends 冷却中 (54.6 秒)，跳过 兴趣度数据请求
-2025-10-14 18:06:59 - root - WARNING - 获取 process mining (today 3-m, GB) 趋势数据失败: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:06:59 - root - WARNING - 获取 process mining (now 7-d, GB) 趋势数据失败: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:07:00 - root - WARNING - ⏸ Google Trends 冷却中 (53.4 秒)，跳过 兴趣度数据请求
-2025-10-14 18:07:00 - root - WARNING - 获取 process mining (now 1-d, GB) 趋势数据失败: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:07:01 - root - WARNING - 多次尝试后仍无法获取 process mining 趋势数据: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:07:01 - root - WARNING - 使用缓存趋势数据作为 process mining 的回退 (实时数据为空)
-2025-10-14 18:07:01 - root - WARNING - 获取 content repurposing automation soplay (today 12-m, GLOBAL) 趋势数据失败: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:07:01 - root - WARNING - ⏸ Google Trends 冷却中 (52.0 秒)，跳过 兴趣度数据请求
-2025-10-14 18:07:01 - root - WARNING - 获取 content repurposing automation soplay (today 3-m, GLOBAL) 趋势数据失败: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:07:02 - root - WARNING - 获取 content repurposing automation soplay (now 7-d, GLOBAL) 趋势数据失败: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:07:03 - root - WARNING - ⏸ Google Trends 冷却中 (50.8 秒)，跳过 兴趣度数据请求
-2025-10-14 18:07:03 - root - WARNING - 获取 content repurposing automation soplay (now 1-d, GLOBAL) 趋势数据失败: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:07:03 - root - WARNING - 获取 content repurposing automation soplay (today 12-m, US) 趋势数据失败: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:07:04 - root - WARNING - ⏸ Google Trends 冷却中 (49.6 秒)，跳过 兴趣度数据请求
-2025-10-14 18:07:04 - root - WARNING - 获取 content repurposing automation soplay (today 3-m, US) 趋势数据失败: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:07:04 - root - WARNING - 获取 content repurposing automation soplay (now 7-d, US) 趋势数据失败: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:07:05 - root - WARNING - ⏸ Google Trends 冷却中 (48.4 秒)，跳过 兴趣度数据请求
-2025-10-14 18:07:05 - root - WARNING - 获取 content repurposing automation soplay (now 1-d, US) 趋势数据失败: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:07:06 - root - WARNING - 获取 content repurposing automation soplay (today 12-m, GB) 趋势数据失败: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:07:06 - root - WARNING - ⏸ Google Trends 冷却中 (47.2 秒)，跳过 兴趣度数据请求
-2025-10-14 18:07:06 - root - WARNING - 获取 content repurposing automation soplay (today 3-m, GB) 趋势数据失败: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:07:07 - root - WARNING - 获取 content repurposing automation soplay (now 7-d, GB) 趋势数据失败: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:07:07 - root - WARNING - ⏸ Google Trends 冷却中 (46.0 秒)，跳过 兴趣度数据请求
-2025-10-14 18:07:07 - root - WARNING - 获取 content repurposing automation soplay (now 1-d, GB) 趋势数据失败: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:07:08 - root - WARNING - 多次尝试后仍无法获取 content repurposing automation soplay 趋势数据: Google Trends 处于冷却期，暂未执行趋势数据请求
-2025-10-14 18:07:08 - root - WARNING - 使用缓存趋势数据作为 content repurposing automation soplay 的回退 (实时数据为空)
-✅ 新词检测完成: 发现 0 个新词 (0 个高置信度, 0 个 Breakout)
+✅ 新词检测完成: 发现 0 个新词 (0 个高置信度, 2 个 Breakout)
 
 🎉 完整工作流程完成!
-📊 热门关键词分析: 12 个关键词
+📊 热门关键词分析: 11 个关键词
 🌐 多平台发现: 2 个相关关键词
 🎯 最终分析: 2 个关键词
 🏆 总计高机会关键词: 0 个

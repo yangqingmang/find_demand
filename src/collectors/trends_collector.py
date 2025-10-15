@@ -37,10 +37,38 @@ class TrendsCollector:
             'property': ''
         },
         'headers': {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.6478.61 Safari/537.36',
             'Accept': 'application/json, text/plain, */*',
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Referer': 'https://trends.google.com/'
+            'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br, zstd',
+            'Referer': 'https://trends.google.com/trends/explore?hl=en-US&tz=360',
+            'Origin': 'https://trends.google.com',
+            'Connection': 'keep-alive',
+            'DNT': '0',
+            'TE': 'trailers',
+            'Priority': 'u=1, i',
+            'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'same-origin',
+            'Sec-Ch-Ua': '"Not/A)Brand";v="99", "Google Chrome";v="126", "Chromium";v="126"',
+            'Sec-Ch-Ua-Full-Version': '"126.0.6478.61"',
+            'Sec-Ch-Ua-Full-Version-List': '"Not/A)Brand";v="99.0.0.0", "Google Chrome";v="126.0.6478.61", "Chromium";v="126.0.6478.61"',
+            'Sec-Ch-Ua-Reduced': '"Google Chrome";v="126"',
+            'Sec-Ch-Ua-Platform': '"Windows"',
+            'Sec-Ch-Ua-Platform-Version': '"15.0.0"',
+            'Sec-Ch-Ua-Arch': '"x86"',
+            'Sec-Ch-Ua-Bitness': '"64"',
+            'Sec-Ch-Ua-Mobile': '?0',
+            'Sec-Ch-Ua-Model': '""',
+            'Sec-Ch-Ua-Wow64': '?0',
+            'Sec-Ch-Ua-Form-Factor': '"Desktop"',
+            'Sec-CH-Prefers-Color-Scheme': '"light"',
+            'Sec-CH-Prefers-Reduced-Motion': '"no-preference"',
+            'Viewport-Width': '1920',
+            'Downlink': '10',
+            'ECT': '4g',
+            'RTT': '50',
+            'X-Client-Data': 'CK6/ygEIlLbJAQjBtskBCKmdygEIptzKAQj8tc0BCJrdzgEIk7nOARis7c4B'
         },
         'rate_limits': GOOGLE_TRENDS_CONFIG['rate_limits']
     }
@@ -169,7 +197,7 @@ class TrendsCollector:
                 }
             
             full_url = f"{url}?{urllib.parse.urlencode(params)}"
-            
+
             # 打印完整的请求URL用于调试
             self.logger.debug(f"🔍 正在请求URL: {full_url}")
             self.logger.debug(f"📋 请求参数: {params}")
@@ -179,7 +207,33 @@ class TrendsCollector:
                 if not self._wait_for_slot():
                     return None
                 time.sleep(2)
-                response = self.trends_collector.session.get(full_url, headers=self.API_CONFIG['headers'], timeout=self.timeout)
+                request_headers = dict(self.API_CONFIG['headers'])
+
+                if keyword:
+                    referer_params = {
+                        'hl': self.hl,
+                        'tz': self.tz,
+                        'q': keyword
+                    }
+                    if geo:
+                        referer_params['geo'] = geo
+                    request_headers['Referer'] = f"https://trends.google.com/trends/explore?{urllib.parse.urlencode(referer_params)}"
+                else:
+                    referer_params = {
+                        'hl': self.hl,
+                        'tz': self.tz
+                    }
+                    if geo:
+                        referer_params['geo'] = geo
+                    request_headers['Referer'] = f"https://trends.google.com/trends/explore?{urllib.parse.urlencode(referer_params)}"
+
+                response = self.trends_collector.trends_session.make_request(
+                    'GET',
+                    url,
+                    headers=request_headers,
+                    params=params,
+                    timeout=self.timeout
+                )
             else:
                 self.logger.error("trends_collector未初始化或没有session")
                 return None

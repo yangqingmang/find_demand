@@ -110,6 +110,9 @@ class KeywordManager(BaseManager):
         review_path.mkdir(parents=True, exist_ok=True)
         self.manual_review_output_dir = review_path
 
+        # 存储趋势惩罚信息（由上层注入）
+        self._trend_penalty_lookup: Dict[str, Dict[str, Any]] = {}
+
         feedback_file = manual_review_cfg.get('feedback_file')
         self.manual_feedback_map = self._load_manual_feedback(feedback_file)
 
@@ -1118,6 +1121,18 @@ class KeywordManager(BaseManager):
             total = 1.0
         self.scoring_weights = {k: (v / total) for k, v in self.scoring_weights.items()}
 
+    def set_trend_penalty_lookup(self, penalty_lookup: Optional[Dict[str, Dict[str, Any]]]) -> None:
+        """注入趋势惩罚字典，在机会分计算阶段使用"""
+        normalised: Dict[str, Dict[str, Any]] = {}
+        if isinstance(penalty_lookup, dict):
+            for key, meta in penalty_lookup.items():
+                if not isinstance(key, str) or not key.strip():
+                    continue
+                if not isinstance(meta, dict):
+                    continue
+                normalised[key.strip().lower()] = meta
+        self._trend_penalty_lookup = normalised
+
     def _calculate_opportunity_score(
         self,
         intent_result: Dict,
@@ -1233,6 +1248,29 @@ class KeywordManager(BaseManager):
                     total_score += self.manual_feedback_penalty
                 elif label in {'hold', 'pause', 'deprioritize'}:
                     total_score += self.manual_feedback_penalty / 2
+
+            penalty_meta = getattr(self, '_trend_penalty_lookup', {}).get(keyword_text, {})
+            if penalty_meta:
+                multiplier = penalty_meta.get('multiplier', 1.0)
+                try:
+                    multiplier = float(multiplier)
+                except Exception:
+                    multiplier = 1.0
+                multiplier = max(0.0, min(multiplier, 1.0))
+                confidence = penalty_meta.get('confidence')
+                if confidence:
+                    market_result['trend_confidence'] = confidence
+                labels = penalty_meta.get('labels') or []
+                if labels:
+                    indicators = market_result.setdefault('opportunity_indicators', [])
+                    if not isinstance(indicators, list):
+                        indicators = []
+                    for label in labels:
+                        if label and label not in indicators:
+                            indicators.append(label)
+                    market_result['opportunity_indicators'] = indicators
+                market_result['trend_penalty_multiplier'] = multiplier
+                total_score *= multiplier
 
             return round(max(0.0, min(total_score, 100.0)), 2)
 
