@@ -398,7 +398,7 @@ class CustomTrendsCollector(TrendsAPIClient):
             params=data_payload,
             trim_chars=5
         )
-    
+
     def _with_temp_settings(self, func: Callable[[], T], **kwargs) -> T:
         """使用临时设置执行函数"""
         # 保存原始设置

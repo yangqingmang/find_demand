@@ -9,10 +9,18 @@ import re
 import threading
 import time
 from http.cookiejar import MozillaCookieJar
-from typing import Dict, Optional, Any
+from typing import Any, Dict, Optional, TYPE_CHECKING, Union
 from urllib.parse import urljoin
 
 import requests
+
+try:
+    import httpx  # type: ignore
+except ImportError:  # pragma: no cover
+    httpx = None
+
+if TYPE_CHECKING:  # pragma: no cover
+    from httpx import Response as HTTPXResponse
 
 # 导入代理管理器
 try:
@@ -24,19 +32,32 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+ResponseType = Union[requests.Response, "HTTPXResponse"]
+
 from .request_rate_limiter import wait_for_next_request, register_rate_limit_event
 
 class GoogleTrendsSession:
     """Google Trends Session 管理类"""
     
-    def __init__(self, timeout: tuple = (20, 30), use_proxy: bool = True):
+    def __init__(
+        self,
+        timeout: tuple = (20, 30),
+        use_proxy: bool = True,
+        backend: Optional[str] = None,
+    ):
         self.timeout = timeout
-        self.session = None
+        self.client_backend = self._resolve_backend(backend)
+        self.session: Optional[Union[requests.Session, "httpx.Client"]] = None
         self.headers = self._load_headers()
         self.initialized = False
         self.use_proxy = use_proxy
         self.proxy_manager = None
         self._cookie_lock = threading.Lock()
+        logger.debug(
+            "GoogleTrendsSession 初始化，后端=%s，代理=%s",
+            self.client_backend,
+            "on" if use_proxy else "off",
+        )
 
         project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
         cookie_dir = os.path.join(project_root, 'output', 'tmp')
@@ -117,6 +138,118 @@ class GoogleTrendsSession:
                 'X-Client-Data': 'CK6/ygEIlLbJAQjBtskBCKmdygEIptzKAQj8tc0BCJrdzgEIk7nOARis7c4B'
             }
 
+    def _resolve_backend(self, backend: Optional[str]) -> str:
+        """解析会话使用的HTTP后端"""
+        candidates = [
+            backend,
+            os.getenv('FIND_DEMAND_TRENDS_BACKEND'),
+            os.getenv('FIND_DEMAND_HTTP_BACKEND'),
+            'httpx' if httpx is not None else 'requests',
+        ]
+        for candidate in candidates:
+            if not candidate:
+                continue
+            normalized = candidate.strip().lower()
+            if normalized not in {'requests', 'httpx'}:
+                logger.warning(f"未知的HTTP后端配置: {candidate}，忽略")
+                continue
+            if normalized == 'httpx' and httpx is None:
+                logger.warning("httpx 未安装，GoogleTrendsSession 自动回退至 requests")
+                return 'requests'
+            return normalized
+        return 'requests'
+
+    def _build_httpx_timeout(self, timeout: Union[int, float, tuple]) -> "httpx.Timeout":
+        """构造 httpx Timeout 对象"""
+        assert httpx is not None
+        if isinstance(timeout, (int, float)):
+            return httpx.Timeout(timeout=timeout)
+        if isinstance(timeout, tuple):
+            if len(timeout) == 2:
+                connect, read = timeout
+                return httpx.Timeout(
+                    connect=connect,
+                    read=read,
+                    write=read,
+                    pool=connect,
+                )
+            if len(timeout) == 4:
+                connect, read, write, pool = timeout
+                return httpx.Timeout(
+                    connect=connect,
+                    read=read,
+                    write=write,
+                    pool=pool,
+                )
+        return httpx.Timeout(timeout=30)
+
+    def _prepare_httpx_kwargs(self, kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """requests 参数转为 httpx 兼容形式"""
+        assert httpx is not None
+        converted = dict(kwargs)
+        timeout = converted.get('timeout', self.timeout)
+        converted['timeout'] = self._build_httpx_timeout(timeout)
+        if 'allow_redirects' in converted:
+            converted['follow_redirects'] = converted.pop('allow_redirects')
+        return converted
+
+    def _session_request(self, method: str, url: str, **kwargs) -> ResponseType:
+        """统一会话请求入口，兼容 requests 与 httpx"""
+        if not self.session:
+            raise RuntimeError("会话尚未初始化")
+
+        if self.client_backend == 'httpx':
+            if httpx is None:
+                raise RuntimeError("httpx 未安装，无法使用 httpx 后端")
+            httpx_kwargs = self._prepare_httpx_kwargs(kwargs)
+            return self.session.request(method, url, **httpx_kwargs)
+
+        return self.session.request(method, url, **kwargs)
+
+    def _get_session_cookie_jar(self):
+        """获取底层cookie jar"""
+        if not self.session:
+            return None
+        cookies = getattr(self.session, 'cookies', None)
+        if cookies is None:
+            return None
+        jar = getattr(cookies, 'jar', None)
+        return jar if jar is not None else cookies
+
+    def _set_cookie_on_session(self, cookie) -> None:
+        """将cookie写入当前会话"""
+        if not self.session:
+            return
+        cookies_obj = getattr(self.session, 'cookies', None)
+        if cookies_obj is None:
+            return
+        if hasattr(cookies_obj, 'set_cookie'):
+            try:
+                cookies_obj.set_cookie(cookie)
+                return
+            except Exception:
+                pass
+        try:
+            cookies_obj.set(
+                cookie.name,
+                cookie.value,
+                domain=cookie.domain,
+                path=cookie.path or '/',
+                expires=cookie.expires,
+            )
+        except Exception as cookie_error:
+            logger.debug(f"写入cookie失败，已忽略: {cookie_error}")
+
+    def _iter_session_cookies(self):
+        """迭代当前session的cookie对象"""
+        jar = self._get_session_cookie_jar()
+        if jar is None:
+            return []
+        try:
+            return list(jar)
+        except TypeError:
+            return []
+
     def _load_cookie_jar(self) -> None:
         """尝试从磁盘加载已有cookie"""
         if not os.path.exists(self.cookie_path):
@@ -141,7 +274,7 @@ class GoogleTrendsSession:
                     pass
                 self.cookie_jar = MozillaCookieJar(self.cookie_path)
     
-    def get_session(self) -> requests.Session:
+    def get_session(self) -> Union[requests.Session, "httpx.Client"]:
         """获取已初始化的session"""
         if self.session is None:
             self._create_session()
@@ -155,8 +288,32 @@ class GoogleTrendsSession:
     
     def _create_session(self) -> None:
         """创建新的session"""
-        self.session = requests.Session()
-        self.session.headers.update(self.headers)
+        if self.client_backend == 'httpx' and httpx is not None:
+            try:
+                timeout = self._build_httpx_timeout(self.timeout)
+                self.session = httpx.Client(
+                    http2=True,
+                    headers=self.headers.copy(),
+                    timeout=timeout,
+                    trust_env=False,
+                    follow_redirects=True,
+                )
+                logger.debug("创建新的Google Trends httpx 客户端")
+            except Exception as exc:
+                logger.warning(f"httpx 客户端创建失败 ({exc})，回退到 requests")
+                self.client_backend = 'requests'
+                self.session = None
+
+        if self.session is None:
+            self.session = requests.Session()
+            logger.debug("创建新的Google Trends requests session")
+
+        try:
+            self.session.headers.update(self.headers)
+        except AttributeError:
+            # httpx Headers 对象不可直接覆盖，已在构造函数中应用
+            pass
+
         self._apply_cookies_to_session()
         logger.debug("创建新的Google Trends session")
 
@@ -167,7 +324,7 @@ class GoogleTrendsSession:
         with self._cookie_lock:
             for cookie in list(self.cookie_jar):
                 try:
-                    self.session.cookies.set_cookie(cookie)
+                    self._set_cookie_on_session(cookie)
                 except Exception as cookie_error:
                     logger.debug(f"写入cookie失败，已忽略: {cookie_error}")
 
@@ -178,7 +335,7 @@ class GoogleTrendsSession:
 
         with self._cookie_lock:
             jar = MozillaCookieJar(self.cookie_path)
-            for cookie in self.session.cookies:
+            for cookie in self._iter_session_cookies():
                 try:
                     jar.set_cookie(cookie)
                 except Exception as cookie_error:
@@ -189,6 +346,28 @@ class GoogleTrendsSession:
                 logger.debug("已刷新 Google Trends cookies 到磁盘")
             except Exception as save_error:
                 logger.warning(f"保存cookie失败: {save_error}")
+
+    def _merge_response_cookies(self, response: ResponseType) -> None:
+        """将响应中的cookie合并到当前session"""
+        if not self.session or not response:
+            return
+        cookies_obj = getattr(response, 'cookies', None)
+        if not cookies_obj:
+            return
+        source = getattr(cookies_obj, 'jar', None) or cookies_obj
+        try:
+            for cookie in source:
+                self._set_cookie_on_session(cookie)
+        except TypeError:
+            items = getattr(source, 'items', None)
+            if callable(items):
+                for name, value in items():
+                    try:
+                        self.session.cookies.set(name, value)
+                    except Exception:
+                        pass
+        except Exception as cookie_error:
+            logger.debug(f"响应cookie合并失败: {cookie_error}")
 
     def _prefetch_primary_assets(self, main_page_html: str) -> None:
         """模拟浏览器加载首批静态资源，补全指纹"""
@@ -233,7 +412,7 @@ class GoogleTrendsSession:
                     logger.debug(f"预取资源等待限流槽位时异常: {limiter_error}")
 
                 try:
-                    response = self.session.get(asset_url, headers=asset_headers, timeout=self.timeout)
+                    response = self._session_request('GET', asset_url, headers=asset_headers, timeout=self.timeout)
                     if response.status_code == 200:
                         logger.debug("已预取 Google Trends %s 资源: %s", asset_type, asset_url)
                         if response.cookies:
@@ -280,7 +459,7 @@ class GoogleTrendsSession:
                 self.initialized = False
                 return
 
-            response = self.session.get(main_page_url, headers=bootstrap_headers, timeout=self.timeout)
+            response = self._session_request('GET', main_page_url, headers=bootstrap_headers, timeout=self.timeout)
             self._persist_session_cookies()
             main_page_html = ''
 
@@ -297,7 +476,7 @@ class GoogleTrendsSession:
                     self.initialized = False
                     return
 
-                response = self.session.get(main_page_url, headers=bootstrap_headers, timeout=self.timeout)
+                response = self._session_request('GET', main_page_url, headers=bootstrap_headers, timeout=self.timeout)
                 self._persist_session_cookies()
 
             if response.status_code != 200:
@@ -327,7 +506,7 @@ class GoogleTrendsSession:
                 self.initialized = False
                 return
 
-            trends_response = self.session.get(trends_page_url, headers=bootstrap_headers, timeout=self.timeout)
+            trends_response = self._session_request('GET', trends_page_url, headers=bootstrap_headers, timeout=self.timeout)
             self._persist_session_cookies()
 
             if trends_response.status_code == 429:
@@ -343,7 +522,7 @@ class GoogleTrendsSession:
                     self.initialized = False
                     return
 
-                trends_response = self.session.get(trends_page_url, headers=bootstrap_headers, timeout=self.timeout)
+                trends_response = self._session_request('GET', trends_page_url, headers=bootstrap_headers, timeout=self.timeout)
                 self._persist_session_cookies()
 
             if trends_response.status_code == 200:
@@ -383,6 +562,74 @@ class GoogleTrendsSession:
         self.headers.update(new_headers)
         if self.session:
             self.session.headers.update(new_headers)
+
+    def _log_request_debug_snapshot(
+        self,
+        method: str,
+        url: str,
+        kwargs: Dict[str, Any],
+        via_proxy: bool = False,
+    ) -> None:
+        """输出调试请求快照，协助指纹对比"""
+        if not logger.isEnabledFor(logging.DEBUG):
+            return
+
+        effective_headers: Dict[str, str] = {}
+        if self.session:
+            try:
+                effective_headers.update(self.session.headers or {})
+            except Exception as header_error:
+                logger.debug(f"会话默认请求头读取失败: {header_error}")
+        else:
+            effective_headers.update(self.headers)
+        extra_headers = kwargs.get('headers') or {}
+        effective_headers.update(extra_headers)
+
+        cookie_dump: Dict[str, str] = {}
+        if self.session:
+            try:
+                cookie_dump = self.session.cookies.get_dict()
+            except Exception as cookie_error:
+                logger.debug(f"会话 cookie 读取失败: {cookie_error}")
+
+        logger.debug(
+            "📡 准备%s请求 %s %s",
+            "通过代理发起" if via_proxy else "直接发起",
+            method,
+            url,
+        )
+        logger.debug("↳ 请求头: %s", json.dumps(effective_headers, ensure_ascii=False))
+
+        if cookie_dump:
+            logger.debug("↳ 会话Cookies: %s", json.dumps(cookie_dump, ensure_ascii=False))
+
+        if kwargs.get('params'):
+            logger.debug("↳ Query参数: %s", json.dumps(kwargs['params'], ensure_ascii=False))
+
+        if kwargs.get('data') is not None:
+            payload = kwargs['data']
+            if isinstance(payload, (bytes, bytearray)):
+                logger.debug("↳ 表单/正文: <二进制数据，长度=%s>", len(payload))
+            else:
+                try:
+                    logger.debug("↳ 表单/正文: %s", json.dumps(payload, ensure_ascii=False))
+                except (TypeError, ValueError):
+                    length_hint = getattr(payload, "__len__", None)
+                    logged_length = False
+                    if callable(length_hint):
+                        try:
+                            logger.debug(
+                                "↳ 表单/正文: <非JSON可序列化数据，长度=%s>",
+                                length_hint(),
+                            )
+                            logged_length = True
+                        except Exception:
+                            pass
+                    if not logged_length:
+                        logger.debug(
+                            "↳ 表单/正文: <非JSON可序列化数据，类型=%s>",
+                            type(payload).__name__,
+                        )
     
     def _clone_request_kwargs(self, kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """复制请求参数，避免在重试时修改原始引用"""
@@ -431,7 +678,7 @@ class GoogleTrendsSession:
         url: str,
         retry_on_429: bool = True,
         **kwargs,
-    ) -> requests.Response:
+    ) -> ResponseType:
         """发送请求的统一接口"""
         # 检查会话是否已成功初始化
         if not self.initialized:
@@ -445,17 +692,20 @@ class GoogleTrendsSession:
                     request_kwargs['headers'] = {}
                 request_kwargs['headers'].update(self.headers)
 
+                self._log_request_debug_snapshot(method, url, request_kwargs, via_proxy=True)
+
                 if 'timeout' not in request_kwargs:
                     request_kwargs['timeout'] = self.timeout
                 
                 # 使用代理管理器发送请求
-                response = self.proxy_manager.make_request(url, method, **request_kwargs)
+                response = self.proxy_manager.make_request(
+                    url,
+                    method,
+                    backend=self.client_backend,
+                    **request_kwargs,
+                )
                 if response:
-                    if self.session and response.cookies:
-                        try:
-                            self.session.cookies.update(response.cookies)
-                        except Exception as cookie_error:
-                            logger.debug(f"代理响应cookie合并失败: {cookie_error}")
+                    self._merge_response_cookies(response)
                     self._persist_session_cookies()
                     if response.status_code == 429 and retry_on_429:
                         retry_response = self._attempt_429_recovery(method, url, request_kwargs)
@@ -470,14 +720,16 @@ class GoogleTrendsSession:
                 logger.warning(f"⚠️ 代理请求异常: {e}，尝试直接请求")
         
         # 直接请求（无代理或代理失败时的回退方案）
-        session = self.get_session()
-        
+        self.get_session()
+
         # 设置默认超时
         if 'timeout' not in kwargs:
             kwargs['timeout'] = self.timeout
+
+        self._log_request_debug_snapshot(method, url, kwargs, via_proxy=False)
             
         # 发送请求
-        response = session.request(method, url, **kwargs)
+        response = self._session_request(method, url, **kwargs)
         self._persist_session_cookies()
 
         if response.status_code == 429 and retry_on_429:
@@ -487,11 +739,11 @@ class GoogleTrendsSession:
 
         return response
     
-    def get(self, url: str, **kwargs) -> requests.Response:
+    def get(self, url: str, **kwargs) -> ResponseType:
         """GET请求"""
         return self.make_request('GET', url, **kwargs)
     
-    def post(self, url: str, **kwargs) -> requests.Response:
+    def post(self, url: str, **kwargs) -> ResponseType:
         """POST请求"""
         return self.make_request('POST', url, **kwargs)
     

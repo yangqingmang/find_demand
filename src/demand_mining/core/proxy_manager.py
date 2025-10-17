@@ -13,19 +13,30 @@
 创建时间: 2025-01-27
 """
 
-import time
+import logging
 import random
-import requests
 import threading
-from typing import List, Dict, Optional, Tuple, Any
+import time
+from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING, Union
 from dataclasses import dataclass
 from collections import defaultdict, deque
 from fake_useragent import UserAgent
-import logging
 from urllib.parse import urlparse
+
+import requests
+
+try:
+    import httpx  # type: ignore
+except ImportError:  # pragma: no cover
+    httpx = None
+
+if TYPE_CHECKING:  # pragma: no cover
+    from httpx import Response as HTTPXResponse
 
 # 配置日志
 logger = logging.getLogger(__name__)
+
+ResponseType = Union[requests.Response, "HTTPXResponse"]
 
 
 @dataclass
@@ -243,6 +254,88 @@ class ProxyManager:
         except Exception as e:
             logger.warning(f"获取随机User-Agent失败: {e}，使用默认值")
             return "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+
+    def _normalize_backend(self, backend: Optional[str]) -> str:
+        """确认代理请求使用的后端类型"""
+        candidate = (backend or 'requests').lower()
+        if candidate not in {'requests', 'httpx'}:
+            logger.warning(f"未知的HTTP后端: {backend}，代理将回退到 requests")
+            return 'requests'
+        if candidate == 'httpx' and httpx is None:
+            logger.warning("httpx 未安装，代理请求自动回退到 requests")
+            return 'requests'
+        return candidate
+
+    def _build_httpx_timeout(self, timeout: Union[int, float, tuple]) -> "httpx.Timeout":
+        """构造 httpx Timeout"""
+        assert httpx is not None
+        if isinstance(timeout, (int, float)):
+            return httpx.Timeout(timeout=timeout)
+        if isinstance(timeout, tuple):
+            if len(timeout) == 2:
+                connect, read = timeout
+                return httpx.Timeout(
+                    connect=connect,
+                    read=read,
+                    write=read,
+                    pool=connect,
+                )
+            if len(timeout) == 4:
+                connect, read, write, pool = timeout
+                return httpx.Timeout(
+                    connect=connect,
+                    read=read,
+                    write=write,
+                    pool=pool,
+                )
+        return httpx.Timeout(timeout=self.timeout)
+
+    def _perform_requests_call(
+        self,
+        method: str,
+        url: str,
+        request_kwargs: Dict[str, Any],
+    ) -> requests.Response:
+        """使用 requests 发起请求"""
+        if method.upper() == 'GET':
+            return requests.get(url, **request_kwargs)
+        if method.upper() == 'POST':
+            return requests.post(url, **request_kwargs)
+        return requests.request(method, url, **request_kwargs)
+
+    def _perform_httpx_call(
+        self,
+        method: str,
+        url: str,
+        request_kwargs: Dict[str, Any],
+    ) -> Optional["HTTPXResponse"]:
+        """使用 httpx 发起请求"""
+        if httpx is None:
+            return None
+
+        timeout = request_kwargs.get('timeout', self.timeout)
+        timeout_obj = self._build_httpx_timeout(timeout)
+
+        headers = request_kwargs.get('headers', {})
+        proxies = request_kwargs.get('proxies')
+
+        client_kwargs: Dict[str, Any] = {
+            'http2': True,
+            'timeout': timeout_obj,
+            'headers': headers,
+            'trust_env': False,
+            'follow_redirects': True,
+        }
+        if proxies:
+            client_kwargs['proxies'] = proxies
+
+        extra_kwargs = {k: v for k, v in request_kwargs.items() if k not in {'headers', 'timeout', 'proxies'}}
+        if 'allow_redirects' in extra_kwargs:
+            extra_kwargs['follow_redirects'] = extra_kwargs.pop('allow_redirects')
+
+        with httpx.Client(**client_kwargs) as client:
+            response = client.request(method, url, **extra_kwargs)
+            return response
     
     def test_proxy(self, proxy: ProxyInfo, test_url: str = "http://httpbin.org/ip") -> bool:
         """测试代理可用性"""
@@ -282,8 +375,14 @@ class ProxyManager:
         active_count = sum(1 for p in self.proxies if p.is_active)
         logger.info(f"代理测试完成，活跃代理数: {active_count}/{len(self.proxies)}")
     
-    def make_request(self, url: str, method: str = 'GET', 
-                    use_proxy: bool = True, **kwargs) -> Optional[requests.Response]:
+    def make_request(
+        self,
+        url: str,
+        method: str = 'GET',
+        use_proxy: bool = True,
+        backend: str = 'requests',
+        **kwargs,
+    ) -> Optional[ResponseType]:
         """发起请求"""
         domain = urlparse(url).netloc
 
@@ -291,6 +390,7 @@ class ProxyManager:
         max_requests_limit = self._get_max_requests(domain_config)
         delay_range = self._get_request_delay_range(domain_config)
         effective_use_proxy = self._should_use_proxy(use_proxy, domain_config)
+        backend_type = self._normalize_backend(backend)
 
         if effective_use_proxy and not self.proxies:
             logger.warning(f"⚠️ 代理列表为空，无法使用代理发送请求: {url}")
@@ -326,12 +426,13 @@ class ProxyManager:
             try:
                 start_time = time.time()
 
-                if method.upper() == 'GET':
-                    response = requests.get(url, **request_kwargs)
-                elif method.upper() == 'POST':
-                    response = requests.post(url, **request_kwargs)
+                if backend_type == 'httpx':
+                    response = self._perform_httpx_call(method, url, request_kwargs)
                 else:
-                    response = requests.request(method, url, **request_kwargs)
+                    response = self._perform_requests_call(method, url, request_kwargs)
+
+                if response is None:
+                    raise RuntimeError("未获得有效响应")
 
                 response_time = time.time() - start_time
 

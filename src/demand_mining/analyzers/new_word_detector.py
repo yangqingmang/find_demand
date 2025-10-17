@@ -94,6 +94,7 @@ class NewWordDetector(BaseAnalyzer):
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.memory_cache_ttl = timedelta(minutes=30)
         self.disk_cache_ttl = timedelta(hours=12)
+        self.failure_cache_ttl = timedelta(minutes=15)
         self.max_retries = 3
         self.retry_backoff = 1.5
         self.retry_delay_base = 0.8
@@ -114,6 +115,8 @@ class NewWordDetector(BaseAnalyzer):
         
         # 添加请求缓存避免重复请求
         self._trends_cache = {}  # cache_key -> {'data': Dict, 'timestamp': datetime}
+        self._recent_failures: Dict[str, datetime] = {}
+        self._runtime_request_cache: Dict[Tuple[str, str, str], Tuple[pd.DataFrame, Dict[str, Any]]] = {}
         
         # 新词等级定义
         self.new_word_grades = {
@@ -189,6 +192,11 @@ class NewWordDetector(BaseAnalyzer):
         if not self.trends_collector:
             return pd.DataFrame(), {'timeframe': None, 'geo': None, 'attempts': []}
 
+        cache_key = (keyword.lower(), timeframe, geo or '')
+        cached = self._runtime_request_cache.get(cache_key)
+        if cached is not None:
+            return cached
+
         geo_candidates = [geo or '', 'US', 'GB']
         timeframe_candidates = [timeframe, 'today 3-m', 'now 7-d', 'now 1-d']
         attempts_log: List[Dict[str, Any]] = []
@@ -206,11 +214,13 @@ class NewWordDetector(BaseAnalyzer):
                 try:
                     df = self.trends_collector.get_trends_data([keyword], timeframe=timeframe_candidate, geo=geo_candidate)
                     if not df.empty:
-                        return df, {
+                        result = (df, {
                             'timeframe': timeframe_candidate,
                             'geo': geo_candidate,
                             'attempts': attempts_log
-                        }
+                        })
+                        self._runtime_request_cache[cache_key] = result
+                        return result
                     attempts_log.append({
                         'timeframe': timeframe_candidate,
                         'geo': geo_candidate,
@@ -230,13 +240,17 @@ class NewWordDetector(BaseAnalyzer):
                         f"获取 {keyword} ({timeframe_candidate}, {geo_candidate or 'GLOBAL'}) 趋势数据失败: {exc}，终止后续尝试"
                     )
                 # 无论是异常还是空结果，按照要求不再继续其它timeframe/geo
-                return pd.DataFrame(), {'timeframe': None, 'geo': None, 'attempts': attempts_log}
+                failure_result = (pd.DataFrame(), {'timeframe': None, 'geo': None, 'attempts': attempts_log})
+                self._runtime_request_cache[cache_key] = failure_result
+                return failure_result
 
         if last_exception:
             self.logger.warning(
                 f"多次尝试后仍无法获取 {keyword} 趋势数据: {last_exception}"
             )
-        return pd.DataFrame(), {'timeframe': None, 'geo': None, 'attempts': attempts_log}
+        failure_result = (pd.DataFrame(), {'timeframe': None, 'geo': None, 'attempts': attempts_log})
+        self._runtime_request_cache[cache_key] = failure_result
+        return failure_result
 
     @staticmethod
     def _percent_change(current: float, previous: Optional[float]) -> float:
@@ -350,6 +364,11 @@ class NewWordDetector(BaseAnalyzer):
         if cache_entry and now - cache_entry['timestamp'] <= self.memory_cache_ttl:
             return cache_entry['data']
 
+        failure_timestamp = self._recent_failures.get(cache_key)
+        if failure_timestamp and now - failure_timestamp <= self.failure_cache_ttl:
+            self.logger.debug(f'跳过 {keyword} 的趋势请求：最近 {self.failure_cache_ttl.total_seconds()/60:.1f} 分钟内已失败')
+            raise TrendsDataUnavailable(f'最近已尝试获取 {keyword} 的趋势数据但失败，已跳过后续请求')
+
         disk_data, disk_timestamp = self._load_cache_from_disk(keyword)
         stale_disk_data = None
         if disk_data is not None:
@@ -373,6 +392,7 @@ class NewWordDetector(BaseAnalyzer):
                 self._trends_cache[cache_key] = {'data': stale_disk_data, 'timestamp': now}
                 return stale_disk_data
             message = f'无法获取 {keyword} 的趋势数据：Trends 接口返回空结果'
+            self._recent_failures[cache_key] = now
             raise TrendsDataUnavailable(message)
 
         result = self._summarize_trends(keyword, data_12m)
@@ -526,6 +546,7 @@ class NewWordDetector(BaseAnalyzer):
         返回:
             pd.DataFrame: 添加了新词检测结果的数据
         """
+        self._runtime_request_cache = {}
         result_columns = [
             'keyword', 'new_word_score', 'new_word_grade', 'is_new_word',
             'confidence_level', 'grade_description', 'avg_12m', 'avg_90d',
