@@ -67,6 +67,8 @@ python -m venv .venv
 .venv\Scripts\activate          # On Windows
 # source .venv/bin/activate      # On macOS/Linux
 pip install -r requirements.txt
+# Playwright-based collectors require a one-time browser download
+playwright install chromium
 ```
 
 ## Configuration
@@ -74,6 +76,7 @@ pip install -r requirements.txt
 2. **Google APIs** – obtain Custom Search & Ads keys (see `docs/API配置待办事项.md` for step-by-step instructions).
 3. **Additional integrations** – Product Hunt, SERP API, Vercel, Cloudflare, and proxy configuration live in `config/` and can be toggled per workflow.
 4. **Workflow tuning** – adjust `config/integrated_workflow_config.json` to override seed profiles, filters, scoring weights, and detector thresholds.
+5. **Google Trends 指纹** – 默认为 Playwright 浏览器流量，可通过 `FIND_DEMAND_TRENDS_BACKEND` 调整 (`playwright`/`httpx`/`requests`)；若使用 Playwright，请确保运行 `playwright install chromium` 并按需配置代理/语言。
 
 ## Output & Reporting
 - `output/reports/*.json` – master run metadata, per-keyword metrics, intent & market summaries.

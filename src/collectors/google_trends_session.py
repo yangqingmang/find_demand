@@ -13,11 +13,21 @@ from typing import Any, Dict, Optional, TYPE_CHECKING, Union
 from urllib.parse import urljoin
 
 import requests
+from requests.cookies import RequestsCookieJar, create_cookie
 
 try:
     import httpx  # type: ignore
 except ImportError:  # pragma: no cover
     httpx = None
+
+try:
+    from playwright.sync_api import (
+        sync_playwright,  # type: ignore
+        TimeoutError as PlaywrightTimeoutError,  # type: ignore
+    )
+except ImportError:  # pragma: no cover
+    sync_playwright = None
+    PlaywrightTimeoutError = None
 
 if TYPE_CHECKING:  # pragma: no cover
     from httpx import Response as HTTPXResponse
@@ -32,7 +42,53 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-ResponseType = Union[requests.Response, "HTTPXResponse"]
+ResponseType = Union[requests.Response, "HTTPXResponse", "PlaywrightResponseAdapter"]
+
+
+class PlaywrightResponseAdapter:
+    """适配 Playwright APIResponse 以兼容 requests 接口"""
+
+    def __init__(self, response, cookies: RequestsCookieJar):
+        self._response = response
+        self.url = response.url
+        self.status_code = response.status
+        self.headers = response.headers
+        self._cookies = cookies
+        try:
+            self._text = response.text()
+        except Exception:
+            self._text = ""
+        try:
+            self._content = response.body()
+        except Exception:
+            self._content = b""
+        self._json_cache: Optional[Any] = None
+
+    @property
+    def text(self) -> str:
+        return self._text
+
+    @property
+    def content(self) -> bytes:
+        return self._content
+
+    @property
+    def cookies(self) -> RequestsCookieJar:
+        return self._cookies
+
+    def json(self) -> Any:
+        if self._json_cache is None:
+            try:
+                self._json_cache = self._response.json()
+            except Exception as json_error:
+                raise ValueError(f"无法解析 Playwright 响应 JSON: {json_error}")
+        return self._json_cache
+
+    def raise_for_status(self) -> None:
+        if 400 <= self.status_code:
+            raise requests.HTTPError(
+                f"{self.status_code} Error for url: {self.url}", response=self
+            )
 
 from .request_rate_limiter import wait_for_next_request, register_rate_limit_event
 
@@ -47,17 +103,24 @@ class GoogleTrendsSession:
     ):
         self.timeout = timeout
         self.client_backend = self._resolve_backend(backend)
-        self.session: Optional[Union[requests.Session, "httpx.Client"]] = None
+        self.session: Optional[Any] = None
         self.headers = self._load_headers()
         self.initialized = False
         self.use_proxy = use_proxy
         self.proxy_manager = None
         self._cookie_lock = threading.Lock()
+        self._playwright = None
+        self._playwright_browser = None
+        self._playwright_context = None
         logger.debug(
             "GoogleTrendsSession 初始化，后端=%s，代理=%s",
             self.client_backend,
             "on" if use_proxy else "off",
         )
+
+        if self.client_backend == 'playwright' and self.use_proxy:
+            logger.info("Playwright 后端暂未整合代理通道，自动禁用代理模式")
+            self.use_proxy = False
 
         project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
         cookie_dir = os.path.join(project_root, 'output', 'tmp')
@@ -144,18 +207,23 @@ class GoogleTrendsSession:
             backend,
             os.getenv('FIND_DEMAND_TRENDS_BACKEND'),
             os.getenv('FIND_DEMAND_HTTP_BACKEND'),
-            'httpx' if httpx is not None else 'requests',
+            'playwright' if sync_playwright is not None else None,
+            'httpx' if httpx is not None else None,
+            'requests',
         ]
         for candidate in candidates:
             if not candidate:
                 continue
             normalized = candidate.strip().lower()
-            if normalized not in {'requests', 'httpx'}:
+            if normalized not in {'requests', 'httpx', 'playwright'}:
                 logger.warning(f"未知的HTTP后端配置: {candidate}，忽略")
                 continue
             if normalized == 'httpx' and httpx is None:
                 logger.warning("httpx 未安装，GoogleTrendsSession 自动回退至 requests")
                 return 'requests'
+            if normalized == 'playwright' and sync_playwright is None:
+                logger.warning("Playwright 未安装，GoogleTrendsSession 自动回退至其他后端")
+                continue
             return normalized
         return 'requests'
 
@@ -198,6 +266,9 @@ class GoogleTrendsSession:
         if not self.session:
             raise RuntimeError("会话尚未初始化")
 
+        if self.client_backend == 'playwright':
+            return self._playwright_request(method, url, **kwargs)
+
         if self.client_backend == 'httpx':
             if httpx is None:
                 raise RuntimeError("httpx 未安装，无法使用 httpx 后端")
@@ -208,6 +279,9 @@ class GoogleTrendsSession:
 
     def _get_session_cookie_jar(self):
         """获取底层cookie jar"""
+        if self.client_backend == 'playwright':
+            return self._playwright_cookies_to_jar()
+
         if not self.session:
             return None
         cookies = getattr(self.session, 'cookies', None)
@@ -218,6 +292,23 @@ class GoogleTrendsSession:
 
     def _set_cookie_on_session(self, cookie) -> None:
         """将cookie写入当前会话"""
+        if self.client_backend == 'playwright':
+            if not self._playwright_context:
+                return
+            cookie_dict = {
+                'name': cookie.name,
+                'value': cookie.value,
+                'path': cookie.path or '/',
+                'domain': cookie.domain or '.trends.google.com',
+            }
+            if cookie.expires:
+                cookie_dict['expires'] = cookie.expires
+            try:
+                self._playwright_context.add_cookies([cookie_dict])
+            except Exception as cookie_error:
+                logger.debug(f"Playwright cookie 写入失败: {cookie_error}")
+            return
+
         if not self.session:
             return
         cookies_obj = getattr(self.session, 'cookies', None)
@@ -274,7 +365,7 @@ class GoogleTrendsSession:
                     pass
                 self.cookie_jar = MozillaCookieJar(self.cookie_path)
     
-    def get_session(self) -> Union[requests.Session, "httpx.Client"]:
+    def get_session(self) -> Any:
         """获取已初始化的session"""
         if self.session is None:
             self._create_session()
@@ -288,7 +379,9 @@ class GoogleTrendsSession:
     
     def _create_session(self) -> None:
         """创建新的session"""
-        if self.client_backend == 'httpx' and httpx is not None:
+        if self.client_backend == 'playwright':
+            self._create_playwright_session()
+        elif self.client_backend == 'httpx' and httpx is not None:
             try:
                 timeout = self._build_httpx_timeout(self.timeout)
                 self.session = httpx.Client(
@@ -304,18 +397,146 @@ class GoogleTrendsSession:
                 self.client_backend = 'requests'
                 self.session = None
 
-        if self.session is None:
+        if self.session is None and self.client_backend != 'playwright':
             self.session = requests.Session()
             logger.debug("创建新的Google Trends requests session")
 
-        try:
-            self.session.headers.update(self.headers)
-        except AttributeError:
-            # httpx Headers 对象不可直接覆盖，已在构造函数中应用
-            pass
+        if self.client_backend != 'playwright':
+            try:
+                self.session.headers.update(self.headers)
+            except AttributeError:
+                pass
 
         self._apply_cookies_to_session()
         logger.debug("创建新的Google Trends session")
+
+    def _create_playwright_session(self) -> None:
+        """创建 Playwright 浏览器上下文并复用其请求能力"""
+        if sync_playwright is None:  # pragma: no cover - 运行环境缺少playwright
+            raise RuntimeError("Playwright 未安装，无法启用浏览器指纹会话")
+
+        headless_flag = os.getenv('FIND_DEMAND_PLAYWRIGHT_HEADLESS', '1').strip().lower()
+        headless = headless_flag not in {'0', 'false', 'no'}
+
+        if self._playwright is None:
+            self._playwright = sync_playwright().start()
+
+        launch_args = [
+            "--disable-blink-features=AutomationControlled",
+            "--disable-dev-shm-usage",
+        ]
+
+        if self._playwright_browser is None:
+            self._playwright_browser = self._playwright.chromium.launch(
+                headless=headless,
+                args=launch_args,
+            )
+
+        locale = (self.headers.get('Accept-Language') or 'en-US').split(',')[0]
+        user_agent = self.headers.get('User-Agent')
+
+        context_kwargs: Dict[str, Any] = {
+            'ignore_https_errors': True,
+            'locale': locale,
+        }
+        if user_agent:
+            context_kwargs['user_agent'] = user_agent
+
+        if self._playwright_context is not None:
+            try:
+                self._playwright_context.close()
+            except Exception:
+                pass
+
+        self._playwright_context = self._playwright_browser.new_context(**context_kwargs)
+        self._playwright_context.set_extra_http_headers(self.headers.copy())
+        self.session = self._playwright_context.request
+        logger.debug("Playwright 请求上下文已创建 (headless=%s)", headless)
+
+    def _playwright_cookies_to_jar(self) -> RequestsCookieJar:
+        jar = RequestsCookieJar()
+        if not self._playwright_context:
+            return jar
+        try:
+            cookies = self._playwright_context.cookies()
+        except Exception as cookie_error:
+            logger.debug(f"读取 Playwright cookies 失败: {cookie_error}")
+            return jar
+
+        for cookie in cookies:
+            try:
+                jar.set_cookie(
+                    create_cookie(
+                        name=cookie.get('name'),
+                        value=cookie.get('value'),
+                        domain=cookie.get('domain'),
+                        path=cookie.get('path', '/'),
+                        expires=cookie.get('expires'),
+                        secure=cookie.get('secure', False),
+                        rest={'HttpOnly': cookie.get('httpOnly', False)},
+                    )
+                )
+            except Exception as cookie_error:
+                logger.debug(f"写入 Playwright cookie 至 Jar 失败: {cookie_error}")
+        return jar
+
+    def _convert_timeout_to_ms(self, timeout: Union[int, float, tuple]) -> Optional[float]:
+        if timeout is None:
+            return None
+        if isinstance(timeout, (int, float)):
+            return max(float(timeout), 0.0) * 1000
+        if isinstance(timeout, tuple) and timeout:
+            try:
+                effective = max(float(value) for value in timeout)
+                return max(effective, 0.0) * 1000
+            except Exception:
+                return None
+        return None
+
+    def _playwright_request(self, method: str, url: str, **kwargs) -> PlaywrightResponseAdapter:
+        if not self.session or not self._playwright_context:
+            raise RuntimeError("Playwright 会话尚未初始化")
+
+        request = self.session
+        request_kwargs: Dict[str, Any] = {}
+
+        headers = kwargs.pop('headers', None)
+        params = kwargs.pop('params', None)
+        data = kwargs.pop('data', None)
+        json_payload = kwargs.pop('json', None)
+        allow_redirects = kwargs.pop('allow_redirects', True)
+        timeout = kwargs.pop('timeout', self.timeout)
+
+        timeout_ms = self._convert_timeout_to_ms(timeout)
+        if headers:
+            request_kwargs['headers'] = headers
+        if params is not None:
+            request_kwargs['params'] = params
+        if data is not None:
+            request_kwargs['data'] = data
+        if json_payload is not None:
+            request_kwargs['json'] = json_payload
+        if timeout_ms is not None:
+            request_kwargs['timeout'] = timeout_ms
+        if allow_redirects is not None:
+            request_kwargs['max_redirects'] = 20 if allow_redirects else 0
+
+        method_lower = method.lower()
+        method_callable = getattr(request, method_lower, None)
+
+        try:
+            if callable(method_callable):
+                response = method_callable(url, **request_kwargs)
+            else:
+                request_kwargs['method'] = method.upper()
+                response = request.fetch(url, **request_kwargs)
+        except PlaywrightTimeoutError as timeout_error:
+            raise requests.Timeout(f"Playwright 请求超时: {timeout_error}")
+        except Exception as playwright_error:
+            raise requests.RequestException(f"Playwright 请求异常: {playwright_error}")
+
+        cookies_jar = self._playwright_cookies_to_jar()
+        return PlaywrightResponseAdapter(response, cookies_jar)
 
     def _apply_cookies_to_session(self) -> None:
         """将持久化cookie写入session"""
@@ -543,8 +764,7 @@ class GoogleTrendsSession:
     def reset_session(self) -> None:
         """重置会话"""
         try:
-            if self.session:
-                self.session.close()
+            self._close_session()
             self._create_session()
             self._init_session()
             if not self.initialized:
@@ -560,8 +780,58 @@ class GoogleTrendsSession:
     def update_headers(self, new_headers: Dict[str, str]) -> None:
         """更新headers"""
         self.headers.update(new_headers)
+        if self.client_backend == 'playwright' and self._playwright_context:
+            try:
+                self._playwright_context.set_extra_http_headers(self.headers.copy())
+            except Exception as header_error:
+                logger.debug(f"Playwright header 更新失败: {header_error}")
+        elif self.session:
+            try:
+                self.session.headers.update(new_headers)
+            except Exception as header_error:
+                logger.debug(f"会话header更新失败: {header_error}")
+
+    def _close_playwright(self) -> None:
         if self.session:
-            self.session.headers.update(new_headers)
+            try:
+                dispose = getattr(self.session, "dispose", None)
+                if callable(dispose):
+                    dispose()
+            except Exception:
+                pass
+        if self._playwright_context:
+            try:
+                self._playwright_context.close()
+            except Exception:
+                pass
+            finally:
+                self._playwright_context = None
+        if self._playwright_browser:
+            try:
+                self._playwright_browser.close()
+            except Exception:
+                pass
+            finally:
+                self._playwright_browser = None
+        if self._playwright:
+            try:
+                self._playwright.stop()
+            except Exception:
+                pass
+            finally:
+                self._playwright = None
+        self.session = None
+
+    def _close_session(self) -> None:
+        if self.client_backend == 'playwright':
+            self._close_playwright()
+            return
+        if self.session:
+            try:
+                self.session.close()
+            except Exception:
+                pass
+        self.session = None
 
     def _log_request_debug_snapshot(
         self,
@@ -750,11 +1020,9 @@ class GoogleTrendsSession:
     def close(self) -> None:
         """关闭session"""
         try:
-            if self.session:
-                self.session.close()
-                self.session = None
-                self.initialized = False
-                logger.debug("Google Trends session已关闭")
+            self._close_session()
+            self.initialized = False
+            logger.debug("Google Trends session已关闭")
         except Exception as e:
             logger.error(f"关闭session失败: {e}")
 

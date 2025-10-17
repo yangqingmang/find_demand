@@ -12,28 +12,28 @@
 
 🔍 关键词管理器初始化完成
 🔍 发现管理器初始化完成
-2025-10-16 16:24:15 - config.proxy_config_loader - INFO - ✅ 加载了 0 个有效代理
-2025-10-16 16:24:15 - config.proxy_config_loader - INFO - ✅ 代理配置加载成功，环境: development
-2025-10-16 16:24:15 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
-2025-10-16 16:24:16 - src.collectors.google_trends_session - INFO - 🔧 正在初始化Google Trends会话...
-2025-10-16 16:24:19 - src.collectors.request_rate_limiter - INFO - 🚦 初始化请求频率控制器: 最小间隔3.0秒, 每分钟最多15次请求
-2025-10-16 16:24:19 - src.collectors.request_rate_limiter - INFO - 🆕 创建全局请求频率控制器
-2025-10-16 16:24:20 - httpx - INFO - HTTP Request: GET https://trends.google.com/ "HTTP/2 301 Moved Permanently"
-2025-10-16 16:24:21 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/ "HTTP/2 200 OK"
-2025-10-16 16:24:24 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/explore?q=automation "HTTP/2 200 OK"
-2025-10-16 16:24:24 - src.collectors.google_trends_session - INFO - ✅ Google Trends会话初始化成功
-2025-10-16 16:24:24 - root - INFO - Session初始化成功
-2025-10-16 16:24:24 - src.collectors.trends_singleton - INFO - 🆕 创建新的TrendsCollector实例
-2025-10-16 16:24:24 - src.demand_mining.root_word_trends_analyzer - INFO - TrendsCollector单例获取成功
-2025-10-16 16:24:24 - root - WARNING - 代理管理器不可用，将使用直接请求
-2025-10-16 16:24:24 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
-2025-10-16 16:24:24 - root - INFO - 趋势收集器初始化成功
-2025-10-16 16:24:24 - src.demand_mining.root_word_trends_analyzer - INFO - NewWordDetector单例获取成功
-2025-10-16 16:24:25 - src.demand_mining.core.trends_cache - INFO - 缓存数据库初始化完成
-2025-10-16 16:24:25 - src.demand_mining.core.trends_cache - INFO - 趋势缓存初始化完成，缓存目录: output/reports\trends_cache
+2025-10-17 09:19:27 - config.proxy_config_loader - INFO - ✅ 加载了 0 个有效代理
+2025-10-17 09:19:27 - config.proxy_config_loader - INFO - ✅ 代理配置加载成功，环境: development
+2025-10-17 09:19:27 - src.collectors.google_trends_session - INFO - ℹ️ 代理在当前环境中被禁用，使用直接请求
+2025-10-17 09:19:27 - src.collectors.google_trends_session - INFO - 🔧 正在初始化Google Trends会话...
+2025-10-17 09:19:30 - src.collectors.request_rate_limiter - INFO - 🚦 初始化请求频率控制器: 最小间隔3.0秒, 每分钟最多15次请求
+2025-10-17 09:19:30 - src.collectors.request_rate_limiter - INFO - 🆕 创建全局请求频率控制器
+2025-10-17 09:19:31 - httpx - INFO - HTTP Request: GET https://trends.google.com/ "HTTP/2 301 Moved Permanently"
+2025-10-17 09:19:32 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/ "HTTP/2 200 OK"
+2025-10-17 09:19:35 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/explore?q=automation "HTTP/2 200 OK"
+2025-10-17 09:19:35 - src.collectors.google_trends_session - INFO - ✅ Google Trends会话初始化成功
+2025-10-17 09:19:35 - root - INFO - Session初始化成功
+2025-10-17 09:19:35 - src.collectors.trends_singleton - INFO - 🆕 创建新的TrendsCollector实例
+2025-10-17 09:19:35 - src.demand_mining.root_word_trends_analyzer - INFO - TrendsCollector单例获取成功
+2025-10-17 09:19:35 - root - WARNING - 代理管理器不可用，将使用直接请求
+2025-10-17 09:19:35 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
+2025-10-17 09:19:35 - root - INFO - 趋势收集器初始化成功
+2025-10-17 09:19:35 - src.demand_mining.root_word_trends_analyzer - INFO - NewWordDetector单例获取成功
+2025-10-17 09:19:35 - src.demand_mining.core.trends_cache - INFO - 缓存数据库初始化完成
+2025-10-17 09:19:35 - src.demand_mining.core.trends_cache - INFO - 趋势缓存初始化完成，缓存目录: output/reports\trends_cache
 📈 趋势管理器初始化完成（已启用缓存）
-2025-10-16 16:24:25 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
-2025-10-16 16:24:25 - root - INFO - 趋势收集器初始化成功
+2025-10-17 09:19:35 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
+2025-10-17 09:19:35 - root - INFO - 趋势收集器初始化成功
 ✅ 新词检测器初始化成功
 🚀 集成需求挖掘管理器初始化完成
 📊 已加载关键词管理器、发现管理器、趋势管理器
@@ -42,113 +42,174 @@
    第一步: 搜索热门关键词 (Google Trends + TrendingKeywords.net)
    第二步: 基于热门关键词进行多平台发现
 🔍 正在获取 Google Trends Rising Queries...
-2025-10-16 16:24:25 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
-2025-10-16 16:24:27 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A%5B%7B%22keyword%22%3A%22%22%2C%22geo%22%3A%22US%22%2C%22time%22%3A%22now+7-d%22%7D%5D%2C%22category%22%3A0%2C%22property%22%3A%22%22%7D "HTTP/2 200 OK"
-2025-10-16 16:24:27 - root - INFO - 📄 原始响应详细: ')]}\'\n{"widgets":[{"r'
-2025-10-16 16:24:27 - root - INFO - 找到JSON开始位置: 5
-2025-10-16 16:24:27 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
-2025-10-16 16:24:27 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
-2025-10-16 16:24:27 - root - INFO - ✅ 成功解析JSON数据
-2025-10-16 16:24:27 - root - INFO - 📊 数据结构: ['widgets', 'keywords', 'timeRanges', 'shareText', 'shouldShowMultiHeatMapMessage']
-2025-10-16 16:24:27 - root - INFO - 🔍 Widget类型: RELATED_TOPICS
-2025-10-16 16:24:27 - root - INFO - 🔍 Widget类型: RELATED_QUERIES
-2025-10-16 16:24:27 - root - INFO - 🎯 找到RELATED_QUERIES token: APP6_UEAAAAAaPH9PTTt...
-2025-10-16 16:24:27 - root - INFO - 🔍 正在请求related_searches接口...
-2025-10-16 16:24:30 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/relatedsearches?hl=en-US&tz=360&req=%7B%22restriction%22%3A+%7B%22geo%22%3A+%7B%22country%22%3A+%22US%22%7D%2C+%22time%22%3A
-+%222025-10-09T08%5C%5C%3A24%5C%5C%3A29+2025-10-16T08%5C%5C%3A24%5C%5C%3A29%22%2C+%22originalTimeRangeForExploreUrl%22%3A+%22now+7-d%22%7D%2C+%22keywordType%22%3A+%22QUERY%22%2C+%22metric%22%3A+%5B%22TOP%22%2C+%22RISING%22%5D%2
-C+%22trendinessSettings%22%3A+%7B%22compareTime%22%3A+%222025-10-02T08%5C%5C%3A24%5C%5C%3A29+2025-10-09T08%5C%5C%3A24%5C%5C%3A29%22%7D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22CM%22%2C+%22ca
-tegory%22%3A+0%7D%2C+%22language%22%3A+%22en%22%2C+%22userCountryCode%22%3A+%22JP%22%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPH9PTTtgj46x1s5GrWhEPmD_zDmvreH "HTTP/2 429 Too Many Requests"
-2025-10-16 16:24:30 - src.collectors.request_rate_limiter - WARNING - ⚠️ 收到high级节流信号，最小间隔调整为 5.4 秒，额外冷却 45.0 秒
-2025-10-16 16:24:30 - src.collectors.google_trends_session - WARNING - ⚠️ Google Trends 返回429，重置会话并等待建议 45.0 秒
-2025-10-16 16:24:31 - src.collectors.google_trends_session - INFO - 🔧 正在初始化Google Trends会话...
-2025-10-16 16:25:16 - httpx - INFO - HTTP Request: GET https://trends.google.com/ "HTTP/2 301 Moved Permanently"
-2025-10-16 16:25:16 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/ "HTTP/2 200 OK"
-2025-10-16 16:25:21 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/explore?q=automation "HTTP/2 200 OK"
-2025-10-16 16:25:21 - src.collectors.google_trends_session - INFO - ✅ Google Trends会话初始化成功
-2025-10-16 16:25:21 - src.collectors.google_trends_session - INFO - 会话已重置
-2025-10-16 16:25:26 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/relatedsearches?hl=en-US&tz=360&req=%7B%22restriction%22%3A+%7B%22geo%22%3A+%7B%22country%22%3A+%22US%22%7D%2C+%22time%22%3A
-+%222025-10-09T08%5C%5C%3A24%5C%5C%3A29+2025-10-16T08%5C%5C%3A24%5C%5C%3A29%22%2C+%22originalTimeRangeForExploreUrl%22%3A+%22now+7-d%22%7D%2C+%22keywordType%22%3A+%22QUERY%22%2C+%22metric%22%3A+%5B%22TOP%22%2C+%22RISING%22%5D%2
-C+%22trendinessSettings%22%3A+%7B%22compareTime%22%3A+%222025-10-02T08%5C%5C%3A24%5C%5C%3A29+2025-10-09T08%5C%5C%3A24%5C%5C%3A29%22%7D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22CM%22%2C+%22ca
-tegory%22%3A+0%7D%2C+%22language%22%3A+%22en%22%2C+%22userCountryCode%22%3A+%22JP%22%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPH9PTTtgj46x1s5GrWhEPmD_zDmvreH "HTTP/2 429 Too Many Requests"
-2025-10-16 16:25:26 - src.collectors.request_rate_limiter - WARNING - ⚠️ 收到high级节流信号，最小间隔调整为 9.7 秒，额外冷却 45.0 秒
-2025-10-16 16:25:26 - root - WARNING - ⏳ TrendsCollector 进入冷却，剩余 45.0 秒
-2025-10-16 16:25:26 - root - ERROR - ❌ related_searches 命中 429，冷却 45.0 秒
+2025-10-17 09:19:35 - src.collectors.trends_singleton - INFO - ♻️ 复用现有的TrendsCollector实例
+2025-10-17 09:19:37 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A%5B%7B%22keyword%22%3A%22%22%2C%22geo%22%3A%22US%22%2C%22time%22%3A%22now+7-d%22%7D%5D%2C%22category%22%3A0%2C%22property%22%3A%22%22%7D "HTTP/2 200 OK"
+2025-10-17 09:19:37 - root - INFO - 📄 原始响应详细: ')]}\'\n{"widgets":[{"r'
+2025-10-17 09:19:37 - root - INFO - 找到JSON开始位置: 5
+2025-10-17 09:19:37 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
+2025-10-17 09:19:37 - root - INFO - 📄 处理后内容前50字符: {"widgets":[{"request":{"restriction":{"geo":{"cou
+2025-10-17 09:19:37 - root - INFO - ✅ 成功解析JSON数据
+2025-10-17 09:19:37 - root - INFO - 📊 数据结构: ['widgets', 'keywords', 'timeRanges', 'shareText', 'shouldShowMultiHeatMapMessage']
+2025-10-17 09:19:37 - root - INFO - 🔍 Widget类型: RELATED_TOPICS
+2025-10-17 09:19:37 - root - INFO - 🔍 Widget类型: RELATED_QUERIES
+2025-10-17 09:19:37 - root - INFO - 🎯 找到RELATED_QUERIES token: APP6_UEAAAAAaPLrKhuq...
+2025-10-17 09:19:37 - root - INFO - 🔍 正在请求related_searches接口...
+2025-10-17 09:19:42 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/relatedsearches?hl=en-US&tz=360&req=%7B%22restriction%22%3A+%7B%22geo%22%3A+%7B%22country%22%3A+%22US%22%7D%2C+%22time%22%3A
++%222025-10-10T01%5C%5C%3A19%5C%5C%3A38+2025-10-17T01%5C%5C%3A19%5C%5C%3A38%22%2C+%22originalTimeRangeForExploreUrl%22%3A+%22now+7-d%22%7D%2C+%22keywordType%22%3A+%22QUERY%22%2C+%22metric%22%3A+%5B%22TOP%22%2C+%22RISING%22%5D%2
+C+%22trendinessSettings%22%3A+%7B%22compareTime%22%3A+%222025-10-03T01%5C%5C%3A19%5C%5C%3A38+2025-10-10T01%5C%5C%3A19%5C%5C%3A38%22%7D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22CM%22%2C+%22category%22%3A+0%7D%2C+%22language%22%3A+%22en%22%2C+%22userCountryCode%22%3A+%22JP%22%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLrKhuqVig8XfVmpX75pf_DV229xaug "HTTP/2 200 OK"
+2025-10-17 09:19:42 - root - INFO - ✅ 成功获取related searches数据
+2025-10-17 09:19:42 - root - INFO - 📊 Related data结构: ['default']
+2025-10-17 09:19:42 - root - INFO - 🎯 解析到 45 个真实关键词
+✅ Google Trends: 获取到 15 个关键词
 🔍 正在获取 TrendingKeywords.net 数据...
-2025-10-16 16:25:26 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 1 页...
-2025-10-16 16:25:26 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
-2025-10-16 16:25:28 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
-2025-10-16 16:25:28 - src.collectors.trending_keywords_collector - INFO - 第 1 页获取到 18 个关键词
-2025-10-16 16:25:30 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 2 页...
-2025-10-16 16:25:30 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
-2025-10-16 16:25:31 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
-2025-10-16 16:25:31 - src.collectors.trending_keywords_collector - INFO - 第 2 页获取到 18 个关键词
-2025-10-16 16:25:33 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 3 页...
-2025-10-16 16:25:33 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
-2025-10-16 16:25:34 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
-2025-10-16 16:25:34 - src.collectors.trending_keywords_collector - INFO - 第 3 页获取到 18 个关键词
-2025-10-16 16:25:34 - src.collectors.trending_keywords_collector - INFO - 总共获取到 54 个关键词
+2025-10-17 09:19:42 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 1 页...
+2025-10-17 09:19:42 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
+2025-10-17 09:19:44 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
+2025-10-17 09:19:44 - src.collectors.trending_keywords_collector - INFO - 第 1 页获取到 18 个关键词
+2025-10-17 09:19:47 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 2 页...
+2025-10-17 09:19:47 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
+2025-10-17 09:19:47 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
+2025-10-17 09:19:47 - src.collectors.trending_keywords_collector - INFO - 第 2 页获取到 18 个关键词
+2025-10-17 09:19:49 - src.collectors.trending_keywords_collector - INFO - 正在抓取第 3 页...
+2025-10-17 09:19:49 - src.collectors.trending_keywords_collector - INFO - 请求 url: https://trendingkeywords.net/
+2025-10-17 09:19:50 - src.collectors.trending_keywords_collector - INFO - 找到 18 个卡片容器
+2025-10-17 09:19:50 - src.collectors.trending_keywords_collector - INFO - 第 3 页获取到 18 个关键词
+2025-10-17 09:19:50 - src.collectors.trending_keywords_collector - INFO - 总共获取到 54 个关键词
 ✅ TrendingKeywords.net: 获取到 1 个关键词
 🔍 正在抓取 RSS 热点...
 ✅ RSS 热点: 获取到 20 个热点词
-⚠️ Google Trends 处于冷却期，终止相关查询采集
-2025-10-16 16:27:32 - src.collectors.suggestion_sources - INFO - SuggestionCollector: 本次收集结束，处理 21/21 个种子，发送 105 次请求，获得 49 条建议
-✅ 热门联想: 新增 49 个候选关键词
-   • 联想摘要: 种子 21/21 | 请求 105 | 建议 49
-[Filter] 已过滤 8 条低质量热门词
-🎯 合并后总计: 52 个关键词
+2025-10-17 09:19:56 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22weather%22%2C+%22geo%22%3A+%22%22%2C+%22time%22%3A+%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%7D "HTTP/2 200 OK"
+2025-10-17 09:20:00 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/relatedsearches?hl=en-US&tz=360&req=%7B%22restriction%22%3A+%7B%22geo%22%3A+%7B%7D%2C+%22time%22%3A+%222024-10-17+2025-10-17
+%22%2C+%22originalTimeRangeForExploreUrl%22%3A+%22today+12-m%22%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22weather%22%7D%5D%7D%7D%2C+%22keywordType%22%3A+%22Q
+UERY%22%2C+%22metric%22%3A+%5B%22TOP%22%2C+%22RISING%22%5D%2C+%22trendinessSettings%22%3A+%7B%22compareTime%22%3A+%222023-10-17+2024-10-16%22%7D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%
+22%2C+%22category%22%3A+0%7D%2C+%22language%22%3A+%22en%22%2C+%22userCountryCode%22%3A+%22JP%22%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLrPQxp-OmbWgmpXbHPKoD7z8ZtJUuc "HTTP/2 200 OK"
+2025-10-17 09:20:01 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/relatedsearches?hl=en-US&tz=360&req=%7B%22restriction%22%3A+%7B%22geo%22%3A+%7B%7D%2C+%22time%22%3A+%222024-10-17+2025-10-17
+%22%2C+%22originalTimeRangeForExploreUrl%22%3A+%22today+12-m%22%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22weather%22%7D%5D%7D%7D%2C+%22keywordType%22%3A+%22E
+NTITY%22%2C+%22metric%22%3A+%5B%22TOP%22%2C+%22RISING%22%5D%2C+%22trendinessSettings%22%3A+%7B%22compareTime%22%3A+%222023-10-17+2024-10-16%22%7D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG
+%22%2C+%22category%22%3A+0%7D%2C+%22language%22%3A+%22en%22%2C+%22userCountryCode%22%3A+%22JP%22%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLrPRw_EZoq78Rq6JblReJ5Vnx9bCyq "HTTP/2 200 OK"
+2025-10-17 09:20:04 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/autocomplete/weather?hl=en-US&tz=360 "HTTP/2 200 OK"
+2025-10-17 09:20:07 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22google%22%2C+%22geo%22%3A+%22%22%2C+%22time%22%3A+%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%7D "HTTP/2 200 OK"
+2025-10-17 09:20:12 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/relatedsearches?hl=en-US&tz=360&req=%7B%22restriction%22%3A+%7B%22geo%22%3A+%7B%7D%2C+%22time%22%3A+%222024-10-17+2025-10-17
+%22%2C+%22originalTimeRangeForExploreUrl%22%3A+%22today+12-m%22%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22google%22%7D%5D%7D%7D%2C+%22keywordType%22%3A+%22QU
+ERY%22%2C+%22metric%22%3A+%5B%22TOP%22%2C+%22RISING%22%5D%2C+%22trendinessSettings%22%3A+%7B%22compareTime%22%3A+%222023-10-17+2024-10-16%22%7D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%2
+2%2C+%22category%22%3A+0%7D%2C+%22language%22%3A+%22en%22%2C+%22userCountryCode%22%3A+%22JP%22%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLrSMhAParSinxPo16ZYG3BNVxXDfrT "HTTP/2 200 OK"
+2025-10-17 09:20:13 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/relatedsearches?hl=en-US&tz=360&req=%7B%22restriction%22%3A+%7B%22geo%22%3A+%7B%7D%2C+%22time%22%3A+%222024-10-17+2025-10-17
+%22%2C+%22originalTimeRangeForExploreUrl%22%3A+%22today+12-m%22%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22google%22%7D%5D%7D%7D%2C+%22keywordType%22%3A+%22EN
+TITY%22%2C+%22metric%22%3A+%5B%22TOP%22%2C+%22RISING%22%5D%2C+%22trendinessSettings%22%3A+%7B%22compareTime%22%3A+%222023-10-17+2024-10-16%22%7D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%
+22%2C+%22category%22%3A+0%7D%2C+%22language%22%3A+%22en%22%2C+%22userCountryCode%22%3A+%22JP%22%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLrSEUQLtivcYFjngAcYuAZ13yvVCGX "HTTP/2 200 OK"
+2025-10-17 09:20:16 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/autocomplete/google?hl=en-US&tz=360 "HTTP/2 200 OK"
+2025-10-17 09:20:17 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 80% (12/15)
+2025-10-17 09:20:19 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22youtube%22%2C+%22geo%22%3A+%22%22%2C+%22time%22%3A+%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%7D "HTTP/2 200 OK"
+2025-10-17 09:20:23 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/relatedsearches?hl=en-US&tz=360&req=%7B%22restriction%22%3A+%7B%22geo%22%3A+%7B%7D%2C+%22time%22%3A+%222024-10-17+2025-10-17
+%22%2C+%22originalTimeRangeForExploreUrl%22%3A+%22today+12-m%22%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22youtube%22%7D%5D%7D%7D%2C+%22keywordType%22%3A+%22Q
+UERY%22%2C+%22metric%22%3A+%5B%22TOP%22%2C+%22RISING%22%5D%2C+%22trendinessSettings%22%3A+%7B%22compareTime%22%3A+%222023-10-17+2024-10-16%22%7D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%
+22%2C+%22category%22%3A+0%7D%2C+%22language%22%3A+%22en%22%2C+%22userCountryCode%22%3A+%22JP%22%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLrVM5qKqCQ08gY-HwpSr9jeOrxMtbc "HTTP/2 200 OK"
+2025-10-17 09:20:25 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/relatedsearches?hl=en-US&tz=360&req=%7B%22restriction%22%3A+%7B%22geo%22%3A+%7B%7D%2C+%22time%22%3A+%222024-10-17+2025-10-17
+%22%2C+%22originalTimeRangeForExploreUrl%22%3A+%22today+12-m%22%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22youtube%22%7D%5D%7D%7D%2C+%22keywordType%22%3A+%22E
+NTITY%22%2C+%22metric%22%3A+%5B%22TOP%22%2C+%22RISING%22%5D%2C+%22trendinessSettings%22%3A+%7B%22compareTime%22%3A+%222023-10-17+2024-10-16%22%7D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG
+%22%2C+%22category%22%3A+0%7D%2C+%22language%22%3A+%22en%22%2C+%22userCountryCode%22%3A+%22JP%22%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLrVHK-JY8uw-RdAA-seA65nudIDRvh "HTTP/2 200 OK"
+2025-10-17 09:20:31 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/autocomplete/youtube?hl=en-US&tz=360 "HTTP/2 200 OK"
+2025-10-17 09:20:34 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22amazon%22%2C+%22geo%22%3A+%22%22%2C+%22time%22%3A+%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%7D "HTTP/2 200 OK"
+2025-10-17 09:20:39 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/relatedsearches?hl=en-US&tz=360&req=%7B%22restriction%22%3A+%7B%22geo%22%3A+%7B%7D%2C+%22time%22%3A+%222024-10-17+2025-10-17
+%22%2C+%22originalTimeRangeForExploreUrl%22%3A+%22today+12-m%22%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22amazon%22%7D%5D%7D%7D%2C+%22keywordType%22%3A+%22QU
+ERY%22%2C+%22metric%22%3A+%5B%22TOP%22%2C+%22RISING%22%5D%2C+%22trendinessSettings%22%3A+%7B%22compareTime%22%3A+%222023-10-17+2024-10-16%22%7D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%2
+2%2C+%22category%22%3A+0%7D%2C+%22language%22%3A+%22en%22%2C+%22userCountryCode%22%3A+%22JP%22%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLrY_wBKejI8RwZBH8stwi1AYTMEsSD "HTTP/2 200 OK"
+2025-10-17 09:20:40 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/relatedsearches?hl=en-US&tz=360&req=%7B%22restriction%22%3A+%7B%22geo%22%3A+%7B%7D%2C+%22time%22%3A+%222024-10-17+2025-10-17
+%22%2C+%22originalTimeRangeForExploreUrl%22%3A+%22today+12-m%22%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22amazon%22%7D%5D%7D%7D%2C+%22keywordType%22%3A+%22EN
+TITY%22%2C+%22metric%22%3A+%5B%22TOP%22%2C+%22RISING%22%5D%2C+%22trendinessSettings%22%3A+%7B%22compareTime%22%3A+%222023-10-17+2024-10-16%22%7D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%
+22%2C+%22category%22%3A+0%7D%2C+%22language%22%3A+%22en%22%2C+%22userCountryCode%22%3A+%22JP%22%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLrY_tD_ayS8pp3LHLgE0TT8Jt61JK8 "HTTP/2 200 OK"
+2025-10-17 09:20:56 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/autocomplete/amazon?hl=en-US&tz=360 "HTTP/2 200 OK"
+2025-10-17 09:20:58 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22nfl%22%2C+%22geo%22%3A+%22%22%2C+%22time%22%3A+%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%7D "HTTP/2 200 OK"
+2025-10-17 09:21:03 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/relatedsearches?hl=en-US&tz=360&req=%7B%22restriction%22%3A+%7B%22geo%22%3A+%7B%7D%2C+%22time%22%3A+%222024-10-17+2025-10-17
+%22%2C+%22originalTimeRangeForExploreUrl%22%3A+%22today+12-m%22%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22nfl%22%7D%5D%7D%7D%2C+%22keywordType%22%3A+%22QUERY
+%22%2C+%22metric%22%3A+%5B%22TOP%22%2C+%22RISING%22%5D%2C+%22trendinessSettings%22%3A+%7B%22compareTime%22%3A+%222023-10-17+2024-10-16%22%7D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22%2
+C+%22category%22%3A+0%7D%2C+%22language%22%3A+%22en%22%2C+%22userCountryCode%22%3A+%22JP%22%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLre1lE-CpDGUw56YOvo5kLeLvOpidj "HTTP/2 200 OK"
+2025-10-17 09:21:04 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/relatedsearches?hl=en-US&tz=360&req=%7B%22restriction%22%3A+%7B%22geo%22%3A+%7B%7D%2C+%22time%22%3A+%222024-10-17+2025-10-17
+%22%2C+%22originalTimeRangeForExploreUrl%22%3A+%22today+12-m%22%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22nfl%22%7D%5D%7D%7D%2C+%22keywordType%22%3A+%22ENTIT
+Y%22%2C+%22metric%22%3A+%5B%22TOP%22%2C+%22RISING%22%5D%2C+%22trendinessSettings%22%3A+%7B%22compareTime%22%3A+%222023-10-17+2024-10-16%22%7D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22%
+2C+%22category%22%3A+0%7D%2C+%22language%22%3A+%22en%22%2C+%22userCountryCode%22%3A+%22JP%22%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLre2iklLqxuQVJIdBySWEvNTvhr9Xk "HTTP/2 200 OK"
+2025-10-17 09:21:07 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/autocomplete/nfl?hl=en-US&tz=360 "HTTP/2 200 OK"
+2025-10-17 09:21:10 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22news%22%2C+%22geo%22%3A+%22%22%2C+%22time%22%3A+%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%7D "HTTP/2 200 OK"
+2025-10-17 09:21:15 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/relatedsearches?hl=en-US&tz=360&req=%7B%22restriction%22%3A+%7B%22geo%22%3A+%7B%7D%2C+%22time%22%3A+%222024-10-17+2025-10-17
+%22%2C+%22originalTimeRangeForExploreUrl%22%3A+%22today+12-m%22%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22news%22%7D%5D%7D%7D%2C+%22keywordType%22%3A+%22QUER
+Y%22%2C+%22metric%22%3A+%5B%22TOP%22%2C+%22RISING%22%5D%2C+%22trendinessSettings%22%3A+%7B%22compareTime%22%3A+%222023-10-17+2024-10-16%22%7D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22%
+2C+%22category%22%3A+0%7D%2C+%22language%22%3A+%22en%22%2C+%22userCountryCode%22%3A+%22JP%22%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLrh8QpcE0yxikodA_sgPi6dzLd19zF "HTTP/2 200 OK"
+2025-10-17 09:21:16 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/relatedsearches?hl=en-US&tz=360&req=%7B%22restriction%22%3A+%7B%22geo%22%3A+%7B%7D%2C+%22time%22%3A+%222024-10-17+2025-10-17
+%22%2C+%22originalTimeRangeForExploreUrl%22%3A+%22today+12-m%22%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22news%22%7D%5D%7D%7D%2C+%22keywordType%22%3A+%22ENTI
+TY%22%2C+%22metric%22%3A+%5B%22TOP%22%2C+%22RISING%22%5D%2C+%22trendinessSettings%22%3A+%7B%22compareTime%22%3A+%222023-10-17+2024-10-16%22%7D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22
+%2C+%22category%22%3A+0%7D%2C+%22language%22%3A+%22en%22%2C+%22userCountryCode%22%3A+%22JP%22%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLrhy6Z6JdmXtRqydA4Lj5Wsq4fpXUp "HTTP/2 200 OK"
+2025-10-17 09:21:19 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 93% (14/15)
+2025-10-17 09:21:19 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/autocomplete/news?hl=en-US&tz=360 "HTTP/2 200 OK"
+2025-10-17 09:21:22 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22reddit%22%2C+%22geo%22%3A+%22%22%2C+%22time%22%3A+%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%7D "HTTP/2 200 OK"
+2025-10-17 09:21:27 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/relatedsearches?hl=en-US&tz=360&req=%7B%22restriction%22%3A+%7B%22geo%22%3A+%7B%7D%2C+%22time%22%3A+%222024-10-17+2025-10-17
+%22%2C+%22originalTimeRangeForExploreUrl%22%3A+%22today+12-m%22%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22reddit%22%7D%5D%7D%7D%2C+%22keywordType%22%3A+%22QU
+ERY%22%2C+%22metric%22%3A+%5B%22TOP%22%2C+%22RISING%22%5D%2C+%22trendinessSettings%22%3A+%7B%22compareTime%22%3A+%222023-10-17+2024-10-16%22%7D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%2
+2%2C+%22category%22%3A+0%7D%2C+%22language%22%3A+%22en%22%2C+%22userCountryCode%22%3A+%22JP%22%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLrk0FvVyPiuniafAiSx3MjVRN8r9Nr "HTTP/2 200 OK"
+2025-10-17 09:21:31 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/relatedsearches?hl=en-US&tz=360&req=%7B%22restriction%22%3A+%7B%22geo%22%3A+%7B%7D%2C+%22time%22%3A+%222024-10-17+2025-10-17
+%22%2C+%22originalTimeRangeForExploreUrl%22%3A+%22today+12-m%22%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22reddit%22%7D%5D%7D%7D%2C+%22keywordType%22%3A+%22EN
+TITY%22%2C+%22metric%22%3A+%5B%22TOP%22%2C+%22RISING%22%5D%2C+%22trendinessSettings%22%3A+%7B%22compareTime%22%3A+%222023-10-17+2024-10-16%22%7D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%
+22%2C+%22category%22%3A+0%7D%2C+%22language%22%3A+%22en%22%2C+%22userCountryCode%22%3A+%22JP%22%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLrk7r-CtbXeC2z4VAOb2we0pRHPmpV "HTTP/2 200 OK"
+2025-10-17 09:21:34 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/autocomplete/reddit?hl=en-US&tz=360 "HTTP/2 200 OK"
+2025-10-17 09:21:37 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22facebook%22%2C+%22geo%22%3A+%22%22%2C+%22time%22%3A+%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%7D "HTTP/2 200 OK"
+2025-10-17 09:21:43 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/relatedsearches?hl=en-US&tz=360&req=%7B%22restriction%22%3A+%7B%22geo%22%3A+%7B%7D%2C+%22time%22%3A+%222024-10-17+2025-10-17
+%22%2C+%22originalTimeRangeForExploreUrl%22%3A+%22today+12-m%22%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22facebook%22%7D%5D%7D%7D%2C+%22keywordType%22%3A+%22
+QUERY%22%2C+%22metric%22%3A+%5B%22TOP%22%2C+%22RISING%22%5D%2C+%22trendinessSettings%22%3A+%7B%22compareTime%22%3A+%222023-10-17+2024-10-16%22%7D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG
+%22%2C+%22category%22%3A+0%7D%2C+%22language%22%3A+%22en%22%2C+%22userCountryCode%22%3A+%22JP%22%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLroqnGLep1ZRdvA7R0tmCHnNU0KJvA "HTTP/2 200 OK"
+2025-10-17 09:21:56 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/relatedsearches?hl=en-US&tz=360&req=%7B%22restriction%22%3A+%7B%22geo%22%3A+%7B%7D%2C+%22time%22%3A+%222024-10-17+2025-10-17
+%22%2C+%22originalTimeRangeForExploreUrl%22%3A+%22today+12-m%22%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22facebook%22%7D%5D%7D%7D%2C+%22keywordType%22%3A+%22
+ENTITY%22%2C+%22metric%22%3A+%5B%22TOP%22%2C+%22RISING%22%5D%2C+%22trendinessSettings%22%3A+%7B%22compareTime%22%3A+%222023-10-17+2024-10-16%22%7D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZ
+G%22%2C+%22category%22%3A+0%7D%2C+%22language%22%3A+%22en%22%2C+%22userCountryCode%22%3A+%22JP%22%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLroonjRRl7V2qlR9X8sU2s8aqcQgGY "HTTP/2 200 OK"
+2025-10-17 09:21:58 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/autocomplete/facebook?hl=en-US&tz=360 "HTTP/2 200 OK"
+✅ Google Trends 关联扩展: 新增 66 个候选关键词
+2025-10-17 09:24:07 - src.collectors.suggestion_sources - INFO - SuggestionCollector: 本次收集结束，处理 36/36 个种子，发送 180 次请求，获得 243 条建议
+✅ 热门联想: 新增 243 个候选关键词
+   • 联想摘要: 种子 36/36 | 请求 180 | 建议 243
+[Filter] 已过滤 26 条低质量热门词
+🎯 合并后总计: 34 个关键词
 📊 数据源分布:
-   • Suggestions/Reddit Suggestions: 30 个
-   • RSS/Google News AI: 16 个
-   • Suggestions/Google Autocomplete: 3 个
-   • Suggestions/Google Autocomplete Cn: 2 个
+   • RSS/Google News AI: 15 个
+   • Google Trends Suggestion: 5 个
+   • Google Trends Related Rising: 4 个
    • TrendingKeywords.net: 1 个
-🔍 第一步: 对 9 个热门关键词进行需求挖掘...
+🔍 第一步: 对 5 个热门关键词进行需求挖掘...
 🚀 开始关键词分析 - 类型: keywords, 综合分析: False
-✅ 接收到 9 个关键词
-2025-10-16 16:27:32 - root - INFO - 开始搜索意图V2分析，共 9 个关键词
+✅ 接收到 5 个关键词
+2025-10-17 09:24:07 - root - INFO - 开始搜索意图V2分析，共 1 个关键词
 提示: 当前代理配置已禁用代理，SERP 分析器将使用直连模式
 ⚠️ SERP API 已暂停至 2025-10-26 00:00 UTC
-⚠️ 未能获取 hix bypass 的 SERP 数据，返回空结果
-⚠️ 未能获取 hix bypass ai humanizer free 的 SERP 数据，返回空结果
-⚠️ 未能获取 hix bypass ai 的 SERP 数据，返回空结果
-⚠️ 未能获取 hix bypass free 的 SERP 数据，返回空结果
-⚠️ 未能获取 hix bypass humanize 的 SERP 数据，返回空结果
-⚠️ 未能获取 hix bypass review 的 SERP 数据，返回空结果
-⚠️ 未能获取 mommy is tired 的 SERP 数据，返回空结果
-⚠️ 未能获取 official r/nfl week 3 power rankings 的 SERP 数据，返回空结果
-⚠️ 未能获取 lessons from a 5k self-released project 的 SERP 数据，返回空结果
-[analysis] total keywords 9, unique 9
-[analysis] intent cache 0 | new 9 | batches 1
-[analysis] market cache 0 | new 9 | batches 1
-[analysis] top opportunities: lessons from a 5k self-released project (40.1), hix bypass review (39.4), hix bypass ai humanizer free (35.9), official r/nfl week 3 power rankings (33.2), hix bypass humanize (30.9)
-✅ 第一步完成! 分析了 9 个热门关键词
+⚠️ 未能获取 broken country reese's book club 的 SERP 数据，返回空结果
+[analysis] total keywords 5, unique 5
+[analysis] intent cache 4 | new 1 | batches 1
+[analysis] market cache 4 | new 1 | batches 1
+[analysis] top opportunities: broken country reese's book club (33.2), hix bypass (28.1), weathertech (26.8), weatherguard (26.8), chatgpt (26.6)
+✅ 第一步完成! 分析了 5 个热门关键词
 📊 发现 0 个高机会关键词
 
 🌐 第二步: 基于热门关键词进行多平台关键词发现...
-🚫 输入种子阶段拦截 5 个品牌种子: hix bypass review, hix bypass humanize, hix bypass ai, hix bypass, hix bypass free
-ℹ️ 品牌过滤命中率 55.56% 超出阈值 30%，追加 5 个痛点手动种子
-ℹ️ 已追加 6 个配置种子关键词以满足发现需求
+🚫 输入种子阶段拦截 2 个品牌种子: hix bypass, chatgpt
+ℹ️ 品牌过滤命中率 40.00% 超出阈值 30%，追加 5 个痛点手动种子
+ℹ️ 已追加 7 个配置种子关键词以满足发现需求
 🔍 正在发现与 10 个关键词相关的关键词...
 🚀 开始多平台关键词发现...
-🔍 正在分析 Reddit r/artificial...
-🔍 正在分析 Reddit r/MachineLearning...
-🔍 正在分析 Reddit r/deeplearning...
-🔍 正在分析 Reddit r/ChatGPT...
+⚡ Reddit r/artificial 使用缓存结果
+⚡ Reddit r/MachineLearning 使用缓存结果
+⚡ Reddit r/deeplearning 使用缓存结果
+⚡ Reddit r/ChatGPT 使用缓存结果
 🔍 正在分析 Reddit r/OpenAI...
 🔍 正在分析 Hacker News (查询: ai localization quality assurance)...
-🔍 正在分析 YouTube 搜索建议 (查询: ai localization quality assurance)...
+⚡ YouTube 搜索建议 (查询: ai localization quality assurance) 使用缓存结果
 🔍 正在分析 Google 搜索建议 (查询: ai localization quality assurance)...
 🔍 正在分析 ProductHunt (查询: ai localization quality assurance)...
 🔍 正在分析 Hacker News (查询: process documentation co-pilot)...
-🔍 正在分析 YouTube 搜索建议 (查询: process documentation co-pilot)...
+⚡ YouTube 搜索建议 (查询: process documentation co-pilot) 使用缓存结果
 🔍 正在分析 Google 搜索建议 (查询: process documentation co-pilot)...
 🔍 正在分析 ProductHunt (查询: process documentation co-pilot)...
 🔍 正在分析 Hacker News (查询: regulatory compliance workflow assistant)...
-🔍 正在分析 YouTube 搜索建议 (查询: regulatory compliance workflow assistant)...
+⚡ YouTube 搜索建议 (查询: regulatory compliance workflow assistant) 使用缓存结果
 🔍 正在分析 Google 搜索建议 (查询: regulatory compliance workflow assistant)...
 🔍 正在分析 ProductHunt (查询: regulatory compliance workflow assistant)...
 🔍 正在分析 Hacker News (查询: ai cold outreach sequence template)...
-🔍 正在分析 YouTube 搜索建议 (查询: ai cold outreach sequence template)...
+⚡ YouTube 搜索建议 (查询: ai cold outreach sequence template) 使用缓存结果
 🔍 正在分析 Google 搜索建议 (查询: ai cold outreach sequence template)...
 🔍 正在分析 ProductHunt (查询: ai cold outreach sequence template)...
 🔍 正在分析 Hacker News (查询: customer onboarding automation playbook)...
@@ -156,149 +217,192 @@ tegory%22%3A+0%7D%2C+%22language%22%3A+%22en%22%2C+%22userCountryCode%22%3A+%22J
 🔍 正在分析 Google 搜索建议 (查询: customer onboarding automation playbook)...
 🔍 正在分析 ProductHunt (查询: customer onboarding automation playbook)...
 🔍 正在分析 Hacker News (查询: sales demo follow up workflow)...
-🔍 正在分析 YouTube 搜索建议 (查询: sales demo follow up workflow)...
+⚡ YouTube 搜索建议 (查询: sales demo follow up workflow) 使用缓存结果
 🔍 正在分析 Google 搜索建议 (查询: sales demo follow up workflow)...
 🔍 正在分析 ProductHunt (查询: sales demo follow up workflow)...
 🔍 正在分析 Hacker News (查询: content repurposing automation SOP)...
-🔍 正在分析 YouTube 搜索建议 (查询: content repurposing automation SOP)...
+⚡ YouTube 搜索建议 (查询: content repurposing automation SOP) 使用缓存结果
 🔍 正在分析 Google 搜索建议 (查询: content repurposing automation SOP)...
 🔍 正在分析 ProductHunt (查询: content repurposing automation SOP)...
 🔍 正在分析 Hacker News (查询: support ticket triage automation)...
-🔍 正在分析 YouTube 搜索建议 (查询: support ticket triage automation)...
+⚡ YouTube 搜索建议 (查询: support ticket triage automation) 使用缓存结果
 🔍 正在分析 Google 搜索建议 (查询: support ticket triage automation)...
 🔍 正在分析 ProductHunt (查询: support ticket triage automation)...
-🔍 正在分析 Hacker News (查询: lessons from a 5k self-released project)...
-🔍 正在分析 YouTube 搜索建议 (查询: lessons from a 5k self-released project)...
-🔍 正在分析 Google 搜索建议 (查询: lessons from a 5k self-released project)...
-🔍 正在分析 ProductHunt (查询: lessons from a 5k self-released project)...
-🔍 正在分析 Hacker News (查询: hix bypass ai humanizer free)...
-🔍 正在分析 YouTube 搜索建议 (查询: hix bypass ai humanizer free)...
-🔍 正在分析 Google 搜索建议 (查询: hix bypass ai humanizer free)...
-🔍 正在分析 ProductHunt (查询: hix bypass ai humanizer free)...
-🔍 正在分析 Hacker News (查询: official r/nfl week 3 power rankings)...
-🔍 正在分析 YouTube 搜索建议 (查询: official r/nfl week 3 power rankings)...
-🔍 正在分析 Google 搜索建议 (查询: official r/nfl week 3 power rankings)...
-🔍 正在分析 ProductHunt (查询: official r/nfl week 3 power rankings)...
-🔍 正在分析 Hacker News (查询: mommy is tired)...
-🔍 正在分析 YouTube 搜索建议 (查询: mommy is tired)...
-🔍 正在分析 Google 搜索建议 (查询: mommy is tired)...
-🔍 正在分析 ProductHunt (查询: mommy is tired)...
+🔍 正在分析 Hacker News (查询: broken country reese's book club)...
+🔍 正在分析 YouTube 搜索建议 (查询: broken country reese's book club)...
+🔍 正在分析 Google 搜索建议 (查询: broken country reese's book club)...
+🔍 正在分析 ProductHunt (查询: broken country reese's book club)...
+🔍 正在分析 Hacker News (查询: weathertech)...
+🔍 正在分析 YouTube 搜索建议 (查询: weathertech)...
+🔍 正在分析 Google 搜索建议 (查询: weathertech)...
+🔍 正在分析 ProductHunt (查询: weathertech)...
+🔍 正在分析 Hacker News (查询: weatherguard)...
+🔍 正在分析 YouTube 搜索建议 (查询: weatherguard)...
+🔍 正在分析 Google 搜索建议 (查询: weatherguard)...
+🔍 正在分析 ProductHunt (查询: weatherguard)...
 🔍 正在分析 Hacker News (查询: workflow automation bottleneck)...
 🔍 正在分析 YouTube 搜索建议 (查询: workflow automation bottleneck)...
 🔍 正在分析 Google 搜索建议 (查询: workflow automation bottleneck)...
 🔍 正在分析 ProductHunt (查询: workflow automation bottleneck)...
-⚠️ 移除了 13 个泛化头部词
-Skipping embedding stage: 4 keywords, threshold 5
-✅ 发现 4 个关键词
-🎯 发现了 4 个相关关键词
-📁 发现的关键词已保存到: output/reports\discovered_keywords_20251016_162754.csv
+🔍 正在分析 Hacker News (查询: manual reporting pain)...
+🔍 正在分析 YouTube 搜索建议 (查询: manual reporting pain)...
+🔍 正在分析 Google 搜索建议 (查询: manual reporting pain)...
+🔍 正在分析 ProductHunt (查询: manual reporting pain)...
+⚠️ 移除了 34 个泛化头部词
+2025-10-17 09:24:28 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-10-17 09:24:28 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+Batches: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  7.24it/s]
+✅ 发现 12 个关键词
+🎯 发现了 12 个相关关键词
+📁 发现的关键词已保存到: output/reports\discovered_keywords_20251017_092433.csv
 
 🔍 第三步: 对发现的关键词进行需求挖掘分析...
 🔍 正在进行新词检测...
-2025-10-16 16:27:54 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-10-16 16:27:54 - root - INFO -    关键词: ['process mining']
-2025-10-16 16:27:54 - root - INFO -    时间范围: today 12-m
-2025-10-16 16:27:54 - root - INFO -    地理位置:
-2025-10-16 16:27:56 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22process+mining%22%2C+%22geo%22%3A+%22%22%2C+%22time%22
-%3A+%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%2C+%22language%22%3A+%22en-US%22%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22CM%22%2C+%22category%22%3A+0%7D%2C+%22
-userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_LEGIT_USER%22%7D%2C+%22userCountryCode%22%3A+%22US%22%2C+%22restriction%22%3A+%7B%22geo%22%3A+%7B%22country%22%3A+%22US%22%7D%2C+%22time%22%3A+%22today+12-m%22%2C+%22originalTimeRangeForExploreUrl%22%3A+%22today+12-m%22%7D%2C+%22keywordType%22%3A+%22QUERY%22%7D "HTTP/2 200 OK"
-2025-10-16 16:28:05 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/multiline?hl=en-US&tz=360&req=%7B%22time%22%3A+%222024-10-16+2025-10-16%22%2C+%22resolution%22%3A+%22WEEK%22%2C+%22locale%22
+2025-10-17 09:24:33 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-10-17 09:24:33 - root - INFO -    关键词: ['process mining']
+2025-10-17 09:24:33 - root - INFO -    时间范围: today 12-m
+2025-10-17 09:24:33 - root - INFO -    地理位置:
+2025-10-17 09:24:34 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22process+mining%22%2C+%22geo%22%3A+%22%22%2C+%22time%22%3A+%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%7D "HTTP/2 200 OK"
+2025-10-17 09:24:37 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/multiline?hl=en-US&tz=360&req=%7B%22time%22%3A+%222024-10-17+2025-10-17%22%2C+%22resolution%22%3A+%22WEEK%22%2C+%22locale%22
 %3A+%22en-US%22%2C+%22comparisonItem%22%3A+%5B%7B%22geo%22%3A+%7B%7D%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22process+mining%22%7D%5D%7D%7D%5D%2C+%22request
-Options%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22%2C+%22category%22%3A+0%7D%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_LEGIT_USER%22%7D%2C+%22language%22%3A+%22en-US%22%2C+%22userCountryCode%22%3A+%22US%22%2C+%22restriction%22%3A+%7B%22geo%22%3A+%7B%22country%22%3A+%22US%22%7D%7D%7D&token=APP6_UEAAAAAaPH-Dlz3exMOga4QQGkB5Y1I_VB7kIPe "HTTP/2 401 Unauthorized"
-2025-10-16 16:28:05 - src.collectors.custom_trends_collector - ERROR - interest_over_time 失败: Client error '401 Unauthorized' for url 'https://trends.google.com/trends/api/widgetdata/multiline?hl=en-US&tz=360&req=%7B%22time%2
-2%3A+%222024-10-16+2025-10-16%22%2C+%22resolution%22%3A+%22WEEK%22%2C+%22locale%22%3A+%22en-US%22%2C+%22comparisonItem%22%3A+%5B%7B%22geo%22%3A+%7B%7D%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%
-3A+%22BROAD%22%2C+%22value%22%3A+%22process+mining%22%7D%5D%7D%7D%5D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22%2C+%22category%22%3A+0%7D%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_LEGIT_USER%22%7D%2C+%22language%22%3A+%22en-US%22%2C+%22userCountryCode%22%3A+%22US%22%2C+%22restriction%22%3A+%7B%22geo%22%3A+%7B%22country%22%3A+%22US%22%7D%7D%7D&token=APP6_UEAAAAAaPH-Dlz3exMOga4QQGkB5Y1I_VB7kIPe'
-For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
-2025-10-16 16:28:05 - root - WARNING - 未获取到关键词 ['process mining'] 的 Google Trends 数据
-2025-10-16 16:28:05 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['process mining'] 的 Google Trends 数据
-2025-10-16 16:28:05 - root - ERROR -    请求参数: keywords=['process mining'], timeframe=today 12-m, geo=
-2025-10-16 16:28:05 - root - WARNING - 获取 process mining (today 12-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['process mining'] 的 Google Trends 数据，终止后续尝试
-2025-10-16 16:28:05 - root - WARNING - 使用缓存趋势数据作为 process mining 的回退 (实时数据为空)
-2025-10-16 16:28:05 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-10-16 16:28:05 - root - INFO -    关键词: ['regulatory affairs']
-2025-10-16 16:28:05 - root - INFO -    时间范围: today 12-m
-2025-10-16 16:28:05 - root - INFO -    地理位置:
-2025-10-16 16:28:15 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22regulatory+affairs%22%2C+%22geo%22%3A+%22%22%2C+%22tim
-e%22%3A+%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%2C+%22language%22%3A+%22en-US%22%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22CM%22%2C+%22category%22%3A+0%7D%2C
-+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_LEGIT_USER%22%7D%2C+%22userCountryCode%22%3A+%22US%22%2C+%22restriction%22%3A+%7B%22geo%22%3A+%7B%22country%22%3A+%22US%22%7D%2C+%22time%22%3A+%22today+12-m%22%2C+%22originalTimeRangeForExploreUrl%22%3A+%22today+12-m%22%7D%2C+%22keywordType%22%3A+%22QUERY%22%7D "HTTP/2 200 OK"
-2025-10-16 16:28:25 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/multiline?hl=en-US&tz=360&req=%7B%22time%22%3A+%222024-10-16+2025-10-16%22%2C+%22resolution%22%3A+%22WEEK%22%2C+%22locale%22
+Options%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22%2C+%22category%22%3A+0%7D%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLsU7w4QJMR36zv35RXwaoLkXv-hFas "HTTP/2 200 OK"
+2025-10-17 09:24:37 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-10-17 09:24:37 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-10-17 09:24:37 - root - INFO -    关键词: ['regulatory affairs']
+2025-10-17 09:24:37 - root - INFO -    时间范围: today 12-m
+2025-10-17 09:24:37 - root - INFO -    地理位置:
+2025-10-17 09:24:39 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22regulatory+affairs%22%2C+%22geo%22%3A+%22%22%2C+%22time%22%3A+%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%7D "HTTP/2 200 OK"
+2025-10-17 09:24:43 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/multiline?hl=en-US&tz=360&req=%7B%22time%22%3A+%222024-10-17+2025-10-17%22%2C+%22resolution%22%3A+%22WEEK%22%2C+%22locale%22
 %3A+%22en-US%22%2C+%22comparisonItem%22%3A+%5B%7B%22geo%22%3A+%7B%7D%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22regulatory+affairs%22%7D%5D%7D%7D%5D%2C+%22req
-uestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22%2C+%22category%22%3A+0%7D%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_LEGIT_USER%22%7D%2C+%22language%22%3A+%22en-US%22%2C+%22userCountryCode%22%3A+%22US%22%2C+%22restriction%22%3A+%7B%22geo%22%3A+%7B%22country%22%3A+%22US%22%7D%7D%7D&token=APP6_UEAAAAAaPH-IWQnd-nn36bPIFz6CL9TxbVy4shm "HTTP/2 401 Unauthorized"
-2025-10-16 16:28:25 - src.collectors.custom_trends_collector - ERROR - interest_over_time 失败: Client error '401 Unauthorized' for url 'https://trends.google.com/trends/api/widgetdata/multiline?hl=en-US&tz=360&req=%7B%22time%2
-2%3A+%222024-10-16+2025-10-16%22%2C+%22resolution%22%3A+%22WEEK%22%2C+%22locale%22%3A+%22en-US%22%2C+%22comparisonItem%22%3A+%5B%7B%22geo%22%3A+%7B%7D%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%
-3A+%22BROAD%22%2C+%22value%22%3A+%22regulatory+affairs%22%7D%5D%7D%7D%5D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22%2C+%22category%22%3A+0%7D%2C+%22userConfig%22%3A+%7B%22userType%22%3A
-+%22USER_TYPE_LEGIT_USER%22%7D%2C+%22language%22%3A+%22en-US%22%2C+%22userCountryCode%22%3A+%22US%22%2C+%22restriction%22%3A+%7B%22geo%22%3A+%7B%22country%22%3A+%22US%22%7D%7D%7D&token=APP6_UEAAAAAaPH-IWQnd-nn36bPIFz6CL9TxbVy4shm'
-For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
-2025-10-16 16:28:25 - root - WARNING - 未获取到关键词 ['regulatory affairs'] 的 Google Trends 数据
-2025-10-16 16:28:25 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['regulatory affairs'] 的 Google Trends 数据
-2025-10-16 16:28:25 - root - ERROR -    请求参数: keywords=['regulatory affairs'], timeframe=today 12-m, geo=
-2025-10-16 16:28:25 - root - WARNING - 获取 regulatory affairs (today 12-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['regulatory affairs'] 的 Google Trends 数据，终止后续尝试
-2025-10-16 16:28:25 - root - WARNING - 使用缓存趋势数据作为 regulatory affairs 的回退 (实时数据为空)
-2025-10-16 16:28:26 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-10-16 16:28:26 - root - INFO -    关键词: ['content repurposing automation soplay']
-2025-10-16 16:28:26 - root - INFO -    时间范围: today 12-m
-2025-10-16 16:28:26 - root - INFO -    地理位置:
-2025-10-16 16:28:35 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22content+repurposing+automation+soplay%22%2C+%22geo%22%
-3A+%22%22%2C+%22time%22%3A+%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%2C+%22language%22%3A+%22en-US%22%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22CM%22%2C+%22cat
-egory%22%3A+0%7D%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_LEGIT_USER%22%7D%2C+%22userCountryCode%22%3A+%22US%22%2C+%22restriction%22%3A+%7B%22geo%22%3A+%7B%22country%22%3A+%22US%22%7D%2C+%22time%22%3A+%22today+12-m%22%2C+%22originalTimeRangeForExploreUrl%22%3A+%22today+12-m%22%7D%2C+%22keywordType%22%3A+%22QUERY%22%7D "HTTP/2 200 OK"
-2025-10-16 16:28:45 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/multiline?hl=en-US&tz=360&req=%7B%22time%22%3A+%222024-10-16+2025-10-16%22%2C+%22resolution%22%3A+%22WEEK%22%2C+%22locale%22
+uestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22%2C+%22category%22%3A+0%7D%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLsWDZVSaO1QaxIx-ejkc4RePMEDiCi "HTTP/2 200 OK"
+2025-10-17 09:24:43 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-10-17 09:24:43 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-10-17 09:24:43 - root - INFO -    关键词: ['content repurposing automation soplay']
+2025-10-17 09:24:43 - root - INFO -    时间范围: today 12-m
+2025-10-17 09:24:43 - root - INFO -    地理位置:
+2025-10-17 09:24:45 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22content+repurposing+automation+soplay%22%2C+%22geo%22%3A+%22%22%2C+%22time%22%3A+%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%7D "HTTP/2 200 OK"
+2025-10-17 09:24:49 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/multiline?hl=en-US&tz=360&req=%7B%22time%22%3A+%222024-10-17+2025-10-17%22%2C+%22resolution%22%3A+%22WEEK%22%2C+%22locale%22
 %3A+%22en-US%22%2C+%22comparisonItem%22%3A+%5B%7B%22geo%22%3A+%7B%7D%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22content+repurposing+automation+soplay%22%7D%5D
-%7D%7D%5D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22%2C+%22category%22%3A+0%7D%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_LEGIT_USER%22%7D%2C+%22language%22%3A+%22en-US%22%2C+%22userCountryCode%22%3A+%22US%22%2C+%22restriction%22%3A+%7B%22geo%22%3A+%7B%22country%22%3A+%22US%22%7D%7D%7D&token=APP6_UEAAAAAaPH-NVSkUma5Aq5m3KCTee5SV7V5Dgm1 "HTTP/2 401 Unauthorized"
-2025-10-16 16:28:46 - src.collectors.custom_trends_collector - ERROR - interest_over_time 失败: Client error '401 Unauthorized' for url 'https://trends.google.com/trends/api/widgetdata/multiline?hl=en-US&tz=360&req=%7B%22time%2
-2%3A+%222024-10-16+2025-10-16%22%2C+%22resolution%22%3A+%22WEEK%22%2C+%22locale%22%3A+%22en-US%22%2C+%22comparisonItem%22%3A+%5B%7B%22geo%22%3A+%7B%7D%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%
-3A+%22BROAD%22%2C+%22value%22%3A+%22content+repurposing+automation+soplay%22%7D%5D%7D%7D%5D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22%2C+%22category%22%3A+0%7D%2C+%22userConfig%22%3A+%
-7B%22userType%22%3A+%22USER_TYPE_LEGIT_USER%22%7D%2C+%22language%22%3A+%22en-US%22%2C+%22userCountryCode%22%3A+%22US%22%2C+%22restriction%22%3A+%7B%22geo%22%3A+%7B%22country%22%3A+%22US%22%7D%7D%7D&token=APP6_UEAAAAAaPH-NVSkUma5Aq5m3KCTee5SV7V5Dgm1'
-For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
-2025-10-16 16:28:46 - root - WARNING - 未获取到关键词 ['content repurposing automation soplay'] 的 Google Trends 数据
-2025-10-16 16:28:46 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['content repurposing automation soplay'] 的 Google Trends 数据
-2025-10-16 16:28:46 - root - ERROR -    请求参数: keywords=['content repurposing automation soplay'], timeframe=today 12-m, geo=
-2025-10-16 16:28:46 - root - WARNING - 获取 content repurposing automation soplay (today 12-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['content repurposing automation soplay'] 的 Google Trends 数据，终止后续尝试
-2025-10-16 16:28:46 - root - WARNING - 使用缓存趋势数据作为 content repurposing automation soplay 的回退 (实时数据为空)
-2025-10-16 16:28:46 - root - INFO - 🔍 正在请求Google Trends数据:
-2025-10-16 16:28:46 - root - INFO -    关键词: ['mommy hugs']
-2025-10-16 16:28:46 - root - INFO -    时间范围: today 12-m
-2025-10-16 16:28:46 - root - INFO -    地理位置:
-2025-10-16 16:28:54 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22mommy+hugs%22%2C+%22geo%22%3A+%22%22%2C+%22time%22%3A+
-%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%2C+%22language%22%3A+%22en-US%22%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22CM%22%2C+%22category%22%3A+0%7D%2C+%22user
-Config%22%3A+%7B%22userType%22%3A+%22USER_TYPE_LEGIT_USER%22%7D%2C+%22userCountryCode%22%3A+%22US%22%2C+%22restriction%22%3A+%7B%22geo%22%3A+%7B%22country%22%3A+%22US%22%7D%2C+%22time%22%3A+%22today+12-m%22%2C+%22originalTimeRangeForExploreUrl%22%3A+%22today+12-m%22%7D%2C+%22keywordType%22%3A+%22QUERY%22%7D "HTTP/2 200 OK"
-2025-10-16 16:29:03 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/multiline?hl=en-US&tz=360&req=%7B%22time%22%3A+%222024-10-16+2025-10-16%22%2C+%22resolution%22%3A+%22WEEK%22%2C+%22locale%22
-%3A+%22en-US%22%2C+%22comparisonItem%22%3A+%5B%7B%22geo%22%3A+%7B%7D%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22mommy+hugs%22%7D%5D%7D%7D%5D%2C+%22requestOpti
-ons%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22%2C+%22category%22%3A+0%7D%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_LEGIT_USER%22%7D%2C+%22language%22%3A+%22en-US%22%2C+%22userCountryCode%22%3A+%22US%22%2C+%22restriction%22%3A+%7B%22geo%22%3A+%7B%22country%22%3A+%22US%22%7D%7D%7D&token=APP6_UEAAAAAaPH-SI9j1p49t730fx6OswIeEc5rXH9I "HTTP/2 401 Unauthorized"
-2025-10-16 16:29:03 - src.collectors.custom_trends_collector - ERROR - interest_over_time 失败: Client error '401 Unauthorized' for url 'https://trends.google.com/trends/api/widgetdata/multiline?hl=en-US&tz=360&req=%7B%22time%2
-2%3A+%222024-10-16+2025-10-16%22%2C+%22resolution%22%3A+%22WEEK%22%2C+%22locale%22%3A+%22en-US%22%2C+%22comparisonItem%22%3A+%5B%7B%22geo%22%3A+%7B%7D%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%
-3A+%22BROAD%22%2C+%22value%22%3A+%22mommy+hugs%22%7D%5D%7D%7D%5D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22%2C+%22category%22%3A+0%7D%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_LEGIT_USER%22%7D%2C+%22language%22%3A+%22en-US%22%2C+%22userCountryCode%22%3A+%22US%22%2C+%22restriction%22%3A+%7B%22geo%22%3A+%7B%22country%22%3A+%22US%22%7D%7D%7D&token=APP6_UEAAAAAaPH-SI9j1p49t730fx6OswIeEc5rXH9I'
-For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
-2025-10-16 16:29:03 - root - WARNING - 未获取到关键词 ['mommy hugs'] 的 Google Trends 数据
-2025-10-16 16:29:03 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['mommy hugs'] 的 Google Trends 数据
-2025-10-16 16:29:03 - root - ERROR -    请求参数: keywords=['mommy hugs'], timeframe=today 12-m, geo=
-2025-10-16 16:29:03 - root - WARNING - 获取 mommy hugs (today 12-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['mommy hugs'] 的 Google Trends 数据，终止后续尝试
-2025-10-16 16:29:03 - root - WARNING - 获取 mommy hugs 趋势数据失败: 无法获取 mommy hugs 的趋势数据：Trends 接口返回空结果
-⚠️ 趋势惩罚: 2 个关键词将降权
+%7D%7D%5D%2C+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22%2C+%22category%22%3A+0%7D%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLsXpAsqQJOsqRuxGs574x3Eyjrd3Zt "HTTP/2 200 OK"
+2025-10-17 09:24:49 - root - WARNING - 未获取到关键词 ['content repurposing automation soplay'] 的 Google Trends 数据
+2025-10-17 09:24:49 - root - ERROR - ❌ 获取趋势数据失败: 未获取到关键词 ['content repurposing automation soplay'] 的 Google Trends 数据
+2025-10-17 09:24:49 - root - ERROR -    请求参数: keywords=['content repurposing automation soplay'], timeframe=today 12-m, geo=
+2025-10-17 09:24:49 - root - WARNING - 获取 content repurposing automation soplay (today 12-m, GLOBAL) 趋势数据失败: 未获取到关键词 ['content repurposing automation soplay'] 的 Google Trends 数据，终止后续尝试
+2025-10-17 09:24:49 - root - WARNING - 使用缓存趋势数据作为 content repurposing automation soplay 的回退 (实时数据为空)
+2025-10-17 09:24:49 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-10-17 09:24:49 - root - INFO -    关键词: ['weathertech']
+2025-10-17 09:24:49 - root - INFO -    时间范围: today 12-m
+2025-10-17 09:24:49 - root - INFO -    地理位置:
+2025-10-17 09:24:51 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22weathertech%22%2C+%22geo%22%3A+%22%22%2C+%22time%22%3A+%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%7D "HTTP/2 200 OK"
+2025-10-17 09:24:55 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/multiline?hl=en-US&tz=360&req=%7B%22time%22%3A+%222024-10-17+2025-10-17%22%2C+%22resolution%22%3A+%22WEEK%22%2C+%22locale%22
+%3A+%22en-US%22%2C+%22comparisonItem%22%3A+%5B%7B%22geo%22%3A+%7B%7D%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22weathertech%22%7D%5D%7D%7D%5D%2C+%22requestOpt
+ions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22%2C+%22category%22%3A+0%7D%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLsZFav8rKRwOrcLZiwNDsgI-IJxN1I "HTTP/2 200 OK"
+2025-10-17 09:24:55 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-10-17 09:24:55 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-10-17 09:24:55 - root - INFO -    关键词: ['weathertech sunshade']
+2025-10-17 09:24:55 - root - INFO -    时间范围: today 12-m
+2025-10-17 09:24:55 - root - INFO -    地理位置:
+2025-10-17 09:24:57 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22weathertech+sunshade%22%2C+%22geo%22%3A+%22%22%2C+%22time%22%3A+%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%7D "HTTP/2 200 OK"
+2025-10-17 09:25:01 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/multiline?hl=en-US&tz=360&req=%7B%22time%22%3A+%222024-10-17+2025-10-17%22%2C+%22resolution%22%3A+%22WEEK%22%2C+%22locale%22
+%3A+%22en-US%22%2C+%22comparisonItem%22%3A+%5B%7B%22geo%22%3A+%7B%7D%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22weathertech+sunshade%22%7D%5D%7D%7D%5D%2C+%22r
+equestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22%2C+%22category%22%3A+0%7D%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLsany2WrRM6KEgs2IprheXksaWhlIu "HTTP/2 200 OK"
+2025-10-17 09:25:01 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-10-17 09:25:01 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-10-17 09:25:01 - root - INFO -    关键词: ['weathertech championship']
+2025-10-17 09:25:01 - root - INFO -    时间范围: today 12-m
+2025-10-17 09:25:01 - root - INFO -    地理位置:
+2025-10-17 09:25:03 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22weathertech+championship%22%2C+%22geo%22%3A+%22%22%2C+%22time%22%3A+%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%7D "HTTP/2 200 OK"
+2025-10-17 09:25:07 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/multiline?hl=en-US&tz=360&req=%7B%22time%22%3A+%222024-10-17+2025-10-17%22%2C+%22resolution%22%3A+%22WEEK%22%2C+%22locale%22
+%3A+%22en-US%22%2C+%22comparisonItem%22%3A+%5B%7B%22geo%22%3A+%7B%7D%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22weathertech+championship%22%7D%5D%7D%7D%5D%2C+
+%22requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22%2C+%22category%22%3A+0%7D%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLscMmkSgZ8_W-JxnRm8X_4vC2Fa4jK "HTTP/2 200 OK"
+2025-10-17 09:25:07 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-10-17 09:25:07 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-10-17 09:25:07 - root - INFO -    关键词: ['weathertech floorliner']
+2025-10-17 09:25:07 - root - INFO -    时间范围: today 12-m
+2025-10-17 09:25:07 - root - INFO -    地理位置:
+2025-10-17 09:25:07 - src.collectors.request_rate_limiter - WARNING - ⚠️ 每分钟请求已使用 80% (12/15)
+2025-10-17 09:25:09 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22weathertech+floorliner%22%2C+%22geo%22%3A+%22%22%2C+%22time%22%3A+%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%7D "HTTP/2 200 OK"
+2025-10-17 09:25:13 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/multiline?hl=en-US&tz=360&req=%7B%22time%22%3A+%222024-10-17+2025-10-17%22%2C+%22resolution%22%3A+%22WEEK%22%2C+%22locale%22
+%3A+%22en-US%22%2C+%22comparisonItem%22%3A+%5B%7B%22geo%22%3A+%7B%7D%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22weathertech+floorliner%22%7D%5D%7D%7D%5D%2C+%2
+2requestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22%2C+%22category%22%3A+0%7D%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLsdlPKr6dlou1jv-79p9EUnWwowgxX "HTTP/2 200 OK"
+2025-10-17 09:25:13 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-10-17 09:25:13 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-10-17 09:25:13 - root - INFO -    关键词: ['weathertech mats']
+2025-10-17 09:25:13 - root - INFO -    时间范围: today 12-m
+2025-10-17 09:25:13 - root - INFO -    地理位置:
+2025-10-17 09:25:15 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22weathertech+mats%22%2C+%22geo%22%3A+%22%22%2C+%22time%22%3A+%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%7D "HTTP/2 200 OK"
+2025-10-17 09:25:34 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/multiline?hl=en-US&tz=360&req=%7B%22time%22%3A+%222024-10-17+2025-10-17%22%2C+%22resolution%22%3A+%22WEEK%22%2C+%22locale%22
+%3A+%22en-US%22%2C+%22comparisonItem%22%3A+%5B%7B%22geo%22%3A+%7B%7D%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22weathertech+mats%22%7D%5D%7D%7D%5D%2C+%22reque
+stOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22%2C+%22category%22%3A+0%7D%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLsfLExPD-8fCZdl_r1ziqw-t9teYPL "HTTP/2 200 OK"
+2025-10-17 09:25:34 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-10-17 09:25:34 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-10-17 09:25:34 - root - INFO -    关键词: ['weatherguard']
+2025-10-17 09:25:34 - root - INFO -    时间范围: today 12-m
+2025-10-17 09:25:34 - root - INFO -    地理位置:
+2025-10-17 09:25:36 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22weatherguard%22%2C+%22geo%22%3A+%22%22%2C+%22time%22%3A+%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%7D "HTTP/2 200 OK"
+2025-10-17 09:25:40 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/multiline?hl=en-US&tz=360&req=%7B%22time%22%3A+%222024-10-17+2025-10-17%22%2C+%22resolution%22%3A+%22WEEK%22%2C+%22locale%22
+%3A+%22en-US%22%2C+%22comparisonItem%22%3A+%5B%7B%22geo%22%3A+%7B%7D%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22weatherguard%22%7D%5D%7D%7D%5D%2C+%22requestOp
+tions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22%2C+%22category%22%3A+0%7D%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLskf2djF7Cggzkkfw4doXcXd26h6bL "HTTP/2 200 OK"
+2025-10-17 09:25:40 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-10-17 09:25:40 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-10-17 09:25:40 - root - INFO -    关键词: ['weatherguard roofing']
+2025-10-17 09:25:40 - root - INFO -    时间范围: today 12-m
+2025-10-17 09:25:40 - root - INFO -    地理位置:
+2025-10-17 09:25:42 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22weatherguard+roofing%22%2C+%22geo%22%3A+%22%22%2C+%22time%22%3A+%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%7D "HTTP/2 200 OK"
+2025-10-17 09:25:46 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/multiline?hl=en-US&tz=360&req=%7B%22time%22%3A+%222024-10-17+2025-10-17%22%2C+%22resolution%22%3A+%22WEEK%22%2C+%22locale%22
+%3A+%22en-US%22%2C+%22comparisonItem%22%3A+%5B%7B%22geo%22%3A+%7B%7D%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22weatherguard+roofing%22%7D%5D%7D%7D%5D%2C+%22r
+equestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22%2C+%22category%22%3A+0%7D%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLsl7niI_FNvUoftoU4_nhWBSW5OAQ_ "HTTP/2 200 OK"
+2025-10-17 09:25:46 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-10-17 09:25:46 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-10-17 09:25:46 - root - INFO -    关键词: ['weatherguard paint']
+2025-10-17 09:25:46 - root - INFO -    时间范围: today 12-m
+2025-10-17 09:25:46 - root - INFO -    地理位置:
+2025-10-17 09:25:48 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22weatherguard+paint%22%2C+%22geo%22%3A+%22%22%2C+%22time%22%3A+%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%7D "HTTP/2 200 OK"
+2025-10-17 09:25:52 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/multiline?hl=en-US&tz=360&req=%7B%22time%22%3A+%222024-10-17+2025-10-17%22%2C+%22resolution%22%3A+%22WEEK%22%2C+%22locale%22
+%3A+%22en-US%22%2C+%22comparisonItem%22%3A+%5B%7B%22geo%22%3A+%7B%7D%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22weatherguard+paint%22%7D%5D%7D%7D%5D%2C+%22req
+uestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22%2C+%22category%22%3A+0%7D%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLsnYaV7HHg98FH56E6STYPOP0kbu0T "HTTP/2 200 OK"
+2025-10-17 09:25:52 - root - INFO - ✅ 成功获取到 53 条趋势数据
+2025-10-17 09:25:52 - root - INFO - 🔍 正在请求Google Trends数据:
+2025-10-17 09:25:52 - root - INFO -    关键词: ['weatherguard windows']
+2025-10-17 09:25:52 - root - INFO -    时间范围: today 12-m
+2025-10-17 09:25:52 - root - INFO -    地理位置:
+2025-10-17 09:25:54 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/explore?hl=en-US&tz=360&req=%7B%22comparisonItem%22%3A+%5B%7B%22keyword%22%3A+%22weatherguard+windows%22%2C+%22geo%22%3A+%22%22%2C+%22time%22%3A+%22today+12-m%22%7D%5D%2C+%22category%22%3A+0%2C+%22property%22%3A+%22%22%7D "HTTP/2 200 OK"
+2025-10-17 09:25:58 - httpx - INFO - HTTP Request: GET https://trends.google.com/trends/api/widgetdata/multiline?hl=en-US&tz=360&req=%7B%22time%22%3A+%222024-10-17+2025-10-17%22%2C+%22resolution%22%3A+%22WEEK%22%2C+%22locale%22
+%3A+%22en-US%22%2C+%22comparisonItem%22%3A+%5B%7B%22geo%22%3A+%7B%7D%2C+%22complexKeywordsRestriction%22%3A+%7B%22keyword%22%3A+%5B%7B%22type%22%3A+%22BROAD%22%2C+%22value%22%3A+%22weatherguard+windows%22%7D%5D%7D%7D%5D%2C+%22r
+equestOptions%22%3A+%7B%22property%22%3A+%22%22%2C+%22backend%22%3A+%22IZG%22%2C+%22category%22%3A+0%7D%2C+%22userConfig%22%3A+%7B%22userType%22%3A+%22USER_TYPE_SCRAPER%22%7D%7D&token=APP6_UEAAAAAaPLsowRjPLskki2ENUaSGaGiO4Fq1jC3 "HTTP/2 200 OK"
+2025-10-17 09:25:58 - root - INFO - ✅ 成功获取到 53 条趋势数据
+⚠️ 趋势惩罚: 3 个关键词将降权
 🚀 开始关键词分析 - 类型: file, 综合分析: False
-✅ 成功读取 4 条关键词数据
-2025-10-16 16:29:03 - root - INFO - 开始搜索意图V2分析，共 4 个关键词
+✅ 成功读取 12 条关键词数据
+2025-10-17 09:25:58 - root - INFO - 开始搜索意图V2分析，共 10 个关键词
 ⚠️ 未能获取 process mining 的 SERP 数据，返回空结果
 ⚠️ 未能获取 regulatory affairs 的 SERP 数据，返回空结果
 ⚠️ 未能获取 content repurposing automation soplay 的 SERP 数据，返回空结果
-⚠️ 未能获取 mommy hugs 的 SERP 数据，返回空结果
-[analysis] total keywords 4, unique 4
-[analysis] intent cache 0 | new 4 | batches 1
-[analysis] market cache 0 | new 4 | batches 1
-[analysis] top opportunities: process mining (37.7), regulatory affairs (29.2), content repurposing automation soplay (13.7), mommy hugs (8.5)
+⚠️ 未能获取 weathertech sunshade 的 SERP 数据，返回空结果
+⚠️ 未能获取 weathertech championship 的 SERP 数据，返回空结果
+⚠️ 未能获取 weathertech floorliner 的 SERP 数据，返回空结果
+⚠️ 未能获取 weathertech mats 的 SERP 数据，返回空结果
+⚠️ 未能获取 weatherguard roofing 的 SERP 数据，返回空结果
+⚠️ 未能获取 weatherguard paint 的 SERP 数据，返回空结果
+⚠️ 未能获取 weatherguard windows 的 SERP 数据，返回空结果
+[analysis] total keywords 12, unique 12
+[analysis] intent cache 2 | new 10 | batches 1
+[analysis] market cache 2 | new 10 | batches 1
+[analysis] top opportunities: process mining (37.7), regulatory affairs (29.2), weatherguard paint (29.2), weathertech sunshade (28.2), weathertech mats (28.2)
 🔍 正在进行新词检测...
-⚠️ 关键词 mommy hugs 最近趋势量级几乎为0，建议补充流量验证。
-✅ 新词检测完成: 发现 0 个新词 (0 个高置信度, 3 个 Breakout)
+✅ 新词检测完成: 发现 0 个新词 (0 个高置信度, 8 个 Breakout)
 
 🎉 完整工作流程完成!
-📊 热门关键词分析: 9 个关键词
-🌐 多平台发现: 4 个相关关键词
-🎯 最终分析: 4 个关键词
+📊 热门关键词分析: 5 个关键词
+🌐 多平台发现: 12 个相关关键词
+🎯 最终分析: 12 个关键词
 🏆 总计高机会关键词: 0 个
-📈 平均机会分数: 18.38
+📈 平均机会分数: 22.63
 
 🏆 Top 5 最终机会关键词:
    1. process mining (分数: 37.68, 意图: I)
    2. regulatory affairs (分数: 29.2, 意图: I)
-   3. content repurposing automation soplay (分数: 4.11, 意图: I)
-   4. mommy hugs (分数: 2.54, 意图: I)
+   3. weatherguard paint (分数: 29.2, 意图: I)
+   4. weathertech sunshade (分数: 28.2, 意图: I)
+   5. weathertech championship (分数: 28.2, 意图: I)
 [Dashboard] 数据已刷新: D:\VscodeWorkspace\find_demand\output\reports\dashboard_data.json
